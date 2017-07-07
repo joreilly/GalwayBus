@@ -1,5 +1,7 @@
 package com.surrus.galwaybus.service
 
+import com.google.gson.FieldNamingPolicy
+import com.google.gson.GsonBuilder
 import com.surrus.galwaybus.model.GetDeparturesResponse
 import com.surrus.galwaybus.model.GetStopsResponse
 import com.surrus.galwaybus.model.BusRoute
@@ -16,9 +18,13 @@ class GalwayBusService constructor() {
     private val galwayBusResetInterface: GalwayBusRestInterface
 
     init {
+        val gson = GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .create()
+
         val retrofit = Retrofit.Builder()
                 .baseUrl("http://galwaybus.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build()
 
@@ -26,7 +32,7 @@ class GalwayBusService constructor() {
     }
 
 
-    val routes: Observable<Map<String, BusRoute>> get() = galwayBusResetInterface.getRoutes()
+    fun getRoutes()  = galwayBusResetInterface.getRoutes()
 
     fun getStops(routeId: Int) {
 

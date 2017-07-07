@@ -73,6 +73,12 @@ dependencies {
     compile "com.squareup.retrofit2:converter-scalars:2.3.0"
     compile 'com.google.code.gson:gson:2.6.2'
 
+    implementation "android.arch.lifecycle:runtime:1.0.0-alpha3"
+    implementation "android.arch.lifecycle:extensions:1.0.0-alpha3"
+    implementation "android.arch.lifecycle:reactivestreams:1.0.0-alpha3"
+
+    annotationProcessor "android.arch.lifecycle:compiler:1.0.0-alpha3"
+
 
     compile "com.google.dagger:dagger-android:$DAGGER_VERSION"
     compile "com.google.dagger:dagger-android-support:$DAGGER_VERSION"

@@ -10,14 +10,16 @@
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="0dp"
+        android:layout_weight="0.35"
         tools:context="com.surrus.galwaybus.ui.HomeActivity" />
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/busTimesList"
         android:layout_width="match_parent"
-        android:layout_height="200dp">
+        android:layout_height="0dp"
+        android:layout_weight="0.65">
     </android.support.v7.widget.RecyclerView>
 
 </LinearLayout>
