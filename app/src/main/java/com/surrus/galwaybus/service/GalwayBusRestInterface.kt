@@ -5,6 +5,7 @@ import com.surrus.galwaybus.model.GetDeparturesResponse
 import com.surrus.galwaybus.model.GetStopsResponse
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -13,6 +14,8 @@ interface GalwayBusRestInterface {
     @GET("/routes.json")
     fun getRoutes(): Flowable<Map<String, BusRoute>>
 
+    @GET("/routes.json")
+    fun getRoutes2(): Call<Map<String, BusRoute>>
 
     @GET("/routes/{route_id}.json")
     fun getStops(@Path("route_id") routeId: Int, cb: Observable<GetStopsResponse>)

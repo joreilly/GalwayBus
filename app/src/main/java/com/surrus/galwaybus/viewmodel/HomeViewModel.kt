@@ -15,10 +15,13 @@ class HomeViewModel : ViewModel() {
     val routes: LiveData<Map<String,BusRoute>>
 
     init {
+        routes = galwayBusService.getRoutes2();
+/*
         routes = galwayBusService.getRoutes()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .toLiveData();
+*/
     }
 
 }

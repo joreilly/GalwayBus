@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.surrus.galwaybus.model.GetDeparturesResponse
 import com.surrus.galwaybus.model.GetStopsResponse
 import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.util.RetrofitLiveData
 import io.reactivex.Observable
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,6 +34,8 @@ class GalwayBusService constructor() {
 
 
     fun getRoutes()  = galwayBusResetInterface.getRoutes()
+
+    fun getRoutes2() : RetrofitLiveData<Map<String, BusRoute>> = RetrofitLiveData(galwayBusResetInterface.getRoutes2())
 
     fun getStops(routeId: Int) {
 
