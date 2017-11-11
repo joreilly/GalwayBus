@@ -2,11 +2,8 @@ package com.surrus.galwaybus.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.arch.lifecycle.LifecycleActivity
-import android.arch.lifecycle.LifecycleRegistryOwner
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import android.view.View
 
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -21,40 +18,42 @@ import com.surrus.galwaybus.R
 import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import com.surrus.galwaybus.util.ext.observe
-import com.surrus.galwaybus.viewmodel.HomeViewModel
+import com.surrus.galwaybus.ui.viewmodel.HomeViewModel
+import com.surrus.galwaybus.ui.viewmodel.HomeViewModelFactory
+import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
+import javax.inject.Inject
 
 
-class HomeActivity : AppCompatActivity(), LifecycleRegistryOwner, OnMapReadyCallback {
+class HomeActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private val lifecycleRegistry by lazy { android.arch.lifecycle.LifecycleRegistry(this) }
+    @Inject lateinit var viewModelFactory: HomeViewModelFactory
     private lateinit var viewModel : HomeViewModel
 
     private lateinit var map: GoogleMap
-    private lateinit var parentLayout: View
 
     private lateinit var busTimesAdapter: BusTimesRecyclerViewAdapter
 
 
-    override fun getLifecycle() = lifecycleRegistry
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        AndroidInjection.inject(this)
 
-        parentLayout = findViewById<View>(android.R.id.content)
+        viewModel = ViewModelProviders.of(this, viewModelFactory).get(HomeViewModel::class.java)
 
-        viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java!!)
 
-        viewModel.routes.observe(this) {
-            with (busTimesList) {
-                setHasFixedSize(true)
-                layoutManager = LinearLayoutManager(this@HomeActivity)
-                busTimesAdapter = BusTimesRecyclerViewAdapter()
-                busTimesAdapter.busRouteList = ArrayList(it?.values)
-                adapter = busTimesAdapter
-            }
+        with (busTimesList) {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this@HomeActivity)
+            busTimesAdapter = BusTimesRecyclerViewAdapter()
+            adapter = busTimesAdapter
+        }
 
+        viewModel.getBusRoutes().observe(this) {
+            busTimesAdapter.busRouteList = ArrayList(it)
+            busTimesAdapter.notifyDataSetChanged()
         }
 
 
@@ -81,7 +80,8 @@ class HomeActivity : AppCompatActivity(), LifecycleRegistryOwner, OnMapReadyCall
 
         map.isMyLocationEnabled = true
 
-        // Add a marker in Sydney and move the camera
+
+        // TEMP location for now
         val sydney = LatLng(53.27, -9.05)
         map.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         map.moveCamera(CameraUpdateFactory.newLatLng(sydney))

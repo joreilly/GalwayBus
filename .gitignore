@@ -1,1 +1,11 @@
 **/*/res/values/secrets.xml
+.gradle
+.idea
+/local.properties
+*iml
+*.iml
+*/build
+build/
+.DS_Store
+
+

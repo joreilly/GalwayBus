@@ -1,17 +1,16 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'com.google.firebase.firebase-crash'
-apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'kotlin-kapt'
 
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.0"
+    compileSdkVersion project.compileSdkVersion
+    buildToolsVersion project.buildToolsVersion
     defaultConfig {
         applicationId "com.surrus.galwaybus"
-        minSdkVersion 19
-        targetSdkVersion 26
+        minSdkVersion project.minSdkVersion
+        targetSdkVersion project.targetSdkVersion
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -28,12 +27,10 @@ android {
 
 }
 
-ext {
-    JUNIT_VERSION = '4.12'
-    DAGGER_VERSION = '2.11'
-    SUPPORT_VERSION = "26.0.0-beta2"
-    PLAY_SERVICES_VERSION = '11.0.2'
+kapt {
+    correctErrorTypes = true
 }
+
 
 
 dependencies {
@@ -42,47 +39,56 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation "com.android.support:appcompat-v7:$SUPPORT_VERSION"
-    testImplementation "junit:junit:$JUNIT_VERSION"
-    testCompile "org.robolectric:robolectric:3.3"
-    testCompile "org.robolectric:shadows-multidex:3.1.4"
-    testCompile "org.robolectric:shadows-play-services:3.1.4"
-    testCompile "org.mockito:mockito-core:2.2.17"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlin_version}"
+    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
+    testImplementation "junit:junit:${junitVersion}"
+    testImplementation "org.robolectric:robolectric:${robolectricVersion}"
+    //testImplementation "org.robolectric:shadows-multidex:3.1.4"
+    //testImplementation "org.robolectric:shadows-play-services:3.1.4"
+    testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
+    testImplementation "com.nhaarman:mockito-kotlin:${mockitoKotlinVersion}"
 
 
-    compile "com.google.firebase:firebase-core:$PLAY_SERVICES_VERSION"
-    compile "com.google.firebase:firebase-auth:$PLAY_SERVICES_VERSION"
-    compile "com.google.firebase:firebase-database:$PLAY_SERVICES_VERSION"
-    compile "com.google.firebase:firebase-storage:$PLAY_SERVICES_VERSION"
-    compile "com.google.firebase:firebase-perf:$PLAY_SERVICES_VERSION"
-    compile "com.google.firebase:firebase-crash:$PLAY_SERVICES_VERSION"
-    compile 'com.firebaseui:firebase-ui-auth:2.0.1'
+    implementation "com.google.firebase:firebase-core:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-auth:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-database:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-storage:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-perf:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-crash:${playServicesVersion}"
+    implementation 'com.firebaseui:firebase-ui-auth:3.0.0'
 
-    implementation "com.google.android.gms:play-services-maps:$PLAY_SERVICES_VERSION"
+    implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
 
-    compile 'com.karumi:dexter:4.1.0'
+    implementation 'com.karumi:dexter:4.1.0'
 
-    compile "io.reactivex.rxjava2:rxjava:2.1.1"
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'
-    compile 'com.squareup.retrofit2:retrofit:2.3.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
-    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
-    compile "com.squareup.retrofit2:converter-scalars:2.3.0"
-    compile 'com.google.code.gson:gson:2.6.2'
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'
+    implementation "com.squareup.retrofit2:retrofit:${retrofitVersion}"
+    implementation "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}"
+    implementation "com.squareup.retrofit2:converter-scalars:${retrofitVersion}"
+    implementation "com.google.code.gson:gson:2.6.2"
 
-    implementation "android.arch.lifecycle:runtime:1.0.0-alpha3"
-    implementation "android.arch.lifecycle:extensions:1.0.0-alpha3"
-    implementation "android.arch.lifecycle:reactivestreams:1.0.0-alpha3"
+    implementation "android.arch.lifecycle:runtime:${archComponentsVersion}"
+    implementation "android.arch.lifecycle:extensions:${archComponentsVersion}"
+    implementation "android.arch.lifecycle:reactivestreams:${archComponentsVersion}"
+    implementation "android.arch.persistence.room:runtime:${archComponentsVersion}"
+    annotationProcessor "android.arch.persistence.room:compiler:${archComponentsVersion}"
+    kapt "android.arch.persistence.room:compiler:${archComponentsVersion}"
+    implementation "android.arch.persistence.room:rxjava2:${archComponentsVersion}"
 
-    annotationProcessor "android.arch.lifecycle:compiler:1.0.0-alpha3"
+    annotationProcessor "android.arch.lifecycle:compiler:1.0.0"
+    testImplementation "android.arch.core:core-testing:1.0.0"
 
 
-    compile "com.google.dagger:dagger-android:$DAGGER_VERSION"
-    compile "com.google.dagger:dagger-android-support:$DAGGER_VERSION"
-    annotationProcessor "com.google.dagger:dagger-android-processor:$DAGGER_VERSION"
+    implementation "com.google.dagger:dagger-android:${daggerVersion}"
+    implementation "com.google.dagger:dagger-android-support:${daggerVersion}"
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
+    kapt "com.google.dagger:dagger-android-support:${daggerVersion}"
+    kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
+
 }
 
 apply plugin: 'com.google.gms.google-services'

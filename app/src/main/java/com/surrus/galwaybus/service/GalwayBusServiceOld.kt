@@ -1,41 +1,14 @@
 package com.surrus.galwaybus.service
 
-import com.google.gson.FieldNamingPolicy
-import com.google.gson.GsonBuilder
-import com.surrus.galwaybus.model.GetDeparturesResponse
-import com.surrus.galwaybus.model.GetStopsResponse
-import com.surrus.galwaybus.model.BusRoute
-import com.surrus.galwaybus.util.RetrofitLiveData
-import io.reactivex.Observable
+import com.surrus.galwaybus.remote.GalwayBusService
 import javax.inject.Inject
-import javax.inject.Singleton
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 
 
-class GalwayBusService constructor() {
+open class GalwayBusServiceOld @Inject constructor(val galwayBusRestInterface: GalwayBusService) {
 
-    private val galwayBusResetInterface: GalwayBusRestInterface
+    //fun getRoutes()  = galwayBusRestInterface.getRoutes()
 
-    init {
-        val gson = GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create()
-
-        val retrofit = Retrofit.Builder()
-                .baseUrl("http://galwaybus.herokuapp.com/")
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .build()
-
-        galwayBusResetInterface = retrofit.create(GalwayBusRestInterface::class.java)
-    }
-
-
-    fun getRoutes()  = galwayBusResetInterface.getRoutes()
-
-    fun getRoutes2() : RetrofitLiveData<Map<String, BusRoute>> = RetrofitLiveData(galwayBusResetInterface.getRoutes2())
+    //open fun getRoutes2() : RetrofitLiveData<Map<String, BusRoute>> = RetrofitLiveData(galwayBusRestInterface.getRoutes2())
 
     fun getStops(routeId: Int) {
 

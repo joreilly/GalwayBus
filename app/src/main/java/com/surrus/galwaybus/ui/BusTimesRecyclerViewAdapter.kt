@@ -11,22 +11,7 @@ import kotlinx.android.synthetic.main.bus_times_list_item.view.*
 
 class BusTimesRecyclerViewAdapter : RecyclerView.Adapter<BusTimesRecyclerViewAdapter.ViewHolder>() {
 
-    var busRouteList: List<BusRoute>? = null
-
-
-
-//    private val mItems: MutableList<Item>
-//    private val mOnClickListener: View.OnClickListener
-
-    init {
-//        mItems = ItemRepository.getAll()
-//        mOnClickListener = View.OnClickListener { v ->
-//            val item = v.tag as Item
-//            item.updatedAt = Calendar.getInstance()
-//            item.save()
-//            notifyDataSetChanged()
-//        }
-    }
+    var busRouteList: List<BusRoute> = arrayListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -34,15 +19,14 @@ class BusTimesRecyclerViewAdapter : RecyclerView.Adapter<BusTimesRecyclerViewAda
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val busRoute = busRouteList!![position]
+        val busRoute = busRouteList[position]
 
-        holder.title.text = busRoute.longName;
+        holder.title.text = busRoute.longName + " (" + busRoute.timetableId + ")";
     }
 
     override fun getItemCount(): Int {
-        return busRouteList!!.size
+        return busRouteList.size
     }
-
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val title = view.title
