@@ -1,9 +1,3 @@
 package com.surrus.galwaybus.model
 
-class GetStopsResponse {
-
-    var route: BusRoute? = null
-        internal set
-    var stops: List<List<BusStop>>? = null
-        internal set
-}
+data class GetStopsResponse(val route: BusRoute, val stops: List<List<BusStop>>)

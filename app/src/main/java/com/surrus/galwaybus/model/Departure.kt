@@ -1,7 +1,4 @@
 package com.surrus.galwaybus.model
 
-class Departure {
-    val timetableId: Int = 0
-    val displayName: String? = null
-    val departTimestamp: String? = null
-}
+data class Departure(val timetableId: String, val displayName: String, val departTimestamp: String)
+

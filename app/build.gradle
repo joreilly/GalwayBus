@@ -35,11 +35,17 @@ kapt {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    androidTestImplementation ('com.android.support.test.espresso:espresso-core:2.2.2', {
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlin_version}"
+    implementation "org.jetbrains.anko:anko:0.10.3"
+    implementation "org.jetbrains.anko:anko-commons:0.10.3"
+    implementation "org.jetbrains.anko:anko-appcompat-v7-commons:0.10.3"
+
+
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     testImplementation "junit:junit:${junitVersion}"
     testImplementation "org.robolectric:robolectric:${robolectricVersion}"

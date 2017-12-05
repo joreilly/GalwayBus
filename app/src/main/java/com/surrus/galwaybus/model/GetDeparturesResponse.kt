@@ -1,8 +1,5 @@
 package com.surrus.galwaybus.model
 
 
-class GetDeparturesResponse {
+data class GetDeparturesResponse(val stop: BusStop, val departureTimes: List<Departure>)
 
-    val stop: BusStop? = null
-    val departureTimes: List<Departure>? = null
-}

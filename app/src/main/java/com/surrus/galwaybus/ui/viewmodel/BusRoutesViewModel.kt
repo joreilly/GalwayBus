@@ -9,7 +9,7 @@ import io.reactivex.subscribers.DisposableSubscriber
 import javax.inject.Inject
 
 
-class HomeViewModel @Inject constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
+class BusRoutesViewModel @Inject constructor(getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
 
     private val busRoutes: MutableLiveData<List<BusRoute>> = MutableLiveData()
 
@@ -23,7 +23,6 @@ class HomeViewModel @Inject constructor(private val getBusRoutesUseCase: GetBusR
 
 
     override fun onCleared() {
-        //getBufferoos.dispose()
         super.onCleared()
     }
 
@@ -37,10 +36,7 @@ class HomeViewModel @Inject constructor(private val getBusRoutesUseCase: GetBusR
         }
 
         override fun onError(exception: Throwable) {
-
         }
-
     }
-
 
 }

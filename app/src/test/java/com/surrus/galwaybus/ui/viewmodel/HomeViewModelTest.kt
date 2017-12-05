@@ -4,7 +4,6 @@ import android.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockito_kotlin.*
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.model.BusRoute
-import com.surrus.galwaybus.ui.viewmodel.HomeViewModel
 import io.reactivex.subscribers.DisposableSubscriber
 import org.junit.Test
 
@@ -25,13 +24,13 @@ class HomeViewModelTest {
     @Captor
     private lateinit var captor: KArgumentCaptor<DisposableSubscriber<List<BusRoute>>>
 
-    private lateinit var homeViewModel: HomeViewModel
+    private lateinit var homeViewModel: BusRoutesViewModel
 
     @Before
     fun setUp() {
         captor = argumentCaptor<DisposableSubscriber<List<BusRoute>>>()
         getBusRoutesUseCase = mock()
-        homeViewModel = HomeViewModel(getBusRoutesUseCase)
+        homeViewModel = BusRoutesViewModel(getBusRoutesUseCase)
     }
 
 
