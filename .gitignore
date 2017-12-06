@@ -18,3 +18,4 @@ fastlane/metadata/android/screenshots.html
 app/release
 
 GooglePlayAndroidDeveloper-*.json
+api-project-*.json
