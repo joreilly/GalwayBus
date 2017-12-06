@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">Galway Bus</string>
     <string name="title_activity_home">Galway Bus</string>
+
+
+    <string name="title_nav_nearby">Nearby</string>
+    <string name="title_nav_routes">Routes</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>

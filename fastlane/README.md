@@ -50,6 +50,11 @@ Deploy a new version to the Google Play
 fastlane android deployAlpha
 ```
 Deploy app to play store alpha channel
+### android promoteAppToProd
+```
+fastlane android promoteAppToProd
+```
+Promote app from alpha to production in Play Store
 ### android screenshots
 ```
 fastlane android screenshots

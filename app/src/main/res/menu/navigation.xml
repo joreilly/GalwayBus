@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_nearby"
+        android:icon="@drawable/ic_near_me"
+        android:title="@string/title_nav_nearby" />
+
+    <item
+        android:id="@+id/navigation_routes"
+        android:icon="@drawable/ic_bus"
+        android:title="@string/title_nav_routes" />
+
+</menu>
