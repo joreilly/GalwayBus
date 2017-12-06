@@ -15,7 +15,7 @@ import org.mockito.Captor
 import org.mockito.Mock
 
 @RunWith(JUnit4::class)
-class HomeViewModelTest {
+class BusRoutesViewModelTest {
 
     @get:Rule var instantTaskExecutorRule = InstantTaskExecutorRule()
 
@@ -24,13 +24,13 @@ class HomeViewModelTest {
     @Captor
     private lateinit var captor: KArgumentCaptor<DisposableSubscriber<List<BusRoute>>>
 
-    private lateinit var homeViewModel: BusRoutesViewModel
+    private lateinit var busRoutesViewModel: BusRoutesViewModel
 
     @Before
     fun setUp() {
         captor = argumentCaptor<DisposableSubscriber<List<BusRoute>>>()
         getBusRoutesUseCase = mock()
-        homeViewModel = BusRoutesViewModel(getBusRoutesUseCase)
+        busRoutesViewModel = BusRoutesViewModel(getBusRoutesUseCase)
     }
 
 
@@ -43,7 +43,7 @@ class HomeViewModelTest {
         verify(getBusRoutesUseCase).execute(captor.capture(), eq(null))
         captor.firstValue.onNext(busRouteList)
 
-        assert(homeViewModel.getBusRoutes().value == busRouteList)
+        assert(busRoutesViewModel.getBusRoutes().value == busRouteList)
     }
 
 }

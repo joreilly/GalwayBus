@@ -7,6 +7,19 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
+
+
+    signingConfigs {
+        config {
+            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
+            keyAlias 'GalwayBusAndroidKey'
+            keyPassword 'Tonagh12'
+            storePassword 'Tonagh11'
+            v2SigningEnabled true
+        }
+    }
+
+
     defaultConfig {
         applicationId "com.surrus.galwaybus"
         minSdkVersion project.minSdkVersion
@@ -22,6 +35,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
 
@@ -63,6 +77,7 @@ dependencies {
     implementation "com.google.firebase:firebase-crash:${playServicesVersion}"
     implementation 'com.firebaseui:firebase-ui-auth:3.0.0'
 
+    implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
     implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
 
     implementation 'com.karumi:dexter:4.1.0'

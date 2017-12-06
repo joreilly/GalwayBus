@@ -6,6 +6,8 @@ import android.arch.lifecycle.ViewModelProviders
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -30,7 +32,12 @@ import kotlinx.android.synthetic.main.activity_bus_stop_list.*
 import javax.inject.Inject
 
 
+
+
 class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
+
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private lateinit var map: GoogleMap
 
@@ -45,10 +52,14 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
 
 
+    @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(com.surrus.galwaybus.R.layout.activity_bus_stop_list)
+        setContentView(R.layout.activity_bus_stop_list)
         AndroidInjection.inject(this)
+
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         busStopsViewModel = ViewModelProviders.of(this, busStopsViewModelFactory).get(BusStopsViewModel::class.java)
 
@@ -63,23 +74,21 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         setTitle(routeId)
 
 
-
+        // initialize recycler view
         with (busStopsList) {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(this@BusStopListActivity)
-
             busStopsAdapter = BusStopsRecyclerViewAdapter()
             adapter = busStopsAdapter
         }
 
 
+        // subscribe to updates
         nearestBusStopsViewModel.busStops.observe(this) {
             busStopsAdapter.busStopList = it!!
             busStopsAdapter.notifyDataSetChanged()
         }
 
-        val location = Location(53.258f, -9.058f)
-        nearestBusStopsViewModel.fetchNearestBusStops(location)
 
 
 /*
@@ -94,7 +103,15 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(object : BasePermissionListener() {
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+
+                        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                            if (location != null) {
+                                val myLocation = Location(location.latitude, location.longitude)
+                                nearestBusStopsViewModel.fetchNearestBusStops(myLocation)
+                            }
+                        }
+
                         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
                         mapFragment.getMapAsync(this@BusStopListActivity)
                     }
@@ -102,7 +119,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    protected override fun onSaveInstanceState(outState: Bundle) {
+    override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(Constants.ROUTE_ID, routeId)
         super.onSaveInstanceState(outState)
     }
@@ -123,20 +140,20 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     */
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
         map.isMyLocationEnabled = true
 
 
-        busStopsViewModel.busStops.observe(this) {
-            updateMap(it!!.get(0))
+        nearestBusStopsViewModel.busStops.observe(this) {
+            updateMap(it!!)
         }
+
+
+//        busStopsViewModel.busStops.observe(this) {
+//            updateMap(it!!.get(0))
+//        }
     }
 
 }

@@ -13,6 +13,6 @@ open class GetNearestBusStopsUseCase @Inject constructor(val galwayRepository: G
         FlowableUseCase<List<BusStop>, Location>(executorThread, postExecutionThread) {
 
     override fun buildUseCaseObservable(location: Location?): Flowable<List<BusStop>> {
-        return galwayRepository.getNearestBusStops(location!!.latitude, location!!.longitude)
+        return galwayRepository.getNearestBusStops(location!!)
     }
 }

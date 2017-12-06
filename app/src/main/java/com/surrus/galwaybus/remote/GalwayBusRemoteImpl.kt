@@ -4,6 +4,7 @@ import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Departure
+import com.surrus.galwaybus.model.Location
 import io.reactivex.Flowable
 import javax.inject.Inject
 
@@ -28,8 +29,8 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
                 }
     }
 
-    override fun getNearestBusStops(latitude: Float, longitude: Float): Flowable<List<BusStop>> {
-        return galwayBusService.getNearestStops(latitude, longitude)
+    override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
+        return galwayBusService.getNearestStops(location.latitude, location.longitude)
     }
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {

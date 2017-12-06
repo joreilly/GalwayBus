@@ -21,7 +21,7 @@ interface GalwayBusService {
     fun getAllStops() : Flowable<List<BusStop>>
 
     @GET("/stops/nearby.json")
-    fun getNearestStops(@Query("latitude") latitude: Float, @Query("longitude") longitude: Float) : Flowable<List<BusStop>>
+    fun getNearestStops(@Query("latitude") latitude: Double, @Query("longitude") longitude: Double) : Flowable<List<BusStop>>
 
     @GET("/stops/{stop_ref}.json")
     fun getDepartures(@Path("stop_ref") stopRef: String) : Flowable<GetDeparturesResponse>
