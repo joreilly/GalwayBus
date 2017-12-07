@@ -34,7 +34,7 @@ class GalwayBusFactory {
         }
 
         fun makeBusStop() : BusStop {
-            return BusStop()
+            return BusStop(1, "short name")
         }
 
     }

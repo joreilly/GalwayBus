@@ -92,9 +92,10 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
 
             override fun onPageSelected(position: Int) {
                 direction = position
-                busStopsViewModel.busStops.observe(this@BusStopListActivity) {
-                    updateMap(it!!.get(direction))
-                }
+//                busStopsViewModel.busStops.observe(this@BusStopListActivity) {
+//                    updateMap(it!!.get(direction))
+//                }
+                busStopsViewModel.setDirection(direction)
             }
             override fun onPageScrollStateChanged(state: Int) {}
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
@@ -158,7 +159,7 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
         map?.isMyLocationEnabled = true
 
         busStopsViewModel.busStops.observe(this) {
-            updateMap(it!!.get(direction))
+            updateMap(it!!)
         }
     }
 

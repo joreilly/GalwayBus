@@ -12,7 +12,7 @@ open class GetBusStopsUseCase @Inject constructor(val galwayRepository: GalwayBu
                                                   executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
         FlowableUseCase<List<List<BusStop>>, String>(executorThread, postExecutionThread) {
 
-    override fun buildUseCaseObservable(params: String?): Flowable<List<List<BusStop>>> {
-        return galwayRepository.getBusStops(params!!)
+    override fun buildUseCaseObservable(routeId: String?): Flowable<List<List<BusStop>>> {
+        return galwayRepository.getBusStops(routeId!!)
     }
 }

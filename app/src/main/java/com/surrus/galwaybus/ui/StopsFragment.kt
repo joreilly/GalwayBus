@@ -61,7 +61,7 @@ class StopsFragment : Fragment() {
 
 
         busStopsViewModel.busStops.observe(this) {
-            busStopsAdapter.busStopList = it!!.get(direction!!)
+            busStopsAdapter.busStopList = it!!
             busStopsAdapter.notifyDataSetChanged()
         }
 
