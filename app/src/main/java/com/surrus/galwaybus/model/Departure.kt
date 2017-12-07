@@ -1,4 +1,6 @@
 package com.surrus.galwaybus.model
 
-data class Departure(val timetableId: String, val displayName: String, val departTimestamp: String)
+import java.util.*
+
+data class Departure(val timetableId: String, val displayName: String, val departTimestamp: Date)
 

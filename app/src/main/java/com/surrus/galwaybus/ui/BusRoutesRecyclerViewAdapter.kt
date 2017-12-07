@@ -33,6 +33,7 @@ class BusRoutesRecyclerViewAdapter : RecyclerView.Adapter<BusRoutesRecyclerViewA
 
             val intent = Intent(context, BusStopListActivity::class.java)
             intent.putExtra(Constants.ROUTE_ID, busRoute.timetableId)
+            intent.putExtra(Constants.ROUTE_NAME, busRoute.longName)
             context.startActivity(intent)
         }
     }

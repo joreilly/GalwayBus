@@ -24,9 +24,7 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
 
     override fun getBusStops(routeId: String): Flowable<List<List<BusStop>>> {
         return galwayBusService.getStops(routeId)
-                .map {
-                    it.stops
-                }
+                .map { it.stops }
     }
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
@@ -35,8 +33,6 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
         return galwayBusService.getDepartures(stopRef)
-                .map {
-                    it.departureTimes
-                }
+                .map { it.departureTimes }
     }
 }

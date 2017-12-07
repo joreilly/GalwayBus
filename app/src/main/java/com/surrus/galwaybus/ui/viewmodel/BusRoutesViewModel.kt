@@ -9,7 +9,7 @@ import io.reactivex.subscribers.DisposableSubscriber
 import javax.inject.Inject
 
 
-class BusRoutesViewModel @Inject constructor(getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
+class BusRoutesViewModel @Inject constructor(val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
 
     private val busRoutes: MutableLiveData<List<BusRoute>> = MutableLiveData()
 
@@ -23,7 +23,7 @@ class BusRoutesViewModel @Inject constructor(getBusRoutesUseCase: GetBusRoutesUs
 
 
     override fun onCleared() {
-        super.onCleared()
+        getBusRoutesUseCase.dispose()
     }
 
 

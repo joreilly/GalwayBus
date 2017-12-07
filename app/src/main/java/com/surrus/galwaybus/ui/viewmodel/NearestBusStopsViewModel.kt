@@ -25,7 +25,7 @@ class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase
 
 
     override fun onCleared() {
-        super.onCleared()
+        getNearestBusStopsUseCase.dispose()
     }
 
 

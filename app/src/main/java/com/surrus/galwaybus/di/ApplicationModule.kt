@@ -47,6 +47,7 @@ open class ApplicationModule {
     internal fun provideGalwayBusService() : GalwayBusService {
         val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ")
                 .create()
 
         val retrofit = Retrofit.Builder()

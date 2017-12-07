@@ -8,6 +8,9 @@ import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
 import io.reactivex.subscribers.DisposableSubscriber
 import javax.inject.Inject
+import io.reactivex.disposables.CompositeDisposable
+
+
 
 
 class BusStopsViewModel @Inject constructor(val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
@@ -21,9 +24,8 @@ class BusStopsViewModel @Inject constructor(val getBusStopsUseCase: GetBusStopsU
         }
     }
 
-
     override fun onCleared() {
-        super.onCleared()
+        getBusStopsUseCase.dispose()
     }
 
 

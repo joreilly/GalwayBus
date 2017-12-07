@@ -4,6 +4,7 @@ import com.surrus.galwaybus.data.repository.GalwayBusDataStore
 import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.model.Departure
 import com.surrus.galwaybus.model.Location
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -23,6 +24,10 @@ class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: 
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return galwayBusRemote.getNearestBusStops(location)
+    }
+
+    override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
+        return galwayBusRemote.getDepartures(stopRef)
     }
 
     override fun clearBusRoutes(): Completable {

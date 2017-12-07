@@ -1,9 +1,11 @@
 package com.surrus.galwaybus.remote
 
+import com.nhaarman.mockito_kotlin.any
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
 import com.surrus.galwaybus.factory.GalwayBusFactory
 import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.model.GetDeparturesResponse
 import io.reactivex.Flowable
 import org.junit.Before
 import org.junit.Test
@@ -24,7 +26,7 @@ class GalwayBusRemoteImplTest {
     }
 
     @Test
-    fun getBusRoutesReturnsData() {
+    fun getBusRoutes() {
         val busRouteList = GalwayBusFactory.makeBusRouteList(2)
         val busRouteResponse = LinkedHashMap<String, BusRoute>()
         busRouteList.forEach {
@@ -37,5 +39,16 @@ class GalwayBusRemoteImplTest {
         testObserver.assertValue(busRouteList)
     }
 
+
+    @Test
+    fun getDepartures() {
+        val departureTimes = GalwayBusFactory.makeDepartureList(3)
+        val busStop = GalwayBusFactory.makeBusStop()
+        val getDeparturesResponse = GetDeparturesResponse(busStop, departureTimes)
+
+        whenever(galwayBusService.getDepartures(any())).thenReturn(Flowable.just(getDeparturesResponse))
+        val testObserver = galwayBusRemoteImpl.getDepartures("some_stop_ref").test()
+        testObserver.assertValue(departureTimes)
+    }
 
 }

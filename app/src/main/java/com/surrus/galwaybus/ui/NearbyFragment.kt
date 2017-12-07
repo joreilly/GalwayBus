@@ -33,6 +33,7 @@ import com.surrus.galwaybus.util.ext.observe
 import dagger.android.AndroidInjection
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_nearby.*
+import java.util.logging.Logger
 import javax.inject.Inject
 
 
@@ -89,6 +90,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
                         fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                             if (location != null) {
                                 val myLocation = Location(location.latitude, location.longitude)
+                                //val myLocation = Location(53.273849, -9.049695)
                                 nearestBusStopsViewModel.fetchNearestBusStops(myLocation)
                             }
                         }
@@ -115,7 +117,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
-
         map = googleMap
         map.isMyLocationEnabled = true
 
@@ -132,10 +133,23 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             val builder = LatLngBounds.Builder()
             for (busStop in busStopList) {
                 val busStopLocation = LatLng(busStop.latitude, busStop.longitude);
-                map.addMarker(MarkerOptions().position(busStopLocation).title(busStop.shortName))
+                val marker = map.addMarker(MarkerOptions().position(busStopLocation).title(busStop.shortName))
+                marker.tag = busStop.stopRef
                 builder.include(busStopLocation)
             }
             map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
+
+
+            map.setOnInfoWindowClickListener {
+                val stopRef = it.tag as String
+                val i = 3
+            }
+
+            map.setOnMarkerClickListener {
+                val stopRef = it.tag as String
+                val i = 3
+                false
+            }
         }
     }
 }

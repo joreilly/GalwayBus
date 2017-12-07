@@ -4,6 +4,7 @@ import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.model.Departure
 import com.surrus.galwaybus.model.Location
 import io.reactivex.Completable
 import io.reactivex.Flowable
@@ -25,6 +26,14 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
                 }
     }
 
+    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
+        return factory.retrieveCacheDataStore().saveBusRoutes(busRoutes)
+    }
+
+    override fun clearBusRoutes(): Completable {
+        return factory.retrieveCacheDataStore().clearBusRoutes()
+    }
+
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return factory.retrieveRemoteDataStore().getNearestBusStops(location)
@@ -34,12 +43,8 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
         return factory.retrieveRemoteDataStore().getBusStops(routeId)
     }
 
-    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
-        return factory.retrieveCacheDataStore().saveBusRoutes(busRoutes)
-    }
-
-    override fun clearBusRoutes(): Completable {
-        return factory.retrieveCacheDataStore().clearBusRoutes()
+    override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
+        return factory.retrieveRemoteDataStore().getDepartures(stopRef)
     }
 
 }
