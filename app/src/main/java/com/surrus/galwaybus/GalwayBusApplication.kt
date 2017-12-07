@@ -6,6 +6,7 @@ import com.surrus.galwaybus.di.DaggerApplicationComponent
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
+import net.danlew.android.joda.JodaTimeAndroid
 import javax.inject.Inject
 
 class GalwayBusApplication : Application(), HasActivityInjector {
@@ -14,6 +15,7 @@ class GalwayBusApplication : Application(), HasActivityInjector {
 
     override fun onCreate() {
         super.onCreate()
+        JodaTimeAndroid.init(this);
         DaggerApplicationComponent
                 .builder()
                 .application(this)
