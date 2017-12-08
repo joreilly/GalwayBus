@@ -74,13 +74,6 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
         }
         setTitle(routeId + " - " + routeName)
 
-//        with(tabLayout) {
-//            //addTab(tabLayout.newTab().setText("Direction 1"))
-//            //addTab(tabLayout.newTab().setText("Direction 2"))
-//            tabGravity = TabLayout.GRAVITY_FILL
-//        }
-
-
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
 
