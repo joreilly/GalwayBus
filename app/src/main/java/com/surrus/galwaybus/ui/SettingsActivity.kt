@@ -3,6 +3,7 @@ package com.surrus.galwaybus.ui
 import android.os.Bundle
 import android.preference.PreferenceFragment
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
 import com.surrus.galwaybus.R
 
 
@@ -13,6 +14,16 @@ class SettingsActivity : AppCompatActivity() {
 
         // Display the fragment as the main content.
         getFragmentManager().beginTransaction().replace(android.R.id.content, PrefsFragment()).commit()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 

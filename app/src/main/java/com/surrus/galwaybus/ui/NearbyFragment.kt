@@ -11,6 +11,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -30,10 +31,8 @@ import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
-import dagger.android.AndroidInjection
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_nearby.*
-import java.util.logging.Logger
 import javax.inject.Inject
 
 
@@ -69,15 +68,24 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
         // initialize recycler view
         with (busStopsList) {
-            setHasFixedSize(true)
+            //setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             busStopsAdapter = BusStopsRecyclerViewAdapter()
             adapter = busStopsAdapter
         }
 
 
+        // TODO use view model state to drive this
+        if (progressBar != null) {
+            progressBar.visibility = View.VISIBLE
+        }
+
+
         // subscribe to updates
         nearestBusStopsViewModel.busStops.observe(this) {
+            if (progressBar != null) {
+                progressBar.visibility = View.GONE
+            }
             busStopsAdapter.busStopList = it!!
             busStopsAdapter.notifyDataSetChanged()
         }

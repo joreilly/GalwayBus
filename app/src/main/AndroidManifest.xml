@@ -24,12 +24,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
             android:name=".ui.BusStopListActivity"
             android:parentActivityName=".ui.HomeActivity" />
+
         <activity
             android:name=".ui.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:parentActivityName=".ui.HomeActivity"
+            android:label="@string/title_activity_settings"/>
     </application>
 
 </manifest>

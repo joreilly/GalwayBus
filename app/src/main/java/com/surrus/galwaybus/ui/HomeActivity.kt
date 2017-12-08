@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
@@ -36,7 +37,6 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             selectedMenuItem = bottomNavigation.getMenu().getItem(0)
         }
         selectFragment(selectedMenuItem)
-
 
         bottomNavigation.setOnNavigationItemSelectedListener { item ->
             selectFragment(item)
