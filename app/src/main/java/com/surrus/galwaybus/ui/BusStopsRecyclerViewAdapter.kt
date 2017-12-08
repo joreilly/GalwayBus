@@ -11,6 +11,8 @@ import com.surrus.galwaybus.model.BusStop
 import kotlinx.android.synthetic.main.bus_stops_list_item.view.*
 import org.joda.time.DateTime
 import org.joda.time.Period
+import org.joda.time.format.PeriodFormat
+import org.joda.time.format.PeriodFormatterBuilder
 
 
 class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAdapter.ViewHolder>() {
@@ -34,6 +36,12 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
             holder.subtitle.visibility = View.GONE
         }
 
+
+        val minsFormatter = PeriodFormatterBuilder()
+                .appendMinutes()
+                .appendSuffix(" minute", " minutes")
+                .toFormatter()
+
         val now = DateTime()
         var timeInfo = "";
         if (busStop.times != null && busStop.times.size > 0) {
@@ -44,7 +52,9 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
                 val timeTillDeparture = Period(now, dep)
                 val mins = timeTillDeparture.minutes
                 if (mins >= 0) {
-                    timeInfo +=  time.timetableId + "\t" + time.displayName + "`\t" + mins + " mins" + "\n";
+
+                    val depString = minsFormatter.print(timeTillDeparture);
+                    timeInfo +=  time.timetableId + "\t" + time.displayName + "\t" + depString + "\n"
                 }
             }
         } else {

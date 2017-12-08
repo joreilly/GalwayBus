@@ -51,7 +51,7 @@ platform :android do
         gradle(
               task: "assembleRelease",
               properties: {
-                  'versionCode' => 8
+                  'versionCode' => 9
               }
         )
 
