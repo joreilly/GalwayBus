@@ -1,10 +1,12 @@
 package com.surrus.galwaybus.ui
 
+import android.content.Intent
 import android.os.Bundle
 
 import com.surrus.galwaybus.R
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
 import android.view.MenuItem
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
@@ -67,6 +69,25 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         // update selected item
         selectedItem = item.getItemId()
+    }
+
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return true
+    }
+
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+
+        if (id == R.id.action_settings) {
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent)
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
 

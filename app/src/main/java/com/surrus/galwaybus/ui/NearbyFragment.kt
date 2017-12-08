@@ -159,7 +159,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             val builder = LatLngBounds.Builder()
             for (busStop in busStopList) {
                 val busStopLocation = LatLng(busStop.latitude, busStop.longitude);
-                val marker = map.addMarker(MarkerOptions().position(busStopLocation).title(busStop.shortName))
+                val marker = map.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
                 marker.tag = busStop.stopRef
                 builder.include(busStopLocation)
             }

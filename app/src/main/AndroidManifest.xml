@@ -26,8 +26,10 @@
         </activity>
         <activity
             android:name=".ui.BusStopListActivity"
-            android:parentActivityName=".ui.HomeActivity"/>
-
+            android:parentActivityName=".ui.HomeActivity" />
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>
