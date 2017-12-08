@@ -38,7 +38,9 @@ abstract class FlowableUseCase<T, in Params> constructor(
      * Dispose from current [CompositeDisposable].
      */
     fun dispose() {
-        if (!disposables.isDisposed) disposables.dispose()
+        if (disposables.size() > 0 && !disposables.isDisposed) {
+            disposables.clear()
+        }
     }
 
     /**

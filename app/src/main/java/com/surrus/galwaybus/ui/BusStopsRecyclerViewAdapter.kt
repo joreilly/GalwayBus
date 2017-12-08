@@ -1,6 +1,8 @@
 package com.surrus.galwaybus.ui
 
+import android.support.annotation.VisibleForTesting
 import android.support.v7.widget.RecyclerView
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,21 +26,29 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
         val busStop = busStopList[position]
 
         holder.title.text = busStop.longName
-        holder.subtitle.text = busStop.irishShortName
 
+        if (!TextUtils.isEmpty(busStop.irishShortName)) {
+            holder.subtitle.visibility = View.VISIBLE
+            holder.subtitle.text = busStop.irishShortName
+        } else {
+            holder.subtitle.visibility = View.GONE
+        }
 
         val now = DateTime()
-
         var timeInfo = "";
-        if (busStop.times != null) {
+        if (busStop.times != null && busStop.times.size > 0) {
+            holder.timesLayout.visibility = View.VISIBLE
             for (time in busStop.times) {
 
                 val dep = DateTime(time.departTimestamp)
                 val timeTillDeparture = Period(now, dep)
                 val mins = timeTillDeparture.minutes
-
-                timeInfo += "\n" + time.timetableId + "\t" + time.displayName + "`\t" + mins + " mins";
+                if (mins >= 0) {
+                    timeInfo +=  time.timetableId + "\t" + time.displayName + "`\t" + mins + " mins" + "\n";
+                }
             }
+        } else {
+            holder.timesLayout.visibility = View.GONE
         }
         holder.times.text = timeInfo
 
@@ -52,5 +62,6 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
         val title = view.title
         val subtitle = view.subtitle
         val times = view.times
+        val timesLayout = view.timesLayout
     }
 }

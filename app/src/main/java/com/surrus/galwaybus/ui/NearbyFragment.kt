@@ -42,6 +42,8 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var map: GoogleMap
 
+    private lateinit var stopsLocationCenter: Location
+
     @Inject lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
     private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
 
@@ -87,14 +89,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
                     @SuppressLint("MissingPermission")
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {
 
-                        fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                            if (location != null) {
-                                val myLocation = Location(location.latitude, location.longitude)
-                                //val myLocation = Location(53.273849, -9.049695)
-                                nearestBusStopsViewModel.fetchNearestBusStops(myLocation)
-                            }
-                        }
-
                         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
                         mapFragment.getMapAsync(this@NearbyFragment)
                     }
@@ -120,9 +114,41 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         map = googleMap
         map.isMyLocationEnabled = true
 
+
+        if (nearestBusStopsViewModel.getLocation() == null) {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                if (location != null) {
+                    //val myLocation = Location(53.273849, -9.049695)
+
+                    stopsLocationCenter = Location(location.latitude, location.longitude)
+                    val zoomLevel = 12.0f
+                    nearestBusStopsViewModel.setLocationZoomLevel(stopsLocationCenter, zoomLevel)
+
+                    val latLng = LatLng(stopsLocationCenter.latitude, stopsLocationCenter.longitude)
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
+                }
+            }
+        } else {
+            stopsLocationCenter = nearestBusStopsViewModel.getLocation() as Location
+            val latLng = LatLng(stopsLocationCenter.latitude, stopsLocationCenter.longitude)
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, nearestBusStopsViewModel.getZoomLevel()))
+        }
+
+
         nearestBusStopsViewModel.busStops.observe(this) {
             updateMap(it!!)
         }
+
+        map.setOnCameraIdleListener{
+            val cameraPosition = map.getCameraPosition()
+
+            stopsLocationCenter = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
+            nearestBusStopsViewModel.setLocationZoomLevel(stopsLocationCenter, cameraPosition.zoom)
+
+            nearestBusStopsViewModel.fetchNearestBusStops(stopsLocationCenter)
+
+        }
+
     }
 
 
@@ -137,19 +163,19 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
                 marker.tag = busStop.stopRef
                 builder.include(busStopLocation)
             }
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
+            //map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
 
 
             map.setOnInfoWindowClickListener {
                 val stopRef = it.tag as String
-                val i = 3
             }
 
             map.setOnMarkerClickListener {
                 val stopRef = it.tag as String
-                val i = 3
                 false
             }
+
+
         }
     }
 }
