@@ -70,6 +70,8 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         with (busStopsList) {
             //setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
+            layoutManager.setAutoMeasureEnabled(false)
+
             busStopsAdapter = BusStopsRecyclerViewAdapter()
             adapter = busStopsAdapter
         }
@@ -155,6 +157,8 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
             nearestBusStopsViewModel.fetchNearestBusStops(stopsLocationCenter)
 
+            // scroll to top of list
+            busStopsList.scrollToPosition(0)
         }
 
     }

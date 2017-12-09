@@ -1,15 +1,10 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Transformations
 import android.arch.lifecycle.ViewModel
-import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
-import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
-import com.surrus.galwaybus.util.ext.switchMap
 import io.reactivex.subscribers.DisposableSubscriber
 import javax.inject.Inject
 
@@ -17,7 +12,6 @@ import javax.inject.Inject
 class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
 
     var busStops: MutableLiveData<List<BusStop>> = MutableLiveData()
-    //var busStops: MutableLiveData<List<BusStop>>
 
     private val location: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
