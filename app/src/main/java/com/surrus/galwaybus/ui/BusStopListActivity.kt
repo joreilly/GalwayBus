@@ -85,9 +85,6 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
 
             override fun onPageSelected(position: Int) {
                 direction = position
-//                busStopsViewModel.busStops.observe(this@BusStopListActivity) {
-//                    updateMap(it!!.get(direction))
-//                }
                 busStopsViewModel.setDirection(direction)
             }
             override fun onPageScrollStateChanged(state: Int) {}

@@ -17,7 +17,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="0.15"
             android:textStyle="bold"
-            android:textColor="@android:color/holo_green_dark"
+            android:textColor="@color/routeNumberGreen"
             android:gravity="center_vertical"
             tools:text="401"
             android:textSize="16sp" />

@@ -24,6 +24,8 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
 
     init {
         minsFormatter = PeriodFormatterBuilder()
+                .appendHours()
+                .appendSuffix(" hour", " hours")
                 .printZeroAlways()
                 .appendMinutes()
                 .appendSuffix(" minute", " minutes")
@@ -93,7 +95,6 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
 
             holder.timetableId.text = busTime.timetableId
             holder.destination.text = busTime.displayName
-
 
             val now = DateTime()
             val dep = DateTime(busTime.departTimestamp)

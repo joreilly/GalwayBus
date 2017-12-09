@@ -1,1 +1,1 @@
-Galway Bus Information
+Galway Bus Information - App for https://github.com/joreilly/galway-bus-android
