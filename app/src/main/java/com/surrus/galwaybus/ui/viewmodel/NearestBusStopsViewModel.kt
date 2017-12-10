@@ -5,13 +5,15 @@ import android.arch.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.ui.data.Resource
+import com.surrus.galwaybus.ui.data.ResourceState
 import io.reactivex.subscribers.DisposableSubscriber
 import javax.inject.Inject
 
 
 class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
 
-    var busStops: MutableLiveData<List<BusStop>> = MutableLiveData()
+    var busStops: MutableLiveData<Resource<List<BusStop>>> = MutableLiveData()
 
     private val location: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
@@ -54,10 +56,11 @@ class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase
         override fun onComplete() { }
 
         override fun onNext(t: List<BusStop>) {
-            busStops.postValue(t)
+            busStops.postValue(Resource(ResourceState.SUCCESS, t, null))
         }
 
         override fun onError(exception: Throwable) {
+            busStops.postValue(Resource(ResourceState.ERROR, null, exception.message))
         }
     }
 

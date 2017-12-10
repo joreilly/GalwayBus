@@ -6,12 +6,12 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -28,6 +28,8 @@ import com.karumi.dexter.listener.single.BasePermissionListener
 import com.surrus.galwaybus.R
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.ui.data.Resource
+import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
@@ -41,6 +43,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var map: GoogleMap
 
+    private val zoomLevel = 15.0f
     private lateinit var stopsLocationCenter: Location
 
     @Inject lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
@@ -48,12 +51,12 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
     private lateinit var busStopsAdapter: BusStopsRecyclerViewAdapter
 
+
     companion object {
         fun newInstance(): NearbyFragment {
             return NearbyFragment()
         }
     }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,7 +71,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
         // initialize recycler view
         with (busStopsList) {
-            //setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
             layoutManager.setAutoMeasureEnabled(false)
 
@@ -77,7 +79,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         }
 
 
-        // TODO use view model state to drive this
         if (progressBar != null) {
             progressBar.visibility = View.VISIBLE
         }
@@ -85,25 +86,38 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
         // subscribe to updates
         nearestBusStopsViewModel.busStops.observe(this) {
-            if (progressBar != null) {
-                progressBar.visibility = View.GONE
-            }
-            busStopsAdapter.busStopList = it!!
-            busStopsAdapter.notifyDataSetChanged()
+            if (it != null) handleDataState(it)
         }
 
 
+        // show map
         Dexter.withActivity(activity)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(object : BasePermissionListener() {
                     @SuppressLint("MissingPermission")
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {
-
                         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
                         mapFragment.getMapAsync(this@NearbyFragment)
                     }
                 }).check()
+    }
 
+
+    private fun handleDataState(resource: Resource<List<BusStop>>) {
+
+        if (progressBar != null) {
+            progressBar.visibility = View.GONE
+        }
+
+        when (resource.status) {
+            ResourceState.SUCCESS -> {
+                busStopsAdapter.busStopList = resource.data!!
+                busStopsAdapter.notifyDataSetChanged()
+            }
+            ResourceState.ERROR -> {
+                Snackbar.make(this.view!!, resource.message as CharSequence, Snackbar.LENGTH_LONG).show()
+            }
+        }
     }
 
 
@@ -117,21 +131,17 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     }
 
 
-
-
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.isMyLocationEnabled = true
 
-
         if (nearestBusStopsViewModel.getLocation() == null) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
                 if (location != null) {
-                    //val myLocation = Location(53.273849, -9.049695)
+                    //stopsLocationCenter = Location(53.273849, -9.049695)
 
                     stopsLocationCenter = Location(location.latitude, location.longitude)
-                    val zoomLevel = 12.0f
                     nearestBusStopsViewModel.setLocationZoomLevel(stopsLocationCenter, zoomLevel)
 
                     val latLng = LatLng(stopsLocationCenter.latitude, stopsLocationCenter.longitude)
@@ -146,7 +156,9 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
 
         nearestBusStopsViewModel.busStops.observe(this) {
-            updateMap(it!!)
+            if (it != null && it.status == ResourceState.SUCCESS) {
+                updateMap(it.data!!)
+            }
         }
 
         map.setOnCameraIdleListener{

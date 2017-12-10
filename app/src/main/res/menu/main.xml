@@ -11,8 +11,13 @@
         app:showAsAction="never" />
 -->
 
+<!--
+    <item android:id="@+id/action_centre"
+        android:title="@string/action_centre"
+        app:showAsAction="never" />
+-->
+
     <item android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings"
         android:title="@string/action_settings"
         app:showAsAction="never" />
 

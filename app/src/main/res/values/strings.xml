@@ -8,6 +8,8 @@
 
 
     <string name="action_settings">Settings</string>
+    <string name="action_centre">Centre in Galway</string>
+
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
