@@ -55,7 +55,7 @@ class StopsFragment : Fragment() {
         with (busStopsList) {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
-            busStopsAdapter = BusStopsRecyclerViewAdapter()
+            busStopsAdapter = BusStopsRecyclerViewAdapter {}
             adapter = busStopsAdapter
         }
 

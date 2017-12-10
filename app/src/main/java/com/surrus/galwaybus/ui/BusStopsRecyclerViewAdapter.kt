@@ -17,7 +17,7 @@ import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
 
 
-class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAdapter.ViewHolder>() {
+class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerView.Adapter<BusStopsRecyclerViewAdapter.ViewHolder>() {
 
     var busStopList: List<BusStop> = mutableListOf()
     val minsFormatter: PeriodFormatter
@@ -30,7 +30,6 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
                 .appendMinutes()
                 .appendSuffix(" minute", " minutes")
                 .toFormatter()
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -64,8 +63,8 @@ class BusStopsRecyclerViewAdapter : RecyclerView.Adapter<BusStopsRecyclerViewAda
         } else {
             holder.timesLayout.visibility = View.GONE
         }
-        //holder.times.text = timeInfo
 
+        holder.itemView.setOnClickListener { listener(busStop) }
     }
 
     override fun getItemCount(): Int {

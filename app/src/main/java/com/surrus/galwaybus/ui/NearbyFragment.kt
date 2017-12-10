@@ -74,7 +74,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             layoutManager = LinearLayoutManager(context)
             layoutManager.setAutoMeasureEnabled(false)
 
-            busStopsAdapter = BusStopsRecyclerViewAdapter()
+            busStopsAdapter = BusStopsRecyclerViewAdapter {
+                stopsLocationCenter = Location(it.latitude, it.longitude)
+                val latLng = LatLng(stopsLocationCenter.latitude, stopsLocationCenter.longitude)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
+            }
             adapter = busStopsAdapter
         }
 
