@@ -8,7 +8,8 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.orhanobut.logger.Logger
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
@@ -21,6 +22,9 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject
     lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
+    @Inject
+    lateinit var firebaseAnaltyics: FirebaseAnalytics
+
     private val SELECTED_ITEM = "arg_selected_item"
     private var selectedItem = 0
 
@@ -28,6 +32,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+        Logger.d("onCreate")
 
         val selectedMenuItem: MenuItem
         if (savedInstanceState != null) {
@@ -44,6 +49,22 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         }
     }
 
+
+    public override fun onResume() {
+        super.onResume();
+        Logger.d("onResume")
+    }
+
+
+    public override fun onPause() {
+        super.onPause();
+        Logger.d("onPause")
+    }
+
+    public override fun onDestroy() {
+        super.onDestroy();
+        Logger.d("onDestroy")
+    }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt(SELECTED_ITEM, selectedItem)
@@ -66,6 +87,11 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             val ft = supportFragmentManager.beginTransaction()
             ft.replace(R.id.container, frag).commit()
         }
+
+
+        val bundle = Bundle()
+        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, item.toString())
+        firebaseAnaltyics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
 
         // update selected item
         selectedItem = item.getItemId()

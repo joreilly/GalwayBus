@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.remote
 
+import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
@@ -29,6 +30,7 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return galwayBusService.getNearestStops(location.latitude, location.longitude)
+                .doOnNext { Logger.d("Got nearest bus stop info: ${location.latitude}, ${location.longitude}") }
     }
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {

@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.di
 
+import android.content.Context
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
@@ -8,6 +9,9 @@ import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModelFactory
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import dagger.Module
 import dagger.Provides
+import com.google.firebase.analytics.FirebaseAnalytics
+
+
 
 @Module
 open class ActivityModule {
@@ -25,6 +29,12 @@ open class ActivityModule {
     @Provides
     fun provideNearestBusStopsViewModelFactory(getNearestBusStopsUseCase: GetNearestBusStopsUseCase): NearestBusStopsViewModelFactory {
         return NearestBusStopsViewModelFactory(getNearestBusStopsUseCase)
+    }
+
+
+    @Provides
+    fun providesFirebaseAnalytics(context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
     }
 
 }

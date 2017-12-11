@@ -23,6 +23,6 @@ Note also that this is using [REST endpoint](https://github.com/appsandwich/galw
 * [Retrofit](http://square.github.io/retrofit/)
 * [OkHttp](http://square.github.io/okhttp/)
 * [Gson](https://github.com/google/gson)
+* [Logger](https://github.com/orhanobut/logger)
 * [Mockito](http://site.mockito.org/)
-
 

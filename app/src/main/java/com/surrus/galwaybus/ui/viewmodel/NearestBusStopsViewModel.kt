@@ -2,6 +2,7 @@ package com.surrus.galwaybus.ui.viewmodel
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
@@ -30,11 +31,15 @@ class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase
 //    }
 
 
-    fun fetchNearestBusStops(location: Location) {
+    fun pollForNearestBusStopTimes(location: Location) {
         //if (busStops.value == null) {
             getNearestBusStopsUseCase.dispose()
             getNearestBusStopsUseCase.execute(BusStopsSubscriber(), location)
         //}
+    }
+
+    fun stopPolling() {
+        getNearestBusStopsUseCase.dispose()
     }
 
     fun setLocationZoomLevel(loc: Location, zl: Float) {
@@ -66,6 +71,7 @@ class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase
 
 
     override fun onCleared() {
+        Logger.d("NearestBusStopsViewModel.onCleared")
         getNearestBusStopsUseCase.dispose()
     }
 
