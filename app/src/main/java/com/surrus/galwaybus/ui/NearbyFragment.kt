@@ -46,9 +46,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private var mapFragment: SupportMapFragment? = null
 
-    private val zoomLevel = 15.0f
-    private var stopsLocationCenter: Location? = null
-
     @Inject lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
     private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
 
@@ -80,9 +77,8 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             layoutManager.setAutoMeasureEnabled(false)
 
             busStopsAdapter = BusStopsRecyclerViewAdapter {
-                stopsLocationCenter = Location(it.latitude, it.longitude)
-                val latLng = LatLng(stopsLocationCenter!!.latitude, stopsLocationCenter!!.longitude)
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
+                val latLng = LatLng(it.latitude, it.longitude)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, nearestBusStopsViewModel.getZoomLevel()))
             }
             adapter = busStopsAdapter
         }
@@ -93,11 +89,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         }
 
 
+
         // subscribe to updates
         nearestBusStopsViewModel.busStops.observe(this) {
             if (it != null) handleDataState(it)
         }
-
 
         // show map
         Dexter.withActivity(activity)
@@ -116,16 +112,14 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume();
         Logger.d("onResume")
-        if (stopsLocationCenter != null) {
-            nearestBusStopsViewModel.pollForNearestBusStopTimes(stopsLocationCenter!!)
-        }
+        nearestBusStopsViewModel.pollForNearestBusStopTimes()
     }
 
 
      override fun onPause() {
         super.onPause();
         Logger.d("onPause")
-         nearestBusStopsViewModel.stopPolling()
+        nearestBusStopsViewModel.stopPolling()
     }
 
 
@@ -160,31 +154,32 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        Logger.d("onCreateView")
         return inflater.inflate(R.layout.fragment_nearby, container, false)
     }
 
 
     @SuppressLint("MissingPermission")
     override fun onMapReady(googleMap: GoogleMap) {
+        Logger.d("onMapReady")
         map = googleMap
         map.isMyLocationEnabled = true
+        map.getUiSettings().isZoomControlsEnabled = true
+
+
+        nearestBusStopsViewModel.cameraPosition.observe(this) {
+            setCamera(it!!, nearestBusStopsViewModel.getZoomLevel())
+        }
+
 
         if (nearestBusStopsViewModel.getLocation() == null) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                if (location != null) {
-                    //stopsLocationCenter = Location(53.273849, -9.049695)
-
-                    stopsLocationCenter = Location(location.latitude, location.longitude)
-                    nearestBusStopsViewModel.setLocationZoomLevel(stopsLocationCenter!!, zoomLevel)
-
-                    val latLng = LatLng(stopsLocationCenter!!.latitude, stopsLocationCenter!!.longitude)
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomLevel))
-                }
+                val loc = Location(location.latitude, location.longitude)
+                nearestBusStopsViewModel.setLocation(loc)
+                nearestBusStopsViewModel.setCameraPosition(loc)
             }
         } else {
-            stopsLocationCenter = nearestBusStopsViewModel.getLocation() as Location
-            val latLng = LatLng(stopsLocationCenter!!.latitude, stopsLocationCenter!!.longitude)
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, nearestBusStopsViewModel.getZoomLevel()))
+            nearestBusStopsViewModel.setCameraPosition(nearestBusStopsViewModel.getLocation()!!)
         }
 
 
@@ -197,15 +192,21 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         map.setOnCameraIdleListener{
             val cameraPosition = map.getCameraPosition()
 
-            stopsLocationCenter = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
-            nearestBusStopsViewModel.setLocationZoomLevel(stopsLocationCenter!!, cameraPosition.zoom)
+            val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
+            nearestBusStopsViewModel.setZoomLevel(cameraPosition.zoom)
+            nearestBusStopsViewModel.setLocation(location)
 
-            nearestBusStopsViewModel.pollForNearestBusStopTimes(stopsLocationCenter!!)
+            nearestBusStopsViewModel.pollForNearestBusStopTimes()
 
             // scroll to top of list
             busStopsList.scrollToPosition(0)
         }
 
+    }
+
+
+    private fun setCamera(location: Location, zoomLevel: Float) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), zoomLevel))
     }
 
 

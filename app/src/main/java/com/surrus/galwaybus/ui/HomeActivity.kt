@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.ui
 
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.os.Bundle
 
@@ -10,6 +11,9 @@ import android.view.Menu
 import android.view.MenuItem
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.Logger
+import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
+import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
 import javax.inject.Inject
@@ -25,6 +29,13 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject
     lateinit var firebaseAnaltyics: FirebaseAnalytics
 
+    @Inject
+    lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
+
+
+    private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
+
+
     private val SELECTED_ITEM = "arg_selected_item"
     private var selectedItem = 0
 
@@ -33,6 +44,8 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         Logger.d("onCreate")
+
+        nearestBusStopsViewModel = ViewModelProviders.of(this, nearestBusStopsViewModelFactory).get(NearestBusStopsViewModel::class.java)
 
         val selectedMenuItem: MenuItem
         if (savedInstanceState != null) {
@@ -85,7 +98,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         if (frag != null) {
             val ft = supportFragmentManager.beginTransaction()
-            ft.replace(R.id.container, frag).commit()
+            ft.replace(R.id.fragmentContainer, frag).commit()
         }
 
 
@@ -110,6 +123,10 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         if (id == R.id.action_settings) {
             val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
+            return true
+        } else if (id == R.id.action_centre) {
+            nearestBusStopsViewModel.setZoomLevel(15.0f)
+            nearestBusStopsViewModel.setCameraPosition(Location(53.273849, -9.049695))
             return true
         }
 

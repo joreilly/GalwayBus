@@ -15,35 +15,35 @@ import javax.inject.Inject
 class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
 
     var busStops: MutableLiveData<Resource<List<BusStop>>> = MutableLiveData()
-
-    private val location: MutableLiveData<Location> = MutableLiveData()
+    val location: MutableLiveData<Location> = MutableLiveData()
+    val cameraPosition: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
 
-
-//    init {
-//        busStops = Transformations.switchMap(location) {
-//            id -> {
-//                getNearestBusStopsUseCase.execute(BusStopsSubscriber(), id)
-//            }
-//            busStops
-//        }
-//        }
-//    }
+    init {
+        zoomLevel.value = 15.0f
+    }
 
 
-    fun pollForNearestBusStopTimes(location: Location) {
-        //if (busStops.value == null) {
+    fun pollForNearestBusStopTimes() {
+        if (location.value != null) {
             getNearestBusStopsUseCase.dispose()
-            getNearestBusStopsUseCase.execute(BusStopsSubscriber(), location)
-        //}
+            getNearestBusStopsUseCase.execute(BusStopsSubscriber(), location.value)
+        }
     }
 
     fun stopPolling() {
         getNearestBusStopsUseCase.dispose()
     }
 
-    fun setLocationZoomLevel(loc: Location, zl: Float) {
+    fun setCameraPosition(loc: Location) {
+        cameraPosition.value = loc
+    }
+
+    fun setLocation(loc: Location) {
         location.value = loc
+    }
+
+    fun setZoomLevel(zl: Float) {
         zoomLevel.value = zl
     }
 
