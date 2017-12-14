@@ -174,9 +174,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
         if (nearestBusStopsViewModel.getLocation() == null) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                val loc = Location(location.latitude, location.longitude)
-                nearestBusStopsViewModel.setLocation(loc)
-                nearestBusStopsViewModel.setCameraPosition(loc)
+                if (location != null) {
+                    val loc = Location(location.latitude, location.longitude)
+                    nearestBusStopsViewModel.setLocation(loc)
+                    nearestBusStopsViewModel.setCameraPosition(loc)
+                }
             }
         } else {
             nearestBusStopsViewModel.setCameraPosition(nearestBusStopsViewModel.getLocation()!!)
