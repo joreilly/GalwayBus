@@ -25,10 +25,10 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
     init {
         minsFormatter = PeriodFormatterBuilder()
                 .appendHours()
-                .appendSuffix(" hour", " hours")
+                .appendSuffix(" hr ", " hrs ")
                 .printZeroAlways()
                 .appendMinutes()
-                .appendSuffix(" minute", " minutes")
+                .appendSuffix(" min", " mins")
                 .toFormatter()
     }
 
@@ -44,7 +44,7 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
 
         if (!TextUtils.isEmpty(busStop.irishShortName)) {
             holder.subtitle.visibility = View.VISIBLE
-            holder.subtitle.text = busStop.irishShortName
+            holder.subtitle.text = "${busStop.stopRef} (${busStop.irishShortName})"
         } else {
             holder.subtitle.visibility = View.GONE
         }

@@ -127,6 +127,11 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         } else if (id == R.id.action_centre) {
             nearestBusStopsViewModel.setZoomLevel(15.0f)
             nearestBusStopsViewModel.setCameraPosition(Location(53.273849, -9.049695))
+
+            val bundle = Bundle()
+            bundle.putString("menu_option", "action_centre")
+            firebaseAnaltyics.logEvent("menu_selected", bundle)
+
             return true
         }
 
