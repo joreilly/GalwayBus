@@ -91,17 +91,7 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val busTime = busTimes[position]
-
-            holder.timetableId.text = busTime.timetableId
-            holder.destination.text = busTime.displayName
-
-            val now = DateTime()
-            val dep = DateTime(busTime.departTimestamp)
-            val timeTillDeparture = Period(now, dep)
-            val mins = timeTillDeparture.minutes
-            if (mins >= 0) {
-                holder.duration.text = minsFormatter.print(timeTillDeparture)
-            }
+            holder.bindBusTime(busTime)
         }
 
         override fun getItemCount(): Int {
@@ -109,9 +99,19 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
         }
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val timetableId = view.timetableId
-            val destination = view.destination
-            val duration = view.duration
+
+            fun bindBusTime(busTime: Departure) = itemView.apply {
+                timetableId.text = busTime.timetableId
+                destination.text = busTime.displayName
+
+                val now = DateTime()
+                val dep = DateTime(busTime.departTimestamp)
+                val timeTillDeparture = Period(now, dep)
+                val mins = timeTillDeparture.minutes
+                if (mins >= 0) {
+                    duration.text = minsFormatter.print(timeTillDeparture)
+                }
+            }
         }
     }
 }
