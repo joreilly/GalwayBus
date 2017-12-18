@@ -174,11 +174,14 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
         if (nearestBusStopsViewModel.getLocation() == null) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                var loc: Location? = null
                 if (location != null) {
-                    val loc = Location(location.latitude, location.longitude)
-                    nearestBusStopsViewModel.setLocation(loc)
-                    nearestBusStopsViewModel.setCameraPosition(loc)
+                    loc = Location(location.latitude, location.longitude)
+                } else {
+                    loc = Location(53.273849, -9.049695) // default if we can't get location
                 }
+                nearestBusStopsViewModel.setLocation(loc)
+                nearestBusStopsViewModel.setCameraPosition(loc)
             }
         } else {
             nearestBusStopsViewModel.setCameraPosition(nearestBusStopsViewModel.getLocation()!!)
@@ -201,7 +204,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             nearestBusStopsViewModel.pollForNearestBusStopTimes()
 
             // scroll to top of list
-            busStopsList.scrollToPosition(0)
+            busStopsList?.scrollToPosition(0)
         }
 
     }
