@@ -25,4 +25,8 @@ interface GalwayBusService {
 
     @GET("/stops/{stop_ref}.json")
     fun getDepartures(@Path("stop_ref") stopRef: String) : Flowable<GetDeparturesResponse>
+
+    @GET("/schedules.json")
+    fun getSchedules() : Flowable<LinkedHashMap<String, List<Map<String, String>>>>
+
 }

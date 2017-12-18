@@ -2,10 +2,7 @@ package com.surrus.galwaybus.remote
 
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.data.repository.GalwayBusRemote
-import com.surrus.galwaybus.model.BusRoute
-import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Departure
-import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.model.*
 import io.reactivex.Flowable
 import javax.inject.Inject
 
@@ -37,4 +34,23 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
         return galwayBusService.getDepartures(stopRef)
                 .map { it.departureTimes }
     }
+
+
+    fun getSchedules(): Flowable<List<RouteSchedule>> {
+        return galwayBusService.getSchedules()
+                .map {
+                    val scheduleList = mutableListOf<RouteSchedule>()
+                    val response = it
+                    it.keys.forEach {
+                        val schedule = response.get(it)!![0]
+                        for (key in schedule.keys) {
+                            val routeName = key
+                            val pdfUrl = schedule[key]
+                            scheduleList.add(RouteSchedule(it, routeName, pdfUrl!!))
+                        }
+                    }
+                    scheduleList
+                }
+    }
+
 }
