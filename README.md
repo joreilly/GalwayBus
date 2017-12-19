@@ -9,6 +9,12 @@ Kotlin and the new [Android Architecture Components](https://developer.android.c
 and also to explore use of [Clean Architecture](https://8thlight.com/blog/uncle-bob/2012/08/13/the-clean-architecture.html) approach. It's heavily based on https://github.com/bufferapp/clean-architecture-components-boilerplate. This is stil work in progress and also, at least for now,
  have omitted `Mapper` classes (using same data model across the different layers....though this will likely change).
 
+As I'm pretty new to Kotlin and some of the libraries used I'm sure 
+there are better approaches for some of the code I have so feedback (and PRs!)
+are very welcome.  I also continue to incorporate changes based on articles and other
+repos I've seen.
+
+
 Note also that this is using [REST endpoint](https://github.com/appsandwich/galwaybus) provided by @appsandwich to retrieve
  Galway Bus route/timetable info  (Thanks Vinny!)
 
