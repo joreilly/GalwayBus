@@ -25,7 +25,7 @@ class GalwayBusMockWebTest {
 
     private lateinit var testSubscriber: TestSubscriber<LinkedHashMap<String, List<Map<String, String>>>>
 
-    private lateinit var testSubscriberGetSchedules: TestSubscriber<List<RouteSchedule>>
+    private lateinit var testSubscriberGetSchedules: TestSubscriber<Map<String, RouteSchedule>>
 
     private lateinit var mockWebServer: MockWebServer
     private lateinit var retrofit: Retrofit
@@ -115,8 +115,8 @@ class GalwayBusMockWebTest {
         testSubscriberGetSchedules.assertNoErrors()
         testSubscriberGetSchedules.assertValueCount(1)
 
-        val scheduleList = testSubscriberGetSchedules.values()[0]
-        for (schedule in scheduleList) {
+        val scheduleMap = testSubscriberGetSchedules.values()[0]
+        for (schedule in scheduleMap.values) {
             assertNotNull(schedule.timetableId)
             assertNotNull(schedule.routeName)
             assertNotNull(schedule.pdfUrl)
