@@ -2,10 +2,7 @@ package com.surrus.galwaybus.data.source
 
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.data.repository.GalwayBusDataStore
-import com.surrus.galwaybus.model.BusRoute
-import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Departure
-import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -38,6 +35,10 @@ open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCach
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
         return Flowable.just(emptyList<Departure>())
+    }
+
+    override fun getSchedules(): Flowable<Map<String, RouteSchedule>> {
+        return Flowable.just(emptyMap<String, RouteSchedule>())
     }
 
     override fun isCached(): Single<Boolean> {

@@ -36,20 +36,20 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
     }
 
 
-    fun getSchedules(): Flowable<List<RouteSchedule>> {
+    override fun getSchedules(): Flowable<Map<String, RouteSchedule>> {
         return galwayBusService.getSchedules()
                 .map {
-                    val scheduleList = mutableListOf<RouteSchedule>()
+                    val scheduleMap = HashMap<String, RouteSchedule>()
                     val response = it
                     it.keys.forEach {
                         val schedule = response.get(it)!![0]
                         for (key in schedule.keys) {
                             val routeName = key
                             val pdfUrl = schedule[key]
-                            scheduleList.add(RouteSchedule(it, routeName, pdfUrl!!))
+                            scheduleMap.put(it, RouteSchedule(it, routeName, pdfUrl!!))
                         }
                     }
-                    scheduleList
+                    scheduleMap
                 }
     }
 

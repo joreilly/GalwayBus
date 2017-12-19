@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.R
+import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import com.surrus.galwaybus.model.BusRoute
 import kotlinx.android.synthetic.main.busroutes_list_item.view.*
 import org.jetbrains.anko.intentFor
@@ -15,7 +16,7 @@ import org.jetbrains.anko.intentFor
 
 class BusRoutesRecyclerViewAdapter : RecyclerView.Adapter<BusRoutesRecyclerViewAdapter.ViewHolder>() {
 
-    var busRouteList: List<BusRoute> = arrayListOf()
+    var busRouteList: List<BusRouteSchedule> = arrayListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -34,6 +35,7 @@ class BusRoutesRecyclerViewAdapter : RecyclerView.Adapter<BusRoutesRecyclerViewA
             val intent = Intent(context, BusStopListActivity::class.java)
             intent.putExtra(Constants.ROUTE_ID, busRoute.timetableId)
             intent.putExtra(Constants.ROUTE_NAME, busRoute.longName)
+            intent.putExtra(Constants.SCHEDULE_PDF, busRoute.schedulePdf)
             context.startActivity(intent)
         }
     }

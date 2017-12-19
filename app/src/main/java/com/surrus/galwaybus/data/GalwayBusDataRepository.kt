@@ -2,10 +2,7 @@ package com.surrus.galwaybus.data
 
 import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
-import com.surrus.galwaybus.model.BusRoute
-import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Departure
-import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import javax.inject.Inject
@@ -45,6 +42,10 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
         return factory.retrieveRemoteDataStore().getDepartures(stopRef)
+    }
+
+    override fun getSchedules(): Flowable<Map<String, RouteSchedule>> {
+        return factory.retrieveRemoteDataStore().getSchedules()
     }
 
 }

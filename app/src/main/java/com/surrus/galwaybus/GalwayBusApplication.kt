@@ -21,10 +21,11 @@ class GalwayBusApplication : Application(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
-            FirebaseCrash.setCrashCollectionEnabled(false);
-            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
-        } else {
+
+        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
+        FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
+
+        if (!BuildConfig.DEBUG) {
             Logger.init().logAdapter(releaseLogAdapter)
         }
 

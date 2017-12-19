@@ -3,6 +3,7 @@ package com.surrus.galwaybus.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
@@ -13,6 +14,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
 import android.view.MenuItem
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -51,6 +53,7 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
 
     private var routeId: String = ""
     private var routeName: String = ""
+    private var schedulePdf: String = ""
     private var direction: Int = 0
 
     private var map: GoogleMap? = null
@@ -68,9 +71,11 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
         if (savedInstanceState != null) {
             routeId = savedInstanceState.getString(Constants.ROUTE_ID)
             routeName = savedInstanceState.getString(Constants.ROUTE_NAME)
+            schedulePdf = savedInstanceState.getString(Constants.SCHEDULE_PDF)
         } else {
             routeId = intent.extras[Constants.ROUTE_ID] as String
             routeName = intent.extras[Constants.ROUTE_NAME] as String
+            schedulePdf = intent.extras[Constants.SCHEDULE_PDF] as String
         }
         setTitle(routeId + " - " + routeName)
 
@@ -106,13 +111,29 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(Constants.ROUTE_ID, routeId)
         outState.putString(Constants.ROUTE_NAME, routeName)
+        outState.putString(Constants.SCHEDULE_PDF, schedulePdf)
         super.onSaveInstanceState(outState)
     }
+
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.bus_stops_activity, menu)
+        return true
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 finish()
+                return true
+            }
+            R.id.action_view_schedule -> {
+                val intent = Intent(this, SchedulePdfActivity::class.java)
+                intent.putExtra(Constants.ROUTE_ID, routeId)
+                intent.putExtra(Constants.ROUTE_NAME, routeName)
+                intent.putExtra(Constants.SCHEDULE_PDF, schedulePdf)
+                startActivity(intent)
                 return true
             }
         }

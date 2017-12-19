@@ -3,6 +3,9 @@
     package="com.surrus.galwaybus">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
 
     <application
         android:name=".GalwayBusApplication"
@@ -24,15 +27,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.BusStopListActivity"
             android:parentActivityName=".ui.HomeActivity" />
-
         <activity
             android:name=".ui.SettingsActivity"
-            android:parentActivityName=".ui.HomeActivity"
-            android:label="@string/title_activity_settings"/>
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".ui.HomeActivity" />
+        <activity android:name=".ui.SchedulePdfActivity"
+            android:parentActivityName=".ui.BusStopListActivity"/>
     </application>
 
 </manifest>
