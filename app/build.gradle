@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.firebase-crash'
+apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
@@ -98,13 +98,14 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:3.8.1"
     androidTestImplementation 'tools.fastlane:screengrab:1.1.0'
 
-
+    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+        transitive = true
+    }
     implementation "com.google.firebase:firebase-core:${playServicesVersion}"
     implementation "com.google.firebase:firebase-auth:${playServicesVersion}"
     implementation "com.google.firebase:firebase-database:${playServicesVersion}"
     implementation "com.google.firebase:firebase-storage:${playServicesVersion}"
     implementation "com.google.firebase:firebase-perf:${playServicesVersion}"
-    implementation "com.google.firebase:firebase-crash:${playServicesVersion}"
     implementation 'com.firebaseui:firebase-ui-auth:3.0.0'
 
     implementation "com.google.android.gms:play-services-location:${playServicesVersion}"

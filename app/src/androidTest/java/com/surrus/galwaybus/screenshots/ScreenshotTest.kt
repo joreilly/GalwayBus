@@ -30,12 +30,17 @@ class ScreenshotTest {
         homeActivityRule.launchActivity(intent)
 
 
-        Thread.sleep(2000)
+        Thread.sleep(10000)
 
         Screengrab.screenshot("01main_screen")
 
-        Thread.sleep(5000)
+        Thread.sleep(10000)
 
         Screengrab.screenshot("02stops_screen")
+
+        Thread.sleep(10000)
+
+        Screengrab.screenshot("03pdf_screen")
+
     }
 }

@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Application
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crash.FirebaseCrash
 import com.orhanobut.logger.LogAdapter
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.di.DaggerApplicationComponent
@@ -13,6 +12,11 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import net.danlew.android.joda.JodaTimeAndroid
 import javax.inject.Inject
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
+import com.crashlytics.android.core.CrashlyticsCore
+
+
 
 class GalwayBusApplication : Application(), HasActivityInjector {
 
@@ -22,9 +26,16 @@ class GalwayBusApplication : Application(), HasActivityInjector {
         super.onCreate()
 
 
-        FirebaseCrash.setCrashCollectionEnabled(!BuildConfig.DEBUG);
+        // Enable Firebase analytics in release build only
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
+        // Initialize Crashltyics
+        val crashlyticsCore = CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build()
+        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
+
+        // Initialize Logger
         if (!BuildConfig.DEBUG) {
             Logger.init().logAdapter(releaseLogAdapter)
         }
