@@ -109,7 +109,11 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
                 val timeTillDeparture = Period(now, dep)
                 val mins = timeTillDeparture.minutes
                 if (mins >= 0) {
-                    duration.text = minsFormatter.print(timeTillDeparture)
+                    if (mins == 0) {
+                        duration.text = context.getString(R.string.bus_tie_due)
+                    } else {
+                        duration.text = minsFormatter.print(timeTillDeparture)
+                    }
                 }
             }
         }
