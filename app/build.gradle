@@ -89,6 +89,10 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:0.10.3"
     implementation "org.jetbrains.anko:anko-appcompat-v7-commons:0.10.3"
 
+    // ARCore
+    implementation 'com.google.ar:core:0.91.0'
+    implementation 'de.javagl:obj:0.2.1'
+
 
     implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     testImplementation "junit:junit:${junitVersion}"

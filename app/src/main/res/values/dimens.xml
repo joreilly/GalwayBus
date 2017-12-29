@@ -2,5 +2,6 @@
 <resources>
 
     <dimen name="text_bus_time">16sp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 </resources>

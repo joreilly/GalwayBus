@@ -25,6 +25,10 @@ class GalwayBusRemoteImpl  @Inject constructor(private val galwayBusService: Gal
                 .map { it.stops }
     }
 
+    override fun getAllStops() : Flowable<List<BusStop>> {
+        return galwayBusService.getAllStops()
+    }
+
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return galwayBusService.getNearestStops(location.latitude, location.longitude)
                 .doOnNext { Logger.d("Got nearest bus stop info: ${location.latitude}, ${location.longitude}") }

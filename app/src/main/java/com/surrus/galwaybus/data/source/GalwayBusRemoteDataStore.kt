@@ -18,8 +18,16 @@ class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: 
         return galwayBusRemote.getBusStops(routeId)
     }
 
+    override fun getBusStops() : Flowable<List<BusStop>> {
+        return galwayBusRemote.getAllStops()
+    }
+
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return galwayBusRemote.getNearestBusStops(location)
+    }
+
+    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+        throw UnsupportedOperationException()
     }
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
@@ -42,5 +50,19 @@ class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: 
     override fun isCached(): Single<Boolean> {
         throw UnsupportedOperationException()
     }
+
+    override fun clearBusStops(): Completable {
+        throw UnsupportedOperationException()
+    }
+
+    override fun saveBusStops(busStops: List<BusStop>): Completable {
+        throw UnsupportedOperationException()
+    }
+
+    override fun isBusStopsCached(): Single<Boolean> {
+        throw UnsupportedOperationException()
+    }
+
+
 
 }

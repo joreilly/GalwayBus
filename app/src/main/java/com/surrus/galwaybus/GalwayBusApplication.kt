@@ -15,12 +15,15 @@ import javax.inject.Inject
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
-
+import com.surrus.galwaybus.domain.repository.GalwayBusRepository
+import io.reactivex.schedulers.Schedulers
 
 
 class GalwayBusApplication : Application(), HasActivityInjector {
 
     @Inject lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+
+    @Inject lateinit var galwayRepository: GalwayBusRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -30,10 +33,10 @@ class GalwayBusApplication : Application(), HasActivityInjector {
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
         // Initialize Crashltyics
-        val crashlyticsCore = CrashlyticsCore.Builder()
-                .disabled(BuildConfig.DEBUG)
-                .build()
-        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
+//        val crashlyticsCore = CrashlyticsCore.Builder()
+//                .disabled(BuildConfig.DEBUG)
+//                .build()
+//        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
 
         // Initialize Logger
         if (!BuildConfig.DEBUG) {
@@ -48,6 +51,14 @@ class GalwayBusApplication : Application(), HasActivityInjector {
                 .application(this)
                 .build()
                 .inject(this)
+
+
+
+        galwayRepository.getBusStops().subscribeOn(Schedulers.io())
+                .subscribe {}
+
+
+
 
     }
 

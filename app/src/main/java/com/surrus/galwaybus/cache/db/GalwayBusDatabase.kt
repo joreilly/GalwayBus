@@ -4,9 +4,10 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import com.surrus.galwaybus.cache.dao.GalwayBusDao
 import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.model.BusStop
 import javax.inject.Inject
 
-@Database(entities = arrayOf(BusRoute::class), version = 1)
+@Database(entities = arrayOf(BusRoute::class, BusStop::class), version = 2)
 abstract class GalwayBusDatabase : RoomDatabase() {
 
     abstract fun galwayBusDao(): GalwayBusDao

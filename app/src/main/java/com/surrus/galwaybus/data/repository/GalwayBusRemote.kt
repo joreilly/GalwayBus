@@ -6,6 +6,7 @@ import io.reactivex.Flowable
 interface GalwayBusRemote {
     fun getBusRoutes(): Flowable<List<BusRoute>>
     fun getBusStops(routeId: String): Flowable<List<List<BusStop>>>
+    fun getAllStops() : Flowable<List<BusStop>>
     fun getNearestBusStops(location: Location): Flowable<List<BusStop>>
     fun getDepartures(stopRef: String): Flowable<List<Departure>>
     fun getSchedules(): Flowable<Map<String, RouteSchedule>>

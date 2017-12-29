@@ -3,6 +3,7 @@ package com.surrus.galwaybus.cache
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.model.BusStop
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
@@ -44,12 +45,48 @@ class GalwayBusCacheImpl @Inject constructor(val galwayBusDatabase: GalwayBusDat
         }
     }
 
-
     override fun isCached(): Single<Boolean> {
         return Single.defer {
             Single.just(galwayBusDatabase.galwayBusDao().getBusRoutes().isNotEmpty())
         }
     }
+
+
+    override fun saveBusStops(busStops: List<BusStop>): Completable {
+        return Completable.defer {
+            busStops.forEach {
+                galwayBusDatabase.galwayBusDao().insertBusStop(it)
+            }
+            Completable.complete()
+        }
+    }
+
+    override fun getBusStops(): Flowable<List<BusStop>> {
+        return Flowable.defer {
+            Flowable.just(galwayBusDatabase.galwayBusDao().getBusStops())
+        }
+    }
+
+    override fun clearBusStops(): Completable {
+        return Completable.defer {
+            galwayBusDatabase.galwayBusDao().clearBusStops()
+            Completable.complete()
+        }
+    }
+
+    override fun isBusStopsCached(): Single<Boolean> {
+        return Single.defer {
+            Single.just(galwayBusDatabase.galwayBusDao().getBusStops().isNotEmpty())
+        }
+    }
+
+
+    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+        return Flowable.defer {
+            Flowable.just(galwayBusDatabase.galwayBusDao().getBusStopsByName(name))
+        }
+    }
+
 
     override fun setLastCacheTime(lastCache: Long) {
         preferencesHelper.lastCacheTime = lastCache

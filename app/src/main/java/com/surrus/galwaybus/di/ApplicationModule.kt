@@ -98,6 +98,7 @@ open class ApplicationModule {
     internal fun provideGalwayBusDatabase(application: Application): GalwayBusDatabase {
         return Room.databaseBuilder(application.applicationContext,
                 GalwayBusDatabase::class.java, "galway_bus.db")
+                .fallbackToDestructiveMigration()
                 .build()
     }
 }
