@@ -6,6 +6,10 @@ import android.arch.persistence.room.OnConflictStrategy
 import android.arch.persistence.room.Query
 import com.surrus.galwaybus.cache.db.GalwayBusDatabaseConstants
 import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.model.BusStop
+import android.arch.lifecycle.LiveData
+
+
 
 @Dao
 abstract class GalwayBusDao {
@@ -18,5 +22,19 @@ abstract class GalwayBusDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertBusRoute(busRoute: BusRoute)
+
+
+    @Query(GalwayBusDatabaseConstants.QUERY_BUS_STOPS)
+    abstract fun getBusStops(): List<BusStop>
+
+    @Query(GalwayBusDatabaseConstants.DELETE_ALL_BUS_STOPS)
+    abstract fun clearBusStops()
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertBusStop(busStop: BusStop)
+
+
+    @Query(GalwayBusDatabaseConstants.QUERY_BUS_STOPS_BY_NAME)
+    abstract fun getBusStopsByName(longNameText: String): List<BusStop>
 
 }

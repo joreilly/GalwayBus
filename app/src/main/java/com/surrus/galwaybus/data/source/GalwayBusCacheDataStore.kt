@@ -25,6 +25,33 @@ open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCach
         return galwayBusCache.getBusRoutes()
     }
 
+    override fun isCached(): Single<Boolean> {
+        return galwayBusCache.isCached()
+    }
+
+
+    override fun clearBusStops(): Completable {
+        return galwayBusCache.clearBusStops()
+    }
+
+    override fun saveBusStops(busStops: List<BusStop>): Completable {
+        return galwayBusCache.saveBusStops(busStops)
+    }
+
+    override fun getBusStops(): Flowable<List<BusStop>> {
+        return galwayBusCache.getBusStops()
+    }
+
+    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+        return galwayBusCache.getBusStopsByName(name)
+    }
+
+    override fun isBusStopsCached(): Single<Boolean> {
+        return galwayBusCache.isBusStopsCached()
+    }
+
+
+
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return Flowable.just(emptyList<BusStop>())
     }
@@ -41,8 +68,5 @@ open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCach
         return Flowable.just(emptyMap<String, RouteSchedule>())
     }
 
-    override fun isCached(): Single<Boolean> {
-        return galwayBusCache.isCached()
-    }
 
 }

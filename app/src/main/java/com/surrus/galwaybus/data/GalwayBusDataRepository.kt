@@ -31,6 +31,44 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
         return factory.retrieveCacheDataStore().clearBusRoutes()
     }
 
+    override fun getBusStops() : Flowable<List<BusStop>> {
+
+        return Flowable.concatArray(getBusStopsFromCache(), getBusStopsFromRemote())
+                .firstElement()
+                .toFlowable()
+
+//        return factory.retrieveCacheDataStore().isBusStopsCached()
+//                .flatMapPublisher {
+//                    factory.retrieveDataStore(it).getBusStops()
+//                }
+//                .flatMap {
+//                    saveBusStops(it).toSingle { it }.toFlowable()
+//                }
+    }
+
+    fun getBusStopsFromCache(): Flowable<List<BusStop>> {
+        return factory.retrieveCacheDataStore().getBusStops()
+                .filter { it.isNotEmpty() }
+    }
+
+    fun getBusStopsFromRemote(): Flowable<List<BusStop>> {
+        return factory.retrieveRemoteDataStore().getBusStops()
+                .flatMap {
+                    saveBusStops(it).toSingle { it }.toFlowable()
+                }
+    }
+
+    override fun saveBusStops(busStops: List<BusStop>): Completable {
+        return factory.retrieveCacheDataStore().saveBusStops(busStops)
+    }
+
+    override fun clearBusStops(): Completable {
+        return factory.retrieveCacheDataStore().clearBusStops()
+    }
+
+
+
+
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
         return factory.retrieveRemoteDataStore().getNearestBusStops(location)
@@ -38,6 +76,10 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
 
     override fun getBusStops(routeId: String): Flowable<List<List<BusStop>>> {
         return factory.retrieveRemoteDataStore().getBusStops(routeId)
+    }
+
+    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+        return factory.retrieveCacheDataStore().getBusStopsByName(name)
     }
 
     override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
