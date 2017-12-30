@@ -9,6 +9,7 @@ buildscript {
     project.ext.buildToolsVersion = "27.0.2"
     project.ext.supportLibVersion = "26.1.0"
 
+    project.ext.okhttpVersion = "3.9.0"
     project.ext.retrofitVersion = '2.3.0'
     project.ext.daggerVersion = "2.11"
     project.ext.rxJavaVersion = "2.1.6"

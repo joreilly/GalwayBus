@@ -164,6 +164,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         searchMenuItem = menu.findItem(R.id.action_search)
         val searchView = searchMenuItem?.getActionView() as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
+        searchView.setSubmitButtonEnabled(false)
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -192,7 +193,6 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
                 bottomNavigation.visibility = View.GONE
 
-                //supportFragmentManager.beginTransaction().remove(activeFragment).commit()
                 if (activeFragment != null) {
                     supportFragmentManager.beginTransaction().hide(activeFragment).commit()
                 }

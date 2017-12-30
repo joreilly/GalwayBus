@@ -21,10 +21,16 @@ import com.surrus.galwaybus.remote.GalwayBusService
 import com.surrus.galwaybus.ui.UiThread
 import dagger.Module
 import dagger.Provides
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import org.buffer.android.boilerplate.data.executor.JobExecutorThread
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 @Module
@@ -44,7 +50,26 @@ open class ApplicationModule {
 
     @Provides
     @PerApplication
-    internal fun provideGalwayBusService() : GalwayBusService {
+    fun provideOkHttpClient(application: Application): OkHttpClient {
+        val interceptor = HttpLoggingInterceptor()
+        interceptor.level = HttpLoggingInterceptor.Level.BODY
+
+        val cacheDir = File(application.cacheDir, UUID.randomUUID().toString())
+        // 10MB cache
+        val cache = Cache(cacheDir, 10 * 1024 * 1024)
+
+        return OkHttpClient.Builder()
+                .cache(cache)
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS)
+                .addInterceptor(interceptor)
+                .build()
+    }
+
+    @Provides
+    @PerApplication
+    internal fun provideGalwayBusService(okHttpClient: OkHttpClient) : GalwayBusService {
         val gson = GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ")
@@ -54,6 +79,7 @@ open class ApplicationModule {
                 .baseUrl("http://galwaybus.herokuapp.com/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .client(okHttpClient)
                 .build()
 
         return retrofit.create(GalwayBusService::class.java)
