@@ -191,7 +191,11 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
         MenuItemCompat.setOnActionExpandListener(searchMenuItem, object : MenuItemCompat.OnActionExpandListener {
             override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
                 bottomNavigation.visibility = View.GONE
-                supportFragmentManager.beginTransaction().remove(activeFragment).commit()
+
+                //supportFragmentManager.beginTransaction().remove(activeFragment).commit()
+                if (activeFragment != null) {
+                    supportFragmentManager.beginTransaction().hide(activeFragment).commit()
+                }
 
                 searchResultsList.visibility = View.VISIBLE
                 return true
@@ -202,7 +206,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 bottomNavigation.visibility = View.VISIBLE
 
                 if (activeFragment != null) {
-                    supportFragmentManager.beginTransaction().add(R.id.fragmentContainer, activeFragment).commit()
+                    supportFragmentManager.beginTransaction().show(activeFragment).commit()
                 }
                 return true
             }
