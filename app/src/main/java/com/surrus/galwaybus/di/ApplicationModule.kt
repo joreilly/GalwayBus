@@ -3,6 +3,7 @@ package com.surrus.galwaybus.di
 import android.app.Application
 import android.arch.persistence.room.Room
 import android.content.Context
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.surrus.galwaybus.cache.GalwayBusCacheImpl
@@ -64,6 +65,7 @@ open class ApplicationModule {
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(interceptor)
+                .addNetworkInterceptor( StethoInterceptor())
                 .build()
     }
 

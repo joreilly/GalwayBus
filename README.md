@@ -47,4 +47,4 @@ implementations interact directly with the `Repository`.  In either case,
 * [PdfViewPager](https://github.com/voghDev/PdfViewPager)
 * [Mockito](http://site.mockito.org/)
 * [MockWebServer](https://github.com/square/okhttp/tree/master/mockwebserver)
-
+* [Stetho](https://github.com/facebook/stetho)

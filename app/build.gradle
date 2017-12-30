@@ -121,6 +121,9 @@ dependencies {
 
     implementation 'es.voghdev.pdfviewpager:library:1.0.3'
 
+    implementation 'com.facebook.stetho:stetho:1.5.0'
+    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'

@@ -15,6 +15,7 @@ import javax.inject.Inject
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
+import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import io.reactivex.schedulers.Schedulers
 
@@ -28,6 +29,9 @@ class GalwayBusApplication : Application(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
 
+
+        // Stetho
+        Stetho.initializeWithDefaults(this);
 
         // Enable Firebase analytics in release build only
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
@@ -54,12 +58,8 @@ class GalwayBusApplication : Application(), HasActivityInjector {
 
 
 
-        galwayRepository.getBusStops().subscribeOn(Schedulers.io())
-                .subscribe {}
-
-
-
-
+        // TODO should we perhaps do this instead in init() of repository class?
+        galwayRepository.getBusStops().subscribeOn(Schedulers.io()).subscribe {}
     }
 
     override fun activityInjector(): AndroidInjector<Activity> {
