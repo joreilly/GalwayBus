@@ -31,6 +31,7 @@ import dagger.android.support.HasSupportFragmentInjector
 import dagger.android.AndroidInjector
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 
 
 class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
@@ -174,6 +175,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.length >= 2) {
                     galwayRepository.getBusStopsByName("%$query%")
+                            .debounce(300, TimeUnit.MILLISECONDS)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe {
