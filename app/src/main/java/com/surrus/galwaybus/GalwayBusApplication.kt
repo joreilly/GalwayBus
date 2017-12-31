@@ -2,6 +2,7 @@ package com.surrus.galwaybus
 
 import android.app.Activity
 import android.app.Application
+import android.support.multidex.MultiDexApplication
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.LogAdapter
@@ -20,7 +21,7 @@ import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import io.reactivex.schedulers.Schedulers
 
 
-class GalwayBusApplication : Application(), HasActivityInjector {
+class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
 
     @Inject lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
 
@@ -29,6 +30,7 @@ class GalwayBusApplication : Application(), HasActivityInjector {
     override fun onCreate() {
         super.onCreate()
 
+        Logger.i("GalwayBusApplication init")
 
         // Stetho
         Stetho.initializeWithDefaults(this);
@@ -37,19 +39,21 @@ class GalwayBusApplication : Application(), HasActivityInjector {
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
         // Initialize Crashltyics
-//        val crashlyticsCore = CrashlyticsCore.Builder()
-//                .disabled(BuildConfig.DEBUG)
-//                .build()
-//        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
+        val crashlyticsCore = CrashlyticsCore.Builder()
+                .disabled(BuildConfig.DEBUG)
+                .build()
+        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
 
         // Initialize Logger
         if (!BuildConfig.DEBUG) {
             Logger.init().logAdapter(releaseLogAdapter)
         }
 
-        Logger.i("GalwayBusApplication init")
-
+        // Initialize Joda
         JodaTimeAndroid.init(this);
+
+
+        // Initialize Dagger
         DaggerApplicationComponent
                 .builder()
                 .application(this)
@@ -58,8 +62,11 @@ class GalwayBusApplication : Application(), HasActivityInjector {
 
 
 
+        // Preload Bus Stop info
         // TODO should we perhaps do this instead in init() of repository class?
         galwayRepository.getBusStops().subscribeOn(Schedulers.io()).subscribe {}
+
+        Logger.i("GalwayBusApplication init completed")
     }
 
     override fun activityInjector(): AndroidInjector<Activity> {
