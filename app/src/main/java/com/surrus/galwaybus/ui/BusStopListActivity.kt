@@ -118,6 +118,12 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.bus_stops_activity, menu)
+
+        val scheduleMenuItem = menu.findItem(R.id.action_view_schedule)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
+            scheduleMenuItem.isVisible = true
+        }
+
         return true
     }
 
