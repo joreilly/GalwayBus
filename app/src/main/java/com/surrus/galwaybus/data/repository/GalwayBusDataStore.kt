@@ -13,10 +13,11 @@ interface GalwayBusDataStore {
     fun isCached(): Single<Boolean>
 
     fun clearBusStops(): Completable
-    fun saveBusStops(busStops: List<BusStop>): Completable
+    fun saveBusStops(busStopList: List<BusStop>): Completable
     fun getBusStops(): Flowable<List<BusStop>>
     fun getBusStopsByName(name: String) : Flowable<List<BusStop>>
     fun isBusStopsCached(): Single<Boolean>
+    fun getNumberBusStops(): Single<Int>
 
     fun getNearestBusStops(location: Location): Flowable<List<BusStop>>
     fun getBusStops(routeId: String): Flowable<List<List<BusStop>>>

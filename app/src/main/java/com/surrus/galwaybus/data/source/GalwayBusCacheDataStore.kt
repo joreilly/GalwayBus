@@ -34,8 +34,8 @@ open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCach
         return galwayBusCache.clearBusStops()
     }
 
-    override fun saveBusStops(busStops: List<BusStop>): Completable {
-        return galwayBusCache.saveBusStops(busStops)
+    override fun saveBusStops(busStopList: List<BusStop>): Completable {
+        return galwayBusCache.saveBusStops(busStopList)
     }
 
     override fun getBusStops(): Flowable<List<BusStop>> {
@@ -50,6 +50,9 @@ open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCach
         return galwayBusCache.isBusStopsCached()
     }
 
+    override fun getNumberBusStops(): Single<Int> {
+        return galwayBusCache.getNumberBusStops()
+    }
 
 
     override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {

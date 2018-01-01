@@ -1,7 +1,6 @@
 package com.surrus.galwaybus
 
 import android.app.Activity
-import android.app.Application
 import android.support.multidex.MultiDexApplication
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -17,15 +16,13 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
 import com.facebook.stetho.Stetho
-import com.surrus.galwaybus.domain.repository.GalwayBusRepository
-import io.reactivex.schedulers.Schedulers
+
+
 
 
 class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
 
     @Inject lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
-
-    @Inject lateinit var galwayRepository: GalwayBusRepository
 
     override fun onCreate() {
         super.onCreate()
@@ -61,10 +58,6 @@ class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
                 .inject(this)
 
 
-
-        // Preload Bus Stop info
-        // TODO should we perhaps do this instead in init() of repository class?
-        galwayRepository.getBusStops().subscribeOn(Schedulers.io()).subscribe {}
 
         Logger.i("GalwayBusApplication init completed")
     }

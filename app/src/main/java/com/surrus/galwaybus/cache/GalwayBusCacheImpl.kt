@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.cache
 
+import android.arch.lifecycle.LiveDataReactiveStreams
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.model.BusRoute
@@ -52,19 +53,15 @@ class GalwayBusCacheImpl @Inject constructor(val galwayBusDatabase: GalwayBusDat
     }
 
 
-    override fun saveBusStops(busStops: List<BusStop>): Completable {
+    override fun saveBusStops(busStopList: List<BusStop>): Completable {
         return Completable.defer {
-            busStops.forEach {
-                galwayBusDatabase.galwayBusDao().insertBusStop(it)
-            }
+            galwayBusDatabase.galwayBusDao().insertBusStopList(busStopList)
             Completable.complete()
         }
     }
 
     override fun getBusStops(): Flowable<List<BusStop>> {
-        return Flowable.defer {
-            Flowable.just(galwayBusDatabase.galwayBusDao().getBusStops())
-        }
+        return galwayBusDatabase.galwayBusDao().qeuryBusStops()
     }
 
     override fun clearBusStops(): Completable {
@@ -78,6 +75,11 @@ class GalwayBusCacheImpl @Inject constructor(val galwayBusDatabase: GalwayBusDat
         return Single.defer {
             Single.just(galwayBusDatabase.galwayBusDao().getBusStops().isNotEmpty())
         }
+    }
+
+
+    override fun getNumberBusStops(): Single<Int> {
+        return galwayBusDatabase.galwayBusDao().getNumberBusStops()
     }
 
 

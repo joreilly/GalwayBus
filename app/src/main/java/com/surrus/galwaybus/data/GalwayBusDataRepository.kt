@@ -1,10 +1,12 @@
 package com.surrus.galwaybus.data
 
+import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 /**
@@ -12,6 +14,15 @@ import javax.inject.Inject
  * data sources
  */
 class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBusDataStoreFactory): GalwayBusRepository {
+
+
+    init {
+        // Preload Bus Stop info
+        getBusStops().subscribeOn(Schedulers.io()).subscribe {
+            Logger.d("GalwayBusDataRepository: loaded bus stop info")
+        }
+    }
+
 
     override fun getBusRoutes(): Flowable<List<BusRoute>> {
         return factory.retrieveCacheDataStore().isCached()
@@ -32,30 +43,16 @@ class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBus
     }
 
     override fun getBusStops() : Flowable<List<BusStop>> {
+        factory.retrieveRemoteDataStore().getBusStops()
+                .subscribeOn(Schedulers.io())
+                .flatMap { saveBusStops(it).toSingle { it }.toFlowable() }
+                .subscribe({
+            Logger.d("Loaded bus stop info")
+        }, {
+            Logger.e(it.message)
+        })
 
-        return Flowable.concatArray(getBusStopsFromCache(), getBusStopsFromRemote())
-                .firstElement()
-                .toFlowable()
-
-//        return factory.retrieveCacheDataStore().isBusStopsCached()
-//                .flatMapPublisher {
-//                    factory.retrieveDataStore(it).getBusStops()
-//                }
-//                .flatMap {
-//                    saveBusStops(it).toSingle { it }.toFlowable()
-//                }
-    }
-
-    fun getBusStopsFromCache(): Flowable<List<BusStop>> {
         return factory.retrieveCacheDataStore().getBusStops()
-                .filter { it.isNotEmpty() }
-    }
-
-    fun getBusStopsFromRemote(): Flowable<List<BusStop>> {
-        return factory.retrieveRemoteDataStore().getBusStops()
-                .flatMap {
-                    saveBusStops(it).toSingle { it }.toFlowable()
-                }
     }
 
     override fun saveBusStops(busStops: List<BusStop>): Completable {

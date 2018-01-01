@@ -63,6 +63,8 @@ class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: 
         throw UnsupportedOperationException()
     }
 
-
+    override fun getNumberBusStops(): Single<Int> {
+        throw UnsupportedOperationException()
+    }
 
 }
