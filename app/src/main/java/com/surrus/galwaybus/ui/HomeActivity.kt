@@ -227,7 +227,7 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             return true
         } else if (id == R.id.action_centre) {
             nearestBusStopsViewModel.setZoomLevel(15.0f)
-            nearestBusStopsViewModel.setCameraPosition(Location(53.273849, -9.049695))
+            nearestBusStopsViewModel.setCameraPosition(Location(53.2743394, -9.0514163))
 
             val bundle = Bundle()
             bundle.putString("menu_option", "action_centre")
