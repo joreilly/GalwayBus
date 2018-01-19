@@ -3,12 +3,14 @@ package com.surrus.galwaybus.ui
 
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.surrus.galwaybus.Constants
 
 import com.surrus.galwaybus.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
@@ -55,7 +57,13 @@ class RoutesFragment : Fragment() {
             setHasFixedSize(true)
             layoutManager = LinearLayoutManager(context)
 
-            busRoutesAdapter = BusRoutesRecyclerViewAdapter()
+            busRoutesAdapter = BusRoutesRecyclerViewAdapter {
+                val intent = Intent(context, BusStopListActivity::class.java)
+                intent.putExtra(Constants.ROUTE_ID, it.timetableId)
+                intent.putExtra(Constants.ROUTE_NAME, it.longName)
+                intent.putExtra(Constants.SCHEDULE_PDF, it.schedulePdf)
+                context.startActivity(intent)
+            }
             adapter = busRoutesAdapter
         }
 

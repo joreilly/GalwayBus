@@ -1,51 +1,29 @@
 package com.surrus.galwaybus.ui
 
-import android.content.Intent
-import android.support.v4.content.ContextCompat.startActivity
 import android.support.v7.widget.RecyclerView
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.R
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
-import com.surrus.galwaybus.model.BusRoute
+import com.surrus.galwaybus.util.ext.inflate
 import kotlinx.android.synthetic.main.busroutes_list_item.view.*
-import org.jetbrains.anko.intentFor
 
 
-class BusRoutesRecyclerViewAdapter : RecyclerView.Adapter<BusRoutesRecyclerViewAdapter.ViewHolder>() {
-
+class BusRoutesRecyclerViewAdapter(val listener: (BusRouteSchedule) -> Unit) : RecyclerView.Adapter<BusRoutesRecyclerViewAdapter.ViewHolder>() {
     var busRouteList: List<BusRouteSchedule> = arrayListOf()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val layoutInflater = LayoutInflater.from(parent.context)
-        return ViewHolder(layoutInflater.inflate(R.layout.busroutes_list_item, parent, false))
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.inflate(R.layout.busroutes_list_item))
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val busRoute = busRouteList[position]
+    override fun getItemCount() = busRouteList.size
 
-        holder.title.text = busRoute.longName
-        holder.subtitle.text = busRoute.timetableId
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(busRouteList[position], listener)
 
-        val context = holder.itemView.context
-        holder.itemView.setOnClickListener {
-
-            val intent = Intent(context, BusStopListActivity::class.java)
-            intent.putExtra(Constants.ROUTE_ID, busRoute.timetableId)
-            intent.putExtra(Constants.ROUTE_NAME, busRoute.longName)
-            intent.putExtra(Constants.SCHEDULE_PDF, busRoute.schedulePdf)
-            context.startActivity(intent)
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return busRouteList.size
-    }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val title = view.title
-        val subtitle = view.subtitle
+        fun bind(busRoute: BusRouteSchedule, listener: (BusRouteSchedule) -> Unit) = with(itemView) {
+            title.text = busRoute.longName
+            subtitle.text = busRoute.timetableId
+            setOnClickListener { listener(busRoute) }
+        }
     }
 }
