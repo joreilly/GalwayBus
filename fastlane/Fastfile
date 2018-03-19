@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 28
+    version = 29
 
 
     before_all do
@@ -62,7 +62,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "alpha",
-            apk: "app/build/outputs/apk/release/app-release.apk",
+            apk: "app/build/outputs/apk/release/app-universal-release.apk",
             skip_upload_metadata: true,
             skip_upload_images: true,
             skip_upload_screenshots: true

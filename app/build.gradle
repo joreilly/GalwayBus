@@ -26,24 +26,24 @@ def versionName() {
 }
 
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 android {
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
 
 
-    signingConfigs {
-        config {
-            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storePassword keystoreProperties['storePassword']
-            v2SigningEnabled true
-        }
-    }
+//    signingConfigs {
+//        config {
+//            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storePassword keystoreProperties['storePassword']
+//            v2SigningEnabled true
+//        }
+//    }
 
 
     defaultConfig {
@@ -57,12 +57,14 @@ android {
         multiDexEnabled true
 
         vectorDrawables.useSupportLibrary = true
+
+        resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            //signingConfig signingConfigs.config
         }
 
 
