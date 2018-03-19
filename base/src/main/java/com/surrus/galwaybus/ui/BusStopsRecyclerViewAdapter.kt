@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Departure
 import com.surrus.galwaybus.util.ext.inflate

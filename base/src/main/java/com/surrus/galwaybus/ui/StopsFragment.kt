@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.surrus.galwaybus.Constants
 
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe

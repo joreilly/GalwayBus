@@ -22,7 +22,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 
-import com.surrus.galwaybus.R;
+import com.surrus.galwaybus.base.R;
 
 import java.io.IOException;
 import java.io.InputStream;

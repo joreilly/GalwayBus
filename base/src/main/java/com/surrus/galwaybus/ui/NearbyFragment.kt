@@ -29,7 +29,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
 import com.orhanobut.logger.Logger
 
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource

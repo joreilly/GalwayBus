@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.surrus.galwaybus">
+    package="com.surrus.galwaybus.base">
 
 <!--
     <uses-permission android:name="android.permission.CAMERA" />
@@ -11,7 +11,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".GalwayBusApplication"
+        android:name="com.surrus.galwaybus.GalwayBusApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -22,7 +22,7 @@
             android:value="@string/google_maps_key" />
 
         <activity
-            android:name=".ui.HomeActivity"
+            android:name="com.surrus.galwaybus.ui.HomeActivity"
             android:launchMode="singleTop"
             android:label="@string/title_activity_home">
 
@@ -40,20 +40,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.BusStopListActivity"
-            android:parentActivityName=".ui.HomeActivity" />
+            android:name="com.surrus.galwaybus.ui.BusStopListActivity"
+            android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
         <activity
-            android:name=".ui.SettingsActivity"
+            android:name="com.surrus.galwaybus.ui.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName=".ui.HomeActivity" />
+            android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
         <activity
-            android:name=".ui.SchedulePdfActivity"
-            android:parentActivityName=".ui.BusStopListActivity" />
-        <activity android:name=".ar.ArActivity"></activity>
+            android:name="com.surrus.galwaybus.ui.SchedulePdfActivity"
+            android:parentActivityName="com.surrus.galwaybus.ui.BusStopListActivity" />
+        <activity android:name="com.surrus.galwaybus.ar.ArActivity"></activity>
 
 
         <activity
-            android:name=".ar.HelloArActivity"
+            android:name="com.surrus.galwaybus.ar.HelloArActivity"
             android:label="@string/app_name"
             android:configChanges="orientation|screenSize"
             android:exported="true"

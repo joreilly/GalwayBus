@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.preference.PreferenceFragment
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 
 
 class SettingsActivity : AppCompatActivity() {

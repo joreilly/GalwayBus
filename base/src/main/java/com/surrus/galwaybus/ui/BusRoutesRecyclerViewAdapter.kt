@@ -3,7 +3,7 @@ package com.surrus.galwaybus.ui
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import com.surrus.galwaybus.util.ext.inflate
 import kotlinx.android.synthetic.main.busroutes_list_item.view.*

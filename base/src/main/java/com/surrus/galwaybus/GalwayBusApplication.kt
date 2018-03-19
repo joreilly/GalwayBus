@@ -16,8 +16,7 @@ import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
 import com.facebook.stetho.Stetho
-
-
+import com.surrus.galwaybus.base.BuildConfig
 
 
 class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {

@@ -23,7 +23,6 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException
 import com.orhanobut.logger.Logger
-import com.surrus.galwaybus.R
 import com.surrus.galwaybus.ar.rendering.BackgroundRenderer
 import com.surrus.galwaybus.ar.rendering.ObjectRenderer
 import com.surrus.galwaybus.ar.rendering.PlaneRenderer
@@ -41,6 +40,8 @@ import java.util.ArrayList
 import javax.inject.Inject
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
+import com.surrus.galwaybus.base.R
+
 
 class ArActivity : AppCompatActivity(), GLSurfaceView.Renderer, SensorEventListener {
 

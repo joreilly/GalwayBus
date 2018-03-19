@@ -8,7 +8,7 @@ import android.view.View
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.surrus.galwaybus.Constants
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import es.voghdev.pdfviewpager.library.remote.DownloadFile
 import java.lang.Exception
 import es.voghdev.pdfviewpager.library.RemotePDFViewPager

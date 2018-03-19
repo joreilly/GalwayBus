@@ -20,7 +20,7 @@ import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 
 import com.google.ar.core.PointCloud;
-import com.surrus.galwaybus.R;
+import com.surrus.galwaybus.base.R;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;

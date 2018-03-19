@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.surrus.galwaybus.Constants
 
-import com.surrus.galwaybus.R
+import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModelFactory
 import com.surrus.galwaybus.util.ext.observe

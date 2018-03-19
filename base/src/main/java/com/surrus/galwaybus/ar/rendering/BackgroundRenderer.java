@@ -21,7 +21,7 @@ import android.opengl.GLSurfaceView;
 
 import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
-import com.surrus.galwaybus.R;
+import com.surrus.galwaybus.base.R;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

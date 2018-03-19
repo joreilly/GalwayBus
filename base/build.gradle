@@ -1,5 +1,4 @@
 apply plugin: 'com.android.feature'
-//apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
@@ -116,7 +115,7 @@ dependencies {
     implementation "com.google.firebase:firebase-auth:${playServicesVersion}"
     implementation "com.google.firebase:firebase-database:${playServicesVersion}"
     implementation "com.google.firebase:firebase-storage:${playServicesVersion}"
-    //implementation "com.google.firebase:firebase-perf:${playServicesVersion}"
+    implementation "com.google.firebase:firebase-invites:${playServicesVersion}"
     implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
 
     implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
