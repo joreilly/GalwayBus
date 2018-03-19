@@ -33,12 +33,12 @@ class StopsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            routeId = arguments.getString(Constants.ROUTE_ID)
-            direction = arguments.getInt(Constants.DIRECTION)
+        arguments?.let {
+            routeId = it.getString(Constants.ROUTE_ID)
+            direction = it.getInt(Constants.DIRECTION)
         }
 
-        busStopsViewModel = ViewModelProviders.of(activity, busStopsViewModelFactory).get(BusStopsViewModel::class.java)
+        busStopsViewModel = ViewModelProviders.of(activity!!, busStopsViewModelFactory).get(BusStopsViewModel::class.java)
     }
 
 

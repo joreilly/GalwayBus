@@ -40,7 +40,7 @@ class RoutesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        busRoutesViewModel = ViewModelProviders.of(activity, busRoutesViewModelFactory).get(BusRoutesViewModel::class.java)
+        busRoutesViewModel = ViewModelProviders.of(activity!!, busRoutesViewModelFactory).get(BusRoutesViewModel::class.java)
     }
 
 

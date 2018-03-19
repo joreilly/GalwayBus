@@ -66,9 +66,9 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         Logger.d("onCreate")
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!);
 
-        nearestBusStopsViewModel = ViewModelProviders.of(activity, nearestBusStopsViewModelFactory).get(NearestBusStopsViewModel::class.java)
+        nearestBusStopsViewModel = ViewModelProviders.of(activity!!, nearestBusStopsViewModelFactory).get(NearestBusStopsViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -189,7 +189,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         } else {
             nearestBusStopsViewModel.setCameraPosition(nearestBusStopsViewModel.getLocation()!!)
 
-            if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(activity!!, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 googleMap.isMyLocationEnabled = true
             }
         }

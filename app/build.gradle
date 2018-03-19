@@ -64,8 +64,27 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
         }
+
+
+        applicationVariants.all { variant ->
+            if (variant.buildType.name.equals("debug")) {
+                variant.mergedFlavor.resourceConfigurations.clear()
+                variant.mergedFlavor.resourceConfigurations.add("en")
+                variant.mergedFlavor.resourceConfigurations.add("xxhdpi")
+            }
+        }
+
     }
 
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include "armeabi-v7a", "x86"
+            universalApk true
+        }
+    }
 
 }
 
@@ -80,8 +99,8 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
-    implementation 'com.android.support:support-v4:26.1.0'
-    implementation 'com.android.support:support-vector-drawable:26.1.0'
+    implementation "com.android.support:support-v4:${supportLibVersion}"
+    implementation "com.android.support:support-vector-drawable:${supportLibVersion}"
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -112,7 +131,7 @@ dependencies {
     implementation "com.google.firebase:firebase-database:${playServicesVersion}"
     implementation "com.google.firebase:firebase-storage:${playServicesVersion}"
     implementation "com.google.firebase:firebase-perf:${playServicesVersion}"
-    implementation 'com.firebaseui:firebase-ui-auth:3.0.0'
+    implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
 
     implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
     implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
