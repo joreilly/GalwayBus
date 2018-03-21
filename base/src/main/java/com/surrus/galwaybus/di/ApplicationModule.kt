@@ -3,7 +3,7 @@ package com.surrus.galwaybus.di
 import android.app.Application
 import android.arch.persistence.room.Room
 import android.content.Context
-import com.facebook.stetho.okhttp3.StethoInterceptor
+//import com.facebook.stetho.okhttp3.StethoInterceptor
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.surrus.galwaybus.cache.GalwayBusCacheImpl
@@ -65,7 +65,7 @@ open class ApplicationModule {
                 .readTimeout(60, TimeUnit.SECONDS)
                 .writeTimeout(60, TimeUnit.SECONDS)
                 .addInterceptor(interceptor)
-                .addNetworkInterceptor( StethoInterceptor())
+                //.addNetworkInterceptor( StethoInterceptor())
                 .build()
     }
 
@@ -78,7 +78,7 @@ open class ApplicationModule {
                 .create()
 
         val retrofit = Retrofit.Builder()
-                .baseUrl("http://galwaybus.herokuapp.com/")
+                .baseUrl("https://galwaybus.herokuapp.com/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(okHttpClient)

@@ -22,7 +22,7 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 
 
-import com.surrus.galwaybus.base.R;
+import com.surrus.galwaybus.ar.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -239,7 +239,7 @@ public class ObjectRenderer {
      *
      * @param modelMatrix A 4x4 model-to-world transformation matrix, stored in column-major order.
      * @param scaleFactor A separate scaling factor to apply before the {@code modelMatrix}.
-     * @see android.opengl.Matrix
+     * @see Matrix
      */
     public void updateModelMatrix(float[] modelMatrix, float scaleFactor) {
         float[] scaleMatrix = new float[16];
@@ -277,7 +277,7 @@ public class ObjectRenderer {
      * @see #setBlendMode(BlendMode)
      * @see #updateModelMatrix(float[], float)
      * @see #setMaterialProperties(float, float, float, float)
-     * @see android.opengl.Matrix
+     * @see Matrix
      */
     public void draw(float[] cameraView, float[] cameraPerspective, float lightIntensity) {
 

@@ -330,7 +330,7 @@ public class HelloArActivity extends AppCompatActivity implements GLSurfaceView.
             // Check if we detected at least one plane. If so, hide the loading message.
             if (mMessageSnackbar != null) {
                 for (Plane plane : mSession.getAllTrackables(Plane.class)) {
-                    if (plane.getType() == com.google.ar.core.Plane.Type.HORIZONTAL_UPWARD_FACING
+                    if (plane.getType() == Plane.Type.HORIZONTAL_UPWARD_FACING
                             && plane.getTrackingState() == TrackingState.TRACKING) {
                         hideLoadingMessage();
                         break;

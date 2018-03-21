@@ -4,6 +4,7 @@ import android.app.SearchManager
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 
 
@@ -15,8 +16,9 @@ import android.support.v7.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import com.google.ar.core.Config
-import com.google.ar.core.Session
+import com.google.android.instantapps.InstantApps
+//import com.google.ar.core.Config
+//import com.google.ar.core.Session
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
@@ -160,6 +162,12 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
+        // check if instant app
+        val installMenuItem = menu.findItem(R.id.action_install)
+        if (InstantApps.isInstantApp(this)) {
+            installMenuItem.isVisible = true
+        }
+
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchMenuItem = menu.findItem(R.id.action_search)
         val searchView = searchMenuItem?.getActionView() as SearchView
@@ -234,6 +242,12 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
             firebaseAnaltyics.logEvent("menu_selected", bundle)
 
             return true
+        } else if (id == R.id.action_install) {
+            val postInstallIntent = Intent(Intent.ACTION_VIEW,
+                    Uri.parse("https://www.surrus.com/galwaybus")).
+                    addCategory(Intent.CATEGORY_BROWSABLE)
+
+            InstantApps.showInstallPrompt(this, postInstallIntent, 1, "")
         }
 
 //        else if (id == R.id.action_view_ar) {

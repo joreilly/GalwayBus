@@ -2,17 +2,52 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+
+
+ext.versionMajor = 1
+ext.versionMinor = 1
+ext.versionPatch = project.hasProperty('versionCode') ? project.property('versionCode') as int : 1
+
+def versionCode() {
+    if (!project.hasProperty('versionCode'))
+        return 1
+    def code = versionMajor * 1000000 + versionMinor * 1000 + versionPatch
+    println "versionCode is set to $code"
+    return code
+}
+
+def versionName() {
+    if (!project.hasProperty('versionCode'))
+        return "1.0"
+    def name = "${versionMajor}.${versionMinor}.${versionPatch}"
+    println "versionName is set to $name"
+    return name
+}
+
+
 android {
     compileSdkVersion project.compileSdkVersion
     buildToolsVersion project.buildToolsVersion
 
+//    signingConfigs {
+//        config {
+//            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storePassword keystoreProperties['storePassword']
+//            v2SigningEnabled true
+//        }
+//    }
 
     defaultConfig {
         applicationId "com.surrus.galwaybus"
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode this.versionCode()
+        versionName this.versionName()
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -21,11 +56,19 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.config
+        }
+
+        applicationVariants.all { variant ->
+            if (variant.buildType.name.equals("debug")) {
+                variant.mergedFlavor.resourceConfigurations.clear()
+                variant.mergedFlavor.resourceConfigurations.add("en")
+                variant.mergedFlavor.resourceConfigurations.add("xxhdpi")
+            }
         }
     }
-
 }
 
 dependencies {

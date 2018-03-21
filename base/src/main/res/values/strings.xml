@@ -11,6 +11,7 @@
     <string name="action_centre">Centre in Eyre Square</string>
     <string name="action_view_schedule">View Schedule</string>
     <string name="action_search">Search</string>
+    <string name="action_install">Install App</string>
 
     <string name="search_hint">Search Stop...</string>
 

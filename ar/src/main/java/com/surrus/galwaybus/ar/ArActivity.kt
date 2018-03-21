@@ -40,7 +40,7 @@ import java.util.ArrayList
 import javax.inject.Inject
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import com.surrus.galwaybus.base.R
+import com.surrus.galwaybus.ar.R
 
 
 class ArActivity : AppCompatActivity(), GLSurfaceView.Renderer, SensorEventListener {

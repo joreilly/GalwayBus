@@ -10,6 +10,12 @@
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
 
+    <item android:id="@+id/action_install"
+        android:visible="false"
+        android:title="@string/action_install"
+        app:showAsAction="never" />
+
+
 <!--
     <item android:id="@+id/action_login"
         android:visible="true"
@@ -33,6 +39,7 @@
     <item android:id="@+id/action_settings"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
 
 
 </menu>

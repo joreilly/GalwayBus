@@ -21,6 +21,8 @@ buildscript {
 
     project.ext.archComponentsVersion = "1.0.0"
 
+    project.ext.instantAppVersionCode = 10
+    project.ext.instantAppVersionName = "1.0.10"
 
 
 
@@ -33,7 +35,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.0-rc03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.google.gms:google-services:3.1.0'
         classpath 'com.google.firebase:firebase-plugins:1.1.5'

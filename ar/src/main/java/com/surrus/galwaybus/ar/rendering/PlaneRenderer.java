@@ -26,7 +26,7 @@ import com.google.ar.core.Camera;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Pose;
 import com.google.ar.core.Trackable.TrackingState;
-import com.surrus.galwaybus.base.R;
+import com.surrus.galwaybus.ar.R;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

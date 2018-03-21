@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 29
+    version = 30
 
 
     before_all do
@@ -53,7 +53,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: "assembleRelease",
+              task: ":app-apk:assembleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -62,7 +62,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "alpha",
-            apk: "app/build/outputs/apk/release/app-universal-release.apk",
+            apk: "app-apk/build/outputs/apk/release/app-apk-release.apk",
             skip_upload_metadata: true,
             skip_upload_images: true,
             skip_upload_screenshots: true

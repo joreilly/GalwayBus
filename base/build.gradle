@@ -3,25 +3,10 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-ext.versionMajor = 1
-ext.versionMinor = 1
-ext.versionPatch = project.hasProperty('versionCode') ? project.property('versionCode') as int : 1
 
-def versionCode() {
-    if (!project.hasProperty('versionCode'))
-        return 1
-    def code = versionMajor * 1000000 + versionMinor * 1000 + versionPatch
-    println "versionCode is set to $code"
-    return code
-}
-
-def versionName() {
-    if (!project.hasProperty('versionCode'))
-        return "1.0"
-    def name = "${versionMajor}.${versionMinor}.${versionPatch}"
-    println "versionName is set to $name"
-    return name
-}
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 
 android {
@@ -30,11 +15,23 @@ android {
 
     baseFeature = true
 
+//    signingConfigs {
+//        config {
+//            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storePassword keystoreProperties['storePassword']
+//            v2SigningEnabled true
+//        }
+//    }
+
+
     defaultConfig {
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
-        versionCode this.versionCode()
-        versionName this.versionName()
+        versionCode project.instantAppVersionCode
+        versionName project.instantAppVersionName
+
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true
@@ -45,30 +42,12 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            //signingConfig signingConfigs.config
         }
 
-//
-//        applicationVariants.all { variant ->
-//            if (variant.buildType.name.equals("debug")) {
-//                variant.mergedFlavor.resourceConfigurations.clear()
-//                variant.mergedFlavor.resourceConfigurations.add("en")
-//                variant.mergedFlavor.resourceConfigurations.add("xxhdpi")
-//            }
-//        }
     }
-
-
-//    splits {
-//        abi {
-//            enable true
-//            reset()
-//            include "armeabi-v7a", "x86"
-//            universalApk true
-//        }
-//    }
-
 }
 
 kapt {
@@ -78,12 +57,19 @@ kapt {
 
 
 dependencies {
+    application project(":app-apk")
+    feature project(":ar")
+
+    api 'com.google.android.instantapps:instantapps:1.1.0'
     api 'com.android.support:multidex:1.0.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    //api 'com.android.support.constraint:constraint-layout:1.0.2'
+    api "com.android.support:appcompat-v7:${supportLibVersion}"
     api "com.android.support:support-v4:${supportLibVersion}"
     api "com.android.support:support-vector-drawable:${supportLibVersion}"
+    api "com.android.support:design:${supportLibVersion}"
+
+
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -93,12 +79,8 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:0.10.3"
     implementation "org.jetbrains.anko:anko-appcompat-v7-commons:0.10.3"
 
-    // ARCore
-    implementation 'com.google.ar:core:0.91.0'
-    implementation 'de.javagl:obj:0.2.1'
 
 
-    implementation "com.android.support:appcompat-v7:${supportLibVersion}"
     testImplementation "junit:junit:${junitVersion}"
     testImplementation "org.robolectric:robolectric:${robolectricVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
@@ -106,29 +88,25 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:3.8.1"
     androidTestImplementation 'tools.fastlane:screengrab:1.1.0'
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
     }
 
 
-    implementation "com.google.firebase:firebase-core:${playServicesVersion}"
-    implementation "com.google.firebase:firebase-auth:${playServicesVersion}"
-    implementation "com.google.firebase:firebase-database:${playServicesVersion}"
-    implementation "com.google.firebase:firebase-storage:${playServicesVersion}"
-    implementation "com.google.firebase:firebase-invites:${playServicesVersion}"
-    implementation 'com.firebaseui:firebase-ui-auth:3.2.2'
+    api "com.google.firebase:firebase-core:${playServicesVersion}"
+    api "com.google.firebase:firebase-invites:${playServicesVersion}"
 
-    implementation "com.google.android.gms:play-services-location:${playServicesVersion}"
-    implementation "com.google.android.gms:play-services-maps:${playServicesVersion}"
+    api "com.google.android.gms:play-services-location:${playServicesVersion}"
+    api "com.google.android.gms:play-services-maps:${playServicesVersion}"
 
-    implementation 'com.karumi:dexter:4.1.0'
-    implementation 'net.danlew:android.joda:2.9.9.1'
-    implementation 'com.orhanobut:logger:1.15'
+    api 'com.karumi:dexter:4.1.0'
+    api 'net.danlew:android.joda:2.9.9.1'
+    api 'com.orhanobut:logger:1.15'
 
     implementation 'es.voghdev.pdfviewpager:library:1.0.3'
 
-    implementation 'com.facebook.stetho:stetho:1.5.0'
-    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+//    implementation 'com.facebook.stetho:stetho:1.5.0'
+//    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
 
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
@@ -154,11 +132,10 @@ dependencies {
     testImplementation "android.arch.core:core-testing:1.0.0"
 
 
-    implementation "com.google.dagger:dagger-android:${daggerVersion}"
-    implementation "com.google.dagger:dagger-android-support:${daggerVersion}"
+    api "com.google.dagger:dagger-android:${daggerVersion}"
+    api "com.google.dagger:dagger-android-support:${daggerVersion}"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
     kapt "com.google.dagger:dagger-android-support:${daggerVersion}"
     kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
 
 }
-

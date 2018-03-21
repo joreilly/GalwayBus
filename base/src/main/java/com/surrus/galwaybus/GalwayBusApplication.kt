@@ -15,7 +15,7 @@ import javax.inject.Inject
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
-import com.facebook.stetho.Stetho
+//import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.base.BuildConfig
 
 
@@ -29,7 +29,7 @@ class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
         Logger.i("GalwayBusApplication init")
 
         // Stetho
-        Stetho.initializeWithDefaults(this);
+        //Stetho.initializeWithDefaults(this);
 
         // Enable Firebase analytics in release build only
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
