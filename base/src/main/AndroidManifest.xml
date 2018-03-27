@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.surrus.galwaybus.base">
 
-<!--
-    <uses-permission android:name="android.permission.CAMERA" />
--->
+    <!--     <uses-permission android:name="android.permission.CAMERA" /> -->
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -17,6 +16,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -60,6 +60,16 @@
             android:name="com.surrus.galwaybus.ui.SchedulePdfActivity"
             android:parentActivityName="com.surrus.galwaybus.ui.BusStopListActivity" />
 
+
+        <provider
+            android:name="com.google.firebase.provider.FirebaseInitProvider"
+            android:authorities="com.surrus.galwaybus.firebaseinitprovider"
+            android:exported="false"
+            tools:node="merge"/>
+
     </application>
+
+
+
 
 </manifest>

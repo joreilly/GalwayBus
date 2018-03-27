@@ -43,7 +43,7 @@ class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: 
         throw UnsupportedOperationException()
     }
 
-    override fun saveBusRoutes(bufferoos: List<BusRoute>): Completable {
+    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
         throw UnsupportedOperationException()
     }
 

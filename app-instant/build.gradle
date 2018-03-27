@@ -40,5 +40,6 @@ android {
 }
 
 dependencies {
+    //implementation project(':ar')
     implementation project(':base')
 }

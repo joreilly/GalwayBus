@@ -140,6 +140,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             ResourceState.ERROR -> {
                 Snackbar.make(this.view!!, resource.message as CharSequence, Snackbar.LENGTH_LONG).show()
             }
+            ResourceState.LOADING -> TODO()
         }
     }
 
@@ -176,12 +177,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
                         override fun onPermissionGranted(response: PermissionGrantedResponse) {
                             googleMap.isMyLocationEnabled = true
 
-                            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                                var loc: Location? = null
-                                if (location != null) {
-                                    loc = Location(location.latitude, location.longitude)
-                                    nearestBusStopsViewModel.setLocation(loc)
-                                    nearestBusStopsViewModel.setCameraPosition(loc)
+                            fusedLocationClient.lastLocation.addOnSuccessListener { fusedLocation ->
+                                if (fusedLocation != null) {
+                                    val location = Location(fusedLocation.latitude, fusedLocation.longitude)
+                                    nearestBusStopsViewModel.setLocation(location)
+                                    nearestBusStopsViewModel.setCameraPosition(location)
                                 }
                             }
                         }
@@ -243,11 +243,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
 
             map?.setOnInfoWindowClickListener {
-                val stopRef = it.tag as String
+                //val stopRef = it.tag as String
             }
 
             map?.setOnMarkerClickListener {
-                val stopRef = it.tag as String
+                //val stopRef = it.tag as String
                 false
             }
 

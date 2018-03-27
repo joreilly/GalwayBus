@@ -3,7 +3,6 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
-
 //def keystorePropertiesFile = rootProject.file("keystore.properties")
 //def keystoreProperties = new Properties()
 //keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -58,9 +57,9 @@ kapt {
 
 dependencies {
     application project(":app-apk")
-    feature project(":ar")
+    //feature project(":ar")
 
-    api 'com.google.android.instantapps:instantapps:1.1.0'
+    api "com.google.android.instantapps:instantapps:${instantAppsVer}"
     api 'com.android.support:multidex:1.0.2'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -88,10 +87,9 @@ dependencies {
     testImplementation "com.squareup.okhttp3:mockwebserver:3.8.1"
     androidTestImplementation 'tools.fastlane:screengrab:1.1.0'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
         transitive = true
     }
-
 
     api "com.google.firebase:firebase-core:${playServicesVersion}"
     api "com.google.firebase:firebase-invites:${playServicesVersion}"
@@ -124,11 +122,10 @@ dependencies {
     api "android.arch.lifecycle:extensions:1.1.0"
     api "android.arch.lifecycle:reactivestreams:${archComponentsVersion}"
     api "android.arch.persistence.room:runtime:${archComponentsVersion}"
-    annotationProcessor "android.arch.persistence.room:compiler:${archComponentsVersion}"
     kapt "android.arch.persistence.room:compiler:${archComponentsVersion}"
     implementation "android.arch.persistence.room:rxjava2:${archComponentsVersion}"
 
-    annotationProcessor "android.arch.lifecycle:compiler:1.0.0"
+    kapt "android.arch.lifecycle:compiler:1.0.0"
     testImplementation "android.arch.core:core-testing:1.0.0"
 
 
@@ -138,4 +135,8 @@ dependencies {
     kapt "com.google.dagger:dagger-android-support:${daggerVersion}"
     kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
 
+    api "com.google.android.gms:play-services-instantapps:${playServicesVersion}"
+
 }
+
+apply plugin: 'com.google.gms.google-services'

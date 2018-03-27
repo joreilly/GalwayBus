@@ -73,9 +73,9 @@ android {
 
 dependencies {
     implementation project(':base')
+    //implementation project(':ar')
 
     implementation "com.google.firebase:firebase-perf:${playServicesVersion}"
 
 }
 
-apply plugin: 'com.google.gms.google-services'
