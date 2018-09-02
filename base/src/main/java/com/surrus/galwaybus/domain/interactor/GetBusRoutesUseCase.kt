@@ -8,9 +8,9 @@ import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.RouteSchedule
 import io.reactivex.Flowable
 import io.reactivex.rxkotlin.Flowables
-import javax.inject.Inject
 
-open class GetBusRoutesUseCase @Inject constructor(val galwayRepository: GalwayBusRepository,
+
+open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository,
                                                    executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
         FlowableUseCase<List<BusRouteSchedule>, Void?>(executorThread, postExecutionThread) {
 

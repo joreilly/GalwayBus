@@ -1,7 +1,6 @@
 package com.surrus.galwaybus.ui
 
 import android.app.SearchManager
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -24,32 +23,20 @@ import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
-import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
-import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_home.*
-import javax.inject.Inject
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
-import dagger.android.AndroidInjector
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import org.koin.android.architecture.ext.viewModel
+import org.koin.android.ext.android.inject
 import java.util.concurrent.TimeUnit
 
 
-class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
-    @Inject
-    lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+class HomeActivity : AppCompatActivity() {
 
-    @Inject
-    lateinit var firebaseAnaltyics: FirebaseAnalytics
+    val firebaseAnaltyics by inject<FirebaseAnalytics>()
+    val galwayRepository by inject<GalwayBusRepository>()
 
-    @Inject
-    lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
-
-    @Inject lateinit var galwayRepository: GalwayBusRepository
-
-
-    private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
+    val nearestBusStopsViewModel: NearestBusStopsViewModel by viewModel()
 
     //private var arCoreSession: Session? = null
 
@@ -63,14 +50,9 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
         Logger.d("onCreate")
-
-        nearestBusStopsViewModel = ViewModelProviders.of(this, nearestBusStopsViewModelFactory).get(NearestBusStopsViewModel::class.java)
-
-
 
         searchResultsStopsAdapter = BusStopsRecyclerViewAdapter {
             nearestBusStopsViewModel.setLocation(Location(it.latitude, it.longitude))
@@ -258,11 +240,5 @@ class HomeActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         return super.onOptionsItemSelected(item)
     }
-
-
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
-        return fragmentDispatchingAndroidInjector
-    }
-
 
 }

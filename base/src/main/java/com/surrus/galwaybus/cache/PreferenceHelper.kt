@@ -4,14 +4,10 @@ package com.surrus.galwaybus.cache
 import android.content.Context
 import android.content.SharedPreferences
 
-import javax.inject.Inject
-import javax.inject.Singleton
-
 /**
  * General Preferences Helper class, used for storing preference values using the Preference API
  */
-@Singleton
-open class PreferencesHelper @Inject constructor(context: Context) {
+open class PreferencesHelper constructor(context: Context) {
 
     companion object {
         private val PREF_GALWAY_BUS_PACKAGE_NAME = "com.surrus.galwaybus.preferences"

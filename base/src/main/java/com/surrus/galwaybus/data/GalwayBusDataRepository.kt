@@ -7,13 +7,13 @@ import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
-import javax.inject.Inject
+
 
 /**
  * Provides an implementation of the [GalwayBusRepository] interface for communicating to and from
  * data sources
  */
-class GalwayBusDataRepository @Inject constructor(private val factory: GalwayBusDataStoreFactory): GalwayBusRepository {
+class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStoreFactory): GalwayBusRepository {
 
 
     init {

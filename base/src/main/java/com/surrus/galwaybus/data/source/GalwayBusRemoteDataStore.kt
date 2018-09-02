@@ -6,9 +6,9 @@ import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import javax.inject.Inject
 
-class GalwayBusRemoteDataStore @Inject constructor(private val galwayBusRemote: GalwayBusRemote) : GalwayBusDataStore {
+
+class GalwayBusRemoteDataStore constructor(private val galwayBusRemote: GalwayBusRemote) : GalwayBusDataStore {
 
     override fun getBusRoutes(): Flowable<List<BusRoute>> {
         return galwayBusRemote.getBusRoutes()

@@ -1,6 +1,5 @@
 package com.surrus.galwaybus.cache
 
-import android.arch.lifecycle.LiveDataReactiveStreams
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.model.BusRoute
@@ -8,9 +7,9 @@ import com.surrus.galwaybus.model.BusStop
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import javax.inject.Inject
 
-class GalwayBusCacheImpl @Inject constructor(val galwayBusDatabase: GalwayBusDatabase,
+
+class GalwayBusCacheImpl constructor(val galwayBusDatabase: GalwayBusDatabase,
                                              private val preferencesHelper: PreferencesHelper) : GalwayBusCache {
 
     private val EXPIRATION_TIME = (60 * 10 * 1000).toLong()

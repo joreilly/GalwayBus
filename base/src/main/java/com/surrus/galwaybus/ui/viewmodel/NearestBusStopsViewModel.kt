@@ -9,10 +9,10 @@ import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import io.reactivex.subscribers.DisposableSubscriber
-import javax.inject.Inject
 
 
-class NearestBusStopsViewModel @Inject constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
+
+class NearestBusStopsViewModel constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
 
     var busStops: MutableLiveData<Resource<List<BusStop>>> = MutableLiveData()
     val location: MutableLiveData<Location> = MutableLiveData()

@@ -2,9 +2,9 @@ package com.surrus.galwaybus.data.source
 
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.data.repository.GalwayBusDataStore
-import javax.inject.Inject
 
-open class GalwayBusDataStoreFactory @Inject constructor(
+
+open class GalwayBusDataStoreFactory constructor(
         private val galwayBusCache: GalwayBusCache,
         private val galwayBusCacheDataStore: GalwayBusCacheDataStore,
         private val galwayBusRemoteDataStore: GalwayBusRemoteDataStore) {

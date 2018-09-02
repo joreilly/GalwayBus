@@ -3,8 +3,6 @@ package com.surrus.galwaybus.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -24,7 +22,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.karumi.dexter.Dexter
-import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
 import com.orhanobut.logger.Logger
@@ -35,12 +32,9 @@ import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
-import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
-import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_nearby.*
-import javax.inject.Inject
-
+import org.koin.android.architecture.ext.sharedViewModel
 
 
 class NearbyFragment : Fragment(), OnMapReadyCallback {
@@ -50,8 +44,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private var mapFragment: SupportMapFragment? = null
     private var myLocationEnabled = false
 
-    @Inject lateinit var nearestBusStopsViewModelFactory: NearestBusStopsViewModelFactory
-    private lateinit var nearestBusStopsViewModel : NearestBusStopsViewModel
+    val nearestBusStopsViewModel: NearestBusStopsViewModel by sharedViewModel()
 
     private lateinit var busStopsAdapter: BusStopsRecyclerViewAdapter
 
@@ -67,8 +60,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         Logger.d("onCreate")
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!);
-
-        nearestBusStopsViewModel = ViewModelProviders.of(activity!!, nearestBusStopsViewModelFactory).get(NearestBusStopsViewModel::class.java)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -144,12 +135,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-        Logger.d("onAttach")
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         Logger.d("onCreateView")

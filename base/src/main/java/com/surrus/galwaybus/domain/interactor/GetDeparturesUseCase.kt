@@ -5,9 +5,8 @@ import com.surrus.galwaybus.domain.executor.PostExecutionThread
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.Departure
 import io.reactivex.Flowable
-import javax.inject.Inject
 
-open class GetDeparturesUseCase @Inject constructor(val galwayRepository: GalwayBusRepository,
+open class GetDeparturesUseCase constructor(val galwayRepository: GalwayBusRepository,
                                                     executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
         FlowableUseCase<List<Departure>, String>(executorThread, postExecutionThread) {
 

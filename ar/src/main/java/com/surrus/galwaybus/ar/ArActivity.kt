@@ -9,7 +9,6 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.opengl.Matrix
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Range
@@ -31,7 +30,6 @@ import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
-import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
 import dagger.android.AndroidInjection
 import kotlinx.android.synthetic.main.activity_ar.*
@@ -40,7 +38,6 @@ import java.util.ArrayList
 import javax.inject.Inject
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
-import com.surrus.galwaybus.ar.R
 
 
 class ArActivity : AppCompatActivity(), GLSurfaceView.Renderer, SensorEventListener {

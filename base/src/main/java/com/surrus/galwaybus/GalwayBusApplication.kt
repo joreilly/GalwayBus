@@ -1,27 +1,21 @@
 package com.surrus.galwaybus
 
-import android.app.Activity
 import android.support.multidex.MultiDexApplication
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.LogAdapter
 import com.orhanobut.logger.Logger
-import com.surrus.galwaybus.di.DaggerApplicationComponent
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
 import net.danlew.android.joda.JodaTimeAndroid
-import javax.inject.Inject
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.base.BuildConfig
+import com.surrus.galwaybus.di.koin.appModule
+import org.koin.android.ext.android.startKoin
 
 
-class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
-
-    @Inject lateinit var activityDispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
+class GalwayBusApplication : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
@@ -48,23 +42,11 @@ class GalwayBusApplication : MultiDexApplication(), HasActivityInjector {
         // Initialize Joda
         JodaTimeAndroid.init(this);
 
-
-        // Initialize Dagger
-        DaggerApplicationComponent
-                .builder()
-                .application(this)
-                .build()
-                .inject(this)
-
-
+        // Start Koin
+        startKoin(this, appModule)
 
         Logger.i("GalwayBusApplication init completed")
     }
-
-    override fun activityInjector(): AndroidInjector<Activity> {
-        return activityDispatchingAndroidInjector
-    }
-
 
     internal var releaseLogAdapter: LogAdapter = object : LogAdapter {
 

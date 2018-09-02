@@ -1,8 +1,6 @@
 package com.surrus.galwaybus.ui
 
 
-import android.arch.lifecycle.ViewModelProviders
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,19 +12,15 @@ import com.surrus.galwaybus.Constants
 
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
-import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
-import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_routes.*
-import javax.inject.Inject
+import org.koin.android.architecture.ext.viewModel
 
 
 class RoutesFragment : Fragment() {
 
-    @Inject
-    lateinit var busRoutesViewModelFactory: BusRoutesViewModelFactory
+    val busRoutesViewModel: BusRoutesViewModel by viewModel()
 
-    private lateinit var busRoutesViewModel : BusRoutesViewModel
     private lateinit var busRoutesAdapter: BusRoutesRecyclerViewAdapter
 
 
@@ -35,20 +29,6 @@ class RoutesFragment : Fragment() {
             return RoutesFragment()
         }
     }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        busRoutesViewModel = ViewModelProviders.of(activity!!, busRoutesViewModelFactory).get(BusRoutesViewModel::class.java)
-    }
-
-
-    override fun onAttach(context: Context) {
-        AndroidSupportInjection.inject(this)
-        super.onAttach(context)
-    }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -77,6 +57,5 @@ class RoutesFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_routes, container, false)
     }
-
 
 }

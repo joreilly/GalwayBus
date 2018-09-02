@@ -5,13 +5,10 @@ import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
 import io.reactivex.subscribers.DisposableSubscriber
-import javax.inject.Inject
 import io.reactivex.disposables.CompositeDisposable
 
 
-
-
-class BusStopsViewModel @Inject constructor(val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
+class BusStopsViewModel constructor(val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
 
     val direction: MutableLiveData<Int> = MutableLiveData()
 

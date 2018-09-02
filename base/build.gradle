@@ -69,12 +69,18 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation Deps.kotlinStdLib
+
     api SupportLibraries.appcompat
     api SupportLibraries.design
     api SupportLibraries.supportV4
     api SupportLibraries.vectorDrawable
 
-    implementation Deps.kotlinStdLib
+    api Koin.core
+    api Koin.android
+    api Koin.androidArchitecture
+
+
 
     implementation "org.jetbrains.anko:anko:0.10.3"
     implementation "org.jetbrains.anko:anko-commons:0.10.4"
@@ -130,15 +136,7 @@ dependencies {
     kapt "android.arch.lifecycle:compiler:1.1.1"
     testImplementation "android.arch.core:core-testing:1.1.1"
 
-
-    api "com.google.dagger:dagger-android:${daggerVersion}"
-    api "com.google.dagger:dagger-android-support:${daggerVersion}"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-    kapt "com.google.dagger:dagger-android-support:${daggerVersion}"
-    kapt "com.google.dagger:dagger-android-processor:${daggerVersion}"
-
     api "com.google.android.gms:play-services-instantapps:${playServicesVersion}"
-
 }
 
 apply plugin: 'com.google.gms.google-services'

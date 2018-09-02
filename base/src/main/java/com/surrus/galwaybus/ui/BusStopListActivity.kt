@@ -2,26 +2,18 @@ package com.surrus.galwaybus.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Parcelable
-import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.ViewPager
-import android.support.v7.widget.LinearLayoutManager
 import android.view.Menu
 import android.view.MenuItem
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
@@ -31,25 +23,15 @@ import com.karumi.dexter.listener.single.BasePermissionListener
 import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
-import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModelFactory
 import com.surrus.galwaybus.util.ext.observe
-import dagger.android.AndroidInjection
-import dagger.android.AndroidInjector
-import dagger.android.DispatchingAndroidInjector
-import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.activity_bus_stop_list.*
-import javax.inject.Inject
+import org.koin.android.architecture.ext.viewModel
 
 
+class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
-
-class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnMapReadyCallback {
-    @Inject lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var busStopsViewModelFactory: BusStopsViewModelFactory
-
-    private lateinit var busStopsViewModel : BusStopsViewModel
+    val busStopsViewModel: BusStopsViewModel by viewModel()
 
     private var routeId: String = ""
     private var routeName: String = ""
@@ -62,11 +44,8 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
 
     @SuppressLint("MissingPermission")
     override fun onCreate(savedInstanceState: Bundle?) {
-        AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bus_stop_list)
-
-        busStopsViewModel = ViewModelProviders.of(this, busStopsViewModelFactory).get(BusStopsViewModel::class.java)
 
         if (savedInstanceState != null) {
             routeId = savedInstanceState.getString(Constants.ROUTE_ID)
@@ -162,12 +141,6 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
         }
 
     }
-
-
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> {
-        return fragmentDispatchingAndroidInjector
-    }
-
 
 
     @SuppressLint("MissingPermission")

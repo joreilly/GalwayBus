@@ -6,14 +6,17 @@ import android.arch.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import io.reactivex.subscribers.DisposableSubscriber
-import javax.inject.Inject
 
 
-class BusRoutesViewModel @Inject constructor(val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
+class BusRoutesViewModel constructor(val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
 
     private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
 
     init {
+        getBusRoutesUseCase.execute(BusRouteSubscriber())
+    }
+
+    fun fetchRoutes() {
         getBusRoutesUseCase.execute(BusRouteSubscriber())
     }
 

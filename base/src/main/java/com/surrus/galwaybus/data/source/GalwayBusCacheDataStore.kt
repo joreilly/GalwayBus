@@ -6,9 +6,9 @@ import com.surrus.galwaybus.model.*
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
-import javax.inject.Inject
 
-open class GalwayBusCacheDataStore @Inject constructor(private val galwayBusCache: GalwayBusCache) : GalwayBusDataStore {
+
+open class GalwayBusCacheDataStore constructor(private val galwayBusCache: GalwayBusCache) : GalwayBusDataStore {
 
     override fun clearBusRoutes(): Completable {
         return galwayBusCache.clearBusRoutes()
