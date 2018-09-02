@@ -8,7 +8,4 @@
 
     <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
 
-
-    <meta-data android:name="firebase_crashlytics_collection_enabled" android:value="false" />
-
 </manifest>

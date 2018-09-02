@@ -6,6 +6,7 @@ import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 
 open class BusRoutesViewModelFactory(private val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModelProvider.Factory {
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(BusRoutesViewModel::class.java)) {
             return BusRoutesViewModel(getBusRoutesUseCase) as T

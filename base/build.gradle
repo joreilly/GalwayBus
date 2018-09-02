@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
+
 //def keystorePropertiesFile = rootProject.file("keystore.properties")
 //def keystoreProperties = new Properties()
 //keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -39,6 +40,7 @@ android {
 
         resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
     }
+
     buildTypes {
         release {
             minifyEnabled true
@@ -60,22 +62,22 @@ dependencies {
     //feature project(":ar")
 
     api "com.google.android.instantapps:instantapps:${instantAppsVer}"
-    api 'com.android.support:multidex:1.0.2'
-
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    api "com.android.support:appcompat-v7:${supportLibVersion}"
-    api "com.android.support:support-v4:${supportLibVersion}"
-    api "com.android.support:support-vector-drawable:${supportLibVersion}"
-    api "com.android.support:design:${supportLibVersion}"
-
-
+    api 'com.android.support:multidex:1.0.3'
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:${kotlin_version}"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    api SupportLibraries.appcompat
+    api SupportLibraries.design
+    api SupportLibraries.supportV4
+    api SupportLibraries.vectorDrawable
+
+    implementation Deps.kotlinStdLib
+
     implementation "org.jetbrains.anko:anko:0.10.3"
-    implementation "org.jetbrains.anko:anko-commons:0.10.3"
+    implementation "org.jetbrains.anko:anko-commons:0.10.4"
     implementation "org.jetbrains.anko:anko-appcompat-v7-commons:0.10.3"
 
 
@@ -84,10 +86,10 @@ dependencies {
     testImplementation "org.robolectric:robolectric:${robolectricVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
     testImplementation "com.nhaarman:mockito-kotlin:${mockitoKotlinVersion}"
-    testImplementation "com.squareup.okhttp3:mockwebserver:3.8.1"
+    testImplementation "com.squareup.okhttp3:mockwebserver:3.10.0"
     androidTestImplementation 'tools.fastlane:screengrab:1.1.0'
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.9.1@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
         transitive = true
     }
 
@@ -97,7 +99,7 @@ dependencies {
     api "com.google.android.gms:play-services-location:${playServicesVersion}"
     api "com.google.android.gms:play-services-maps:${playServicesVersion}"
 
-    api 'com.karumi:dexter:4.1.0'
+    api 'com.karumi:dexter:4.2.0'
     api 'net.danlew:android.joda:2.9.9.1'
     api 'com.orhanobut:logger:1.15'
 
@@ -107,7 +109,7 @@ dependencies {
 //    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
 
     implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
     implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
 
     implementation "com.squareup.okhttp3:okhttp:${okhttpVersion}"
@@ -116,17 +118,17 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-gson:${retrofitVersion}"
     implementation "com.squareup.retrofit2:adapter-rxjava2:${retrofitVersion}"
     implementation "com.squareup.retrofit2:converter-scalars:${retrofitVersion}"
-    implementation "com.google.code.gson:gson:2.6.2"
+    implementation "com.google.code.gson:gson:2.8.2"
 
-    api "android.arch.lifecycle:runtime:1.1.0"
-    api "android.arch.lifecycle:extensions:1.1.0"
+    api "android.arch.lifecycle:runtime:1.1.1"
+    api "android.arch.lifecycle:extensions:1.1.1"
     api "android.arch.lifecycle:reactivestreams:${archComponentsVersion}"
     api "android.arch.persistence.room:runtime:${archComponentsVersion}"
     kapt "android.arch.persistence.room:compiler:${archComponentsVersion}"
     implementation "android.arch.persistence.room:rxjava2:${archComponentsVersion}"
 
-    kapt "android.arch.lifecycle:compiler:1.0.0"
-    testImplementation "android.arch.core:core-testing:1.0.0"
+    kapt "android.arch.lifecycle:compiler:1.1.1"
+    testImplementation "android.arch.core:core-testing:1.1.1"
 
 
     api "com.google.dagger:dagger-android:${daggerVersion}"

@@ -77,7 +77,7 @@ class BusStopListActivity : AppCompatActivity(), HasSupportFragmentInjector, OnM
             routeName = intent.extras[Constants.ROUTE_NAME] as String
             schedulePdf = intent.extras[Constants.SCHEDULE_PDF] as String
         }
-        setTitle(routeId + " - " + routeName)
+        title = "$routeId - $routeName"
 
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
