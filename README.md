@@ -39,7 +39,7 @@ implementations interact directly with the `Repository`.  In either case,
 * [Android Support Libraries](https://developer.android.com/topic/libraries/support-library/index.html)
 * [RxJava2](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0)
 * [RxKotlin](https://github.com/ReactiveX/RxKotlin)
-* [Dagger 2](https://github.com/google/dagger)
+* [Koin](https://github.com/InsertKoinIO/koin)
 * [Retrofit](http://square.github.io/retrofit/)
 * [OkHttp](http://square.github.io/okhttp/)
 * [Gson](https://github.com/google/gson)
