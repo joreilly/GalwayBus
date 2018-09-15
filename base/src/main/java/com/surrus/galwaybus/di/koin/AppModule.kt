@@ -1,7 +1,6 @@
 package com.surrus.galwaybus.di.koin
 
-import android.app.Application
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.FieldNamingPolicy
@@ -30,17 +29,15 @@ import com.surrus.galwaybus.ui.UiThread
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.buffer.android.boilerplate.data.executor.JobExecutorThread
-import org.koin.android.architecture.ext.viewModel
-import org.koin.dsl.module.applicationContext
+import org.koin.android.ext.koin.androidContext
+import org.koin.android.viewmodel.ext.koin.viewModel
+import org.koin.dsl.module.module
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.File
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -50,54 +47,54 @@ object DatasourceProperties {
 
 
 
-val galwayBusAppModuile = applicationContext {
+val galwayBusAppModuile = module(definition = {
 
     viewModel { NearestBusStopsViewModel(get()) }
     viewModel { BusRoutesViewModel(get()) }
     viewModel { BusStopsViewModel(get()) }
 
-    bean { PreferencesHelper(get()) }
+    single { PreferencesHelper(get()) }
 
-    bean { GetNearestBusStopsUseCase(get(), get(), get())  }
-    bean { GetBusStopsUseCase(get(), get(), get())  }
-    bean { GetDeparturesUseCase(get(), get(), get())  }
-    bean { GetBusRoutesUseCase(get(), get(), get())  }
+    single { GetNearestBusStopsUseCase(get(), get(), get())  }
+    single { GetBusStopsUseCase(get(), get(), get())  }
+    single { GetDeparturesUseCase(get(), get(), get())  }
+    single { GetBusRoutesUseCase(get(), get(), get())  }
 
-    bean { JobExecutorThread() as ExecutorThread }
-    bean { UiThread() as PostExecutionThread }
+    single { JobExecutorThread() as ExecutorThread }
+    single { UiThread() as PostExecutionThread }
 
-    bean { GalwayBusDataRepository(get()) as GalwayBusRepository }
+    single { GalwayBusDataRepository(get()) as GalwayBusRepository }
 
-    bean { GalwayBusDataStoreFactory(get(), get(), get()) }
-    bean { GalwayBusRemoteDataStore(get()) }
-    bean { GalwayBusCacheDataStore(get()) }
+    single { GalwayBusDataStoreFactory(get(), get(), get()) }
+    single { GalwayBusRemoteDataStore(get()) }
+    single { GalwayBusCacheDataStore(get()) }
 
-    bean { GalwayBusCacheImpl(get(), get()) as GalwayBusCache }
-    bean { GalwayBusRemoteDataStore(get()) as GalwayBusDataStore }
-    bean { GalwayBusRemoteImpl(get()) as GalwayBusRemote }
-    bean { createGalwayBusDatabase(get()) }
+    single { GalwayBusCacheImpl(get(), get()) as GalwayBusCache }
+    single { GalwayBusRemoteDataStore(get()) as GalwayBusDataStore }
+    single { GalwayBusRemoteImpl(get()) as GalwayBusRemote }
+    single { createGalwayBusDatabase(androidContext()) }
 
-    bean { createFirebaseAnalytics(get()) }
-}
-
-
-val remoteDatasourceModule = applicationContext {
-
-    bean { createOkHttpClient(get()) }
-    bean { createWebService<GalwayBusService>(get(), SERVER_URL) }
-}
+    single { createFirebaseAnalytics(get()) }
+})
 
 
-fun createOkHttpClient(application: Application): OkHttpClient {
+val remoteDatasourceModule = module(definition = {
+
+    single { createOkHttpClient() }
+    single { createWebService<GalwayBusService>(get(), SERVER_URL) }
+})
+
+
+fun createOkHttpClient(): OkHttpClient {
     val interceptor = HttpLoggingInterceptor()
     interceptor.level = HttpLoggingInterceptor.Level.BODY
 
-    val cacheDir = File(application.cacheDir, UUID.randomUUID().toString())
-    // 10MB cache
-    val cache = Cache(cacheDir, 10 * 1024 * 1024)
+//    val cacheDir = File(application.cacheDir, UUID.randomUUID().toString())
+//    // 10MB cache
+//    val cache = Cache(cacheDir, 10 * 1024 * 1024)
 
     return OkHttpClient.Builder()
-            .cache(cache)
+            //.cache(cache)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
@@ -123,8 +120,8 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient, url: String)
 
 }
 
-internal fun createGalwayBusDatabase(application: Application): GalwayBusDatabase {
-    return Room.databaseBuilder(application.applicationContext,
+internal fun createGalwayBusDatabase(context: Context): GalwayBusDatabase {
+    return Room.databaseBuilder(context,
             GalwayBusDatabase::class.java, "galway_bus.db")
             .fallbackToDestructiveMigration()
             .build()

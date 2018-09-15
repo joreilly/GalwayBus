@@ -1,14 +1,14 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import io.reactivex.subscribers.DisposableSubscriber
 
 
-class BusRoutesViewModel constructor(val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
+class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
 
     private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
 

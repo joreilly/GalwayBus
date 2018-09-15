@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.ar
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProviders
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -9,7 +9,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.opengl.GLES20
 import android.opengl.GLSurfaceView
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Range
 import android.view.View
@@ -30,9 +30,7 @@ import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
-import com.surrus.galwaybus.util.ext.observe
 import dagger.android.AndroidInjection
-import kotlinx.android.synthetic.main.activity_ar.*
 import java.io.IOException
 import java.util.ArrayList
 import javax.inject.Inject

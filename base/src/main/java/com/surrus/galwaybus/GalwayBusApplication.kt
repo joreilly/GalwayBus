@@ -1,6 +1,6 @@
 package com.surrus.galwaybus
 
-import android.support.multidex.MultiDexApplication
+import androidx.multidex.MultiDexApplication
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.LogAdapter
@@ -40,7 +40,7 @@ class GalwayBusApplication : MultiDexApplication() {
         }
 
         // Initialize Joda
-        JodaTimeAndroid.init(this);
+        JodaTimeAndroid.init(this)
 
         // Start Koin
         startKoin(this, appModule)

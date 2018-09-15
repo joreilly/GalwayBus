@@ -2,8 +2,8 @@ package com.surrus.galwaybus.screenshots
 
 import android.content.Context
 import android.content.Intent
-import android.support.test.InstrumentationRegistry
-import android.support.test.rule.ActivityTestRule
+import androidx.test.InstrumentationRegistry
+import androidx.test.rule.ActivityTestRule
 import com.surrus.galwaybus.ui.HomeActivity
 import org.junit.Before
 import org.junit.Rule

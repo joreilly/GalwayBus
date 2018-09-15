@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
@@ -12,7 +12,7 @@ import io.reactivex.subscribers.DisposableSubscriber
 
 
 
-class NearestBusStopsViewModel constructor(val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
+class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
 
     var busStops: MutableLiveData<Resource<List<BusStop>>> = MutableLiveData()
     val location: MutableLiveData<Location> = MutableLiveData()

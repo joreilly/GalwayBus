@@ -2,8 +2,8 @@ package com.surrus.galwaybus.ui
 
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +13,7 @@ import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_stops.*
-import org.koin.android.architecture.ext.sharedViewModel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 
 class StopsFragment : Fragment() {
@@ -21,7 +21,7 @@ class StopsFragment : Fragment() {
     private var routeId: String? = null
     private var direction: Int? = null
 
-    val busStopsViewModel: BusStopsViewModel by sharedViewModel()
+    private val busStopsViewModel: BusStopsViewModel by sharedViewModel()
 
     private lateinit var busStopsAdapter: BusStopsRecyclerViewAdapter
 

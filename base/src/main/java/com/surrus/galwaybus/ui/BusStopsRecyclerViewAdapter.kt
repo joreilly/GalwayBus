@@ -1,9 +1,9 @@
 package com.surrus.galwaybus.ui
 
-import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Departure
@@ -43,7 +43,7 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
 
                 with (busTimesList) {
                     setHasFixedSize(true)
-                    layoutManager = android.support.v7.widget.LinearLayoutManager(context)
+                    layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
                     val busTimesAdapter = BusTimesAdapter()
                     busTimesAdapter.busTimes = busStop.times
                     adapter = busTimesAdapter

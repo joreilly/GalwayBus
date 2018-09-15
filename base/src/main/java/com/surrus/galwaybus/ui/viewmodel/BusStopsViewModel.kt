@@ -1,21 +1,21 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.lifecycle.*
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
-import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
 import io.reactivex.subscribers.DisposableSubscriber
-import io.reactivex.disposables.CompositeDisposable
 
 
-class BusStopsViewModel constructor(val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
+class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
 
     val direction: MutableLiveData<Int> = MutableLiveData()
 
     val busStops = MediatorLiveData<List<BusStop>>().apply {
         this.addSource(direction) {
-            if (busStopList.size > 0) {
-                this.value = busStopList.get(direction.value!!)
+            if (busStopList.isNotEmpty()) {
+                this.value = busStopList[direction.value!!]
             }
         }
     }
@@ -43,7 +43,7 @@ class BusStopsViewModel constructor(val getBusStopsUseCase: GetBusStopsUseCase) 
 
         override fun onNext(t: List<List<BusStop>>) {
             busStopList = t
-            busStops.value = t.get(direction.value!!)
+            busStops.value = t[direction.value!!]
         }
 
         override fun onError(exception: Throwable) {

@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.ui
 
 import android.os.Build
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -11,8 +11,8 @@ import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.base.R
 import es.voghdev.pdfviewpager.library.remote.DownloadFile
 import java.lang.Exception
-import es.voghdev.pdfviewpager.library.RemotePDFViewPager
-import es.voghdev.pdfviewpager.library.adapter.PDFPagerAdapter
+//import es.voghdev.pdfviewpager.library.RemotePDFViewPager
+//import es.voghdev.pdfviewpager.library.adapter.PDFPagerAdapter
 import kotlinx.android.synthetic.main.activity_schedule_pdf.*
 
 
@@ -22,7 +22,7 @@ class SchedulePdfActivity : AppCompatActivity(), DownloadFile.Listener {
     private var routeName: String = ""
     private var schedulePdfUrl: String = ""
 
-    private var remotePDFViewPager: RemotePDFViewPager? = null
+    //private var remotePDFViewPager: RemotePDFViewPager? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,13 +42,14 @@ class SchedulePdfActivity : AppCompatActivity(), DownloadFile.Listener {
         title = routeId + " - " + routeName
 
 
+        // disabling use of PdfRenderer for now as it's stopped working after moving to target api level 28 + move to androidx
         // For Android 5.0 and later use PdfRenderer to show PDF, otherwise use WebView
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            progressBar.visibility = View.VISIBLE
-            remotePDFViewPager = RemotePDFViewPager(this, schedulePdfUrl, this)
-
-        } else {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//
+//            progressBar.visibility = View.VISIBLE
+//            remotePDFViewPager = RemotePDFViewPager(this, schedulePdfUrl, this)
+//
+//        } else {
 
             webView.visibility = View.VISIBLE
             webView.settings.javaScriptEnabled = true
@@ -59,9 +60,12 @@ class SchedulePdfActivity : AppCompatActivity(), DownloadFile.Listener {
                 }
             }
 
-            val url = "http://drive.google.com/viewerng/viewer?embedded=true&url=" + schedulePdfUrl
+            val url = "http://drive.google.com/viewerng/viewer?embedded=true&url=$schedulePdfUrl"
             webView.loadUrl(url)
-        }
+
+            progressBar.visibility = View.GONE
+
+        //}
 
     }
 
@@ -87,8 +91,8 @@ class SchedulePdfActivity : AppCompatActivity(), DownloadFile.Listener {
 
 
     override fun onSuccess(url: String?, destinationPath: String?) {
-        pdfViewPager.visibility = View.VISIBLE
-        pdfViewPager.adapter = PDFPagerAdapter(this, destinationPath);
+//        pdfViewPager.visibility = View.VISIBLE
+//        pdfViewPager.adapter = PDFPagerAdapter(this, destinationPath)
         progressBar.visibility = View.GONE
     }
 

@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.ui
 
+import android.annotation.SuppressLint
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
@@ -8,10 +9,10 @@ import android.os.Bundle
 
 
 import com.surrus.galwaybus.base.R
-import android.support.v4.app.Fragment
-import android.support.v4.view.MenuItemCompat
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.SearchView
+import androidx.fragment.app.Fragment
+import androidx.core.view.MenuItemCompat
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -26,17 +27,17 @@ import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import org.koin.android.architecture.ext.viewModel
 import org.koin.android.ext.android.inject
+import org.koin.android.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
 
 
 class HomeActivity : AppCompatActivity() {
 
-    val firebaseAnaltyics by inject<FirebaseAnalytics>()
-    val galwayRepository by inject<GalwayBusRepository>()
+    private val firebaseAnaltyics by inject<FirebaseAnalytics>()
+    private val galwayRepository by inject<GalwayBusRepository>()
 
-    val nearestBusStopsViewModel: NearestBusStopsViewModel by viewModel()
+    private val nearestBusStopsViewModel: NearestBusStopsViewModel by viewModel()
 
     //private var arCoreSession: Session? = null
 
@@ -57,7 +58,7 @@ class HomeActivity : AppCompatActivity() {
         searchResultsStopsAdapter = BusStopsRecyclerViewAdapter {
             nearestBusStopsViewModel.setLocation(Location(it.latitude, it.longitude))
             searchMenuItem?.collapseActionView()
-            selectFragment(bottomNavigation.getMenu().getItem(0))
+            selectFragment(bottomNavigation.menu.getItem(0))
         }
         searchResultsList.adapter = searchResultsStopsAdapter
 
@@ -82,9 +83,9 @@ class HomeActivity : AppCompatActivity() {
         val selectedMenuItem: MenuItem
         if (savedInstanceState != null) {
             selectedItem = savedInstanceState.getInt(SELECTED_ITEM, 0)
-            selectedMenuItem = bottomNavigation.getMenu().findItem(selectedItem)
+            selectedMenuItem = bottomNavigation.menu.findItem(selectedItem)
         } else {
-            selectedMenuItem = bottomNavigation.getMenu().getItem(0)
+            selectedMenuItem = bottomNavigation.menu.getItem(0)
         }
         selectFragment(selectedMenuItem)
 
@@ -94,22 +95,6 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-
-    public override fun onResume() {
-        super.onResume();
-        Logger.d("onResume")
-    }
-
-
-    public override fun onPause() {
-        super.onPause();
-        Logger.d("onPause")
-    }
-
-    public override fun onDestroy() {
-        super.onDestroy();
-        Logger.d("onDestroy")
-    }
 
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putInt(SELECTED_ITEM, selectedItem)
@@ -128,7 +113,7 @@ class HomeActivity : AppCompatActivity() {
 
         if (activeFragment != null) {
             val ft = supportFragmentManager.beginTransaction()
-            ft.replace(R.id.fragmentContainer, activeFragment).commit()
+            ft.replace(R.id.fragmentContainer, activeFragment!!).commit()
         }
 
 
@@ -137,7 +122,7 @@ class HomeActivity : AppCompatActivity() {
         firebaseAnaltyics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
 
         // update selected item
-        selectedItem = item.getItemId()
+        selectedItem = item.itemId
     }
 
 
@@ -152,9 +137,9 @@ class HomeActivity : AppCompatActivity() {
 
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchMenuItem = menu.findItem(R.id.action_search)
-        val searchView = searchMenuItem?.getActionView() as SearchView
+        val searchView = searchMenuItem?.actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
-        searchView.setSubmitButtonEnabled(false)
+        searchView.isSubmitButtonEnabled = false
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -163,6 +148,7 @@ class HomeActivity : AppCompatActivity() {
                 return false
             }
 
+            @SuppressLint("CheckResult")
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.length >= 2) {
                     galwayRepository.getBusStopsByName("%$query%")
@@ -184,7 +170,7 @@ class HomeActivity : AppCompatActivity() {
                 bottomNavigation.visibility = View.GONE
 
                 if (activeFragment != null) {
-                    supportFragmentManager.beginTransaction().hide(activeFragment).commit()
+                    supportFragmentManager.beginTransaction().hide(activeFragment!!).commit()
                 }
 
                 searchResultsList.visibility = View.VISIBLE
@@ -196,7 +182,7 @@ class HomeActivity : AppCompatActivity() {
                 bottomNavigation.visibility = View.VISIBLE
 
                 if (activeFragment != null) {
-                    supportFragmentManager.beginTransaction().show(activeFragment).commit()
+                    supportFragmentManager.beginTransaction().show(activeFragment!!).commit()
                 }
                 return true
             }
@@ -211,32 +197,31 @@ class HomeActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
 
-        if (id == R.id.action_settings) {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-            return true
-        } else if (id == R.id.action_centre) {
-            nearestBusStopsViewModel.setZoomLevel(15.0f)
-            nearestBusStopsViewModel.setCameraPosition(Location(53.2743394, -9.0514163))
+        when (id) {
+            R.id.action_settings -> {
+                val intent = Intent(this, SettingsActivity::class.java)
+                startActivity(intent)
+                return true
+            }
+            R.id.action_centre -> {
+                nearestBusStopsViewModel.setZoomLevel(15.0f)
+                nearestBusStopsViewModel.setCameraPosition(Location(53.2743394, -9.0514163))
 
-            val bundle = Bundle()
-            bundle.putString("menu_option", "action_centre")
-            firebaseAnaltyics.logEvent("menu_selected", bundle)
+                val bundle = Bundle()
+                bundle.putString("menu_option", "action_centre")
+                firebaseAnaltyics.logEvent("menu_selected", bundle)
 
-            return true
-        } else if (id == R.id.action_install) {
-            val postInstallIntent = Intent(Intent.ACTION_VIEW,
-                    Uri.parse("https://www.surrus.com/galwaybus")).
-                    addCategory(Intent.CATEGORY_BROWSABLE)
+                return true
+            }
+            R.id.action_install -> {
+                val postInstallIntent = Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://www.surrus.com/galwaybus")).addCategory(Intent.CATEGORY_BROWSABLE)
 
-            InstantApps.showInstallPrompt(this, postInstallIntent, 1, "")
+                InstantApps.showInstallPrompt(this, postInstallIntent, 1, "")
+            }
+
         }
 
-//        else if (id == R.id.action_view_ar) {
-//            val intent = Intent(this, ArActivity::class.java)
-//            startActivity(intent)
-//            return true
-//        }
 
         return super.onOptionsItemSelected(item)
     }

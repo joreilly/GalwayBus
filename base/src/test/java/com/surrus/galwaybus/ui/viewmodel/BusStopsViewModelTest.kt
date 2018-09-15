@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.core.executor.testing.InstantTaskExecutorRule
-import android.arch.lifecycle.Observer
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.Observer
 import com.nhaarman.mockito_kotlin.*
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop

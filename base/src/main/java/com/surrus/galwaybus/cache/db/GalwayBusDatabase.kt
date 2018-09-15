@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.cache.db
 
-import android.arch.persistence.room.Database
-import android.arch.persistence.room.RoomDatabase
+import androidx.room.Database
+import androidx.room.RoomDatabase
 import com.surrus.galwaybus.cache.dao.GalwayBusDao
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop

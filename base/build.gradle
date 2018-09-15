@@ -11,7 +11,6 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
 
     baseFeature = true
 
@@ -32,7 +31,7 @@ android {
         versionCode project.instantAppVersionCode
         versionName project.instantAppVersionName
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true
 
@@ -62,8 +61,8 @@ dependencies {
     //feature project(":ar")
 
     api "com.google.android.instantapps:instantapps:${instantAppsVer}"
-    api 'com.android.support:multidex:1.0.3'
-    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
+    api 'androidx.multidex:multidex:2.0.0'
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
@@ -71,15 +70,9 @@ dependencies {
 
     implementation Deps.kotlinStdLib
 
-    api SupportLibraries.appcompat
-    api SupportLibraries.design
-    api SupportLibraries.supportV4
-    api SupportLibraries.vectorDrawable
-
     api Koin.core
     api Koin.android
-    api Koin.androidArchitecture
-
+    api Koin.androidViewModel
 
 
     implementation "org.jetbrains.anko:anko:0.10.3"
@@ -109,7 +102,7 @@ dependencies {
     api 'net.danlew:android.joda:2.9.9.1'
     api 'com.orhanobut:logger:1.15'
 
-    implementation 'es.voghdev.pdfviewpager:library:1.0.3'
+    implementation 'es.voghdev.pdfviewpager:library:1.0.5'
 
 //    implementation 'com.facebook.stetho:stetho:1.5.0'
 //    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
@@ -126,15 +119,15 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-scalars:${retrofitVersion}"
     implementation "com.google.code.gson:gson:2.8.2"
 
-    api "android.arch.lifecycle:runtime:1.1.1"
-    api "android.arch.lifecycle:extensions:1.1.1"
-    api "android.arch.lifecycle:reactivestreams:${archComponentsVersion}"
-    api "android.arch.persistence.room:runtime:${archComponentsVersion}"
-    kapt "android.arch.persistence.room:compiler:${archComponentsVersion}"
-    implementation "android.arch.persistence.room:rxjava2:${archComponentsVersion}"
+    api "androidx.lifecycle:lifecycle-runtime:2.0.0-rc01"
+    api "androidx.lifecycle:lifecycle-extensions:2.0.0-rc01"
+    api 'androidx.lifecycle:lifecycle-reactivestreams:2.0.0-rc01'
+    api 'androidx.room:room-runtime:2.0.0-rc01'
+    kapt 'androidx.room:room-compiler:2.0.0-rc01'
+    implementation 'androidx.room:room-rxjava2:2.0.0-rc01'
 
-    kapt "android.arch.lifecycle:compiler:1.1.1"
-    testImplementation "android.arch.core:core-testing:1.1.1"
+    kapt "androidx.lifecycle:lifecycle-compiler:2.0.0-rc01"
+    testImplementation "androidx.arch.core:core-testing:2.0.0-rc01"
 
     api "com.google.android.gms:play-services-instantapps:${playServicesVersion}"
 }

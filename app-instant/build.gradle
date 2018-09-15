@@ -9,7 +9,6 @@ apply plugin: 'com.android.instantapp'
 
 android {
     compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
 
 //    signingConfigs {
 //        config {

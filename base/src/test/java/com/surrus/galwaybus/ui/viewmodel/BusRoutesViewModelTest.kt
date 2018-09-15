@@ -1,10 +1,9 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockito_kotlin.*
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
-import com.surrus.galwaybus.model.BusRoute
 import io.reactivex.subscribers.DisposableSubscriber
 import org.junit.Test
 

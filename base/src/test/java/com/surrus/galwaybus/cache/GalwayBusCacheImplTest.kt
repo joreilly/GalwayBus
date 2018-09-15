@@ -1,6 +1,6 @@
 package com.surrus.galwaybus.cache
 
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.factory.GalwayBusFactory
 import junit.framework.Assert.assertEquals

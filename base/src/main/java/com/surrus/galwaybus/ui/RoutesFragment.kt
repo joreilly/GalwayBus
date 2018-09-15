@@ -3,8 +3,8 @@ package com.surrus.galwaybus.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,12 +14,12 @@ import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_routes.*
-import org.koin.android.architecture.ext.viewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class RoutesFragment : Fragment() {
 
-    val busRoutesViewModel: BusRoutesViewModel by viewModel()
+    private val busRoutesViewModel: BusRoutesViewModel by viewModel()
 
     private lateinit var busRoutesAdapter: BusRoutesRecyclerViewAdapter
 
@@ -49,7 +49,7 @@ class RoutesFragment : Fragment() {
 
 
         busRoutesViewModel.getBusRoutes().observe(this) {
-            busRoutesAdapter.busRouteList = ArrayList(it)
+            busRoutesAdapter.busRouteList = it!!
             busRoutesAdapter.notifyDataSetChanged()
         }
     }

@@ -2,7 +2,7 @@ package com.surrus.galwaybus.ui
 
 import android.os.Bundle
 import android.preference.PreferenceFragment
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import com.surrus.galwaybus.base.R
 
@@ -35,8 +35,8 @@ class SettingsActivity : AppCompatActivity() {
             // Load the preferences from an XML resource
             addPreferencesFromResource(R.xml.preferences)
 
-            val packageInfo = activity.getPackageManager().getPackageInfo(activity.packageName, 0)
-            findPreference("version").setSummary(packageInfo.versionName)
+            val packageInfo = activity.packageManager.getPackageInfo(activity.packageName, 0)
+            findPreference("version").summary = packageInfo.versionName
         }
     }
 }

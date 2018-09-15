@@ -1,7 +1,7 @@
 package com.surrus.galwaybus.model
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.surrus.galwaybus.cache.db.GalwayBusDatabaseConstants
 
 @Entity(tableName = GalwayBusDatabaseConstants.BUS_ROUTES_TABLE_NAME)

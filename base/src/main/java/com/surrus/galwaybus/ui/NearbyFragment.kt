@@ -5,10 +5,10 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
-import android.support.v4.content.ContextCompat
-import android.support.v7.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.Fragment
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +34,7 @@ import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_nearby.*
-import org.koin.android.architecture.ext.sharedViewModel
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 
 class NearbyFragment : Fragment(), OnMapReadyCallback {
@@ -42,7 +42,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var map: GoogleMap? = null
     private var mapFragment: SupportMapFragment? = null
-    private var myLocationEnabled = false
 
     val nearestBusStopsViewModel: NearestBusStopsViewModel by sharedViewModel()
 
@@ -59,7 +58,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         Logger.d("onCreate")
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,7 +68,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         // initialize recycler view
         with (busStopsList) {
             layoutManager = LinearLayoutManager(context)
-            layoutManager.setAutoMeasureEnabled(false)
+            layoutManager!!.setAutoMeasureEnabled(false)
 
             busStopsAdapter = BusStopsRecyclerViewAdapter {
                 val latLng = LatLng(it.latitude, it.longitude)
@@ -98,21 +97,21 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
 
     override fun onResume() {
-        super.onResume();
+        super.onResume()
         Logger.d("onResume")
         nearestBusStopsViewModel.pollForNearestBusStopTimes()
     }
 
 
      override fun onPause() {
-        super.onPause();
+        super.onPause()
         Logger.d("onPause")
         nearestBusStopsViewModel.stopPolling()
     }
 
 
     override fun onDestroy() {
-        super.onDestroy();
+        super.onDestroy()
         Logger.d("onDestroy")
     }
 
@@ -146,12 +145,12 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         Logger.d("onMapReady")
         map = googleMap
-        googleMap.getUiSettings().isZoomControlsEnabled = true
+        googleMap.uiSettings.isZoomControlsEnabled = true
 
 
         if (nearestBusStopsViewModel.getLocation() == null) {
 
-            var loc = Location(53.2743394, -9.0514163) // default if we can't get location
+            val loc = Location(53.2743394, -9.0514163) // default if we can't get location
             nearestBusStopsViewModel.setLocation(loc)
             nearestBusStopsViewModel.setCameraPosition(loc)
 
@@ -193,7 +192,7 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         }
 
         googleMap.setOnCameraIdleListener{
-            val cameraPosition = googleMap.getCameraPosition()
+            val cameraPosition = googleMap.cameraPosition
 
             val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
             nearestBusStopsViewModel.setZoomLevel(cameraPosition.zoom)
@@ -215,11 +214,11 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
 
     private fun updateMap(busStopList: List<BusStop>) {
 
-        if (map != null && busStopList.size > 0) {
+        if (map != null && busStopList.isNotEmpty()) {
 
             val builder = LatLngBounds.Builder()
             for (busStop in busStopList) {
-                val busStopLocation = LatLng(busStop.latitude, busStop.longitude);
+                val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
                 val marker = map?.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
                 marker?.tag = busStop.stopRef
                 builder.include(busStopLocation)

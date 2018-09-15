@@ -30,7 +30,6 @@ def versionName() {
 
 android {
     compileSdkVersion project.compileSdkVersion
-    buildToolsVersion project.buildToolsVersion
 
 //    signingConfigs {
 //        config {
@@ -49,7 +48,7 @@ android {
         versionCode this.versionCode()
         versionName this.versionName()
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         multiDexEnabled true
     }

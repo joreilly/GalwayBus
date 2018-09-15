@@ -3,12 +3,12 @@ package com.surrus.galwaybus.ui
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.ViewPager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -26,7 +26,7 @@ import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.activity_bus_stop_list.*
-import org.koin.android.architecture.ext.viewModel
+import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -156,12 +156,12 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateMap(busStopList: List<BusStop>) {
 
-        if (map != null && busStopList.size > 0) {
+        if (map != null && busStopList.isNotEmpty()) {
             map?.clear()
 
             val builder = LatLngBounds.Builder()
             for (busStop in busStopList) {
-                val busStopLocation = LatLng(busStop.latitude, busStop.longitude);
+                val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
                 map?.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
                 builder.include(busStopLocation)
             }

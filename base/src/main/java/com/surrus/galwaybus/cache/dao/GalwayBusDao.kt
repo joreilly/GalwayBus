@@ -1,13 +1,12 @@
 package com.surrus.galwaybus.cache.dao
 
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
 import com.surrus.galwaybus.cache.db.GalwayBusDatabaseConstants
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Single
 

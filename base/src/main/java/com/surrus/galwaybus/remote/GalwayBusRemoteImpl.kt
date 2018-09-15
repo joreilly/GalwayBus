@@ -50,7 +50,7 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
                         for (key in schedule.keys) {
                             val routeName = key
                             val pdfUrl = schedule[key]
-                            scheduleMap.put(it, RouteSchedule(it, routeName, pdfUrl!!))
+                            scheduleMap[it] = RouteSchedule(it, routeName, pdfUrl!!)
                         }
                     }
                     scheduleMap
