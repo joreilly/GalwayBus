@@ -3,67 +3,65 @@ package com.surrus.galwaybus.data.source
 import com.surrus.galwaybus.data.repository.GalwayBusDataStore
 import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.*
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
+import kotlinx.coroutines.Deferred
 
 
 class GalwayBusRemoteDataStore constructor(private val galwayBusRemote: GalwayBusRemote) : GalwayBusDataStore {
 
-    override fun getBusRoutes(): Flowable<List<BusRoute>> {
+    override suspend fun getBusRoutes(): Deferred<List<BusRoute>> {
         return galwayBusRemote.getBusRoutes()
     }
 
-    override fun getBusStops(routeId: String): Flowable<List<List<BusStop>>> {
+    override suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>> {
         return galwayBusRemote.getBusStops(routeId)
     }
 
-    override fun getBusStops() : Flowable<List<BusStop>> {
+    override suspend fun getBusStops() : Deferred<List<BusStop>> {
         return galwayBusRemote.getAllStops()
     }
 
-    override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
+    override suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>> {
         return galwayBusRemote.getNearestBusStops(location)
     }
 
-    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+    override suspend fun getBusStopsByName(name: String) : Deferred<List<BusStop>> {
         throw UnsupportedOperationException()
     }
 
-    override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
+    override suspend fun getDepartures(stopRef: String): Deferred<List<Departure>> {
         return galwayBusRemote.getDepartures(stopRef)
     }
 
 
-    override fun getSchedules(): Flowable<Map<String, RouteSchedule>> {
+    override suspend fun getSchedules(): Deferred<Map<String, RouteSchedule>> {
         return galwayBusRemote.getSchedules()
     }
 
-    override fun clearBusRoutes(): Completable {
+    override suspend fun clearBusRoutes() : Deferred<Unit> {
         throw UnsupportedOperationException()
     }
 
-    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
+    override suspend fun saveBusRoutes(busRoutes: List<BusRoute>) : Deferred<Unit> {
         throw UnsupportedOperationException()
     }
 
-    override fun isCached(): Single<Boolean> {
+    override suspend fun isCached(): Deferred<Boolean> {
         throw UnsupportedOperationException()
     }
 
-    override fun clearBusStops(): Completable {
+    override suspend fun clearBusStops() : Deferred<Unit> {
         throw UnsupportedOperationException()
     }
 
-    override fun saveBusStops(busStops: List<BusStop>): Completable {
+    override suspend fun saveBusStops(busStops: List<BusStop>) : Deferred<Unit> {
         throw UnsupportedOperationException()
     }
 
-    override fun isBusStopsCached(): Single<Boolean> {
+    override suspend fun isBusStopsCached(): Deferred<Boolean> {
         throw UnsupportedOperationException()
     }
 
-    override fun getNumberBusStops(): Single<Int> {
+    override suspend fun getNumberBusStops(): Deferred<Int> {
         throw UnsupportedOperationException()
     }
 

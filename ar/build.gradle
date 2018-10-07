@@ -28,7 +28,7 @@ android {
 dependencies {
     implementation project(':base')
 
-    implementation Deps.kotlinStdLib
+    implementation Kotlin.stdLib
 
     // ARCore
     implementation 'com.google.ar:core:1.4.0'

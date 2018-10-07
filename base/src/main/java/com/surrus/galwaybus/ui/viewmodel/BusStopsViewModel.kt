@@ -5,7 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.subscribers.DisposableSubscriber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.Main
+import kotlinx.coroutines.launch
 
 
 class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
@@ -22,6 +25,8 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
     private var busStopList: List<List<BusStop>> = emptyList()
 
+    private val viewModelJob = Job()
+    private val uiScope = CoroutineScope(kotlinx.coroutines.Dispatchers.Main + viewModelJob)
 
     init {
         direction.value = 0
@@ -33,25 +38,11 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
     fun fetchBusStops(routeId: String) {
         if (busStops.value == null) {
-            getBusStopsUseCase.execute(BusStopsSubscriber(), routeId)
+            uiScope.launch {
+                val busStopsData = getBusStopsUseCase.getBusStops(routeId).await()
+                busStops.value = busStopsData[direction.value!!]
+            }
         }
-    }
-
-    inner class BusStopsSubscriber: DisposableSubscriber<List<List<BusStop>>>() {
-
-        override fun onComplete() { }
-
-        override fun onNext(t: List<List<BusStop>>) {
-            busStopList = t
-            busStops.value = t[direction.value!!]
-        }
-
-        override fun onError(exception: Throwable) {
-        }
-    }
-
-    override fun onCleared() {
-        getBusStopsUseCase.dispose()
     }
 
 }

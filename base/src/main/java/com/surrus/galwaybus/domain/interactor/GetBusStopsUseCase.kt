@@ -1,16 +1,12 @@
 package com.surrus.galwaybus.domain.interactor
 
-import com.surrus.galwaybus.domain.executor.ExecutorThread
-import com.surrus.galwaybus.domain.executor.PostExecutionThread
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.Flowable
+import kotlinx.coroutines.Deferred
 
-open class GetBusStopsUseCase constructor(val galwayRepository: GalwayBusRepository,
-                                                  executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
-        FlowableUseCase<List<List<BusStop>>, String>(executorThread, postExecutionThread) {
+open class GetBusStopsUseCase constructor(val galwayRepository: GalwayBusRepository) {
 
-    override fun buildUseCaseObservable(params: String?): Flowable<List<List<BusStop>>> {
-        return galwayRepository.getBusStops(params!!)
+    suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>> {
+        return galwayRepository.getBusStops(routeId)
     }
 }

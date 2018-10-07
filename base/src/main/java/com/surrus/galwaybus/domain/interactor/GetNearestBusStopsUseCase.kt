@@ -1,21 +1,17 @@
 package com.surrus.galwaybus.domain.interactor
 
-import com.surrus.galwaybus.domain.executor.ExecutorThread
-import com.surrus.galwaybus.domain.executor.PostExecutionThread
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
-import io.reactivex.Flowable
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Deferred
 
 
-open class GetNearestBusStopsUseCase constructor(val galwayRepository: GalwayBusRepository,
-                                                         executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
-        FlowableUseCase<List<BusStop>, Location>(executorThread, postExecutionThread) {
+open class GetNearestBusStopsUseCase constructor(val galwayRepository: GalwayBusRepository) {
 
-    override fun buildUseCaseObservable(params: Location?): Flowable<List<BusStop>> {
-        return galwayRepository.getNearestBusStops(params!!)
-                .repeatWhen { completed -> completed.delay(30, TimeUnit.SECONDS) }
-                .retry(3)
+    suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>> {
+        return galwayRepository.getNearestBusStops(location)
+
+//                .repeatWhen { completed -> completed.delay(30, TimeUnit.SECONDS) }
+//                .retry(3)
     }
 }

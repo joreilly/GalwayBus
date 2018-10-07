@@ -46,8 +46,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             //signingConfig signingConfigs.config
         }
-
     }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
 }
 
 kapt {
@@ -65,10 +70,12 @@ dependencies {
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation Deps.kotlinStdLib
+
+    api Kotlin.stdLib
+    api Kotlin.coroutinesCore
+    api Kotlin.coroutinesAndroid
 
     api Koin.core
     api Koin.android
@@ -100,26 +107,25 @@ dependencies {
 //    implementation 'com.facebook.stetho:stetho:1.5.0'
 //    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
 
-    implementation "io.reactivex.rxjava2:rxjava:${rxJavaVersion}"
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
-    implementation 'io.reactivex.rxjava2:rxkotlin:2.2.0'
-
     implementation Okhttp.okhttp
     implementation Okhttp.loggingInterceptor
 
     implementation Retrofit.retrofit
     implementation Retrofit.converterGson
     implementation Retrofit.converterScalars
-    implementation Retrofit.rxjava2
+    implementation Retrofit.coroutinesAdapter
 
     implementation "com.google.code.gson:gson:2.8.2"
+
+
+    implementation ArchComponents.navFragmentKtx
+    implementation ArchComponents.navUiKtx
 
     api "androidx.lifecycle:lifecycle-runtime:2.0.0"
     api "androidx.lifecycle:lifecycle-extensions:2.0.0"
     api 'androidx.lifecycle:lifecycle-reactivestreams:2.0.0'
     api 'androidx.room:room-runtime:2.0.0-rc01'
     kapt 'androidx.room:room-compiler:2.0.0-rc01'
-    implementation 'androidx.room:room-rxjava2:2.0.0-rc01'
 
     kapt "androidx.lifecycle:lifecycle-compiler:2.0.0"
     testImplementation "androidx.arch.core:core-testing:2.0.0"

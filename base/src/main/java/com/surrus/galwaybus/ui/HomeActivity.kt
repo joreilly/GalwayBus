@@ -25,11 +25,12 @@ import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.util.concurrent.TimeUnit
 
 
 class HomeActivity : AppCompatActivity() {
@@ -151,14 +152,15 @@ class HomeActivity : AppCompatActivity() {
             @SuppressLint("CheckResult")
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.length >= 2) {
-                    galwayRepository.getBusStopsByName("%$query%")
-                            .debounce(300, TimeUnit.MILLISECONDS)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .subscribe {
-                                searchResultsStopsAdapter.busStopList = it
-                                searchResultsStopsAdapter.notifyDataSetChanged()
-                            }
+
+                    launch {
+                        val busStops = galwayRepository.getBusStopsByName("%$query%").await()
+
+                        withContext(Dispatchers.Main) {
+                            searchResultsStopsAdapter.busStopList = busStops
+                            searchResultsStopsAdapter.notifyDataSetChanged()
+                        }
+                    }
                 }
                 return false
             }

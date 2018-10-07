@@ -1,12 +1,9 @@
 package com.surrus.galwaybus.data
 
-import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.*
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.*
 
 
 /**
@@ -15,75 +12,67 @@ import io.reactivex.schedulers.Schedulers
  */
 class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStoreFactory): GalwayBusRepository {
 
-
     init {
         // Preload Bus Stop info
-        getBusStops().subscribeOn(Schedulers.io()).subscribe {
-            Logger.d("GalwayBusDataRepository: loaded bus stop info")
+        launch {
+            getBusStops().await()
         }
     }
 
 
-    override fun getBusRoutes(): Flowable<List<BusRoute>> {
-        return factory.retrieveCacheDataStore().isCached()
-                .flatMapPublisher {
-                    factory.retrieveDataStore(it).getBusRoutes()
-                }
-                .flatMap {
-                    saveBusRoutes(it).toSingle { it }.toFlowable()
-                }
+    override suspend fun getBusRoutes(): Deferred<List<BusRoute>> = coroutineScope {
+        async(Dispatchers.IO) {
+            val isCached = factory.retrieveCacheDataStore().isCached().await()
+            val busRoutes = factory.retrieveDataStore(isCached).getBusRoutes().await()
+
+            saveBusRoutes(busRoutes).await()
+            busRoutes
+        }
     }
 
-    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
+    override suspend fun saveBusRoutes(busRoutes: List<BusRoute>) : Deferred<Unit> {
         return factory.retrieveCacheDataStore().saveBusRoutes(busRoutes)
     }
 
-    override fun clearBusRoutes(): Completable {
+    override suspend fun clearBusRoutes(): Deferred<Unit> {
         return factory.retrieveCacheDataStore().clearBusRoutes()
     }
 
-    override fun getBusStops() : Flowable<List<BusStop>> {
-        factory.retrieveRemoteDataStore().getBusStops()
-                .subscribeOn(Schedulers.io())
-                .flatMap { saveBusStops(it).toSingle { it }.toFlowable() }
-                .subscribe({
-            Logger.d("Loaded bus stop info")
-        }, {
-            Logger.e(it.message)
-        })
+    private suspend fun getBusStops() = coroutineScope {
 
-        return factory.retrieveCacheDataStore().getBusStops()
+        async(Dispatchers.IO) {
+
+            val busStops = factory.retrieveRemoteDataStore().getBusStops().await()
+            saveBusStops(busStops)
+        }
     }
 
-    override fun saveBusStops(busStops: List<BusStop>): Completable {
+    override suspend fun saveBusStops(busStops: List<BusStop>) : Deferred<Unit> {
         return factory.retrieveCacheDataStore().saveBusStops(busStops)
     }
 
-    override fun clearBusStops(): Completable {
+    override suspend fun clearBusStops() : Deferred<Unit> {
         return factory.retrieveCacheDataStore().clearBusStops()
     }
 
 
-
-
-
-    override fun getNearestBusStops(location: Location): Flowable<List<BusStop>> {
+    override suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>> {
         return factory.retrieveRemoteDataStore().getNearestBusStops(location)
     }
 
-    override fun getBusStops(routeId: String): Flowable<List<List<BusStop>>> {
+    override suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>> {
         return factory.retrieveRemoteDataStore().getBusStops(routeId)
     }
 
-    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
+    override suspend fun getBusStopsByName(name: String) : Deferred<List<BusStop>> {
         return factory.retrieveCacheDataStore().getBusStopsByName(name)
     }
 
-    override fun getDepartures(stopRef: String): Flowable<List<Departure>> {
+    override suspend fun getDepartures(stopRef: String): Deferred<List<Departure>> {
         return factory.retrieveRemoteDataStore().getDepartures(stopRef)
     }
 
-    override fun getSchedules(): Flowable<Map<String, RouteSchedule>> {
+    override suspend fun getSchedules(): Deferred<Map<String, RouteSchedule>> {
         return factory.retrieveRemoteDataStore().getSchedules()
     }
 

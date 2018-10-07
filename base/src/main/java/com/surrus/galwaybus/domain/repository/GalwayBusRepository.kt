@@ -1,24 +1,22 @@
 package com.surrus.galwaybus.domain.repository
 
 import com.surrus.galwaybus.model.*
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import kotlinx.coroutines.Deferred
 
 interface GalwayBusRepository {
 
-    fun getBusRoutes(): Flowable<List<BusRoute>>
-    fun saveBusRoutes(busRoutes: List<BusRoute>): Completable
-    fun clearBusRoutes(): Completable
+    suspend fun getBusRoutes(): Deferred<List<BusRoute>>
+    suspend fun saveBusRoutes(busRoutes: List<BusRoute>) : Deferred<Unit>
+    suspend fun clearBusRoutes() : Deferred<Unit>
 
-    fun getBusStops() : Flowable<List<BusStop>>
-    fun saveBusStops(busStops: List<BusStop>): Completable
-    fun clearBusStops(): Completable
+    suspend fun saveBusStops(busStops: List<BusStop>) : Deferred<Unit>
+    suspend fun clearBusStops() : Deferred<Unit>
 
 
-    fun getNearestBusStops(location: Location): Flowable<List<BusStop>>
-    fun getBusStops(routeId: String): Flowable<List<List<BusStop>>>
-    fun getBusStopsByName(name: String) : Flowable<List<BusStop>>
+    suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>>
+    suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>>
+    suspend fun getBusStopsByName(name: String) : Deferred<List<BusStop>>
 
-    fun getDepartures(stopRef: String): Flowable<List<Departure>>
-    fun getSchedules(): Flowable<Map<String, RouteSchedule>>
+    suspend fun getDepartures(stopRef: String): Deferred<List<Departure>>
+    suspend fun getSchedules(): Deferred<Map<String, RouteSchedule>>
 }

@@ -4,9 +4,6 @@ import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.data.repository.GalwayBusCache
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
 
 
 class GalwayBusCacheImpl constructor(val galwayBusDatabase: GalwayBusDatabase,
@@ -23,70 +20,29 @@ class GalwayBusCacheImpl constructor(val galwayBusDatabase: GalwayBusDatabase,
     }
 
 
-    override fun saveBusRoutes(busRoutes: List<BusRoute>): Completable {
-        return Completable.defer {
-            busRoutes.forEach {
-                galwayBusDatabase.galwayBusDao().insertBusRoute(it)
-            }
-            Completable.complete()
+    override fun saveBusRoutes(busRoutes: List<BusRoute>) {
+        busRoutes.forEach {
+            galwayBusDatabase.galwayBusDao().insertBusRoute(it)
         }
     }
 
-    override fun getBusRoutes(): Flowable<List<BusRoute>> {
-        return Flowable.defer {
-            Flowable.just(galwayBusDatabase.galwayBusDao().getBusRoutes())
-        }
-    }
+    override fun getBusRoutes() = galwayBusDatabase.galwayBusDao().getBusRoutes()
 
-    override fun clearBusRoutes(): Completable {
-        return Completable.defer {
-            galwayBusDatabase.galwayBusDao().clearBusRoutes()
-            Completable.complete()
-        }
-    }
+    override fun clearBusRoutes() = galwayBusDatabase.galwayBusDao().clearBusRoutes()
 
-    override fun isCached(): Single<Boolean> {
-        return Single.defer {
-            Single.just(galwayBusDatabase.galwayBusDao().getBusRoutes().isNotEmpty())
-        }
-    }
+    override fun isCached() = galwayBusDatabase.galwayBusDao().getBusRoutes().isNotEmpty()
 
+    override fun saveBusStops(busStopList: List<BusStop>) = galwayBusDatabase.galwayBusDao().insertBusStopList(busStopList)
 
-    override fun saveBusStops(busStopList: List<BusStop>): Completable {
-        return Completable.defer {
-            galwayBusDatabase.galwayBusDao().insertBusStopList(busStopList)
-            Completable.complete()
-        }
-    }
+    override fun getBusStops() = galwayBusDatabase.galwayBusDao().qeuryBusStops()
 
-    override fun getBusStops(): Flowable<List<BusStop>> {
-        return galwayBusDatabase.galwayBusDao().qeuryBusStops()
-    }
+    override fun clearBusStops() = galwayBusDatabase.galwayBusDao().clearBusStops()
 
-    override fun clearBusStops(): Completable {
-        return Completable.defer {
-            galwayBusDatabase.galwayBusDao().clearBusStops()
-            Completable.complete()
-        }
-    }
+    override fun isBusStopsCached() = galwayBusDatabase.galwayBusDao().getBusStops().isNotEmpty()
 
-    override fun isBusStopsCached(): Single<Boolean> {
-        return Single.defer {
-            Single.just(galwayBusDatabase.galwayBusDao().getBusStops().isNotEmpty())
-        }
-    }
+    override fun getNumberBusStops() = galwayBusDatabase.galwayBusDao().getNumberBusStops()
 
-
-    override fun getNumberBusStops(): Single<Int> {
-        return galwayBusDatabase.galwayBusDao().getNumberBusStops()
-    }
-
-
-    override fun getBusStopsByName(name: String) : Flowable<List<BusStop>> {
-        return Flowable.defer {
-            Flowable.just(galwayBusDatabase.galwayBusDao().getBusStopsByName(name))
-        }
-    }
+    override fun getBusStopsByName(name: String) = galwayBusDatabase.galwayBusDao().getBusStopsByName(name)
 
 
     override fun setLastCacheTime(lastCache: Long) {
@@ -105,7 +61,5 @@ class GalwayBusCacheImpl constructor(val galwayBusDatabase: GalwayBusDatabase,
     private fun getLastCacheUpdateTimeMillis(): Long {
         return preferencesHelper.lastCacheTime
     }
-
-
 
 }

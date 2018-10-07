@@ -1,13 +1,13 @@
 package com.surrus.galwaybus.data.repository
 
 import com.surrus.galwaybus.model.*
-import io.reactivex.Flowable
+import kotlinx.coroutines.Deferred
 
 interface GalwayBusRemote {
-    fun getBusRoutes(): Flowable<List<BusRoute>>
-    fun getBusStops(routeId: String): Flowable<List<List<BusStop>>>
-    fun getAllStops() : Flowable<List<BusStop>>
-    fun getNearestBusStops(location: Location): Flowable<List<BusStop>>
-    fun getDepartures(stopRef: String): Flowable<List<Departure>>
-    fun getSchedules(): Flowable<Map<String, RouteSchedule>>
+    suspend fun getBusRoutes(): Deferred<List<BusRoute>>
+    suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>>
+    suspend fun getAllStops() : Deferred<List<BusStop>>
+    suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>>
+    suspend fun getDepartures(stopRef: String): Deferred<List<Departure>>
+    suspend fun getSchedules(): Deferred<Map<String, RouteSchedule>>
 }

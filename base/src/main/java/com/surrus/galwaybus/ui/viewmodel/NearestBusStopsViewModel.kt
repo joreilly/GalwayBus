@@ -8,7 +8,12 @@ import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
-import io.reactivex.subscribers.DisposableSubscriber
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.android.Main
+import kotlinx.coroutines.launch
+import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 
 
@@ -19,20 +24,31 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
     val cameraPosition: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
 
+
+    private val viewModelJob = Job()
+    private val uiScope = CoroutineScope(kotlinx.coroutines.Dispatchers.Main + viewModelJob)
+
+    private var departureTimer: Timer? = null
+
     init {
         zoomLevel.value = 15.0f
     }
 
-
     fun pollForNearestBusStopTimes() {
         if (location.value != null) {
-            getNearestBusStopsUseCase.dispose()
-            getNearestBusStopsUseCase.execute(BusStopsSubscriber(), location.value)
+            departureTimer?.cancel()
+            departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 3000) {
+                uiScope.launch {
+                    val nearestBusStopsData = getNearestBusStopsUseCase.getNearestBusStops(location.value!!).await()
+                    busStops.postValue(Resource(ResourceState.SUCCESS, nearestBusStopsData, null))
+                }
+
+            }
         }
     }
 
     fun stopPolling() {
-        getNearestBusStopsUseCase.dispose()
+        departureTimer?.cancel()
     }
 
     fun setCameraPosition(loc: Location) {
@@ -56,23 +72,9 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
     }
 
 
-    inner class BusStopsSubscriber: DisposableSubscriber<List<BusStop>>() {
-
-        override fun onComplete() { }
-
-        override fun onNext(t: List<BusStop>) {
-            busStops.postValue(Resource(ResourceState.SUCCESS, t, null))
-        }
-
-        override fun onError(exception: Throwable) {
-            busStops.postValue(Resource(ResourceState.ERROR, null, exception.message))
-        }
-    }
-
-
     override fun onCleared() {
         Logger.d("NearestBusStopsViewModel.onCleared")
-        getNearestBusStopsUseCase.dispose()
+        departureTimer?.cancel()
     }
 
 }

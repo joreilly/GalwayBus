@@ -2,23 +2,21 @@ package com.surrus.galwaybus.data.repository
 
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.Completable
-import io.reactivex.Flowable
-import io.reactivex.Single
+
 
 interface GalwayBusCache {
-    fun clearBusRoutes(): Completable
-    fun saveBusRoutes(busRoutes: List<BusRoute>): Completable
-    fun getBusRoutes(): Flowable<List<BusRoute>>
-    fun isCached(): Single<Boolean>
+    fun clearBusRoutes()
+    fun saveBusRoutes(busRoutes: List<BusRoute>)
+    fun getBusRoutes(): List<BusRoute>
+    fun isCached(): Boolean
 
-    fun clearBusStops(): Completable
-    fun saveBusStops(busStopList: List<BusStop>): Completable
-    fun getBusStops(): Flowable<List<BusStop>>
-    fun isBusStopsCached(): Single<Boolean>
-    fun getNumberBusStops(): Single<Int>
+    fun clearBusStops()
+    fun saveBusStops(busStopList: List<BusStop>)
+    fun getBusStops(): List<BusStop>
+    fun isBusStopsCached(): Boolean
+    fun getNumberBusStops(): Int
 
-    fun getBusStopsByName(name: String) : Flowable<List<BusStop>>
+    fun getBusStopsByName(name: String) : List<BusStop>
 
     fun setLastCacheTime(lastCache: Long)
     fun isExpired(): Boolean

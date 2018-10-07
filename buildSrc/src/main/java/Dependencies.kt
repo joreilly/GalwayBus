@@ -1,15 +1,26 @@
 
 object Versions {
-    const val kotlin = "1.2.70"
-    const val koin = "1.0.0"
+    const val kotlin = "1.3.0-rc-146"
+    const val koin = "1.0.1"
     const val retrofit = "2.3.0"
     const val okHttp = "3.9.0"
+    const val ktx = "1.0.0-alpha1"
+    const val nav = "1.0.0-alpha06"
 
 }
 
 
-object Deps {
-    const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Versions.kotlin}"
+object Kotlin {
+    const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1-eap13"
+    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.1-eap13"
+}
+
+
+object ArchComponents {
+    val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
+    val navFragmentKtx = "android.arch.navigation:navigation-fragment-ktx:${Versions.nav}"
+    val navUiKtx = "android.arch.navigation:navigation-ui-ktx:${Versions.nav}"
 }
 
 
@@ -38,6 +49,6 @@ object Okhttp {
 object Retrofit {
     val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     val converterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
-    val rxjava2 = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}"
     val converterScalars = "com.squareup.retrofit2:converter-scalars:${Versions.retrofit}"
+    val coroutinesAdapter = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
 }

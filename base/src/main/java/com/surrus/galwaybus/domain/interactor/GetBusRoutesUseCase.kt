@@ -1,22 +1,22 @@
 package com.surrus.galwaybus.domain.interactor
 
-import com.surrus.galwaybus.domain.executor.ExecutorThread
-import com.surrus.galwaybus.domain.executor.PostExecutionThread
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.RouteSchedule
-import io.reactivex.Flowable
-import io.reactivex.rxkotlin.Flowables
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 
-open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository,
-                                                   executorThread: ExecutorThread, postExecutionThread: PostExecutionThread):
-        FlowableUseCase<List<BusRouteSchedule>, Void?>(executorThread, postExecutionThread) {
+class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository) {
 
-    public override fun buildUseCaseObservable(params: Void?): Flowable<List<BusRouteSchedule>> {
-        return Flowables.zip(galwayRepository.getBusRoutes(), galwayRepository.getSchedules()) {
-            routeList, scheduleMap -> mergeRouteSchedule(routeList, scheduleMap)
+     suspend fun getBusRoutes(): Deferred<List<BusRouteSchedule>> = coroutineScope {
+
+        async {
+            val routeList = galwayRepository.getBusRoutes().await()
+            val scheduleMap = galwayRepository.getSchedules().await()
+            mergeRouteSchedule(routeList, scheduleMap)
         }
     }
 

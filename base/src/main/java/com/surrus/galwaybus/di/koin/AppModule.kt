@@ -5,6 +5,7 @@ import android.content.Context
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.surrus.galwaybus.cache.GalwayBusCacheImpl
 import com.surrus.galwaybus.cache.PreferencesHelper
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
@@ -16,8 +17,6 @@ import com.surrus.galwaybus.data.source.GalwayBusCacheDataStore
 import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.data.source.GalwayBusRemoteDataStore
 import com.surrus.galwaybus.di.koin.DatasourceProperties.SERVER_URL
-import com.surrus.galwaybus.domain.executor.ExecutorThread
-import com.surrus.galwaybus.domain.executor.PostExecutionThread
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.domain.interactor.GetDeparturesUseCase
@@ -25,18 +24,15 @@ import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.remote.GalwayBusRemoteImpl
 import com.surrus.galwaybus.remote.GalwayBusService
-import com.surrus.galwaybus.ui.UiThread
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.buffer.android.boilerplate.data.executor.JobExecutorThread
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.module
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
@@ -55,13 +51,10 @@ val galwayBusAppModuile = module(definition = {
 
     single { PreferencesHelper(get()) }
 
-    single { GetNearestBusStopsUseCase(get(), get(), get())  }
-    single { GetBusStopsUseCase(get(), get(), get())  }
-    single { GetDeparturesUseCase(get(), get(), get())  }
-    single { GetBusRoutesUseCase(get(), get(), get())  }
-
-    single { JobExecutorThread() as ExecutorThread }
-    single { UiThread() as PostExecutionThread }
+    single { GetNearestBusStopsUseCase(get())  }
+    single { GetBusStopsUseCase(get())  }
+    single { GetDeparturesUseCase(get())  }
+    single { GetBusRoutesUseCase(get())  }
 
     single { GalwayBusDataRepository(get()) as GalwayBusRepository }
 
@@ -112,7 +105,7 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient, url: String)
     val retrofit = Retrofit.Builder()
             .baseUrl(SERVER_URL)
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .client(okHttpClient)
             .build()
 

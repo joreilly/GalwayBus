@@ -7,8 +7,7 @@ import androidx.room.Query
 import com.surrus.galwaybus.cache.db.GalwayBusDatabaseConstants
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.Flowable
-import io.reactivex.Single
+
 
 
 @Dao
@@ -24,13 +23,13 @@ abstract class GalwayBusDao {
     abstract fun insertBusRoute(busRoute: BusRoute)
 
     @Query(GalwayBusDatabaseConstants.QUERY_BUS_STOPS_COUNNT)
-    abstract fun getNumberBusStops(): Single<Int>
+    abstract fun getNumberBusStops(): Int
 
     @Query(GalwayBusDatabaseConstants.QUERY_BUS_STOPS)
     abstract fun getBusStops(): List<BusStop>
 
     @Query(GalwayBusDatabaseConstants.QUERY_BUS_STOPS)
-    abstract fun qeuryBusStops(): Flowable<List<BusStop>>
+    abstract fun qeuryBusStops(): List<BusStop>
 
     @Query(GalwayBusDatabaseConstants.DELETE_ALL_BUS_STOPS)
     abstract fun clearBusStops()
