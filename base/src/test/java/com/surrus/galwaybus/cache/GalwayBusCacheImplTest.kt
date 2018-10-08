@@ -4,6 +4,7 @@ import androidx.room.Room
 import com.surrus.galwaybus.cache.db.GalwayBusDatabase
 import com.surrus.galwaybus.factory.GalwayBusFactory
 import junit.framework.Assert.assertEquals
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -22,31 +23,29 @@ class GalwayBusCacheImplTest {
 
 
     @Test
-    fun clearTablesCompletes() {
-        val testObserver = databaseHelper.clearBusRoutes().test()
-        testObserver.assertComplete()
+    fun clearTablesCompletes() = runBlocking {
+        databaseHelper.clearBusRoutes()
     }
 
     @Test
-    fun saveBusRoutes() {
+    fun saveBusRoutes() = runBlocking {
         val busRouteCount = 2
         val busRouteList = GalwayBusFactory.makeBusRouteList(busRouteCount)
-        val testObserver = databaseHelper.saveBusRoutes(busRouteList).test()
+        databaseHelper.saveBusRoutes(busRouteList)
         val numberOfRows = galwayBusDatabase.galwayBusDao().getBusRoutes().size
-        testObserver.assertComplete()
         assertEquals(busRouteCount, numberOfRows)
     }
 
 
     @Test
-    fun getBusRouteList() {
+    fun getBusRouteList() = runBlocking {
         val busRouteList = GalwayBusFactory.makeBusRouteList(2)
         busRouteList.forEach {
             galwayBusDatabase.galwayBusDao().insertBusRoute(it)
         }
 
-        val testObserver = databaseHelper.getBusRoutes().test()
-        testObserver.assertValue(busRouteList)
+        val brl = databaseHelper.getBusRoutes()
+        assert(brl == busRouteList)
     }
 
 

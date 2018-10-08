@@ -9,7 +9,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
 
-class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository) {
+open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository) {
 
      suspend fun getBusRoutes(): Deferred<List<BusRouteSchedule>> = coroutineScope {
 

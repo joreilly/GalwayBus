@@ -2,10 +2,10 @@ package com.surrus.galwaybus.remote
 
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
-import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.RouteSchedule
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.surrus.galwaybus.utils.RestServiceTestHelper
 import junit.framework.Assert.assertNotNull
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -13,11 +13,9 @@ import org.junit.runners.JUnit4
 import okhttp3.mockwebserver.MockWebServer
 import org.junit.After
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.mockwebserver.MockResponse
 import java.net.HttpURLConnection
-import io.reactivex.subscribers.TestSubscriber
 
 
 
@@ -46,7 +44,7 @@ class GalwayBusMockWebTest {
         retrofit = Retrofit.Builder()
                 .baseUrl(mockWebServer.url("").toString())
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()
 
         galwayBusService =  retrofit.create(GalwayBusService::class.java)
@@ -62,7 +60,7 @@ class GalwayBusMockWebTest {
     }
 
     @Test
-    fun testGetSchedules() {
+    fun testGetSchedules() = runBlocking {
 
         val json = RestServiceTestHelper.getStringFromFile("schedules.json")
 
@@ -70,13 +68,7 @@ class GalwayBusMockWebTest {
         mockWebServer.enqueue(mockResponse)
 
 
-        val testSubscriberGetSchedules: TestSubscriber<Map<String, RouteSchedule>> = TestSubscriber()
-
-        galwayBusRemoteImpl.getSchedules().subscribe(testSubscriberGetSchedules)
-        testSubscriberGetSchedules.assertNoErrors()
-        testSubscriberGetSchedules.assertValueCount(1)
-
-        val scheduleMap = testSubscriberGetSchedules.values()[0]
+        val scheduleMap = galwayBusRemoteImpl.getSchedules().await()
         for (schedule in scheduleMap.values) {
             assertNotNull(schedule.timetableId)
             assertNotNull(schedule.routeName)
@@ -85,20 +77,14 @@ class GalwayBusMockWebTest {
     }
 
     @Test
-    fun testGetAllStops() {
+    fun testGetAllStops() = runBlocking {
 
         val json = RestServiceTestHelper.getStringFromFile("stops.json")
 
         mockResponse.setBody(json)
         mockWebServer.enqueue(mockResponse)
 
-        val testSubscriberGetSchedules: TestSubscriber<List<BusStop>> = TestSubscriber()
-
-        galwayBusRemoteImpl.getAllStops().subscribe(testSubscriberGetSchedules)
-        testSubscriberGetSchedules.assertNoErrors()
-        testSubscriberGetSchedules.assertValueCount(1)
-
-        val busStops = testSubscriberGetSchedules.values()[0]
+        val busStops = galwayBusRemoteImpl.getAllStops().await()
         for (busStop in busStops) {
             assertNotNull(busStop.stopId)
             assertNotNull(busStop.shortName)

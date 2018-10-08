@@ -6,7 +6,8 @@ import com.nhaarman.mockito_kotlin.whenever
 import com.surrus.galwaybus.factory.GalwayBusFactory
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.GetDeparturesResponse
-import io.reactivex.Flowable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -16,7 +17,6 @@ import org.junit.runners.JUnit4
 class GalwayBusRemoteImplTest {
 
     private lateinit var galwayBusRemoteImpl: GalwayBusRemoteImpl
-
     private lateinit var galwayBusService: GalwayBusService
 
     @Before
@@ -26,29 +26,28 @@ class GalwayBusRemoteImplTest {
     }
 
     @Test
-    fun getBusRoutes() {
+    fun getBusRoutes() = runBlocking  {
         val busRouteList = GalwayBusFactory.makeBusRouteList(2)
         val busRouteResponse = LinkedHashMap<String, BusRoute>()
         busRouteList.forEach {
             busRouteResponse.put(it.timetableId, it)
         }
-        val busRouteResponseFlowable = Flowable.just(busRouteResponse)
 
-        whenever(galwayBusService.getBusRoutes()).thenReturn(busRouteResponseFlowable)
-        val testObserver = galwayBusRemoteImpl.getBusRoutes().test()
-        testObserver.assertValue(busRouteList)
+        whenever(galwayBusService.getBusRoutes()).thenReturn(async { busRouteResponse })
+        val br = galwayBusRemoteImpl.getBusRoutes().await()
+        assert(br.size == 2)
     }
 
 
     @Test
-    fun getDepartures() {
+    fun getDepartures() = runBlocking {
         val departureTimes = GalwayBusFactory.makeDepartureList(3)
         val busStop = GalwayBusFactory.makeBusStop()
         val getDeparturesResponse = GetDeparturesResponse(busStop, departureTimes)
 
-        whenever(galwayBusService.getDepartures(any())).thenReturn(Flowable.just(getDeparturesResponse))
-        val testObserver = galwayBusRemoteImpl.getDepartures("some_stop_ref").test()
-        testObserver.assertValue(departureTimes)
+        whenever(galwayBusService.getDepartures(any())).thenReturn(async { getDeparturesResponse })
+        val bs = galwayBusRemoteImpl.getDepartures("some_stop_ref").await()
+        assert(bs.size == 3)
     }
 
 }

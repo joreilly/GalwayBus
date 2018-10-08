@@ -5,7 +5,6 @@ import androidx.lifecycle.Observer
 import com.nhaarman.mockito_kotlin.*
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
-import io.reactivex.subscribers.DisposableSubscriber
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 
@@ -13,7 +12,6 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Captor
 import org.mockito.Mock
 
 @RunWith(JUnit4::class)
@@ -25,15 +23,10 @@ class BusStopsViewModelTest {
 
     @Mock lateinit var observer: Observer<List<BusStop>>
 
-    @Captor
-    private lateinit var captor: KArgumentCaptor<DisposableSubscriber<List<List<BusStop>>>>
-
-
     private lateinit var busStopsViewModel: BusStopsViewModel
 
     @Before
     fun setUp() {
-        captor = argumentCaptor<DisposableSubscriber<List<List<BusStop>>>>()
         observer = mock()
         getBusStopsUseCase = mock()
         busStopsViewModel = BusStopsViewModel(getBusStopsUseCase)
@@ -59,9 +52,6 @@ class BusStopsViewModelTest {
 
 
         busStopsViewModel.fetchBusStops("some route id")
-        verify(getBusStopsUseCase).execute(captor.capture(), eq("some route id"))
-        captor.firstValue.onNext(busStopsList)
-
         assertTrue(busStopsViewModel.busStops.value!!.equals(busStopsDir0))
 
 
