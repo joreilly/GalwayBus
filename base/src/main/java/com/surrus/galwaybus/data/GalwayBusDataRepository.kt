@@ -14,65 +14,60 @@ class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStor
 
     init {
         // Preload Bus Stop info
-        launch {
-            getBusStops().await()
+        launch(Dispatchers.IO) {
+            getBusStops()
         }
     }
 
 
-    override suspend fun getBusRoutes(): Deferred<List<BusRoute>> = coroutineScope {
-        async(Dispatchers.IO) {
-            val isCached = factory.retrieveCacheDataStore().isCached().await()
-            val busRoutes = factory.retrieveDataStore(isCached).getBusRoutes().await()
+    override suspend fun getBusRoutes(): List<BusRoute> = coroutineScope {
+        val isCached = factory.retrieveCacheDataStore().isCached()
+        val busRoutes = factory.retrieveDataStore(isCached).getBusRoutes()
 
-            saveBusRoutes(busRoutes).await()
-            busRoutes
-        }
+        saveBusRoutes(busRoutes)
+        busRoutes
     }
 
-    override suspend fun saveBusRoutes(busRoutes: List<BusRoute>) : Deferred<Unit> {
+    override suspend fun saveBusRoutes(busRoutes: List<BusRoute>) {
         return factory.retrieveCacheDataStore().saveBusRoutes(busRoutes)
     }
 
-    override suspend fun clearBusRoutes(): Deferred<Unit> {
+    override suspend fun clearBusRoutes() {
         return factory.retrieveCacheDataStore().clearBusRoutes()
     }
 
     private suspend fun getBusStops() = coroutineScope {
 
-        async(Dispatchers.IO) {
-
-            val busStops = factory.retrieveRemoteDataStore().getBusStops().await()
-            saveBusStops(busStops)
-        }
+        val busStops = factory.retrieveRemoteDataStore().getBusStops()
+        saveBusStops(busStops)
     }
 
-    override suspend fun saveBusStops(busStops: List<BusStop>) : Deferred<Unit> {
+    override suspend fun saveBusStops(busStops: List<BusStop>) {
         return factory.retrieveCacheDataStore().saveBusStops(busStops)
     }
 
-    override suspend fun clearBusStops() : Deferred<Unit> {
+    override suspend fun clearBusStops()  {
         return factory.retrieveCacheDataStore().clearBusStops()
     }
 
 
-    override suspend fun getNearestBusStops(location: Location): Deferred<List<BusStop>> {
+    override suspend fun getNearestBusStops(location: Location): List<BusStop> {
         return factory.retrieveRemoteDataStore().getNearestBusStops(location)
     }
 
-    override suspend fun getBusStops(routeId: String): Deferred<List<List<BusStop>>> {
+    override suspend fun getBusStops(routeId: String): List<List<BusStop>> {
         return factory.retrieveRemoteDataStore().getBusStops(routeId)
     }
 
-    override suspend fun getBusStopsByName(name: String) : Deferred<List<BusStop>> {
+    override suspend fun getBusStopsByName(name: String) : List<BusStop> {
         return factory.retrieveCacheDataStore().getBusStopsByName(name)
     }
 
-    override suspend fun getDepartures(stopRef: String): Deferred<List<Departure>> {
+    override suspend fun getDepartures(stopRef: String): List<Departure> {
         return factory.retrieveRemoteDataStore().getDepartures(stopRef)
     }
 
-    override suspend fun getSchedules(): Deferred<Map<String, RouteSchedule>> {
+    override suspend fun getSchedules(): Map<String, RouteSchedule> {
         return factory.retrieveRemoteDataStore().getSchedules()
     }
 

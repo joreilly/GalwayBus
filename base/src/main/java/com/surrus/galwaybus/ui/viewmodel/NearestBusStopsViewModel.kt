@@ -39,7 +39,7 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
             departureTimer?.cancel()
             departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 3000) {
                 uiScope.launch {
-                    val nearestBusStopsData = getNearestBusStopsUseCase.getNearestBusStops(location.value!!).await()
+                    val nearestBusStopsData = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
                     busStops.postValue(Resource(ResourceState.SUCCESS, nearestBusStopsData, null))
                 }
 

@@ -34,7 +34,7 @@ class GalwayBusRemoteImplTest {
         }
 
         whenever(galwayBusService.getBusRoutes()).thenReturn(async { busRouteResponse })
-        val br = galwayBusRemoteImpl.getBusRoutes().await()
+        val br = galwayBusRemoteImpl.getBusRoutes()
         assert(br.size == 2)
     }
 
@@ -46,7 +46,7 @@ class GalwayBusRemoteImplTest {
         val getDeparturesResponse = GetDeparturesResponse(busStop, departureTimes)
 
         whenever(galwayBusService.getDepartures(any())).thenReturn(async { getDeparturesResponse })
-        val bs = galwayBusRemoteImpl.getDepartures("some_stop_ref").await()
+        val bs = galwayBusRemoteImpl.getDepartures("some_stop_ref")
         assert(bs.size == 3)
     }
 

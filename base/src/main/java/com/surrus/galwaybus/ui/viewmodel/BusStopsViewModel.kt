@@ -39,7 +39,7 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
     fun fetchBusStops(routeId: String) {
         if (busStops.value == null) {
             uiScope.launch {
-                val busStopsData = getBusStopsUseCase.getBusStops(routeId).await()
+                val busStopsData = getBusStopsUseCase.getBusStops(routeId)
                 busStops.value = busStopsData[direction.value!!]
             }
         }

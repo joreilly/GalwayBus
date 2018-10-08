@@ -68,7 +68,7 @@ class GalwayBusMockWebTest {
         mockWebServer.enqueue(mockResponse)
 
 
-        val scheduleMap = galwayBusRemoteImpl.getSchedules().await()
+        val scheduleMap = galwayBusRemoteImpl.getSchedules()
         for (schedule in scheduleMap.values) {
             assertNotNull(schedule.timetableId)
             assertNotNull(schedule.routeName)
@@ -84,7 +84,7 @@ class GalwayBusMockWebTest {
         mockResponse.setBody(json)
         mockWebServer.enqueue(mockResponse)
 
-        val busStops = galwayBusRemoteImpl.getAllStops().await()
+        val busStops = galwayBusRemoteImpl.getAllStops()
         for (busStop in busStops) {
             assertNotNull(busStop.stopId)
             assertNotNull(busStop.shortName)

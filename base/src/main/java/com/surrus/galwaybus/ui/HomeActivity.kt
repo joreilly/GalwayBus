@@ -154,7 +154,7 @@ class HomeActivity : AppCompatActivity() {
                 if (query.length >= 2) {
 
                     launch {
-                        val busStops = galwayRepository.getBusStopsByName("%$query%").await()
+                        val busStops = galwayRepository.getBusStopsByName("%$query%")
 
                         withContext(Dispatchers.Main) {
                             searchResultsStopsAdapter.busStopList = busStops
