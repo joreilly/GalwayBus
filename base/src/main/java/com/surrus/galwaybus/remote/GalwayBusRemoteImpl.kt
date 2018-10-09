@@ -17,24 +17,20 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
     }
 
 
-    override suspend fun getBusStops(routeId: String): List<List<BusStop>> = coroutineScope {
-        galwayBusService.getStops(routeId).await().stops
-    }
+    override suspend fun getBusStops(routeId: String): List<List<BusStop>> = galwayBusService.getStops(routeId).await().stops
 
-    override suspend fun getAllStops() : List<BusStop> = coroutineScope {
-        galwayBusService.getAllStops().await()
-    }
+    override suspend fun getAllStops() : List<BusStop> = galwayBusService.getAllStops().await()
 
-    override suspend fun getNearestBusStops(location: Location): List<BusStop> = coroutineScope {
+
+    override suspend fun getNearestBusStops(location: Location): List<BusStop> =
         galwayBusService.getNearestStops(location.latitude, location.longitude).await()
-    }
 
-    override suspend fun getDepartures(stopRef: String): List<Departure> = coroutineScope {
+
+    override suspend fun getDepartures(stopRef: String): List<Departure> =
         galwayBusService.getDepartures(stopRef).await().departureTimes
-    }
 
 
-    override suspend fun getSchedules(): Map<String, RouteSchedule> = coroutineScope {
+    override suspend fun getSchedules(): Map<String, RouteSchedule>  {
         val schedules = galwayBusService.getSchedules().await()
 
         val scheduleMap = HashMap<String, RouteSchedule>()
@@ -46,7 +42,7 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
                 scheduleMap[it] = RouteSchedule(it, routeName, pdfUrl!!)
             }
         }
-        scheduleMap
+        return scheduleMap
     }
 
 }
