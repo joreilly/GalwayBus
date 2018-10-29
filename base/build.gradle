@@ -67,7 +67,7 @@ dependencies {
 
     api "com.google.android.instantapps:instantapps:${instantAppsVer}"
     api 'androidx.multidex:multidex:2.0.0'
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0-alpha4', {
+    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     implementation fileTree(dir: 'libs', include: ['*.jar'])
@@ -87,7 +87,7 @@ dependencies {
     testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
     testImplementation "com.nhaarman:mockito-kotlin:${mockitoKotlinVersion}"
     testImplementation "com.squareup.okhttp3:mockwebserver:3.11.0"
-    androidTestImplementation 'tools.fastlane:screengrab:1.1.0'
+    androidTestImplementation 'tools.fastlane:screengrab:1.2.0'
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.9.3@aar') {
         transitive = true
@@ -99,7 +99,7 @@ dependencies {
     api PlayServices.maps
 
     api 'com.karumi:dexter:4.2.0'
-    api 'net.danlew:android.joda:2.9.9.1'
+    api 'net.danlew:android.joda:2.10.1'
     api 'com.orhanobut:logger:1.15'
 
     implementation 'es.voghdev.pdfviewpager:library:1.0.5'
@@ -115,17 +115,18 @@ dependencies {
     implementation Retrofit.converterScalars
     implementation Retrofit.coroutinesAdapter
 
-    implementation "com.google.code.gson:gson:2.8.2"
+    implementation "com.google.code.gson:gson:2.8.5"
 
 
     implementation ArchComponents.navFragmentKtx
     implementation ArchComponents.navUiKtx
+    implementation ArchComponents.work
 
     api "androidx.lifecycle:lifecycle-runtime:2.0.0"
     api "androidx.lifecycle:lifecycle-extensions:2.0.0"
     api 'androidx.lifecycle:lifecycle-reactivestreams:2.0.0'
-    api 'androidx.room:room-runtime:2.0.0-rc01'
-    kapt 'androidx.room:room-compiler:2.0.0-rc01'
+    api ArchComponents.roomRuntime
+    kapt ArchComponents.roomCompiler
 
     kapt "androidx.lifecycle:lifecycle-compiler:2.0.0"
     testImplementation "androidx.arch.core:core-testing:2.0.0"

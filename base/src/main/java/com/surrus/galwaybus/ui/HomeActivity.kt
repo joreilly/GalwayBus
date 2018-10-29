@@ -26,7 +26,7 @@ import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.android.Main
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
@@ -153,7 +153,7 @@ class HomeActivity : AppCompatActivity() {
             override fun onQueryTextChange(query: String): Boolean {
                 if (query.length >= 2) {
 
-                    launch {
+                    GlobalScope.launch  {
                         val busStops = galwayRepository.getBusStopsByName("%$query%")
 
                         withContext(Dispatchers.Main) {

@@ -50,8 +50,8 @@ open class GalwayBusCacheDataStore constructor(private val galwayBusCache: Galwa
         galwayBusCache.getNumberBusStops()
     }
 
-    override suspend fun getNearestBusStops(location: Location): List<BusStop> = coroutineScope {
-        emptyList<BusStop>()
+    override suspend fun getNearestBusStops(location: Location): Result<List<BusStop>> = coroutineScope {
+        Result.Success(emptyList<BusStop>())
     }
 
     override suspend fun getBusStops(routeId: String): List<List<BusStop>> = coroutineScope {

@@ -20,7 +20,7 @@ class GalwayBusRemoteDataStore constructor(private val galwayBusRemote: GalwayBu
         return galwayBusRemote.getAllStops()
     }
 
-    override suspend fun getNearestBusStops(location: Location): List<BusStop> {
+    override suspend fun getNearestBusStops(location: Location): Result<List<BusStop>> {
         return galwayBusRemote.getNearestBusStops(location)
     }
 

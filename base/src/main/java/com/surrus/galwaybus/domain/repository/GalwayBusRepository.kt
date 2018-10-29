@@ -12,7 +12,7 @@ interface GalwayBusRepository {
     suspend fun clearBusStops()
 
 
-    suspend fun getNearestBusStops(location: Location): List<BusStop>
+    suspend fun getNearestBusStops(location: Location): Result<List<BusStop>>
     suspend fun getBusStops(routeId: String): List<List<BusStop>>
     suspend fun getBusStopsByName(name: String) : List<BusStop>
 

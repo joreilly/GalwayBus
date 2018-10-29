@@ -9,14 +9,14 @@ interface GalwayBusDataStore {
     suspend fun getBusRoutes(): List<BusRoute>
     suspend fun isCached(): Boolean
 
-    suspend fun clearBusStops() : Unit
-    suspend fun saveBusStops(busStopList: List<BusStop>) : Unit
+    suspend fun clearBusStops()
+    suspend fun saveBusStops(busStopList: List<BusStop>)
     suspend fun getBusStops(): List<BusStop>
     suspend fun getBusStopsByName(name: String) : List<BusStop>
     suspend fun isBusStopsCached(): Boolean
     suspend fun getNumberBusStops(): Int
 
-    suspend fun getNearestBusStops(location: Location): List<BusStop>
+    suspend fun getNearestBusStops(location: Location): Result<List<BusStop>>
     suspend fun getBusStops(routeId: String): List<List<BusStop>>
 
     suspend fun getDepartures(stopRef: String): List<Departure>

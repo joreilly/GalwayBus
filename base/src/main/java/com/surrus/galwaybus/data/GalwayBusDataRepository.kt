@@ -14,7 +14,7 @@ class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStor
 
     init {
         // Preload Bus Stop info
-        launch(Dispatchers.IO) {
+        GlobalScope.launch (Dispatchers.IO) {
             getBusStops()
         }
     }
@@ -51,7 +51,7 @@ class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStor
     }
 
 
-    override suspend fun getNearestBusStops(location: Location): List<BusStop> {
+    override suspend fun getNearestBusStops(location: Location): Result<List<BusStop>> {
         return factory.retrieveRemoteDataStore().getNearestBusStops(location)
     }
 

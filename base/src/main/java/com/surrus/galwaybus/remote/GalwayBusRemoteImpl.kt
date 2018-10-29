@@ -2,47 +2,106 @@ package com.surrus.galwaybus.remote
 
 import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.*
-import kotlinx.coroutines.coroutineScope
+import java.io.IOException
 
 
 class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusService) : GalwayBusRemote {
 
-    override suspend fun getBusRoutes(): List<BusRoute> = coroutineScope {
-        val busRoutes = galwayBusService.getBusRoutes().await()
-        val busRouteList = mutableListOf<BusRoute>()
-        busRoutes.values.forEach {
-            busRouteList.add(it)
+    override suspend fun getBusRoutes(): List<BusRoute> {
+        try {
+            val busRoutesResponse = galwayBusService.getBusRoutes().await()
+            if (busRoutesResponse.isSuccessful) {
+                val busRoutes = busRoutesResponse.body()
+                val busRouteList = mutableListOf<BusRoute>()
+                busRoutes?.values?.forEach {
+                    busRouteList.add(it)
+                }
+                return busRouteList
+            } else {
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            return emptyList()
         }
-        busRouteList
     }
 
 
-    override suspend fun getBusStops(routeId: String): List<List<BusStop>> = galwayBusService.getStops(routeId).await().stops
+    override suspend fun getBusStops(routeId: String): List<List<BusStop>> {
+        try {
+            val stopsResponse = galwayBusService.getStops(routeId).await()
+            if (stopsResponse.isSuccessful) {
+                return stopsResponse.body()!!.stops
+            } else {
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            return emptyList()
+        }
+    }
 
-    override suspend fun getAllStops() : List<BusStop> = galwayBusService.getAllStops().await()
+    override suspend fun getAllStops(): List<BusStop> {
+        try {
+            val stopsResponse = galwayBusService.getAllStops().await()
+            if (stopsResponse.isSuccessful) {
+                return stopsResponse.body()!!
+            } else {
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            return emptyList()
+        }
+    }
 
 
-    override suspend fun getNearestBusStops(location: Location): List<BusStop> =
-        galwayBusService.getNearestStops(location.latitude, location.longitude).await()
+    override suspend fun getNearestBusStops(location: Location): Result<List<BusStop>> {
+        try {
+            val nearestBusStopsResponse = galwayBusService.getNearestStops(location.latitude, location.longitude).await()
+            if (nearestBusStopsResponse.isSuccessful) {
+                return Result.Success(nearestBusStopsResponse.body()!!)
+            } else {
+                return Result.Error(IOException("Error occurred  fetching timetable information"))
+            }
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
+    }
 
 
-    override suspend fun getDepartures(stopRef: String): List<Departure> =
-        galwayBusService.getDepartures(stopRef).await().departureTimes
+    override suspend fun getDepartures(stopRef: String): List<Departure> {
+        try {
+            val departuresResponse = galwayBusService.getDepartures(stopRef).await()
+            if (departuresResponse.isSuccessful) {
+                return departuresResponse.body()!!.departureTimes
+            } else {
+                return emptyList()
+            }
+        } catch (e: Exception) {
+            return emptyList()
+        }
+    }
 
 
     override suspend fun getSchedules(): Map<String, RouteSchedule>  {
-        val schedules = galwayBusService.getSchedules().await()
-
-        val scheduleMap = HashMap<String, RouteSchedule>()
-        schedules.keys.forEach {
-            val schedule = schedules.get(it)!![0]
-            for (key in schedule.keys) {
-                val routeName = key
-                val pdfUrl = schedule[key]
-                scheduleMap[it] = RouteSchedule(it, routeName, pdfUrl!!)
+        try {
+            val schedulesResponse = galwayBusService.getSchedules().await()
+            if (schedulesResponse.isSuccessful) {
+                val scheduleMap = HashMap<String, RouteSchedule>()
+                val schedules = schedulesResponse.body()
+                schedules?.keys?.forEach {
+                    val schedule = schedules.get(it)!![0]
+                    for (key in schedule.keys) {
+                        val routeName = key
+                        val pdfUrl = schedule[key]
+                        scheduleMap[it] = RouteSchedule(it, routeName, pdfUrl!!)
+                    }
+                }
+                return scheduleMap
+            } else {
+                return emptyMap()
             }
+        } catch (e: Exception) {
+            return emptyMap()
         }
-        return scheduleMap
     }
 
 }

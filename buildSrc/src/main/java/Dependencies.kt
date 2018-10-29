@@ -1,19 +1,21 @@
 
 object Versions {
-    const val kotlin = "1.3.0-rc-146"
+    const val kotlin = "1.3.0"
+    const val kotlinCoroutines = "1.0.0"
     const val koin = "1.0.1"
-    const val retrofit = "2.3.0"
-    const val okHttp = "3.9.0"
+    const val retrofit = "2.4.0"
+    const val okHttp = "3.11.0"
     const val ktx = "1.0.0-alpha1"
     const val nav = "1.0.0-alpha06"
-
+    const val work = "1.0.0-alpha10"
+    const val room = "2.1.0-alpha01"
 }
 
 
 object Kotlin {
     const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
-    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.26.1-eap13"
-    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:0.26.1-eap13"
+    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
 }
 
 
@@ -21,6 +23,9 @@ object ArchComponents {
     val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
     val navFragmentKtx = "android.arch.navigation:navigation-fragment-ktx:${Versions.nav}"
     val navUiKtx = "android.arch.navigation:navigation-ui-ktx:${Versions.nav}"
+    val work = "android.arch.work:work-runtime-ktx:${Versions.work}"
+    val roomRuntime = "androidx.room:room-runtime:${Versions.room}"
+    val roomCompiler =  "androidx.room:room-compiler:${Versions.room}"
 }
 
 

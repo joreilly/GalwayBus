@@ -1,20 +1,25 @@
 package com.surrus.galwaybus.ui.viewmodel
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.work.*
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import com.google.gson.stream.JsonReader
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
+import com.surrus.galwaybus.model.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.android.Main
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
-
 
 
 class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
@@ -39,8 +44,11 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
             departureTimer?.cancel()
             departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 3000) {
                 uiScope.launch {
-                    val nearestBusStopsData = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
-                    busStops.postValue(Resource(ResourceState.SUCCESS, nearestBusStopsData, null))
+                    val result = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
+                    busStops.postValue(when (result) {
+                        is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
+                        is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
+                    })
                 }
 
             }
@@ -74,7 +82,7 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
 
     override fun onCleared() {
         Logger.d("NearestBusStopsViewModel.onCleared")
-        departureTimer?.cancel()
+        stopPolling()
     }
 
 }
