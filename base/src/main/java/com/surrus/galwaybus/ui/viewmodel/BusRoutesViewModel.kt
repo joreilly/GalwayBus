@@ -5,24 +5,29 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 
-class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase) : ViewModel() {
-
-    private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
+class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
+    : ViewModel(), CoroutineScope {
 
     private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(kotlinx.coroutines.Dispatchers.Main + viewModelJob)
+    override val coroutineContext: CoroutineContext
+        get() = uiDispatcher + viewModelJob
+
+    private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
 
     init {
         fetchRoutes()
     }
 
     fun fetchRoutes() {
-        uiScope.launch {
+        launch {
             val busRoutesData = getBusRoutesUseCase.getBusRoutes().await()
             busRoutes.postValue(busRoutesData)
         }

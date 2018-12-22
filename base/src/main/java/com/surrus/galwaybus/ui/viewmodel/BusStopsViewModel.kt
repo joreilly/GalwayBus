@@ -5,12 +5,21 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 
-class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase) : ViewModel() {
+class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
+    : ViewModel(), CoroutineScope {
+
+    private val viewModelJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = uiDispatcher + viewModelJob
+
 
     val direction: MutableLiveData<Int> = MutableLiveData()
 
@@ -24,9 +33,6 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
     private var busStopList: List<List<BusStop>> = emptyList()
 
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(kotlinx.coroutines.Dispatchers.Main + viewModelJob)
-
     init {
         direction.value = 0
     }
@@ -37,7 +43,7 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
     fun fetchBusStops(routeId: String) {
         if (busStops.value == null) {
-            uiScope.launch {
+            launch {
                 val busStopsData = getBusStopsUseCase.getBusStops(routeId)
                 busStops.value = busStopsData[direction.value!!]
             }

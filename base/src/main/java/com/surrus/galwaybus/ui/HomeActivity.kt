@@ -38,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
     private val firebaseAnaltyics by inject<FirebaseAnalytics>()
     private val galwayRepository by inject<GalwayBusRepository>()
 
-    private val nearestBusStopsViewModel: NearestBusStopsViewModel by viewModel()
+    private val nearestBusStopsViewModel by viewModel<NearestBusStopsViewModel>()
 
     //private var arCoreSession: Session? = null
 

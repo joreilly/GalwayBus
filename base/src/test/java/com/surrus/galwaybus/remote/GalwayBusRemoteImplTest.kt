@@ -12,6 +12,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import retrofit2.Response
 
 @RunWith(JUnit4::class)
 class GalwayBusRemoteImplTest {
@@ -32,8 +33,9 @@ class GalwayBusRemoteImplTest {
         busRouteList.forEach {
             busRouteResponse.put(it.timetableId, it)
         }
+        val response = Response.success(busRouteResponse)
 
-        whenever(galwayBusService.getBusRoutes()).thenReturn(async { busRouteResponse })
+        whenever(galwayBusService.getBusRoutes()).thenReturn(async { response })
         val br = galwayBusRemoteImpl.getBusRoutes()
         assert(br.size == 2)
     }
@@ -44,8 +46,9 @@ class GalwayBusRemoteImplTest {
         val departureTimes = GalwayBusFactory.makeDepartureList(3)
         val busStop = GalwayBusFactory.makeBusStop()
         val getDeparturesResponse = GetDeparturesResponse(busStop, departureTimes)
+        val response = Response.success(getDeparturesResponse)
 
-        whenever(galwayBusService.getDepartures(any())).thenReturn(async { getDeparturesResponse })
+        whenever(galwayBusService.getDepartures(any())).thenReturn(async { response })
         val bs = galwayBusRemoteImpl.getDepartures("some_stop_ref")
         assert(bs.size == 3)
     }

@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.nhaarman.mockito_kotlin.*
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
@@ -26,7 +27,7 @@ class BusRoutesViewModelTest {
     @Before
     fun setUp() {
         getBusRoutesUseCase = mock()
-        busRoutesViewModel = BusRoutesViewModel(getBusRoutesUseCase)
+        busRoutesViewModel = BusRoutesViewModel(getBusRoutesUseCase, Dispatchers.Unconfined)
     }
 
 

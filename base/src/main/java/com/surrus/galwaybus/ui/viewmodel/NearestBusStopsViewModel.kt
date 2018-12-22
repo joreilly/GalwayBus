@@ -1,13 +1,7 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.work.*
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.domain.interactor.GetNearestBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
@@ -15,23 +9,27 @@ import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.model.Result
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
+import kotlin.coroutines.CoroutineContext
 
 
-class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase: GetNearestBusStopsUseCase) : ViewModel() {
+class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase: GetNearestBusStopsUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
+    : ViewModel(), CoroutineScope {
+
+    private val viewModelJob = Job()
+    override val coroutineContext: CoroutineContext
+        get() = uiDispatcher + viewModelJob
 
     var busStops: MutableLiveData<Resource<List<BusStop>>> = MutableLiveData()
     val location: MutableLiveData<Location> = MutableLiveData()
     val cameraPosition: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
-
-
-    private val viewModelJob = Job()
-    private val uiScope = CoroutineScope(kotlinx.coroutines.Dispatchers.Main + viewModelJob)
 
     private var departureTimer: Timer? = null
 
@@ -43,7 +41,7 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
         if (location.value != null) {
             departureTimer?.cancel()
             departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 3000) {
-                uiScope.launch {
+                launch {
                     val result = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
                     busStops.postValue(when (result) {
                         is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
@@ -84,5 +82,4 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
         Logger.d("NearestBusStopsViewModel.onCleared")
         stopPolling()
     }
-
 }
