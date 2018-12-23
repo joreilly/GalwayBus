@@ -21,11 +21,12 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.4.0-alpha09'
+        classpath 'com.android.tools.build:gradle:3.2.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$Versions.kotlin"
         classpath 'com.google.gms:google-services:4.2.0'
         classpath 'com.google.firebase:firebase-plugins:1.1.5'
-        classpath 'io.fabric.tools:gradle:1.26.1'
+        classpath 'io.fabric.tools:gradle:1.27.0'
         classpath "android.arch.navigation:navigation-safe-args-gradle-plugin:$Versions.nav"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.20.0"
     }
@@ -36,9 +37,7 @@ allprojects {
         google()
         jcenter()
         mavenCentral()
-        maven {
-            url 'https://dl.bintray.com/kotlin/kotlin-eap'
-        }
+        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
 }
 

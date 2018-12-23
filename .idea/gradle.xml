@@ -9,6 +9,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/SharedCode" />
             <option value="$PROJECT_DIR$/app-apk" />
             <option value="$PROJECT_DIR$/ar" />
             <option value="$PROJECT_DIR$/base" />

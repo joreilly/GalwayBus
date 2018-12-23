@@ -1,1 +1,5 @@
-include ':base', ':app-apk', ':ar'
+rootProject.name = 'galway-bus-android'
+
+enableFeaturePreview('GRADLE_METADATA')
+
+include ':base', ':app-apk', ':ar', ':SharedCode'

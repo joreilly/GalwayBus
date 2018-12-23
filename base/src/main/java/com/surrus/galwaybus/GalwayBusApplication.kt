@@ -11,6 +11,7 @@ import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.base.BuildConfig
+import com.surrus.galwaybus.common.createApplicationScreenMessage
 import com.surrus.galwaybus.di.koin.appModule
 import org.koin.android.ext.android.startKoin
 
@@ -21,6 +22,8 @@ class GalwayBusApplication : Application() {
         super.onCreate()
 
         Logger.i("GalwayBusApplication init")
+
+        var s = createApplicationScreenMessage()
 
         // Stetho
         //Stetho.initializeWithDefaults(this);

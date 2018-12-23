@@ -1,10 +1,12 @@
 
 object Versions {
     const val kotlin = "1.3.11"
-    const val kotlinCoroutines = "1.1.0"
+    const val kotlinCoroutines = "1.0.1"
+    const val kotlinxSerialization = "0.9.1"
     const val koin = "1.0.2"
+    const val ktor = "1.0.1"
     const val retrofit = "2.4.0"
-    const val okHttp = "3.11.0"
+    const val okHttp = "3.12.0"
     const val ktx = "1.0.1"
     const val nav = "1.0.0-alpha09"
     const val work = "1.0.0-alpha10"

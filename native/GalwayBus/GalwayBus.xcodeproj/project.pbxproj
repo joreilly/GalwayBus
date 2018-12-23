@@ -1,0 +1,640 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B285234D21CEDB2E001A68FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285234C21CEDB2E001A68FE /* AppDelegate.swift */; };
+		B285234F21CEDB2E001A68FE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285234E21CEDB2E001A68FE /* ViewController.swift */; };
+		B285235221CEDB2E001A68FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B285235021CEDB2E001A68FE /* Main.storyboard */; };
+		B285235421CEDB2F001A68FE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B285235321CEDB2F001A68FE /* Assets.xcassets */; };
+		B285235721CEDB2F001A68FE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B285235521CEDB2F001A68FE /* LaunchScreen.storyboard */; };
+		B285236221CEDB2F001A68FE /* GalwayBusTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285236121CEDB2F001A68FE /* GalwayBusTests.swift */; };
+		B285236D21CEDB2F001A68FE /* GalwayBusUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285236C21CEDB2F001A68FE /* GalwayBusUITests.swift */; };
+		B285237B21CEDD4F001A68FE /* SharedCode.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B285237A21CEDD4F001A68FE /* SharedCode.framework */; };
+		B285237C21CEDD4F001A68FE /* SharedCode.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B285237A21CEDD4F001A68FE /* SharedCode.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B295542421F4E9EC0038C4A3 /* CoroutineDispatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = B295542321F4E9EC0038C4A3 /* CoroutineDispatcher.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		B285235E21CEDB2F001A68FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B285234121CEDB2E001A68FE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B285234821CEDB2E001A68FE;
+			remoteInfo = GalwayBus;
+		};
+		B285236921CEDB2F001A68FE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = B285234121CEDB2E001A68FE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B285234821CEDB2E001A68FE;
+			remoteInfo = GalwayBus;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B285237D21CEDD4F001A68FE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				B285237C21CEDD4F001A68FE /* SharedCode.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B285234921CEDB2E001A68FE /* GalwayBus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B285234C21CEDB2E001A68FE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		B285234E21CEDB2E001A68FE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B285235121CEDB2E001A68FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		B285235321CEDB2F001A68FE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		B285235621CEDB2F001A68FE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		B285235821CEDB2F001A68FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B285235D21CEDB2F001A68FE /* GalwayBusTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GalwayBusTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B285236121CEDB2F001A68FE /* GalwayBusTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalwayBusTests.swift; sourceTree = "<group>"; };
+		B285236321CEDB2F001A68FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B285236821CEDB2F001A68FE /* GalwayBusUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GalwayBusUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		B285236C21CEDB2F001A68FE /* GalwayBusUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GalwayBusUITests.swift; sourceTree = "<group>"; };
+		B285236E21CEDB2F001A68FE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B285237A21CEDD4F001A68FE /* SharedCode.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SharedCode.framework; path = "../../SharedCode/build/xcode-frameworks/SharedCode.framework"; sourceTree = "<group>"; };
+		B295542321F4E9EC0038C4A3 /* CoroutineDispatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoroutineDispatcher.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B285234621CEDB2E001A68FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B285237B21CEDD4F001A68FE /* SharedCode.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285235A21CEDB2F001A68FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285236521CEDB2F001A68FE /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B285234021CEDB2E001A68FE = {
+			isa = PBXGroup;
+			children = (
+				B285237A21CEDD4F001A68FE /* SharedCode.framework */,
+				B285234B21CEDB2E001A68FE /* GalwayBus */,
+				B285236021CEDB2F001A68FE /* GalwayBusTests */,
+				B285236B21CEDB2F001A68FE /* GalwayBusUITests */,
+				B285234A21CEDB2E001A68FE /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		B285234A21CEDB2E001A68FE /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				B285234921CEDB2E001A68FE /* GalwayBus.app */,
+				B285235D21CEDB2F001A68FE /* GalwayBusTests.xctest */,
+				B285236821CEDB2F001A68FE /* GalwayBusUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B285234B21CEDB2E001A68FE /* GalwayBus */ = {
+			isa = PBXGroup;
+			children = (
+				B285234C21CEDB2E001A68FE /* AppDelegate.swift */,
+				B285234E21CEDB2E001A68FE /* ViewController.swift */,
+				B285235021CEDB2E001A68FE /* Main.storyboard */,
+				B285235321CEDB2F001A68FE /* Assets.xcassets */,
+				B285235521CEDB2F001A68FE /* LaunchScreen.storyboard */,
+				B285235821CEDB2F001A68FE /* Info.plist */,
+				B295542321F4E9EC0038C4A3 /* CoroutineDispatcher.swift */,
+			);
+			path = GalwayBus;
+			sourceTree = "<group>";
+		};
+		B285236021CEDB2F001A68FE /* GalwayBusTests */ = {
+			isa = PBXGroup;
+			children = (
+				B285236121CEDB2F001A68FE /* GalwayBusTests.swift */,
+				B285236321CEDB2F001A68FE /* Info.plist */,
+			);
+			path = GalwayBusTests;
+			sourceTree = "<group>";
+		};
+		B285236B21CEDB2F001A68FE /* GalwayBusUITests */ = {
+			isa = PBXGroup;
+			children = (
+				B285236C21CEDB2F001A68FE /* GalwayBusUITests.swift */,
+				B285236E21CEDB2F001A68FE /* Info.plist */,
+			);
+			path = GalwayBusUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		B285234821CEDB2E001A68FE /* GalwayBus */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B285237121CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBus" */;
+			buildPhases = (
+				B285237E21CEDEAA001A68FE /* ShellScript */,
+				B285234521CEDB2E001A68FE /* Sources */,
+				B285234621CEDB2E001A68FE /* Frameworks */,
+				B285234721CEDB2E001A68FE /* Resources */,
+				B285237D21CEDD4F001A68FE /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GalwayBus;
+			productName = GalwayBus;
+			productReference = B285234921CEDB2E001A68FE /* GalwayBus.app */;
+			productType = "com.apple.product-type.application";
+		};
+		B285235C21CEDB2F001A68FE /* GalwayBusTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B285237421CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBusTests" */;
+			buildPhases = (
+				B285235921CEDB2F001A68FE /* Sources */,
+				B285235A21CEDB2F001A68FE /* Frameworks */,
+				B285235B21CEDB2F001A68FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B285235F21CEDB2F001A68FE /* PBXTargetDependency */,
+			);
+			name = GalwayBusTests;
+			productName = GalwayBusTests;
+			productReference = B285235D21CEDB2F001A68FE /* GalwayBusTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		B285236721CEDB2F001A68FE /* GalwayBusUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = B285237721CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBusUITests" */;
+			buildPhases = (
+				B285236421CEDB2F001A68FE /* Sources */,
+				B285236521CEDB2F001A68FE /* Frameworks */,
+				B285236621CEDB2F001A68FE /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				B285236A21CEDB2F001A68FE /* PBXTargetDependency */,
+			);
+			name = GalwayBusUITests;
+			productName = GalwayBusUITests;
+			productReference = B285236821CEDB2F001A68FE /* GalwayBusUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		B285234121CEDB2E001A68FE /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1000;
+				LastUpgradeCheck = 1000;
+				ORGANIZATIONNAME = jooreill;
+				TargetAttributes = {
+					B285234821CEDB2E001A68FE = {
+						CreatedOnToolsVersion = 10.0;
+					};
+					B285235C21CEDB2F001A68FE = {
+						CreatedOnToolsVersion = 10.0;
+						TestTargetID = B285234821CEDB2E001A68FE;
+					};
+					B285236721CEDB2F001A68FE = {
+						CreatedOnToolsVersion = 10.0;
+						TestTargetID = B285234821CEDB2E001A68FE;
+					};
+				};
+			};
+			buildConfigurationList = B285234421CEDB2E001A68FE /* Build configuration list for PBXProject "GalwayBus" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = B285234021CEDB2E001A68FE;
+			productRefGroup = B285234A21CEDB2E001A68FE /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				B285234821CEDB2E001A68FE /* GalwayBus */,
+				B285235C21CEDB2F001A68FE /* GalwayBusTests */,
+				B285236721CEDB2F001A68FE /* GalwayBusUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		B285234721CEDB2E001A68FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B285235721CEDB2F001A68FE /* LaunchScreen.storyboard in Resources */,
+				B285235421CEDB2F001A68FE /* Assets.xcassets in Resources */,
+				B285235221CEDB2E001A68FE /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285235B21CEDB2F001A68FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285236621CEDB2F001A68FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		B285237E21CEDEAA001A68FE /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\ncd $SRCROOT/../../SharedCode/build/xcode-frameworks\n./gradlew :SharedCode:packForXCode -PXCODE_CONFIGURATION=${CONFIGURATION}\n\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		B285234521CEDB2E001A68FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B295542421F4E9EC0038C4A3 /* CoroutineDispatcher.swift in Sources */,
+				B285234F21CEDB2E001A68FE /* ViewController.swift in Sources */,
+				B285234D21CEDB2E001A68FE /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285235921CEDB2F001A68FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B285236221CEDB2F001A68FE /* GalwayBusTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B285236421CEDB2F001A68FE /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B285236D21CEDB2F001A68FE /* GalwayBusUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		B285235F21CEDB2F001A68FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B285234821CEDB2E001A68FE /* GalwayBus */;
+			targetProxy = B285235E21CEDB2F001A68FE /* PBXContainerItemProxy */;
+		};
+		B285236A21CEDB2F001A68FE /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B285234821CEDB2E001A68FE /* GalwayBus */;
+			targetProxy = B285236921CEDB2F001A68FE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		B285235021CEDB2E001A68FE /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B285235121CEDB2E001A68FE /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		B285235521CEDB2F001A68FE /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				B285235621CEDB2F001A68FE /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		B285236F21CEDB2F001A68FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		B285237021CEDB2F001A68FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		B285237221CEDB2F001A68FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				ENABLE_BITCODE = NO;
+				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/../../SharedCode/build/xcode-frameworks";
+				INFOPLIST_FILE = GalwayBus/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBus;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		B285237321CEDB2F001A68FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				ENABLE_BITCODE = NO;
+				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/../../SharedCode/build/xcode-frameworks";
+				INFOPLIST_FILE = GalwayBus/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBus;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		B285237521CEDB2F001A68FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				INFOPLIST_FILE = GalwayBusTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBusTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GalwayBus.app/GalwayBus";
+			};
+			name = Debug;
+		};
+		B285237621CEDB2F001A68FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				INFOPLIST_FILE = GalwayBusTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBusTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GalwayBus.app/GalwayBus";
+			};
+			name = Release;
+		};
+		B285237821CEDB2F001A68FE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				INFOPLIST_FILE = GalwayBusUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBusUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GalwayBus;
+			};
+			name = Debug;
+		};
+		B285237921CEDB2F001A68FE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = NT77748GS8;
+				INFOPLIST_FILE = GalwayBusUITests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.surrus.GalwayBusUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 4.2;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = GalwayBus;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B285234421CEDB2E001A68FE /* Build configuration list for PBXProject "GalwayBus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B285236F21CEDB2F001A68FE /* Debug */,
+				B285237021CEDB2F001A68FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B285237121CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBus" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B285237221CEDB2F001A68FE /* Debug */,
+				B285237321CEDB2F001A68FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B285237421CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBusTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B285237521CEDB2F001A68FE /* Debug */,
+				B285237621CEDB2F001A68FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		B285237721CEDB2F001A68FE /* Build configuration list for PBXNativeTarget "GalwayBusUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B285237821CEDB2F001A68FE /* Debug */,
+				B285237921CEDB2F001A68FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = B285234121CEDB2E001A68FE /* Project object */;
+}

@@ -1,8 +1,5 @@
 package com.surrus.galwaybus.ui
 
-import android.annotation.SuppressLint
-import android.app.SearchManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,6 +12,7 @@ import androidx.appcompat.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
@@ -24,6 +22,7 @@ import com.google.android.instantapps.InstantApps
 //import com.google.ar.core.Session
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.Logger
+import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
@@ -66,6 +65,20 @@ class HomeActivity : AppCompatActivity() {
         val navController = Navigation.findNavController(this, R.id.nav_fragment)
         NavigationUI.setupActionBarWithNavController(this, navController)
         bottomNavigation.setupWithNavController(navController)
+
+
+//        val galwayBusApi = GalwayBusApi()
+//
+//        GlobalScope.launch(Dispatchers.Main) {
+//            try {
+//                val result = withContext(Dispatchers.IO) { galwayBusApi.fetchBusStops() }
+//                Toast.makeText(this@HomeActivity, result.toString(), Toast.LENGTH_LONG).show()
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//                Toast.makeText(this@HomeActivity, e.message, Toast.LENGTH_LONG).show()
+//            }
+//        }
+
     }
 
 

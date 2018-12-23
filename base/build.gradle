@@ -2,6 +2,7 @@ apply plugin: 'com.android.feature'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlinx-serialization'
 //apply plugin: "androidx.navigation.safeargs"
 
 
@@ -18,7 +19,9 @@ android {
 
         vectorDrawables.useSupportLibrary = true
 
-        resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
+        //resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
+
+        resValue 'string', 'google_maps_key', '123'
     }
 
     buildTypes {
@@ -100,5 +103,7 @@ dependencies {
 
     androidTestImplementation "androidx.test.espresso:espresso-core:3.1.0"
 
+
+    implementation project(":SharedCode")
 
 }
