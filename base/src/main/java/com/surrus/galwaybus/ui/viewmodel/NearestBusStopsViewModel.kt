@@ -40,7 +40,7 @@ class NearestBusStopsViewModel constructor(private val getNearestBusStopsUseCase
     fun pollForNearestBusStopTimes() {
         if (location.value != null) {
             departureTimer?.cancel()
-            departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 3000) {
+            departureTimer = fixedRateTimer("getDepartesTimer", true, 0, 30000) {
                 launch {
                     val result = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
                     busStops.postValue(when (result) {
