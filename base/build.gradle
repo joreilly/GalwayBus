@@ -4,6 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 
+
 //def keystorePropertiesFile = rootProject.file("keystore.properties")
 //def keystoreProperties = new Properties()
 //keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
@@ -28,12 +29,8 @@ android {
     defaultConfig {
         minSdkVersion project.minSdkVersion
         targetSdkVersion project.targetSdkVersion
-        versionCode project.instantAppVersionCode
-        versionName project.instantAppVersionName
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        multiDexEnabled true
 
         vectorDrawables.useSupportLibrary = true
 
@@ -66,7 +63,6 @@ dependencies {
     //feature project(":ar")
 
     api "com.google.android.instantapps:instantapps:${instantAppsVer}"
-    api 'androidx.multidex:multidex:2.0.0'
     androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })

@@ -17,7 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 32
+    version = 36
+    versionInstant = 35
 
 
     before_all do
@@ -75,7 +76,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:assembleRelease",
+              task: ":app-apk:bundleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -84,12 +85,34 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "internal",
-            apk: "app-apk/build/outputs/apk/release/app-apk-release.apk",
+            aab: "app-apk/build/outputs/bundle/release/app-apk.aab",
             skip_upload_metadata: true,
             skip_upload_images: true,
             skip_upload_screenshots: true
         )
 
+    end
+
+
+    lane :buildApp do |options|
+        gradle(task: 'clean')
+        gradle(
+              task: ":app-apk:bundleInstalledRelease",
+              properties: {
+                  'versionCode' => version
+              }
+        )
+    end
+
+
+    lane :buildInstantApp do |options|
+        gradle(task: 'clean')
+        gradle(
+              task: ":app-apk:bundleInstantRelease",
+              properties: {
+                  'versionCode' => versionInstant
+              }
+        )
     end
 
 

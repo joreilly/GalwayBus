@@ -41,6 +41,16 @@ Deploy app to play store alpha channel
 fastlane android deployInternalTest
 ```
 
+### android buildApp
+```
+fastlane android buildApp
+```
+
+### android buildInstantApp
+```
+fastlane android buildInstantApp
+```
+
 ### android promoteAppToProd
 ```
 fastlane android promoteAppToProd

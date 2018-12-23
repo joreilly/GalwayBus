@@ -1,6 +1,6 @@
 package com.surrus.galwaybus
 
-import androidx.multidex.MultiDexApplication
+import android.app.Application
 import android.util.Log
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.LogAdapter
@@ -15,7 +15,7 @@ import com.surrus.galwaybus.di.koin.appModule
 import org.koin.android.ext.android.startKoin
 
 
-class GalwayBusApplication : MultiDexApplication() {
+class GalwayBusApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()

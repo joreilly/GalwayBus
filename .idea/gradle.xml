@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app-apk" />
-            <option value="$PROJECT_DIR$/app-instant" />
             <option value="$PROJECT_DIR$/ar" />
             <option value="$PROJECT_DIR$/base" />
             <option value="$PROJECT_DIR$/buildSrc" />

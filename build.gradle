@@ -3,7 +3,7 @@ apply plugin: "com.github.ben-manes.versions"
 
 buildscript {
 
-    project.ext.minSdkVersion = 17
+    project.ext.minSdkVersion = 21
     project.ext.targetSdkVersion = 28
     project.ext.compileSdkVersion = 28
     project.ext.instantAppsVer = '1.1.0'
@@ -12,10 +12,6 @@ buildscript {
     project.ext.robolectricVersion = '3.4.2'
     project.ext.mockitoKotlinVersion = '1.5.0'
     project.ext.mockitoAndroidVersion = '2.8.47'
-
-    project.ext.instantAppVersionCode = 10
-    project.ext.instantAppVersionName = "1.0.10"
-
 
     repositories {
         google()
@@ -29,7 +25,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.3.0-beta03'
+        classpath 'com.android.tools.build:gradle:3.3.0-rc03'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$Versions.kotlin"
         classpath 'com.google.gms:google-services:4.2.0'
         classpath 'com.google.firebase:firebase-plugins:1.1.5'

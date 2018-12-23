@@ -73,6 +73,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    flavorDimensions "experience"
+    productFlavors {
+        instant {
+        }
+        installed {
+        }
+    }
+
 }
 
 dependencies {
