@@ -88,3 +88,5 @@ dependencies {
     //implementation project(':ar')
 }
 
+apply plugin: 'com.google.gms.google-services'
+
