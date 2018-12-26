@@ -104,4 +104,18 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
         }
     }
 
+    override suspend fun getBusListForRoute(routeId: String): List<Bus> {
+        try {
+            val busListResponse = galwayBusService.getBusListForRoute(routeId).await()
+            if (busListResponse.isSuccessful && busListResponse.body() != null) {
+                return busListResponse.body()!!.bus
+            } else {
+                return emptyList()
+            }
+
+        } catch (e: Exception) {
+            return emptyList()
+        }
+    }
+
 }

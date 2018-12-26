@@ -46,6 +46,11 @@ fastlane android deployInternalTest
 fastlane android buildApp
 ```
 
+### android buildAppApk
+```
+fastlane android buildAppApk
+```
+
 ### android buildInstantApp
 ```
 fastlane android buildInstantApp

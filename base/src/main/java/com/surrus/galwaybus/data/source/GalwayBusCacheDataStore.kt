@@ -66,4 +66,8 @@ open class GalwayBusCacheDataStore constructor(private val galwayBusCache: Galwa
         emptyMap<String, RouteSchedule>()
     }
 
+    override suspend fun getBusListForRoute(routeId: String): List<Bus> = coroutineScope {
+        emptyList<Bus>()
+    }
+
 }

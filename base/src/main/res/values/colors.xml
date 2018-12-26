@@ -5,4 +5,7 @@
     <color name="colorAccent">#FF4081</color>
 
     <color name="routeNumberGreen">#128f16</color>
+
+    <color name="direction1">#FF0000</color>
+    <color name="direction2">#0000FF</color>
 </resources>

@@ -2,6 +2,8 @@ package com.surrus.galwaybus.remote
 
 import com.surrus.galwaybus.model.BusRoute
 import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.model.Bus
+import com.surrus.galwaybus.model.GetBusListForRouteResponse
 import com.surrus.galwaybus.model.GetDeparturesResponse
 import com.surrus.galwaybus.model.GetStopsResponse
 import kotlinx.coroutines.Deferred
@@ -31,6 +33,10 @@ interface GalwayBusService {
 
     @GET("/schedules.json")
     fun getSchedules() : Deferred<Response<LinkedHashMap<String, List<Map<String, String>>>>>
+
+
+    @GET("/bus/{route_id}.json")
+    fun getBusListForRoute(@Path("route_id") routeId: String) : Deferred<Response<GetBusListForRouteResponse>>
 
 
 }

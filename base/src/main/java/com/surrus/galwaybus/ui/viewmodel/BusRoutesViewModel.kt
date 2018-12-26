@@ -33,7 +33,5 @@ class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRout
         }
     }
 
-    fun getBusRoutes() :LiveData<List<BusRouteSchedule>> {
-        return busRoutes
-    }
+    fun getBusRoutes(): LiveData<List<BusRouteSchedule>> = busRoutes
 }

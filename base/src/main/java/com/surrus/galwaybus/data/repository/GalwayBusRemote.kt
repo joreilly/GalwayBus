@@ -10,4 +10,5 @@ interface GalwayBusRemote {
     suspend fun getNearestBusStops(location: Location): Result<List<BusStop>>
     suspend fun getDepartures(stopRef: String): List<Departure>
     suspend fun getSchedules(): Map<String, RouteSchedule>
+    suspend fun getBusListForRoute(routeId: String): List<Bus>
 }

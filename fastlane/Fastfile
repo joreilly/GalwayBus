@@ -17,8 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 39
-    versionInstant = 38
+    version = 41
+    versionInstant = 40
 
 
     before_all do
@@ -104,6 +104,15 @@ platform :android do
         )
     end
 
+    lane :buildAppApk do |options|
+        gradle(task: 'clean')
+        gradle(
+              task: ":app-apk:assembleInstalledRelease",
+              properties: {
+                  'versionCode' => version
+              }
+        )
+    end
 
     lane :buildInstantApp do |options|
         gradle(task: 'clean')

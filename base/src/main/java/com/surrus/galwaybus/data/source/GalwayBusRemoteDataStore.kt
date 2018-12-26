@@ -37,6 +37,10 @@ class GalwayBusRemoteDataStore constructor(private val galwayBusRemote: GalwayBu
         return galwayBusRemote.getSchedules()
     }
 
+    override suspend fun getBusListForRoute(routeId: String): List<Bus> {
+        return galwayBusRemote.getBusListForRoute(routeId)
+    }
+
     override suspend fun clearBusRoutes()  {
         throw UnsupportedOperationException()
     }
