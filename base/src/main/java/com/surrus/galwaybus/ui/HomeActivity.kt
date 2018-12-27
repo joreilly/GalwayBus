@@ -9,13 +9,15 @@ import android.os.Bundle
 
 
 import com.surrus.galwaybus.base.R
-import androidx.fragment.app.Fragment
 import androidx.core.view.MenuItemCompat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.navigation.Navigation
+import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.instantapps.InstantApps
 //import com.google.ar.core.Config
 //import com.google.ar.core.Session
@@ -39,16 +41,10 @@ class HomeActivity : AppCompatActivity() {
     private val galwayRepository by inject<GalwayBusRepository>()
 
     private val nearestBusStopsViewModel by viewModel<NearestBusStopsViewModel>()
-
     //private var arCoreSession: Session? = null
-
-    private val SELECTED_ITEM = "arg_selected_item"
-    private var selectedItem = 0
-
 
     private lateinit var searchResultsStopsAdapter: BusStopsRecyclerViewAdapter
     private var searchMenuItem: MenuItem? = null
-    private var activeFragment: Fragment? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,71 +55,21 @@ class HomeActivity : AppCompatActivity() {
         searchResultsStopsAdapter = BusStopsRecyclerViewAdapter {
             nearestBusStopsViewModel.setLocation(Location(it.latitude, it.longitude))
             searchMenuItem?.collapseActionView()
-            selectFragment(bottomNavigation.menu.getItem(0))
+            //selectFragment(bottomNavigation.menu.getItem(0))
         }
         searchResultsList.adapter = searchResultsStopsAdapter
 
+        //setupArCore()
 
-/*
-        try {
-            arCoreSession = Session(this)
-
-            val config = Config(arCoreSession)
-            if (!arCoreSession!!.isSupported(config)) {
-                Logger.d("ARCore not installed")
-                //showSnackbarMessage("This device does not support AR", true)
-            } else {
-                arCoreSession?.configure(config)
-            }
-        } catch (ex: Throwable) {
-            Logger.d("ARCore not installed")
-        }
-*/
-
-
-        val selectedMenuItem: MenuItem
-        if (savedInstanceState != null) {
-            selectedItem = savedInstanceState.getInt(SELECTED_ITEM, 0)
-            selectedMenuItem = bottomNavigation.menu.findItem(selectedItem)
-        } else {
-            selectedMenuItem = bottomNavigation.menu.getItem(0)
-        }
-        selectFragment(selectedMenuItem)
-
-        bottomNavigation.setOnNavigationItemSelectedListener { item ->
-            selectFragment(item)
-            true
-        }
+        // Setup Nav Controller
+        val navController = Navigation.findNavController(this, R.id.nav_fragment)
+        NavigationUI.setupActionBarWithNavController(this, navController)
+        bottomNavigation.setupWithNavController(navController)
     }
 
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putInt(SELECTED_ITEM, selectedItem)
-        super.onSaveInstanceState(outState)
-    }
-
-    private fun selectFragment(item: MenuItem) {
-        when (item.itemId) {
-            R.id.navigation_nearby -> {
-                activeFragment = NearbyFragment.newInstance()
-            }
-            R.id.navigation_routes -> {
-                activeFragment = RoutesFragment.newInstance()
-            }
-        }
-
-        if (activeFragment != null) {
-            val ft = supportFragmentManager.beginTransaction()
-            ft.replace(R.id.fragmentContainer, activeFragment!!).commit()
-        }
-
-
-        val bundle = Bundle()
-        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, item.toString())
-        firebaseAnaltyics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
-
-        // update selected item
-        selectedItem = item.itemId
+    override fun onSupportNavigateUp(): Boolean {
+        return NavigationUI.navigateUp(null, Navigation.findNavController(this, R.id.nav_fragment))
     }
 
 
@@ -135,7 +81,7 @@ class HomeActivity : AppCompatActivity() {
         if (InstantApps.isInstantApp(this)) {
             installMenuItem.isVisible = true
         }
-
+/*
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
         searchMenuItem = menu.findItem(R.id.action_search)
         val searchView = searchMenuItem?.actionView as SearchView
@@ -189,7 +135,7 @@ class HomeActivity : AppCompatActivity() {
                 return true
             }
         })
-
+*/
 
 
         return true
@@ -228,4 +174,23 @@ class HomeActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+
+    private fun setupArCore() {
+/*
+        try {
+            arCoreSession = Session(this)
+
+            val config = Config(arCoreSession)
+            if (!arCoreSession!!.isSupported(config)) {
+                Logger.d("ARCore not installed")
+                //showSnackbarMessage("This device does not support AR", true)
+            } else {
+                arCoreSession?.configure(config)
+            }
+        } catch (ex: Throwable) {
+            Logger.d("ARCore not installed")
+        }
+*/
+
+    }
 }
