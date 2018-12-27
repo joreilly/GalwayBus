@@ -6,6 +6,6 @@
 
     <color name="routeNumberGreen">#128f16</color>
 
-    <color name="direction1">#FF0000</color>
-    <color name="direction2">#0000FF</color>
+    <color name="direction1">#FF4081</color>
+    <color name="direction2">#3F51B5</color>
 </resources>

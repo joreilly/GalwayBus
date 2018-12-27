@@ -165,22 +165,21 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
         map?.isMyLocationEnabled = true
 
-        busStopsViewModel.busStops.observe(this) {
+        // default position until we have more data
+        map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(53.2743394, -9.0514163), 12.0f))
 
-            val bustStopList = it
-            busStopsViewModel.busListForRoute.observe(this) {
-                updateMap(bustStopList!!, it!!)
+        busStopsViewModel.busStops.observe(this) { busStopsList ->
+            busStopsViewModel.busListForRoute.observe(this) { busList ->
+                updateMap(busStopsList!!, busList!!)
             }
         }
     }
-
 
 
     private fun updateMap(busStopList: List<BusStop>, busListForRoute: List<Bus>) {
 
         map?.let {
             it.clear()
-
             val builder = LatLngBounds.Builder()
 
             for (busStop in busStopList) {
