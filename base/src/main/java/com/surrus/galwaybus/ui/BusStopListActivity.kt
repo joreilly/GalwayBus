@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -47,6 +46,8 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     private var routeName: String = ""
     private var schedulePdf: String = ""
     private var direction: Int = 0
+
+    private var firstTimeShowingMap = true
 
     private var map: GoogleMap? = null
     private lateinit var pagerAdapter: SectionsPagerAdapter
@@ -165,33 +166,17 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         map?.isMyLocationEnabled = true
 
         busStopsViewModel.busStops.observe(this) {
-            //updateMap(it!!)
-
 
             val bustStopList = it
             busStopsViewModel.busListForRoute.observe(this) {
-                updateMap2(bustStopList!!, it!!)
+                updateMap(bustStopList!!, it!!)
             }
-
-
         }
-
-
-
-        // TEMP
-//        busStopsViewModel.busListForRoute.observe(this) {
-//            updateMap2(it!!)
-//        }
-
-
     }
 
 
 
-
-    var firstTime = true
-
-    private fun updateMap2(busStopList: List<BusStop>, busListForRoute: List<Bus>) {
+    private fun updateMap(busStopList: List<BusStop>, busListForRoute: List<Bus>) {
 
         map?.let {
             it.clear()
@@ -206,19 +191,10 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
             for (bus in busListForRoute) {
-                val busStopLocation = LatLng(bus.latitude, bus.longitude)
-
-                //val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_aiga_bus)
-
-//                val height = 100
-//                val width = 100
-//                val bitmapdraw  = getResources().getDrawable(R.drawable.ic_aiga_bus) as BitmapDrawable
-//                val b=bitmapdraw.getBitmap()
-//                val smallMarker = Bitmap.createScaledBitmap(b, width, height, false)
-//                val icon = BitmapDescriptorFactory.fromBitmap(smallMarker)
-
-                //val icon = BitmapDescriptorFactory.fromResource(R.drawable.ic_bus)
-
+                var busStopLocation = LatLng(bus.latitude, bus.longitude)
+                if (busAlreadyAtThislocation(bus, busListForRoute)) {
+                    busStopLocation = LatLng(bus.latitude + COORDINATE_OFFSET, bus.longitude + COORDINATE_OFFSET)
+                }
 
                 val tintColor = if (bus.direction == 1) {
                     R.color.direction1
@@ -227,37 +203,46 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
 
                 val icon = bitmapDescriptorFromVector(this, R.drawable.bus_side, tintColor)
+                var title = ""
+                var snippet = ""
+                if (bus.departure_metadata != null) {
+                    title = "To ${bus.departure_metadata.destination} ($routeId)"
+                    val delayMins = bus.departure_metadata.delay/60
+                    val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
+                    snippet = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
+                } else {
+                    title = "($routeId)"
+                    snippet = "Vehicle id: ${bus.vehicle_id}"
+                }
 
-
-                val marker = MarkerOptions().title(bus.vehicle_id).position(busStopLocation).icon(icon)
+                val marker = MarkerOptions()
+                        .title(title)
+                        .snippet(snippet)
+                        .position(busStopLocation).icon(icon)
                 it.addMarker(marker)
                 builder.include(busStopLocation)
             }
 
-            if (firstTime) {
-                firstTime = false
+            if (firstTimeShowingMap) {
+                firstTimeShowingMap = false
                 it.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
             }
         }
     }
 
-    private fun updateMap(busStopList: List<BusStop>) {
-
-        if (map != null && busStopList.isNotEmpty()) {
-            map?.clear()
-
-            val builder = LatLngBounds.Builder()
-            for (busStop in busStopList) {
-                val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
-                map?.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
-                builder.include(busStopLocation)
+    private fun busAlreadyAtThislocation(bus: Bus, busList: List<Bus>): Boolean {
+        for (b in busList) {
+            if (b.vehicle_id != bus.vehicle_id) {
+                if (b.latitude == bus.latitude && b.longitude == bus.longitude) {
+                    return true
+                }
             }
-            map?.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
         }
+        return false
     }
 
 
-    fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {
 
         // retrieve the actual drawable
         val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
@@ -272,6 +257,10 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         val canvas = Canvas(bm)
         drawable.draw(canvas)
         return BitmapDescriptorFactory.fromBitmap(bm)
+    }
+
+    companion object {
+        val COORDINATE_OFFSET = 0.00002f
     }
 
 }

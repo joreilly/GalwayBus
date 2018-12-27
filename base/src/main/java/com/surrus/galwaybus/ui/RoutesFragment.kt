@@ -8,16 +8,19 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.surrus.galwaybus.Constants
 
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_routes.*
+import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class RoutesFragment : Fragment() {
+    private val firebaseAnaltyics by inject<FirebaseAnalytics>()
 
     private val busRoutesViewModel: BusRoutesViewModel by viewModel()
 
@@ -38,6 +41,11 @@ class RoutesFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
 
             busRoutesAdapter = BusRoutesRecyclerViewAdapter {
+
+                val bundle = Bundle()
+                bundle.putString("route", it.timetableId)
+                firebaseAnaltyics.logEvent("route_selected", bundle)
+
                 val intent = Intent(context, BusStopListActivity::class.java)
                 intent.putExtra(Constants.ROUTE_ID, it.timetableId)
                 intent.putExtra(Constants.ROUTE_NAME, it.longName)
