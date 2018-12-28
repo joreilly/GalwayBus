@@ -17,8 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 49
-    versionInstant = 48
+    version = 53
+    versionInstant = 52
 
 
     before_all do
@@ -76,16 +76,17 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:bundleRelease",
+              task: ":app-apk:bundleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
-        )
+       )
 
         supply(
             package_name: "com.surrus.galwaybus",
             track: "internal",
-            aab: "app-apk/build/outputs/bundle/release/app-apk.aab",
+            aab: "app-apk/build/outputs/bundle/installedRelease/app-apk.aab",
+            skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
             skip_upload_screenshots: true
