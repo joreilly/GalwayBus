@@ -17,8 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 53
-    versionInstant = 52
+    version = 55
+    versionInstant = 54
 
 
     before_all do
@@ -131,7 +131,7 @@ platform :android do
 
         supply(
             package_name: "com.surrus.galwaybus",
-            track: "alpha",
+            track: "internal",
             track_promote_to: "production",
             skip_upload_apk: true,
             skip_upload_metadata: true,

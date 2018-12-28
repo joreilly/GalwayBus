@@ -14,6 +14,8 @@ import androidx.fragment.app.FragmentPagerAdapter
 import androidx.viewpager.widget.ViewPager
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
@@ -24,7 +26,9 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
@@ -33,15 +37,23 @@ import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.Bus
 import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.ui.data.ResourceState
+import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.activity_bus_stop_list.*
+import kotlinx.android.synthetic.main.bus_times_list_item.view.duration
+import org.joda.time.DateTime
+import org.joda.time.Period
+import org.joda.time.format.PeriodFormatter
+import org.joda.time.format.PeriodFormatterBuilder
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     val busStopsViewModel: BusStopsViewModel by viewModel()
+    val busInfoViewModel: BusInfoViewModel by viewModel()
 
     private var routeId: String = ""
     private var routeName: String = ""
@@ -52,6 +64,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var map: GoogleMap? = null
     private lateinit var pagerAdapter: SectionsPagerAdapter
+
 
 
     @SuppressLint("MissingPermission")
@@ -82,7 +95,6 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onPageSelected(position: Int) {
                 direction = position
                 busStopsViewModel.setDirection(direction)
-                busStopsViewModel.pollForBusLocations(routeId)
             }
             override fun onPageScrollStateChanged(state: Int) {}
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
@@ -91,7 +103,6 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         busStopsViewModel.fetchBusStops(routeId)
-        busStopsViewModel.pollForBusLocations(routeId)
 
         Dexter.withActivity(this)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -165,14 +176,27 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         map = googleMap
         map?.isMyLocationEnabled = true
 
+
+        val busInfoWindowAdapter: BusInfoWindowAdapter = BusInfoWindowAdapter()
+        map?.setInfoWindowAdapter(busInfoWindowAdapter)
+
         // default position until we have more data
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(53.2743394, -9.0514163), 12.0f))
 
         busStopsViewModel.busStops.observe(this) { busStopsList ->
-            busStopsViewModel.busListForRoute.observe(this) { busList ->
-                updateMap(busStopsList!!, busList!!)
+            busInfoViewModel.busListForRoute.observe(this) { resource ->
+
+                when (resource?.status) {
+                    ResourceState.SUCCESS -> updateMap(busStopsList!!, resource.data!!)
+                    ResourceState.ERROR -> {
+                        Snackbar.make(this.rootLayout, resource.message as CharSequence, Snackbar.LENGTH_LONG).show()
+                    }
+                    ResourceState.LOADING -> TODO()
+                }
             }
         }
+
+        busInfoViewModel.pollForBusLocations(routeId)
     }
 
 
@@ -217,11 +241,12 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                     snippet = "Vehicle id: ${bus.vehicle_id}"
                 }
 
-                val marker = MarkerOptions()
+                val markerOptions = MarkerOptions()
                         .title(title)
                         .snippet(snippet)
                         .position(busStopLocation).icon(icon)
-                it.addMarker(marker)
+                val marker = it.addMarker(markerOptions)
+                marker.tag = bus
                 builder.include(busStopLocation)
             }
 
@@ -261,8 +286,61 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         return BitmapDescriptorFactory.fromBitmap(bm)
     }
 
+
+
+
+    private inner class BusInfoWindowAdapter : GoogleMap.InfoWindowAdapter {
+        val secondsFormatter: PeriodFormatter = PeriodFormatterBuilder()
+                .printZeroAlways()
+                .appendSeconds()
+                .appendSuffix(" second", " seconds")
+                .toFormatter()
+
+        override fun getInfoContents(marker: Marker): View {
+            val view = layoutInflater.inflate(R.layout.custom_map_info_contents, null)
+            val titleTextView = view.findViewById<TextView>(R.id.titleTextView)
+            val subTitleTextView = view.findViewById<TextView>(R.id.subTitleTextView)
+            val updatedWhenTextView = view.findViewById<TextView>(R.id.updatedWhenTextView)
+
+
+            val bus = marker.tag as Bus
+            var title = ""
+            var subTitle = ""
+            if (bus.departure_metadata != null) {
+                title = "To ${bus.departure_metadata.destination} ($routeId)"
+                val delayMins = bus.departure_metadata.delay/60
+                val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
+                subTitle = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
+            } else {
+                title = "($routeId)"
+                subTitle = "Vehicle id: ${bus.vehicle_id}"
+            }
+
+            titleTextView.text = title
+            subTitleTextView.text = subTitle
+
+
+            val now = DateTime()
+            val updateTime = DateTime(bus.modified_timestamp)
+            val timeSinceUpdate = Period(updateTime, now)
+            val seconds = timeSinceUpdate.seconds
+            if (seconds >= 0) {
+                updatedWhenTextView.text = "Updated ${secondsFormatter.print(timeSinceUpdate)} ago"
+            }
+
+
+            return view
+        }
+
+        override fun getInfoWindow(marker: Marker): View? {
+            return null
+        }
+    }
+
+
+
     companion object {
-        val COORDINATE_OFFSET = 0.00002f
+        const val COORDINATE_OFFSET = 0.00002f
     }
 
 }

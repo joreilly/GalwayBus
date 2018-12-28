@@ -17,6 +17,7 @@ import com.surrus.galwaybus.data.source.GalwayBusCacheDataStore
 import com.surrus.galwaybus.data.source.GalwayBusDataStoreFactory
 import com.surrus.galwaybus.data.source.GalwayBusRemoteDataStore
 import com.surrus.galwaybus.di.koin.DatasourceProperties.SERVER_URL
+import com.surrus.galwaybus.domain.interactor.GetBusInfoUseCase
 import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.domain.interactor.GetDeparturesUseCase
@@ -26,6 +27,7 @@ import com.surrus.galwaybus.remote.GalwayBusRemoteImpl
 import com.surrus.galwaybus.remote.GalwayBusService
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
+import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -38,8 +40,8 @@ import java.util.concurrent.TimeUnit
 
 
 object DatasourceProperties {
-    const val SERVER_URL = "https://galwaybus.herokuapp.com/"
-    //const val SERVER_URL = "https://api.galwaybusabu.com/"
+    //const val SERVER_URL = "https://galwaybus.herokuapp.com/"
+    const val SERVER_URL = "https://api.galwaybusabu.com/"
 }
 
 
@@ -48,6 +50,7 @@ val galwayBusAppModuile = module(definition = {
     viewModel { NearestBusStopsViewModel(get()) }
     viewModel { BusRoutesViewModel(get()) }
     viewModel { BusStopsViewModel(get()) }
+    viewModel { BusInfoViewModel(get()) }
 
     single { PreferencesHelper(get()) }
 
@@ -55,6 +58,7 @@ val galwayBusAppModuile = module(definition = {
     single { GetBusStopsUseCase(get())  }
     single { GetDeparturesUseCase(get())  }
     single { GetBusRoutesUseCase(get())  }
+    single { GetBusInfoUseCase(get())  }
 
     single { GalwayBusDataRepository(get()) as GalwayBusRepository }
 

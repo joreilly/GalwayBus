@@ -38,7 +38,7 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
                 subtitle.visibility = View.GONE
             }
 
-            if (busStop.times != null && busStop.times.size > 0) {
+            if (busStop.times != null && busStop.times.isNotEmpty()) {
                 timesLayout.visibility = View.VISIBLE
 
                 with (busTimesList) {

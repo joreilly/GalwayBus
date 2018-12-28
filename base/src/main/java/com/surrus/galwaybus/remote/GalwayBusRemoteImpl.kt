@@ -59,7 +59,7 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
             if (nearestBusStopsResponse.isSuccessful) {
                 return Result.Success(nearestBusStopsResponse.body()!!)
             } else {
-                return Result.Error(IOException("Error occurred  fetching timetable information"))
+                return Result.Error(IOException("Error occurred fetching timetable information"))
             }
         } catch (e: Exception) {
             return Result.Error(e)
@@ -104,17 +104,17 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
         }
     }
 
-    override suspend fun getBusListForRoute(routeId: String): List<Bus> {
+    override suspend fun getBusListForRoute(routeId: String): Result<List<Bus>> {
         try {
             val busListResponse = galwayBusService.getBusListForRoute(routeId).await()
             if (busListResponse.isSuccessful && busListResponse.body() != null) {
-                return busListResponse.body()!!.bus
+                return Result.Success(busListResponse.body()!!.bus)
             } else {
-                return emptyList()
+                return Result.Error(IOException("Error occurred fetching bus information"))
             }
 
         } catch (e: Exception) {
-            return emptyList()
+            return Result.Error(IOException("Error occurred fetching bus information"))
         }
     }
 

@@ -22,5 +22,5 @@ interface GalwayBusDataStore {
     suspend fun getDepartures(stopRef: String): List<Departure>
     suspend fun getSchedules(): Map<String, RouteSchedule>
 
-    suspend fun getBusListForRoute(routeId: String): List<Bus>
+    suspend fun getBusListForRoute(routeId: String): Result<List<Bus>>
 }

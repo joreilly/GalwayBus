@@ -19,5 +19,5 @@ interface GalwayBusRepository {
     suspend fun getDepartures(stopRef: String): List<Departure>
     suspend fun getSchedules(): Map<String, RouteSchedule>
 
-    suspend fun getBusStopListForRoute(routeId: String): List<Bus>
+    suspend fun getBusStopListForRoute(routeId: String): Result<List<Bus>>
 }

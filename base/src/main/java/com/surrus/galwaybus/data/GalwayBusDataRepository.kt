@@ -71,7 +71,7 @@ class GalwayBusDataRepository constructor(private val factory: GalwayBusDataStor
         return factory.retrieveRemoteDataStore().getSchedules()
     }
 
-    override suspend fun getBusStopListForRoute(routeId: String): List<Bus> {
+    override suspend fun getBusStopListForRoute(routeId: String): Result<List<Bus>> {
         return factory.retrieveRemoteDataStore().getBusListForRoute(routeId)
     }
 }
