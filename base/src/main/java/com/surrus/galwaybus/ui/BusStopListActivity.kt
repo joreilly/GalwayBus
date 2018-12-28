@@ -28,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
+import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.Bus
@@ -89,8 +90,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         })
 
 
-
-        // TEMP
+        busStopsViewModel.fetchBusStops(routeId)
         busStopsViewModel.pollForBusLocations(routeId)
 
         Dexter.withActivity(this)
@@ -189,7 +189,10 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
 
+            Logger.d("JFOR: updateMap")
             for (bus in busListForRoute) {
+                Logger.d("JFOR: updateMap, bus = $bus")
+
                 var busStopLocation = LatLng(bus.latitude, bus.longitude)
                 if (busAlreadyAtThislocation(bus, busListForRoute)) {
                     busStopLocation = LatLng(bus.latitude + COORDINATE_OFFSET, bus.longitude + COORDINATE_OFFSET)

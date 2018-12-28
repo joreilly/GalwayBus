@@ -51,7 +51,6 @@ class StopsFragment : Fragment() {
             busStopsAdapter.notifyDataSetChanged()
         }
 
-        busStopsViewModel.fetchBusStops(routeId!!)
     }
 
 
