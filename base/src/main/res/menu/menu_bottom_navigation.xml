@@ -7,7 +7,7 @@
         android:title="@string/title_nav_nearby" />
 
     <item
-        android:id="@+id/routesFragment"
+        android:id="@+id/routeListFragment"
         android:icon="@drawable/ic_bus"
         android:title="@string/title_nav_routes" />
 

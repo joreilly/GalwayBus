@@ -19,6 +19,7 @@
     <string name="title_activity_settings">Settings</string>
 
     <string name="bus_time_due">Due</string>
+    <string name="show_stops">Show Stops</string>
 
     <plurals name="mins">
         <item quantity="one">min</item>

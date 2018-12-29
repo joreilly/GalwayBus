@@ -15,6 +15,8 @@ import androidx.viewpager.widget.ViewPager
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.View.GONE
+import android.widget.CheckBox
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
@@ -60,6 +62,8 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     private var schedulePdf: String = ""
     private var direction: Int = 0
 
+    private var showStops: Boolean = false
+
     private var firstTimeShowingMap = true
 
     private var map: GoogleMap? = null
@@ -100,6 +104,11 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
         })
+
+        showStopsCheckBox.setOnClickListener {
+            showStops = ((it as CheckBox).isChecked)
+            updateUI()
+        }
 
 
         busStopsViewModel.fetchBusStops(routeId)
@@ -183,6 +192,16 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         // default position until we have more data
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(53.2743394, -9.0514163), 12.0f))
 
+        updateUI()
+
+        busInfoViewModel.pollForBusLocations(routeId)
+    }
+
+
+    private fun updateUI() {
+        busStopsViewModel.busStops.removeObservers(this)
+        busInfoViewModel.busListForRoute.removeObservers(this)
+
         busStopsViewModel.busStops.observe(this) { busStopsList ->
             busInfoViewModel.busListForRoute.observe(this) { resource ->
 
@@ -195,10 +214,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
-
-        busInfoViewModel.pollForBusLocations(routeId)
     }
-
 
     private fun updateMap(busStopList: List<BusStop>, busListForRoute: List<Bus>) {
 
@@ -208,8 +224,18 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
             for (busStop in busStopList) {
                 val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
-                //map?.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
                 builder.include(busStopLocation)
+
+                if (showStops) {
+                    val icon = bitmapDescriptorFromVector(this, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                    val markerOptions = MarkerOptions()
+                            .title(busStop.longName)
+                            //.snippet(snippet)
+                            .position(busStopLocation).icon(icon)
+
+                    val marker = it.addMarker(markerOptions)
+                    marker.tag = busStop
+                }
             }
 
 
@@ -302,30 +328,36 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             val subTitleTextView = view.findViewById<TextView>(R.id.subTitleTextView)
             val updatedWhenTextView = view.findViewById<TextView>(R.id.updatedWhenTextView)
 
+            if (marker.tag is Bus) {
+                val bus = marker.tag as Bus
+                var title = ""
+                var subTitle = ""
+                if (bus.departure_metadata != null) {
+                    title = "To ${bus.departure_metadata.destination} ($routeId)"
+                    val delayMins = bus.departure_metadata.delay / 60
+                    val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
+                    subTitle = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
+                } else {
+                    title = "($routeId)"
+                    subTitle = "Vehicle id: ${bus.vehicle_id}"
+                }
 
-            val bus = marker.tag as Bus
-            var title = ""
-            var subTitle = ""
-            if (bus.departure_metadata != null) {
-                title = "To ${bus.departure_metadata.destination} ($routeId)"
-                val delayMins = bus.departure_metadata.delay/60
-                val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
-                subTitle = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
-            } else {
-                title = "($routeId)"
-                subTitle = "Vehicle id: ${bus.vehicle_id}"
-            }
-
-            titleTextView.text = title
-            subTitleTextView.text = subTitle
+                titleTextView.text = title
+                subTitleTextView.text = subTitle
 
 
-            val now = DateTime()
-            val updateTime = DateTime(bus.modified_timestamp)
-            val timeSinceUpdate = Period(updateTime, now)
-            val seconds = timeSinceUpdate.seconds
-            if (seconds >= 0) {
-                updatedWhenTextView.text = "Updated ${secondsFormatter.print(timeSinceUpdate)} ago"
+                val now = DateTime()
+                val updateTime = DateTime(bus.modified_timestamp)
+                val timeSinceUpdate = Period(updateTime, now)
+                val seconds = timeSinceUpdate.seconds
+                if (seconds >= 0) {
+                    updatedWhenTextView.text = "Updated ${secondsFormatter.print(timeSinceUpdate)} ago"
+                }
+            } else if (marker.tag is BusStop) {
+                val busStop = marker.tag as BusStop
+                titleTextView.text = busStop.longName
+                subTitleTextView.text = busStop.irishShortName
+                updatedWhenTextView.text = busStop.stopRef
             }
 
 

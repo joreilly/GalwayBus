@@ -11,8 +11,8 @@
     </fragment>
 
     <fragment
-        android:id="@+id/routesFragment"
-        android:name="com.surrus.galwaybus.ui.RoutesFragment"
+        android:id="@+id/routeListFragment"
+        android:name="com.surrus.galwaybus.ui.RouteListFragment"
         tools:layout="@layout/fragment_routes">
     </fragment>
 

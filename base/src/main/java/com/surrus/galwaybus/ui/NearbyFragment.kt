@@ -3,7 +3,10 @@ package com.surrus.galwaybus.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import com.google.android.material.snackbar.Snackbar
 import androidx.fragment.app.Fragment
@@ -12,12 +15,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.ColorRes
+import androidx.core.graphics.drawable.DrawableCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
@@ -48,16 +55,9 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
     private lateinit var busStopsAdapter: BusStopsRecyclerViewAdapter
 
 
-    companion object {
-        fun newInstance(): NearbyFragment {
-            return NearbyFragment()
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Logger.d("onCreate")
-
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity!!)
     }
 
@@ -219,8 +219,16 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
             val builder = LatLngBounds.Builder()
             for (busStop in busStopList) {
                 val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
-                val marker = map?.addMarker(MarkerOptions().position(busStopLocation).title(busStop.longName))
-                marker?.tag = busStop.stopRef
+
+
+                val icon = bitmapDescriptorFromVector(activity!!, R.drawable.ic_stop, R.color.mapMarkerGreen)
+
+                val markerOptions = MarkerOptions()
+                        .title(busStop.longName)
+                        .position(busStopLocation).icon(icon)
+
+                val marker = map?.addMarker(markerOptions)
+                marker?.tag = busStop
                 builder.include(busStopLocation)
             }
             //map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
@@ -235,8 +243,26 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
                 false
             }
 
-
         }
+    }
+
+
+    // TODO move this in to common code
+    private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {
+
+        // retrieve the actual drawable
+        val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null
+        drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
+        val bm = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+
+        // add the tint if it exists
+        tintColor?.let {
+            DrawableCompat.setTint(drawable, ContextCompat.getColor(context, it))
+        }
+        // draw it onto the bitmap
+        val canvas = Canvas(bm)
+        drawable.draw(canvas)
+        return BitmapDescriptorFactory.fromBitmap(bm)
     }
 }
 

@@ -19,19 +19,13 @@ import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
-class RoutesFragment : Fragment() {
+class RouteListFragment : Fragment() {
     private val firebaseAnaltyics by inject<FirebaseAnalytics>()
 
     private val busRoutesViewModel: BusRoutesViewModel by viewModel()
 
     private lateinit var busRoutesAdapter: BusRoutesRecyclerViewAdapter
 
-
-    companion object {
-        fun newInstance(): RoutesFragment {
-            return RoutesFragment()
-        }
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
