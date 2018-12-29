@@ -80,6 +80,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             routeId = savedInstanceState.getString(Constants.ROUTE_ID)
             routeName = savedInstanceState.getString(Constants.ROUTE_NAME)
             schedulePdf = savedInstanceState.getString(Constants.SCHEDULE_PDF)
+            showStops = savedInstanceState.getBoolean(Constants.SHOW_STOPS)
         } else {
             routeId = intent.extras[Constants.ROUTE_ID] as String
             routeName = intent.extras[Constants.ROUTE_NAME] as String
@@ -128,6 +129,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         outState.putString(Constants.ROUTE_ID, routeId)
         outState.putString(Constants.ROUTE_NAME, routeName)
         outState.putString(Constants.SCHEDULE_PDF, schedulePdf)
+        outState.putBoolean(Constants.SHOW_STOPS, showStops)
         super.onSaveInstanceState(outState)
     }
 
