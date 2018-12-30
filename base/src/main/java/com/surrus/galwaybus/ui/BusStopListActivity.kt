@@ -202,9 +202,10 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun updateUI() {
         busStopsViewModel.busStops.removeObservers(this)
-        busInfoViewModel.busListForRoute.removeObservers(this)
 
         busStopsViewModel.busStops.observe(this) { busStopsList ->
+
+            busInfoViewModel.busListForRoute.removeObservers(this)
             busInfoViewModel.busListForRoute.observe(this) { resource ->
 
                 when (resource?.status) {
@@ -241,9 +242,9 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
 
-            Logger.d("JFOR: updateMap")
+            Logger.d("updateMap, number of buses=${busListForRoute.size}")
             for (bus in busListForRoute) {
-                Logger.d("JFOR: updateMap, bus = $bus")
+                Logger.d("updateMap, vid = ${bus.vehicle_id}, update time=${bus.modified_timestamp}, direction=${bus.direction}")
 
                 var busStopLocation = LatLng(bus.latitude, bus.longitude)
                 if (busAlreadyAtThislocation(bus, busListForRoute)) {

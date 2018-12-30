@@ -3,9 +3,9 @@ apply plugin: 'io.fabric'
 
 
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+//def keystorePropertiesFile = rootProject.file("keystore.properties")
+//def keystoreProperties = new Properties()
+//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 
 
 ext.versionMajor = 1
@@ -32,15 +32,15 @@ def versionName() {
 android {
     compileSdkVersion project.compileSdkVersion
 
-    signingConfigs {
-        config {
-            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storePassword keystoreProperties['storePassword']
-            v2SigningEnabled true
-        }
-    }
+//    signingConfigs {
+//        config {
+//            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
+//            keyAlias keystoreProperties['keyAlias']
+//            keyPassword keystoreProperties['keyPassword']
+//            storePassword keystoreProperties['storePassword']
+//            v2SigningEnabled true
+//        }
+//    }
 
     defaultConfig {
         applicationId "com.surrus.galwaybus"
@@ -58,7 +58,7 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.config
+            //signingConfig signingConfigs.config
         }
 
         applicationVariants.all { variant ->

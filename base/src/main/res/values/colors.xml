@@ -9,6 +9,6 @@
     <color name="mapMarkerMaroon">#800000</color>
     <color name="mapMarkerGreen">#43952A</color>
 
-    <color name="direction1">#FF4081</color>
+    <color name="direction1">#800000</color>
     <color name="direction2">#3F51B5</color>
 </resources>

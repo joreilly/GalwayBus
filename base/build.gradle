@@ -4,26 +4,10 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 
-//def keystorePropertiesFile = rootProject.file("keystore.properties")
-//def keystoreProperties = new Properties()
-//keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-
-
 android {
     compileSdkVersion project.compileSdkVersion
 
     baseFeature = true
-
-//    signingConfigs {
-//        config {
-//            storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
-//            keyAlias keystoreProperties['keyAlias']
-//            keyPassword keystoreProperties['keyPassword']
-//            storePassword keystoreProperties['storePassword']
-//            v2SigningEnabled true
-//        }
-//    }
-
 
     defaultConfig {
         minSdkVersion project.minSdkVersion
@@ -40,7 +24,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            //signingConfig signingConfigs.config
         }
     }
 
