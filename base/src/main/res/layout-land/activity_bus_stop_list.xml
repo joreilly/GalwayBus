@@ -38,4 +38,17 @@
         android:text="@string/show_stops"/>
 
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:indeterminate="false"
+        android:max="30"
+        android:progress="0"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:progressDrawable="@drawable/circular"
+        android:secondaryProgress="30" />
+
 </RelativeLayout>

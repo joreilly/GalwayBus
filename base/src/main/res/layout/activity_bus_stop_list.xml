@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rootLayout"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -38,4 +39,27 @@
         android:layout_marginTop="8dp"
         android:text="@string/show_stops"/>
 
+<!--
+    <TextView
+        android:id="@+id/countdownTimerText"
+        android:layout_above="@+id/tabLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="30"/>
+-->
+
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:indeterminate="false"
+        android:max="30"
+        android:progress="0"
+        android:layout_above="@+id/tabLayout"
+        android:layout_alignParentEnd="true"
+        android:progressDrawable="@drawable/circular"
+        android:secondaryProgress="30" />
 </RelativeLayout>

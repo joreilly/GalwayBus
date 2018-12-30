@@ -1,6 +1,7 @@
 package com.surrus.galwaybus.ui
 
 import android.Manifest
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -8,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.CountDownTimer
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -16,6 +18,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
+import android.view.animation.DecelerateInterpolator
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.annotation.ColorRes
@@ -207,6 +210,15 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
             busInfoViewModel.busListForRoute.removeObservers(this)
             busInfoViewModel.busListForRoute.observe(this) { resource ->
+
+                val timer = object: CountDownTimer(30000, 500){
+                    override fun onTick(millisUntilFinished: Long){
+                        progressBar.progress = 30 - millisUntilFinished.toInt()/1000
+                    }
+                    override fun onFinish() {
+                    }
+                }
+                timer.start()
 
                 when (resource?.status) {
                     ResourceState.SUCCESS -> updateMap(busStopsList!!, resource.data!!)
