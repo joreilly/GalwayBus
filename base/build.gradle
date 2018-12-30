@@ -64,7 +64,7 @@ dependencies {
     testImplementation "junit:junit:${junitVersion}"
     testImplementation "org.robolectric:robolectric:${robolectricVersion}"
     testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
-    testImplementation "com.nhaarman:mockito-kotlin:${mockitoKotlinVersion}"
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:${mockitoKotlinVersion}"
     testImplementation "com.squareup.okhttp3:mockwebserver:3.11.0"
     androidTestImplementation 'tools.fastlane:screengrab:1.2.0'
 

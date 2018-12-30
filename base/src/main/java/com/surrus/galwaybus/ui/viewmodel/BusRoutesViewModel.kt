@@ -28,7 +28,7 @@ class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRout
 
     fun fetchRoutes() {
         launch {
-            val busRoutesData = getBusRoutesUseCase.getBusRoutes().await()
+            val busRoutesData = getBusRoutesUseCase.getBusRoutes()
             busRoutes.postValue(busRoutesData)
         }
     }

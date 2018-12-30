@@ -5,5 +5,5 @@ import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 
 open class GetBusStopsUseCase constructor(val galwayRepository: GalwayBusRepository) {
 
-    suspend fun getBusStops(routeId: String) = galwayRepository.getBusStops(routeId)
+    open suspend fun getBusStops(routeId: String) = galwayRepository.getBusStops(routeId)
 }

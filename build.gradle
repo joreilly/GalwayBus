@@ -10,7 +10,7 @@ buildscript {
 
     project.ext.junitVersion = '4.12'
     project.ext.robolectricVersion = '3.4.2'
-    project.ext.mockitoKotlinVersion = '1.5.0'
+    project.ext.mockitoKotlinVersion = '2.0.0'
     project.ext.mockitoAndroidVersion = '2.8.47'
 
     repositories {
