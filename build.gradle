@@ -8,10 +8,6 @@ buildscript {
     project.ext.compileSdkVersion = 28
     project.ext.instantAppsVer = '1.1.0'
 
-    project.ext.junitVersion = '4.12'
-    project.ext.robolectricVersion = '3.4.2'
-    project.ext.mockitoKotlinVersion = '2.0.0'
-    project.ext.mockitoAndroidVersion = '2.8.47'
 
     repositories {
         google()

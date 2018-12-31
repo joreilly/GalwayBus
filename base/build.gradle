@@ -60,18 +60,9 @@ dependencies {
     api Koin.android
     api Koin.androidViewModel
 
-
-    testImplementation "junit:junit:${junitVersion}"
-    testImplementation "org.robolectric:robolectric:${robolectricVersion}"
-    testImplementation "org.mockito:mockito-core:${mockitoAndroidVersion}"
-    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:${mockitoKotlinVersion}"
-    testImplementation "com.squareup.okhttp3:mockwebserver:3.11.0"
-    androidTestImplementation 'tools.fastlane:screengrab:1.2.0'
-
-    implementation "com.crashlytics.sdk.android:crashlytics:2.9.7"
+    implementation "com.crashlytics.sdk.android:crashlytics:2.9.8"
 
     api Firebase.core
-
     api PlayServices.location
     api PlayServices.maps
 
@@ -104,7 +95,23 @@ dependencies {
     api 'androidx.lifecycle:lifecycle-reactivestreams:2.0.0'
     api ArchComponents.roomRuntime
     kapt ArchComponents.roomCompiler
-
     kapt "androidx.lifecycle:lifecycle-compiler:2.0.0"
-    testImplementation "androidx.arch.core:core-testing:2.0.0"
+
+
+    // Testing
+    testImplementation Testing.junit
+    testImplementation Testing.robolectric
+    testImplementation Testing.mockWebServer
+    testImplementation Mockito.core
+    testImplementation Mockito.kotlin
+    testImplementation Testing.coreTesting
+
+
+    androidTestImplementation Testing.screengrab
+    androidTestImplementation Mockito.android
+    androidTestImplementation Mockito.kotlin
+    debugImplementation Testing.fragmentTesting
+
+
+
 }

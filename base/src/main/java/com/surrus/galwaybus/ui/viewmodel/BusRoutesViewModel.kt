@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 
-class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
+open class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
     : ViewModel(), CoroutineScope {
 
     private val viewModelJob = Job()
@@ -33,5 +33,5 @@ class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRout
         }
     }
 
-    fun getBusRoutes(): LiveData<List<BusRouteSchedule>> = busRoutes
+    open fun getBusRoutes(): LiveData<List<BusRouteSchedule>> = busRoutes
 }

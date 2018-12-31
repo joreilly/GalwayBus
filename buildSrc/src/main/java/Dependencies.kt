@@ -9,6 +9,15 @@ object Versions {
     const val nav = "1.0.0-alpha06"
     const val work = "1.0.0-alpha10"
     const val room = "2.1.0-alpha01"
+
+    const val junit = "4.12"
+    const val coreTesting = "2.0.0"
+    const val mockito = "2.23.4"
+    const val mockitoKotlin = "2.0.0"
+    const val robolectric = "3.6.1"
+    const val fragmentTest = "1.1.0-alpha02"
+    const val screengrab = "1.2.0"
+    const val mockWebServer = "3.11.0"
 }
 
 
@@ -57,3 +66,20 @@ object Retrofit {
     val converterScalars = "com.squareup.retrofit2:converter-scalars:${Versions.retrofit}"
     val coroutinesAdapter = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
 }
+
+object Testing {
+    val junit = "junit:junit:${Versions.junit}"
+    val coreTesting = "android.arch.core:core-testing:${Versions.coreTesting}"
+
+    val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
+    val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragmentTest}"
+    val screengrab = "tools.fastlane:screengrab:${Versions.screengrab}"
+    val mockWebServer = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebServer}"
+}
+
+object Mockito {
+    val core = "org.mockito:mockito-core:${Versions.mockito}"
+    val android = "org.mockito:mockito-android:${Versions.mockito}"
+    val kotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
+}
+
