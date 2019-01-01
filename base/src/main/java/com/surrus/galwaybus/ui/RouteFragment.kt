@@ -67,8 +67,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
     private var direction: Int = 0
 
-    private var showStops: Boolean = false
-
     private var firstTimeShowingMap = true
 
     private var map: GoogleMap? = null
@@ -111,10 +109,8 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         })
 
         showStopsCheckBox.setOnClickListener {
-            showStops = ((it as CheckBox).isChecked)
             updateUI()
         }
-
 
         busStopsViewModel.setRouteId(routeId)
 
@@ -150,7 +146,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         override fun getPageTitle(position: Int): CharSequence? {
             return "Direction " + (position+1)
         }
-
     }
 
 
@@ -212,7 +207,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 val busStopLocation = LatLng(busStop.latitude, busStop.longitude)
                 builder.include(busStopLocation)
 
-                if (showStops) {
+                if (showStopsCheckBox.isChecked) {
                     val icon = bitmapDescriptorFromVector(context!!, R.drawable.ic_stop, R.color.mapMarkerGreen)
                     val markerOptions = MarkerOptions()
                             .title(busStop.longName)
