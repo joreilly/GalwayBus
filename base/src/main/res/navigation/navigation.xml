@@ -13,7 +13,19 @@
     <fragment
         android:id="@+id/routeListFragment"
         android:name="com.surrus.galwaybus.ui.RouteListFragment"
-        tools:layout="@layout/fragment_routes">
+        tools:layout="@layout/fragment_route_list">
+        <action
+            android:id="@+id/action_routeListFragment_to_routeFragment"
+            app:destination="@id/routeFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/routeFragment"
+        android:name="com.surrus.galwaybus.ui.RouteFragment"
+        tools:layout="@layout/fragment_route">
+        <argument android:name="routId" app:argType="string" />
+        <argument android:name="routeName" app:argType="string" />
+        <argument android:name="schedulePdf" app:argType="string" />
     </fragment>
 
 </navigation>

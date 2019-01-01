@@ -18,6 +18,7 @@ import android.view.View
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
+//import androidx.navigation.ui.setupWithNavController
 import com.google.android.instantapps.InstantApps
 //import com.google.ar.core.Config
 //import com.google.ar.core.Session
@@ -69,7 +70,7 @@ class HomeActivity : AppCompatActivity() {
 
 
     override fun onSupportNavigateUp(): Boolean {
-        return NavigationUI.navigateUp(null, Navigation.findNavController(this, R.id.nav_fragment))
+        return NavigationUI.navigateUp(Navigation.findNavController(this, R.id.nav_fragment), null)
     }
 
 

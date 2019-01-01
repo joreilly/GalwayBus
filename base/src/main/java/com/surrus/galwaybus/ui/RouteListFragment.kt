@@ -1,29 +1,25 @@
 package com.surrus.galwaybus.ui
 
-
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.surrus.galwaybus.Constants
 
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import com.surrus.galwaybus.util.ext.observe
-import kotlinx.android.synthetic.main.fragment_routes.*
+import kotlinx.android.synthetic.main.fragment_route_list.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
 class RouteListFragment : Fragment() {
     private val firebaseAnaltyics by inject<FirebaseAnalytics>()
-
     private val busRoutesViewModel: BusRoutesViewModel by viewModel()
-
     private lateinit var busRoutesAdapter: BusRoutesRecyclerViewAdapter
 
 
@@ -40,11 +36,7 @@ class RouteListFragment : Fragment() {
                 bundle.putString("route", it.timetableId)
                 firebaseAnaltyics.logEvent("route_selected", bundle)
 
-                val intent = Intent(context, BusStopListActivity::class.java)
-                intent.putExtra(Constants.ROUTE_ID, it.timetableId)
-                intent.putExtra(Constants.ROUTE_NAME, it.longName)
-                intent.putExtra(Constants.SCHEDULE_PDF, it.schedulePdf)
-                context.startActivity(intent)
+                findNavController().navigate(R.id.routeFragment, RouteFragment.bundleArgs(it.timetableId, it.longName, it.schedulePdf))
             }
             adapter = busRoutesAdapter
         }
@@ -57,7 +49,6 @@ class RouteListFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_routes, container, false)
+        return inflater.inflate(R.layout.fragment_route_list, container, false)
     }
-
 }

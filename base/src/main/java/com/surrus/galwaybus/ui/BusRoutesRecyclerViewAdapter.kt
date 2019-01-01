@@ -21,8 +21,8 @@ class BusRoutesRecyclerViewAdapter(val listener: (BusRouteSchedule) -> Unit) : R
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         fun bind(busRoute: BusRouteSchedule, listener: (BusRouteSchedule) -> Unit) = with(itemView) {
-            title.text = busRoute.longName
-            subtitle.text = busRoute.timetableId
+            title.text = busRoute.timetableId
+            subtitle.text = busRoute.longName
             setOnClickListener { listener(busRoute) }
         }
     }

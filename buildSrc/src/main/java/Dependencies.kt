@@ -6,9 +6,11 @@ object Versions {
     const val retrofit = "2.4.0"
     const val okHttp = "3.11.0"
     const val ktx = "1.0.1"
-    const val nav = "1.0.0-alpha06"
+    const val nav = "1.0.0-alpha09"
     const val work = "1.0.0-alpha10"
     const val room = "2.1.0-alpha01"
+    const val lifecycle = "2.0.0"
+    const val fragment = "1.1.0-alpha02"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
@@ -30,11 +32,14 @@ object Kotlin {
 
 object ArchComponents {
     val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
+    val fragment = "androidx.fragment:fragment-ktx:${Versions.fragment}"
     val navFragmentKtx = "android.arch.navigation:navigation-fragment-ktx:${Versions.nav}"
     val navUiKtx = "android.arch.navigation:navigation-ui-ktx:${Versions.nav}"
     val work = "android.arch.work:work-runtime-ktx:${Versions.work}"
     val roomRuntime = "androidx.room:room-runtime:${Versions.room}"
     val roomCompiler =  "androidx.room:room-compiler:${Versions.room}"
+    val lifecycleExtensions =  "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
+    val lifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"
 }
 
 

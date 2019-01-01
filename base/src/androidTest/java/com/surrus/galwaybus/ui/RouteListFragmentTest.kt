@@ -50,7 +50,7 @@ class RouteListFragmentTest {
             val busRoute = busRouteList[i]
             onView(withRecyclerView(R.id.busRoutesList)
                     .atPositionOnView(i, R.id.title))
-                    .check(matches(ViewMatchers.withText(busRoute.longName)))
+                    .check(matches(ViewMatchers.withText(busRoute.timetableId)))
 
         }
     }

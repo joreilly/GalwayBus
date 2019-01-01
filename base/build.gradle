@@ -2,6 +2,7 @@ apply plugin: 'com.android.feature'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+//apply plugin: "androidx.navigation.safeargs"
 
 
 android {
@@ -27,12 +28,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-
 }
 
 kapt {
@@ -45,35 +40,29 @@ dependencies {
     application project(":app-apk")
     //feature project(":ar")
 
-    api "com.google.android.instantapps:instantapps:${instantAppsVer}"
-    androidTestImplementation('androidx.test.espresso:espresso-core:3.1.0', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
+    implementation "com.google.android.instantapps:instantapps:${instantAppsVer}"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
+    implementation Kotlin.stdLib
+    implementation Kotlin.coroutinesCore
+    implementation Kotlin.coroutinesAndroid
 
-    api Kotlin.stdLib
-    api Kotlin.coroutinesCore
-    api Kotlin.coroutinesAndroid
-
-    api Koin.core
-    api Koin.android
-    api Koin.androidViewModel
+    implementation Koin.core
+    implementation Koin.android
+    implementation Koin.androidViewModel
 
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.8"
 
-    api Firebase.core
-    api PlayServices.location
-    api PlayServices.maps
+    implementation Firebase.core
+    implementation PlayServices.location
+    implementation PlayServices.maps
 
-    api 'com.karumi:dexter:4.2.0'
-    api 'net.danlew:android.joda:2.10.1'
-    api 'com.orhanobut:logger:1.15'
+    implementation 'com.karumi:dexter:4.2.0'
+    implementation 'net.danlew:android.joda:2.10.1'
+    implementation 'com.orhanobut:logger:1.15'
 
     implementation 'es.voghdev.pdfviewpager:library:1.0.5'
-
-//    implementation 'com.facebook.stetho:stetho:1.5.0'
-//    implementation 'com.facebook.stetho:stetho-okhttp3:1.5.0'
+    implementation "com.google.code.gson:gson:2.8.5"
 
     implementation Okhttp.okhttp
     implementation Okhttp.loggingInterceptor
@@ -83,20 +72,16 @@ dependencies {
     implementation Retrofit.converterScalars
     implementation Retrofit.coroutinesAdapter
 
-    implementation "com.google.code.gson:gson:2.8.5"
-
 
     implementation ArchComponents.navFragmentKtx
     implementation ArchComponents.navUiKtx
     implementation ArchComponents.work
+    implementation ArchComponents.fragment
 
-    api "androidx.lifecycle:lifecycle-runtime:2.0.0"
-    api "androidx.lifecycle:lifecycle-extensions:2.0.0"
-    api 'androidx.lifecycle:lifecycle-reactivestreams:2.0.0'
-    api ArchComponents.roomRuntime
+    implementation ArchComponents.lifecycleExtensions
+    implementation ArchComponents.roomRuntime
     kapt ArchComponents.roomCompiler
-    kapt "androidx.lifecycle:lifecycle-compiler:2.0.0"
-
+    kapt ArchComponents.lifecycleCompiler
 
     // Testing
     testImplementation Testing.junit
@@ -110,8 +95,10 @@ dependencies {
     androidTestImplementation Testing.screengrab
     androidTestImplementation Mockito.android
     androidTestImplementation Mockito.kotlin
-    debugImplementation Testing.fragmentTesting
+    androidTestImplementation Testing.fragmentTesting
+    androidTestImplementation 'androidx.test:rules:1.1.1'
 
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.1.0"
 
 
 }

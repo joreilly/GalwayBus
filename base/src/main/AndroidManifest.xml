@@ -62,16 +62,14 @@
             <meta-data android:name="default-url" android:value="https://www.surrus.com/galwaybus" />
 
         </activity>
-        <activity
-            android:name="com.surrus.galwaybus.ui.BusStopListActivity"
-            android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
+
         <activity
             android:name="com.surrus.galwaybus.ui.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
         <activity
             android:name="com.surrus.galwaybus.ui.SchedulePdfActivity"
-            android:parentActivityName="com.surrus.galwaybus.ui.BusStopListActivity" />
+            android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
 
 
         <provider

@@ -1,29 +1,25 @@
 package com.surrus.galwaybus.ui
 
+
 import android.Manifest
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.ViewPager
-import android.view.Menu
-import android.view.MenuItem
+import android.view.LayoutInflater
 import android.view.View
-import android.view.View.GONE
-import android.view.animation.DecelerateInterpolator
+import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -39,6 +35,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.Constants
+
 import com.surrus.galwaybus.base.R
 import com.surrus.galwaybus.model.Bus
 import com.surrus.galwaybus.model.BusStop
@@ -46,23 +43,28 @@ import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
-import kotlinx.android.synthetic.main.activity_bus_stop_list.*
-import kotlinx.android.synthetic.main.bus_times_list_item.view.duration
+import kotlinx.android.synthetic.main.fragment_route.mapView
+import kotlinx.android.synthetic.main.fragment_route.progressBar
+import kotlinx.android.synthetic.main.fragment_route.rootLayout
+import kotlinx.android.synthetic.main.fragment_route.pager
+import kotlinx.android.synthetic.main.fragment_route.showStopsCheckBox
+import kotlinx.android.synthetic.main.fragment_route.tabLayout
 import org.joda.time.DateTime
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
+import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
 
+class RouteFragment : Fragment(), OnMapReadyCallback {
 
-class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
+    private val busStopsViewModel: BusStopsViewModel by sharedViewModel()
+    private val busInfoViewModel: BusInfoViewModel by viewModel()
 
-    val busStopsViewModel: BusStopsViewModel by viewModel()
-    val busInfoViewModel: BusInfoViewModel by viewModel()
+    private lateinit var routeId: String
+    private lateinit var routeName: String
+    private lateinit var schedulePdf: String
 
-    private var routeId: String = ""
-    private var routeName: String = ""
-    private var schedulePdf: String = ""
     private var direction: Int = 0
 
     private var showStops: Boolean = false
@@ -71,30 +73,29 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var map: GoogleMap? = null
     private lateinit var pagerAdapter: SectionsPagerAdapter
+    private var progressCountdownTimer: CountDownTimer? = null
 
 
 
-    @SuppressLint("MissingPermission")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bus_stop_list)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_route, container, false)
+    }
 
-        if (savedInstanceState != null) {
-            routeId = savedInstanceState.getString(Constants.ROUTE_ID)
-            routeName = savedInstanceState.getString(Constants.ROUTE_NAME)
-            schedulePdf = savedInstanceState.getString(Constants.SCHEDULE_PDF)
-            showStops = savedInstanceState.getBoolean(Constants.SHOW_STOPS)
-        } else {
-            routeId = intent.extras[Constants.ROUTE_ID] as String
-            routeName = intent.extras[Constants.ROUTE_NAME] as String
-            schedulePdf = intent.extras[Constants.SCHEDULE_PDF] as String
-        }
-        title = "$routeId - $routeName"
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        routeId = arguments?.getString(Constants.ROUTE_ID)!!
+        routeName = arguments?.getString(Constants.ROUTE_NAME)!!
+        schedulePdf = arguments?.getString(Constants.SCHEDULE_PDF)!!
+
+        activity?.title = "$routeId - $routeName"
 
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
 
-        pagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+
+        pagerAdapter = SectionsPagerAdapter(childFragmentManager)
         pager.adapter = pagerAdapter
         tabLayout.setupWithViewPager(pager)
 
@@ -115,57 +116,25 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         }
 
 
-        busStopsViewModel.fetchBusStops(routeId)
+        busStopsViewModel.setRouteId(routeId)
 
-        Dexter.withActivity(this)
+        Dexter.withActivity(activity)
                 .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
                 .withListener(object : BasePermissionListener() {
                     override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                        mapView.getMapAsync(this@BusStopListActivity)
+                        mapView.getMapAsync(this@RouteFragment)
                     }
                 }).check()
 
     }
 
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(Constants.ROUTE_ID, routeId)
-        outState.putString(Constants.ROUTE_NAME, routeName)
-        outState.putString(Constants.SCHEDULE_PDF, schedulePdf)
-        outState.putBoolean(Constants.SHOW_STOPS, showStops)
-        super.onSaveInstanceState(outState)
+    override fun onPause() {
+        super.onPause()
+        Logger.d("onPause")
+        progressCountdownTimer?.cancel()
     }
 
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.bus_stops_activity, menu)
-
-        val scheduleMenuItem = menu.findItem(R.id.action_view_schedule)
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP){
-            scheduleMenuItem.isVisible = true
-        }
-
-        return true
-    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
-            R.id.action_view_schedule -> {
-                val intent = Intent(this, SchedulePdfActivity::class.java)
-                intent.putExtra(Constants.ROUTE_ID, routeId)
-                intent.putExtra(Constants.ROUTE_NAME, routeName)
-                intent.putExtra(Constants.SCHEDULE_PDF, schedulePdf)
-                startActivity(intent)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
 
     inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
@@ -191,7 +160,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
         map?.isMyLocationEnabled = true
 
 
-        val busInfoWindowAdapter: BusInfoWindowAdapter = BusInfoWindowAdapter()
+        val busInfoWindowAdapter = BusInfoWindowAdapter()
         map?.setInfoWindowAdapter(busInfoWindowAdapter)
 
         // default position until we have more data
@@ -203,6 +172,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
+
     private fun updateUI() {
         busStopsViewModel.busStops.removeObservers(this)
 
@@ -211,14 +181,15 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
             busInfoViewModel.busListForRoute.removeObservers(this)
             busInfoViewModel.busListForRoute.observe(this) { resource ->
 
-                val timer = object: CountDownTimer(30000, 500){
+                progressCountdownTimer?.cancel()
+                progressCountdownTimer = object: CountDownTimer(30000, 500){
                     override fun onTick(millisUntilFinished: Long){
                         progressBar.progress = 30 - millisUntilFinished.toInt()/1000
                     }
                     override fun onFinish() {
                     }
                 }
-                timer.start()
+                progressCountdownTimer?.start()
 
                 when (resource?.status) {
                     ResourceState.SUCCESS -> updateMap(busStopsList!!, resource.data!!)
@@ -242,7 +213,7 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                 builder.include(busStopLocation)
 
                 if (showStops) {
-                    val icon = bitmapDescriptorFromVector(this, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                    val icon = bitmapDescriptorFromVector(context!!, R.drawable.ic_stop, R.color.mapMarkerGreen)
                     val markerOptions = MarkerOptions()
                             .title(busStop.longName)
                             //.snippet(snippet)
@@ -269,13 +240,13 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
                     R.color.direction2
                 }
 
-                val icon = bitmapDescriptorFromVector(this, R.drawable.bus_side, tintColor)
-                var title = ""
-                var snippet = ""
+                val icon = bitmapDescriptorFromVector(context!!, R.drawable.bus_side, tintColor)
+                var title: String
+                var snippet: String
                 if (bus.departure_metadata != null) {
                     title = "To ${bus.departure_metadata.destination} ($routeId)"
                     val delayMins = bus.departure_metadata.delay/60
-                    val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
+                    val minsString = resources.getQuantityString(R.plurals.mins, delayMins)
                     snippet = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
                 } else {
                     title = "($routeId)"
@@ -345,16 +316,16 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
             if (marker.tag is Bus) {
                 val bus = marker.tag as Bus
-                var title = ""
-                var subTitle = ""
+                val title: String
+                val subTitle: String
                 if (bus.departure_metadata != null) {
                     title = "To ${bus.departure_metadata.destination} ($routeId)"
                     val delayMins = bus.departure_metadata.delay / 60
-                    val minsString = getResources().getQuantityString(R.plurals.mins, delayMins)
-                    subTitle = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
+                    val minsString = resources.getQuantityString(R.plurals.mins, delayMins)
+                    subTitle = "Delay: $delayMins $minsString"
                 } else {
                     title = "($routeId)"
-                    subTitle = "Vehicle id: ${bus.vehicle_id}"
+                    subTitle = ""
                 }
 
                 titleTextView.text = title
@@ -388,6 +359,13 @@ class BusStopListActivity : AppCompatActivity(), OnMapReadyCallback {
 
     companion object {
         const val COORDINATE_OFFSET = 0.00002f
-    }
 
+        fun bundleArgs(routeId: String, routeName: String, schedulePdf: String): Bundle {
+            return Bundle().apply {
+                this.putString(Constants.ROUTE_ID, routeId)
+                this.putString(Constants.ROUTE_NAME, routeName)
+                this.putString(Constants.SCHEDULE_PDF, schedulePdf)
+            }
+        }
+    }
 }

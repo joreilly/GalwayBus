@@ -29,7 +29,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            tools:text="Eyre Square"
+            tools:text="401"
+            android:textStyle="bold"
             android:textSize="14sp" />
 
         <TextView
@@ -38,8 +39,8 @@
             android:layout_height="wrap_content"
             android:ellipsize="marquee"
             android:singleLine="true"
-            tools:text="401"
-            android:textSize="11sp" />
+            tools:text="Eyre Square"
+            android:textSize="12sp" />
 
 
     </LinearLayout>

@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 
-class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase, val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
+class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase, private val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
     : ViewModel(), CoroutineScope {
 
     private val viewModelJob = Job()
@@ -21,7 +21,8 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
         get() = uiDispatcher + viewModelJob
 
 
-    val direction: MutableLiveData<Int> = MutableLiveData()
+    private val routeId: MutableLiveData<String> = MutableLiveData()
+    private val direction: MutableLiveData<Int> = MutableLiveData()
 
     val busStops = MediatorLiveData<List<BusStop>>().apply {
         this.addSource(direction) {
@@ -35,16 +36,20 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
     init {
         direction.value = 0
+        routeId.value = ""
     }
 
     fun setDirection(dir: Int) {
         direction.value = dir
     }
 
-    fun fetchBusStops(routeId: String) {
-        if (busStops.value == null) {
+    fun setRouteId(routeIdString: String) {
+        if (routeId.value != routeIdString) {
+            routeId.value = routeIdString
+
+            busStops.value = emptyList()
             launch {
-                busStopList = getBusStopsUseCase.getBusStops(routeId)
+                busStopList = getBusStopsUseCase.getBusStops(routeIdString)
                 busStops.value = busStopList[direction.value!!]
             }
         }
