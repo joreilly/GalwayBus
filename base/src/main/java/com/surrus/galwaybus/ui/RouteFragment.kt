@@ -125,10 +125,17 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     }
 
 
+    override fun onResume() {
+        super.onResume()
+        busInfoViewModel.pollForBusLocations(routeId)
+    }
+
+
     override fun onPause() {
         super.onPause()
         Logger.d("onPause")
         progressCountdownTimer?.cancel()
+        busInfoViewModel.stopPolling()
     }
 
 
@@ -162,8 +169,6 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(53.2743394, -9.0514163), 12.0f))
 
         updateUI()
-
-        busInfoViewModel.pollForBusLocations(routeId)
     }
 
 

@@ -13,7 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.concurrent.schedule
+import kotlin.concurrent.fixedRateTimer
 import kotlin.coroutines.CoroutineContext
 
 
@@ -25,27 +25,24 @@ class BusInfoViewModel constructor(private val getBusInfoUseCase: GetBusInfoUseC
         get() = uiDispatcher + viewModelJob
 
     val busListForRoute: MutableLiveData<Resource<List<Bus>>> = MutableLiveData()
-    private var busLocationTimerTask: TimerTask? = null
+    private var busLocationTimer: Timer? = null
 
 
     fun pollForBusLocations(routeId: String) {
-        busLocationTimerTask?.cancel()
-
-        launch {
-            val result = getBusInfoUseCase.getBusListForRoute(routeId)
-            busListForRoute.postValue(when (result) {
-                is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
-                is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
-            })
-
-            busLocationTimerTask = Timer("getBusLocationsTimer", false).schedule(POLL_INTERVAL) {
-                pollForBusLocations(routeId)
+        busLocationTimer?.cancel()
+        busLocationTimer = fixedRateTimer("getDepartesTimer", true, 0, POLL_INTERVAL) {
+            launch {
+                val result = getBusInfoUseCase.getBusListForRoute(routeId)
+                busListForRoute.postValue(when (result) {
+                    is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
+                    is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
+                })
             }
         }
     }
 
-    private fun stopPolling() {
-        busLocationTimerTask?.cancel()
+    fun stopPolling() {
+        busLocationTimer?.cancel()
     }
 
 
