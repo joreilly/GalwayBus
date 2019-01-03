@@ -14,10 +14,12 @@ open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusReposi
             val scheduleMap = galwayRepository.getSchedules()
 
             // merge data
-            routeList.map {
-                val schedulePdf = scheduleMap[it.timetableId]!!.pdfUrl
-                BusRouteSchedule(it.timetableId, it.shortName, it.longName, schedulePdf)
-            }
+            routeList
+                    .filter {  scheduleMap[it.timetableId] != null }
+                    .map {
+                        val schedulePdf = scheduleMap[it.timetableId]!!.pdfUrl
+                        BusRouteSchedule(it.timetableId, it.shortName, it.longName, schedulePdf)
+                    }
         }
     }
 
