@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit
 
 
 object DatasourceProperties {
-    //const val SERVER_URL = "https://galwaybus.herokuapp.com/"
-    const val SERVER_URL = "https://api.galwaybusabu.com/"
+    const val SERVER_URL = "https://galwaybus.herokuapp.com/"
+    //const val SERVER_URL = "https://api.galwaybusabu.com/"
 }
 
 
