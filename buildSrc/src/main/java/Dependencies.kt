@@ -10,7 +10,7 @@ object Versions {
     const val work = "1.0.0-alpha10"
     const val room = "2.1.0-alpha01"
     const val lifecycle = "2.0.0"
-    const val fragment = "1.1.0-alpha02"
+    const val fragment = "1.1.0-alpha03"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"

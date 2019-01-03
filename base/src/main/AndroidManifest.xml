@@ -76,7 +76,7 @@
             android:name="com.google.firebase.provider.FirebaseInitProvider"
             android:authorities="com.surrus.galwaybus.firebaseinitprovider"
             android:exported="false"
-            tools:node="merge"/>
+            tools:node="remove"/>
 
     </application>
 
