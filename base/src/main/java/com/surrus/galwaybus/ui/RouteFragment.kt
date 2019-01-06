@@ -262,7 +262,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 builder.include(busStopLocation)
             }
 
-            if (firstTimeShowingMap) {
+            if (firstTimeShowingMap && busStopList.isNotEmpty()) {
                 firstTimeShowingMap = false
                 it.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
             }

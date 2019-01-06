@@ -14,6 +14,7 @@ object Versions {
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
+    const val coroutinesTest = "1.1.0"
     const val mockito = "2.23.4"
     const val mockitoKotlin = "2.0.0"
     const val robolectric = "3.6.1"
@@ -75,6 +76,7 @@ object Retrofit {
 object Testing {
     val junit = "junit:junit:${Versions.junit}"
     val coreTesting = "android.arch.core:core-testing:${Versions.coreTesting}"
+    val couroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
 
     val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
     val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragmentTest}"

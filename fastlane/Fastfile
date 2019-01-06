@@ -17,8 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 75
-    versionInstant = 74
+    version = 79
+    versionInstant = 78
 
 
     before_all do

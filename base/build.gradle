@@ -54,6 +54,7 @@ dependencies {
     implementation "com.crashlytics.sdk.android:crashlytics:2.9.8"
 
     implementation Firebase.core
+    implementation Firebase.performance
     implementation PlayServices.location
     implementation PlayServices.maps
 
@@ -90,7 +91,7 @@ dependencies {
     testImplementation Mockito.core
     testImplementation Mockito.kotlin
     testImplementation Testing.coreTesting
-
+    testImplementation Testing.couroutinesTest
 
     androidTestImplementation Testing.screengrab
     androidTestImplementation Mockito.android
