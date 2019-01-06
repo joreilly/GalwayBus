@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.google.firebase.firebase-perf'
+//apply plugin: 'com.google.firebase.firebase-perf'
 apply plugin: 'io.fabric'
 
 
@@ -50,8 +50,6 @@ android {
         versionName this.versionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-
-        multiDexEnabled true
     }
 
     buildTypes {
@@ -70,11 +68,6 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
     flavorDimensions "experience"
     productFlavors {
         instant {
@@ -88,6 +81,8 @@ android {
 dependencies {
     implementation project(':base')
     //implementation project(':ar')
+
+    //implementation Firebase.performance
 }
 
 apply plugin: 'com.google.gms.google-services'

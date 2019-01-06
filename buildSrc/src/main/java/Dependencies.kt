@@ -51,8 +51,8 @@ object Koin {
 }
 
 object Firebase {
-    val core = "com.google.firebase:firebase-core:16.0.3"
-    val performance = "com.google.firebase:firebase-perf:16.1.0"
+    val core = "com.google.firebase:firebase-core:16.0.6"
+    val performance = "com.google.firebase:firebase-perf:16.2.3"
 }
 
 object PlayServices {
