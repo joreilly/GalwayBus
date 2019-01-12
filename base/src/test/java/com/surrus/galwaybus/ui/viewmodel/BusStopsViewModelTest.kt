@@ -10,6 +10,7 @@ import com.surrus.galwaybus.model.BusStop
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 import org.junit.Before
@@ -33,7 +34,8 @@ class BusStopsViewModelTest {
     fun setUp() {
         observer = mock()
         getBusStopsUseCase = mock()
-        busStopsViewModel = BusStopsViewModel(getBusStopsUseCase, Dispatchers.Unconfined)
+        Dispatchers.setMain(Dispatchers.Unconfined)
+        busStopsViewModel = BusStopsViewModel(getBusStopsUseCase)
     }
 
 
@@ -56,7 +58,7 @@ class BusStopsViewModelTest {
 
         whenever(getBusStopsUseCase.getBusStops(any())).thenReturn(busStopsList)
 
-        busStopsViewModel.fetchBusStops("some route id")
+        busStopsViewModel.setRouteId("some route id")
         assertTrue(busStopsViewModel.busStops.value!!.equals(busStopsDir0))
 
 

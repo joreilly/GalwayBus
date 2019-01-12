@@ -7,6 +7,7 @@ import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
 import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 
 import org.junit.Before
@@ -27,7 +28,9 @@ class BusRoutesViewModelTest {
     @Before
     fun setUp() {
         getBusRoutesUseCase = mock()
-        busRoutesViewModel = BusRoutesViewModel(getBusRoutesUseCase, Dispatchers.Unconfined)
+
+        Dispatchers.setMain(Dispatchers.Unconfined)
+        busRoutesViewModel = BusRoutesViewModel(getBusRoutesUseCase)
     }
 
 

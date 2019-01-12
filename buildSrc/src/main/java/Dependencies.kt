@@ -1,7 +1,7 @@
 
 object Versions {
     const val kotlin = "1.3.11"
-    const val kotlinCoroutines = "1.0.1"
+    const val kotlinCoroutines = "1.1.0"
     const val koin = "1.0.2"
     const val retrofit = "2.4.0"
     const val okHttp = "3.11.0"
@@ -10,7 +10,7 @@ object Versions {
     const val work = "1.0.0-alpha10"
     const val room = "2.1.0-alpha01"
     const val lifecycle = "2.0.0"
-    const val fragment = "1.1.0-alpha02"
+    const val fragment = "1.1.0-alpha03"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
@@ -18,7 +18,7 @@ object Versions {
     const val mockito = "2.23.4"
     const val mockitoKotlin = "2.0.0"
     const val robolectric = "3.6.1"
-    const val fragmentTest = "1.1.0-alpha02"
+    const val fragmentTest = "1.1.0-alpha03"
     const val screengrab = "1.2.0"
     const val mockWebServer = "3.11.0"
 }

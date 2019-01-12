@@ -3,6 +3,7 @@ package com.surrus.galwaybus.ui.viewmodel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
 import com.surrus.galwaybus.model.BusStop
 import kotlinx.coroutines.CoroutineDispatcher
@@ -13,13 +14,8 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 
-class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase, private val uiDispatcher: CoroutineDispatcher = Dispatchers.Main)
-    : ViewModel(), CoroutineScope {
-
-    private val viewModelJob = Job()
-    override val coroutineContext: CoroutineContext
-        get() = uiDispatcher + viewModelJob
-
+class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase)
+    : ViewModel() {
 
     private val routeId: MutableLiveData<String> = MutableLiveData()
     private val direction: MutableLiveData<Int> = MutableLiveData()
@@ -48,7 +44,7 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
             routeId.value = routeIdString
 
             busStops.value = emptyList()
-            launch {
+            viewModelScope.launch {
                 busStopList = getBusStopsUseCase.getBusStops(routeIdString)
                 busStops.value = busStopList[direction.value!!]
             }
