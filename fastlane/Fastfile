@@ -17,8 +17,8 @@ default_platform :android
 
 platform :android do
 
-    version = 81
-    versionInstant = 80
+    version = 83
+    versionInstant = 82
 
 
     before_all do
@@ -30,31 +30,13 @@ platform :android do
         gradle(task: "test")
     end
 
-    desc "Submit a new Beta Build to Crashlytics Beta"
-    lane :beta do
-        gradle(task: "assembleRelease")
-        crashlytics
-
-        # sh "your_script.sh"
-        # You can also use other beta testing services here
-    end
-
-    desc "Deploy a new version to the Google Play"
-    lane :deploy do
-        gradle(task: "assembleRelease")
-        upload_to_play_store
-    end
-
-
-
-
 
     desc "Deploy app to play store alpha channel"
     lane :deployAlpha do |options|
 
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:assembleRelease",
+              task: ":app-apk:bundleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
@@ -63,12 +45,12 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "alpha",
-            apk: "app-apk/build/outputs/apk/release/app-apk-release.apk",
+            aab: "app-apk/build/outputs/bundle/installedRelease/app-apk.aab",
+            skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
             skip_upload_screenshots: true
         )
-
     end
 
 
@@ -91,7 +73,6 @@ platform :android do
             skip_upload_images: true,
             skip_upload_screenshots: true
         )
-
     end
 
 

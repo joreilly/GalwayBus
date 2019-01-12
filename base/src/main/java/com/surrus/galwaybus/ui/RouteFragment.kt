@@ -11,6 +11,8 @@ import android.os.CountDownTimer
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.TextView
@@ -51,10 +53,12 @@ import kotlinx.android.synthetic.main.fragment_route.showStopsCheckBox
 import kotlinx.android.synthetic.main.fragment_route.tabLayout
 import org.joda.time.DateTime
 import org.joda.time.Period
+import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
+import java.util.*
 
 class RouteFragment : Fragment(), OnMapReadyCallback {
 
@@ -181,10 +185,11 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
             busInfoViewModel.busListForRoute.removeObservers(this)
             busInfoViewModel.busListForRoute.observe(this) { resource ->
 
+                progressBar.max = BusInfoViewModel.POLL_INTERVAL.toInt()
                 progressCountdownTimer?.cancel()
-                progressCountdownTimer = object: CountDownTimer(30000, 500){
+                progressCountdownTimer = object: CountDownTimer(BusInfoViewModel.POLL_INTERVAL, 500){
                     override fun onTick(millisUntilFinished: Long){
-                        progressBar.progress = 30 - millisUntilFinished.toInt()/1000
+                        progressBar.progress = BusInfoViewModel.POLL_INTERVAL.toInt() - millisUntilFinished.toInt()
                     }
                     override fun onFinish() {
                     }
@@ -311,7 +316,8 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
         override fun getInfoContents(marker: Marker): View {
             val view = layoutInflater.inflate(R.layout.custom_map_info_contents, null)
             val titleTextView = view.findViewById<TextView>(R.id.titleTextView)
-            val subTitleTextView = view.findViewById<TextView>(R.id.subTitleTextView)
+            val delayTextView = view.findViewById<TextView>(R.id.delayTextView)
+            val departureTimeTextView = view.findViewById<TextView>(R.id.departureTimeTextView)
             val updatedWhenTextView = view.findViewById<TextView>(R.id.updatedWhenTextView)
 
             if (marker.tag is Bus) {
@@ -322,14 +328,28 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                     title = "To ${bus.departure_metadata.destination} ($routeId)"
                     val delayMins = bus.departure_metadata.delay / 60
                     val minsString = resources.getQuantityString(R.plurals.mins, delayMins)
-                    subTitle = "Delay: $delayMins $minsString"
+
+                    delayTextView.visibility = VISIBLE
+                    // TODO use string resource
+                    delayTextView.text = "Delay: $delayMins $minsString"
                 } else {
                     title = "($routeId)"
-                    subTitle = ""
+                    delayTextView.visibility = GONE
                 }
-
                 titleTextView.text = title
-                subTitleTextView.text = subTitle
+
+
+                if (!bus.route.isNullOrEmpty()) {
+                    val timestampList = bus.route.toList().sortedBy { it.first }
+                    val date = DateTime(timestampList[0].first.toLong() * 1000)
+                    val departureTimeString = date.toString(DateTimeFormat.shortTime())
+
+                    departureTimeTextView.visibility = VISIBLE
+                    // TODO use string resource
+                    departureTimeTextView.text = "Departure Time: $departureTimeString"
+                } else {
+                    departureTimeTextView.visibility = GONE
+                }
 
 
                 val now = DateTime()
@@ -342,8 +362,9 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
             } else if (marker.tag is BusStop) {
                 val busStop = marker.tag as BusStop
                 titleTextView.text = busStop.longName
-                subTitleTextView.text = busStop.irishShortName
-                updatedWhenTextView.text = busStop.stopRef
+                delayTextView.text = busStop.irishShortName
+                departureTimeTextView.text = busStop.stopRef
+                updatedWhenTextView.visibility = GONE
             }
 
 

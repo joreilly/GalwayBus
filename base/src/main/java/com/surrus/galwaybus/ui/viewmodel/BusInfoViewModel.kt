@@ -51,6 +51,6 @@ class BusInfoViewModel constructor(private val getBusInfoUseCase: GetBusInfoUseC
     }
 
     companion object {
-        const val POLL_INTERVAL = 30000L
+        const val POLL_INTERVAL = 15000L
     }
 }

@@ -18,19 +18,28 @@
             android:layout_gravity="center_horizontal"
             android:ellipsize="end"
             android:maxLines="1"
-            android:maxEms="15"
             android:textSize="14sp"
             android:textStyle="bold" />
 
+
         <TextView
-            android:id="@+id/subTitleTextView"
-            tools:text="Title"
+            android:id="@+id/departureTimeTextView"
+            tools:text="10:00 AM"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:ellipsize="end"
             android:maxLines="1"
-            android:maxEms="15"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/delayTextView"
+            tools:text="delay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:textSize="14sp" />
 
         <TextView
@@ -42,7 +51,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:maxEms="15"
-            android:textSize="14sp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 </LinearLayout>
