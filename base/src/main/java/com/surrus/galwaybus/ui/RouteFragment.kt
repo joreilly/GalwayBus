@@ -341,12 +341,14 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
                 if (!bus.route.isNullOrEmpty()) {
                     val timestampList = bus.route.toList().sortedBy { it.first }
-                    val date = DateTime(timestampList[0].first.toLong() * 1000)
-                    val departureTimeString = date.toString(DateTimeFormat.shortTime())
+                    if (!timestampList.isNullOrEmpty()) {
+                        val date = DateTime(timestampList[0].first.toLong() * 1000)
+                        val departureTimeString = date.toString(DateTimeFormat.shortTime())
 
-                    departureTimeTextView.visibility = VISIBLE
-                    // TODO use string resource
-                    departureTimeTextView.text = "Departure Time: $departureTimeString"
+                        departureTimeTextView.visibility = VISIBLE
+                        // TODO use string resource
+                        departureTimeTextView.text = "Departure Time: $departureTimeString"
+                    }
                 } else {
                     departureTimeTextView.visibility = GONE
                 }
