@@ -31,12 +31,8 @@ class RouteListFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
 
             busRoutesAdapter = BusRoutesRecyclerViewAdapter {
-
-                val bundle = Bundle()
-                bundle.putString("route", it.timetableId)
-                firebaseAnaltyics.logEvent("route_selected", bundle)
-
-                findNavController().navigate(R.id.routeFragment, RouteFragment.bundleArgs(it.timetableId, it.longName, it.schedulePdf))
+                val action = RouteListFragmentDirections.actionRouteListFragmentToRouteFragment(it.timetableId, it.longName, it.schedulePdf)
+                findNavController().navigate(action)
             }
             adapter = busRoutesAdapter
         }

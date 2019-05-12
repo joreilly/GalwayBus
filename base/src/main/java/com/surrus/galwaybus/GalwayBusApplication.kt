@@ -11,8 +11,11 @@ import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.base.BuildConfig
+import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.createApplicationScreenMessage
 import com.surrus.galwaybus.di.koin.appModule
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.startKoin
 
 
@@ -47,6 +50,14 @@ class GalwayBusApplication : Application() {
 
         // Start Koin
         startKoin(this, appModule)
+
+        // exploring multiplatform kotlin
+//        val repo = GalwayBusRepository()
+//        GlobalScope.launch {
+//            val stops = repo.fetchBusStops()
+//            Logger.d(stops)
+//        }
+
 
         Logger.i("GalwayBusApplication init completed")
     }

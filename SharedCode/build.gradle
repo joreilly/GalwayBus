@@ -22,7 +22,6 @@ kotlin {
 
             implementation "io.ktor:ktor-client-core:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json:${Versions.ktor}"
-
         }
 
         androidMain.dependencies {
@@ -31,6 +30,7 @@ kotlin {
 
             implementation "io.ktor:ktor-client-core-jvm:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json-jvm:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-okhttp:${Versions.ktor}"
         }
 
         iOSMain.dependencies {

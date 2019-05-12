@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.navigation.fragment.navArgs
 import androidx.viewpager.widget.ViewPager
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -77,6 +78,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     private lateinit var pagerAdapter: SectionsPagerAdapter
     private var progressCountdownTimer: CountDownTimer? = null
 
+    private val params by navArgs<RouteFragmentArgs>()
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -87,15 +89,14 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        routeId = arguments?.getString(Constants.ROUTE_ID)!!
-        routeName = arguments?.getString(Constants.ROUTE_NAME)!!
-        schedulePdf = arguments?.getString(Constants.SCHEDULE_PDF)!!
+        routeId = params.routId
+        routeName = params.routeName
+        schedulePdf = params.schedulePdf
 
         activity?.title = "$routeId - $routeName"
 
         mapView.onCreate(savedInstanceState)
         mapView.onResume()
-
 
         pagerAdapter = SectionsPagerAdapter(childFragmentManager)
         pager.adapter = pagerAdapter

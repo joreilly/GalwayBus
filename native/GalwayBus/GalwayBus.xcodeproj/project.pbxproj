@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B27409DE22730D7C0080223A /* src in Resources */ = {isa = PBXBuildFile; fileRef = B27409DD22730D7C0080223A /* src */; };
 		B285234D21CEDB2E001A68FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285234C21CEDB2E001A68FE /* AppDelegate.swift */; };
 		B285234F21CEDB2E001A68FE /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B285234E21CEDB2E001A68FE /* ViewController.swift */; };
 		B285235221CEDB2E001A68FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B285235021CEDB2E001A68FE /* Main.storyboard */; };
@@ -51,6 +52,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B27409DD22730D7C0080223A /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../SharedCode/src; sourceTree = "<group>"; };
 		B285234921CEDB2E001A68FE /* GalwayBus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBus.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B285234C21CEDB2E001A68FE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B285234E21CEDB2E001A68FE /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -94,9 +96,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B27409DC22730CD90080223A /* Kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				B27409DD22730D7C0080223A /* src */,
+			);
+			path = Kotlin;
+			sourceTree = "<group>";
+		};
 		B285234021CEDB2E001A68FE = {
 			isa = PBXGroup;
 			children = (
+				B27409DC22730CD90080223A /* Kotlin */,
 				B285237A21CEDD4F001A68FE /* SharedCode.framework */,
 				B285234B21CEDB2E001A68FE /* GalwayBus */,
 				B285236021CEDB2F001A68FE /* GalwayBusTests */,
@@ -256,6 +267,7 @@
 				B285235721CEDB2F001A68FE /* LaunchScreen.storyboard in Resources */,
 				B285235421CEDB2F001A68FE /* Assets.xcassets in Resources */,
 				B285235221CEDB2E001A68FE /* Main.storyboard in Resources */,
+				B27409DE22730D7C0080223A /* src in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

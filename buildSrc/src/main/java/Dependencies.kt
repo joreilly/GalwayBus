@@ -1,26 +1,26 @@
 
 object Versions {
-    const val kotlin = "1.3.11"
-    const val kotlinCoroutines = "1.0.1"
-    const val kotlinxSerialization = "0.9.1"
+    const val kotlin = "1.3.31"
+    const val kotlinCoroutines = "1.2.0"
     const val koin = "1.0.2"
-    const val ktor = "1.0.1"
+    const val ktor = "1.1.4"
+    const val kotlinxSerialization = "0.11.0"
     const val retrofit = "2.4.0"
     const val okHttp = "3.12.0"
     const val ktx = "1.0.1"
-    const val nav = "1.0.0-alpha09"
-    const val work = "1.0.0-alpha10"
-    const val room = "2.1.0-alpha01"
-    const val lifecycle = "2.0.0"
-    const val fragment = "1.1.0-alpha03"
+    const val nav = "2.1.0-alpha04"
+    const val work = "2.1.0-alpha02"
+    const val room = "2.1.0-beta01"
+    const val lifecycle = "2.2.0-alpha01"
+    const val fragment = "1.1.0-alpha09"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
     const val coroutinesTest = "1.1.0"
-    const val mockito = "2.23.4"
-    const val mockitoKotlin = "2.0.0"
+    const val mockito = "2.27.0"
+    const val mockitoKotlin = "2.1.0"
     const val robolectric = "3.6.1"
-    const val fragmentTest = "1.1.0-alpha03"
+    const val fragmentTest = "1.1.0-alpha09"
     const val screengrab = "1.2.0"
     const val mockWebServer = "3.11.0"
 }
@@ -36,9 +36,9 @@ object Kotlin {
 object ArchComponents {
     val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
     val fragment = "androidx.fragment:fragment-ktx:${Versions.fragment}"
-    val navFragmentKtx = "android.arch.navigation:navigation-fragment-ktx:${Versions.nav}"
-    val navUiKtx = "android.arch.navigation:navigation-ui-ktx:${Versions.nav}"
-    val work = "android.arch.work:work-runtime-ktx:${Versions.work}"
+    val navFragmentKtx = "androidx.navigation:navigation-fragment-ktx:${Versions.nav}"
+    val navUiKtx = "androidx.navigation:navigation-ui-ktx:${Versions.nav}"
+    val work = "androidx.work:work-runtime-ktx:${Versions.work}"
     val roomRuntime = "androidx.room:room-runtime:${Versions.room}"
     val roomCompiler =  "androidx.room:room-compiler:${Versions.room}"
     val lifecycleExtensions =  "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
@@ -53,13 +53,13 @@ object Koin {
 }
 
 object Firebase {
-    val core = "com.google.firebase:firebase-core:16.0.6"
+    val core = "com.google.firebase:firebase-core:16.0.9"
     val performance = "com.google.firebase:firebase-perf:16.2.3"
 }
 
 object PlayServices {
-    val location = "com.google.android.gms:play-services-location:15.0.1"
-    val maps = "com.google.android.gms:play-services-maps:15.0.1"
+    val location = "com.google.android.gms:play-services-location:16.0.0"
+    val maps = "com.google.android.gms:play-services-maps:16.1.0"
 }
 
 
