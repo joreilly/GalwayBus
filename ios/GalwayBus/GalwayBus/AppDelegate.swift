@@ -2,8 +2,8 @@
 //  AppDelegate.swift
 //  GalwayBus
 //
-//  Created by jooreill on 22/12/2018.
-//  Copyright © 2018 jooreill. All rights reserved.
+//  Created by jooreill on 25/05/2019.
+//  Copyright © 2019 jooreill. All rights reserved.
 //
 
 import UIKit

@@ -6,8 +6,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.list
 
 
@@ -16,10 +19,10 @@ class GalwayBusApi() {
     private val client by lazy {
         HttpClient() {
             install(JsonFeature) {
-                serializer = KotlinxSerializer(JSON.nonstrict).apply {
+                serializer = KotlinxSerializer(Json(JsonConfiguration(strictMode = false))).apply {
                     setMapper(BusRoute::class, BusRoute.serializer())
                     setMapper(BusStop::class, BusStop.serializer())
-                    setListMapper(BusStop::class, BusStop.serializer())
+                    //setListMapper(BusStop::class, BusStop.serializer())
                 }
 
             }
@@ -37,9 +40,7 @@ class GalwayBusApi() {
             url("$baseUrl/stops.json")
         }
 
-        val list: List<BusStop> = JSON.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
-
-        return list
+        return JSON.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
     }
 
     companion object {

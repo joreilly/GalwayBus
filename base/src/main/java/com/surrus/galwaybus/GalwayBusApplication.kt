@@ -52,11 +52,11 @@ class GalwayBusApplication : Application() {
         startKoin(this, appModule)
 
         // exploring multiplatform kotlin
-//        val repo = GalwayBusRepository()
-//        GlobalScope.launch {
-//            val stops = repo.fetchBusStops()
-//            Logger.d(stops)
-//        }
+        val repo = GalwayBusRepository()
+        GlobalScope.launch {
+            val stops = repo.fetchBusStops()
+            Logger.d(stops)
+        }
 
 
         Logger.i("GalwayBusApplication init completed")
