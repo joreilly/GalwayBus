@@ -32,8 +32,8 @@ import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
-import org.koin.android.viewmodel.ext.koin.viewModel
-import org.koin.dsl.module.module
+import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
@@ -45,7 +45,7 @@ object DatasourceProperties {
 }
 
 
-val galwayBusAppModuile = module(definition = {
+val galwayBusAppModuile = module {
 
     viewModel { NearestBusStopsViewModel(get()) }
     viewModel { BusRoutesViewModel(get()) }
@@ -72,14 +72,14 @@ val galwayBusAppModuile = module(definition = {
     single { createGalwayBusDatabase(androidContext()) }
 
     single { createFirebaseAnalytics(get()) }
-})
+}
 
 
-val remoteDatasourceModule = module(definition = {
+val remoteDatasourceModule = module {
 
     single { createOkHttpClient() }
     single { createWebService<GalwayBusService>(get(), SERVER_URL) }
-})
+}
 
 
 fun createOkHttpClient(): OkHttpClient {

@@ -16,7 +16,8 @@ import com.surrus.galwaybus.common.createApplicationScreenMessage
 import com.surrus.galwaybus.di.koin.appModule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.startKoin
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
 
 class GalwayBusApplication : Application() {
@@ -49,7 +50,10 @@ class GalwayBusApplication : Application() {
         JodaTimeAndroid.init(this)
 
         // Start Koin
-        startKoin(this, appModule)
+        startKoin {
+            androidContext(this@GalwayBusApplication)
+            modules(appModule)
+        }
 
         // exploring multiplatform kotlin
         val repo = GalwayBusRepository()
