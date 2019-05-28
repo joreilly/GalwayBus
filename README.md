@@ -34,11 +34,10 @@ implementations interact directly with the `Repository`.  In either case,
 ### Languages, libraries and tools used
 
 * [Kotlin](https://kotlinlang.org/)
+* [Kotlin Corooutines](https://kotlinlang.org/docs/reference/coroutines-overview.html)
 * [Room](https://developer.android.com/topic/libraries/architecture/room.html)
 * [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
 * [Android Support Libraries](https://developer.android.com/topic/libraries/support-library/index.html)
-* [RxJava2](https://github.com/ReactiveX/RxJava/wiki/What's-different-in-2.0)
-* [RxKotlin](https://github.com/ReactiveX/RxKotlin)
 * [Koin](https://github.com/InsertKoinIO/koin)
 * [Retrofit](http://square.github.io/retrofit/)
 * [OkHttp](http://square.github.io/okhttp/)
