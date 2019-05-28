@@ -15,9 +15,9 @@ import com.surrus.galwaybus.domain.model.BusRouteSchedule
 import com.surrus.galwaybus.support.RecyclerViewMatchers.withRecyclerView
 import com.surrus.galwaybus.ui.viewmodel.BusRoutesViewModel
 import org.junit.Test
-import org.koin.android.viewmodel.ext.koin.viewModel
-import org.koin.dsl.module.module
-import org.koin.standalone.StandAloneContext
+import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.core.context.loadKoinModules
+import org.koin.dsl.module
 
 class RouteListFragmentTest {
 
@@ -26,7 +26,7 @@ class RouteListFragmentTest {
 
         // setup mock TeamsViewModel
         val mockBusRoutesViewModel = mock<BusRoutesViewModel>()
-        StandAloneContext.loadKoinModules(module {
+        loadKoinModules(module {
             viewModel(override = true) {
                 mockBusRoutesViewModel
             }
