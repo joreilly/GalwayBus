@@ -14,7 +14,7 @@ class GalwayBusRepository {
     }
 
 
-    fun fetchBusStops2(success: (List<BusStop>) -> Unit) {
+    fun fetchBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
             val galwayBusApi = GalwayBusApi()
             val stops = galwayBusApi.fetchBusStops()

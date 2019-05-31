@@ -13,8 +13,7 @@
 		B27F1FFD229A8AF200E504EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFB229A8AF200E504EE /* Main.storyboard */; };
 		B27F1FFF229A8AF300E504EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFE229A8AF300E504EE /* Assets.xcassets */; };
 		B27F2002229A8AF300E504EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F2000229A8AF300E504EE /* LaunchScreen.storyboard */; };
-		B27F200A229A924B00E504EE /* main.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B27F2009229A924A00E504EE /* main.framework */; };
-		B27F200B229A924B00E504EE /* main.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B27F2009229A924A00E504EE /* main.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		EDEE3D0B71B48D32BDB9472C /* Pods_GalwayBusApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 170359068154A044010D0133 /* Pods_GalwayBusApp.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +23,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B27F200B229A924B00E504EE /* main.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -32,6 +30,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		170359068154A044010D0133 /* Pods_GalwayBusApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GalwayBusApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.debug.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.debug.xcconfig"; sourceTree = "<group>"; };
+		710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.release.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.release.xcconfig"; sourceTree = "<group>"; };
 		B27F1FF2229A8AF200E504EE /* GalwayBusApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBusApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27F1FF5229A8AF200E504EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B27F1FF7229A8AF200E504EE /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
@@ -40,7 +41,6 @@
 		B27F1FFE229A8AF300E504EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B27F2001229A8AF300E504EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B27F2003229A8AF300E504EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B27F2009229A924A00E504EE /* main.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = main.framework; path = ../../SharedCode/build/bin/iOS/mainDebugFramework/main.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,19 +48,38 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B27F200A229A924B00E504EE /* main.framework in Frameworks */,
+				EDEE3D0B71B48D32BDB9472C /* Pods_GalwayBusApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		317B257004B61D2E35FF0377 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				170359068154A044010D0133 /* Pods_GalwayBusApp.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9982FDBE02DB54D9A32D5CB7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */,
+				710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		B27F1FE9229A8AF200E504EE = {
 			isa = PBXGroup;
 			children = (
-				B27F2009229A924A00E504EE /* main.framework */,
 				B27F1FF4229A8AF200E504EE /* GalwayBusApp */,
 				B27F1FF3229A8AF200E504EE /* Products */,
+				9982FDBE02DB54D9A32D5CB7 /* Pods */,
+				317B257004B61D2E35FF0377 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -93,6 +112,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B27F2006229A8AF300E504EE /* Build configuration list for PBXNativeTarget "GalwayBusApp" */;
 			buildPhases = (
+				624E329B892A3CC90B84C2E6 /* [CP] Check Pods Manifest.lock */,
 				B27F1FEE229A8AF200E504EE /* Sources */,
 				B27F1FEF229A8AF200E504EE /* Frameworks */,
 				B27F1FF0229A8AF200E504EE /* Resources */,
@@ -152,6 +172,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		624E329B892A3CC90B84C2E6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-GalwayBusApp-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		B27F1FEE229A8AF200E504EE /* Sources */ = {
@@ -304,11 +349,11 @@
 		};
 		B27F2007229A8AF300E504EE /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = NT77748GS8;
-				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "$(SRCROOT)/../../SharedCode/build/xcode-frameworks";
 				INFOPLIST_FILE = GalwayBusApp/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -323,6 +368,7 @@
 		};
 		B27F2008229A8AF300E504EE /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;

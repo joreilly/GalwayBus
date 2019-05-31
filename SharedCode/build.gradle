@@ -1,6 +1,9 @@
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 
+// CocoaPods requires the podspec to have a version.
+version = "1.0"
 
 kotlin {
     targets {
@@ -13,6 +16,13 @@ kotlin {
 
         fromPreset(presets.jvm, 'android')
     }
+
+    cocoapods {
+        // Configure fields required by CocoaPods.
+        summary = "Some description for a Kotlin/Native module"
+        homepage = "Link to a Kotlin/Native module homepage"
+    }
+
 
     sourceSets {
         commonMain.dependencies {
