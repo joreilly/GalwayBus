@@ -62,6 +62,10 @@ class GalwayBusApplication : Application() {
             Logger.d(stops)
         }
 
+        repo.fetchBusRoutes {
+            Logger.d(it)
+        }
+
 
         Logger.i("GalwayBusApplication init completed")
     }

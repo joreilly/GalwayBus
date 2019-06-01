@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		B27F1FF6229A8AF200E504EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF5229A8AF200E504EE /* AppDelegate.swift */; };
-		B27F1FF8229A8AF200E504EE /* FirstViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF7229A8AF200E504EE /* FirstViewController.swift */; };
-		B27F1FFA229A8AF200E504EE /* SecondViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF9229A8AF200E504EE /* SecondViewController.swift */; };
+		B27F1FF8229A8AF200E504EE /* StopsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF7229A8AF200E504EE /* StopsViewController.swift */; };
+		B27F1FFA229A8AF200E504EE /* RoutesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF9229A8AF200E504EE /* RoutesViewController.swift */; };
 		B27F1FFD229A8AF200E504EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFB229A8AF200E504EE /* Main.storyboard */; };
 		B27F1FFF229A8AF300E504EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFE229A8AF300E504EE /* Assets.xcassets */; };
 		B27F2002229A8AF300E504EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F2000229A8AF300E504EE /* LaunchScreen.storyboard */; };
@@ -35,8 +35,8 @@
 		710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.release.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.release.xcconfig"; sourceTree = "<group>"; };
 		B27F1FF2229A8AF200E504EE /* GalwayBusApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBusApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27F1FF5229A8AF200E504EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		B27F1FF7229A8AF200E504EE /* FirstViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstViewController.swift; sourceTree = "<group>"; };
-		B27F1FF9229A8AF200E504EE /* SecondViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondViewController.swift; sourceTree = "<group>"; };
+		B27F1FF7229A8AF200E504EE /* StopsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopsViewController.swift; sourceTree = "<group>"; };
+		B27F1FF9229A8AF200E504EE /* RoutesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutesViewController.swift; sourceTree = "<group>"; };
 		B27F1FFC229A8AF200E504EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B27F1FFE229A8AF300E504EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B27F2001229A8AF300E504EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -69,7 +69,6 @@
 				316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */,
 				710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -95,8 +94,8 @@
 			isa = PBXGroup;
 			children = (
 				B27F1FF5229A8AF200E504EE /* AppDelegate.swift */,
-				B27F1FF7229A8AF200E504EE /* FirstViewController.swift */,
-				B27F1FF9229A8AF200E504EE /* SecondViewController.swift */,
+				B27F1FF7229A8AF200E504EE /* StopsViewController.swift */,
+				B27F1FF9229A8AF200E504EE /* RoutesViewController.swift */,
 				B27F1FFB229A8AF200E504EE /* Main.storyboard */,
 				B27F1FFE229A8AF300E504EE /* Assets.xcassets */,
 				B27F2000229A8AF300E504EE /* LaunchScreen.storyboard */,
@@ -203,9 +202,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B27F1FFA229A8AF200E504EE /* SecondViewController.swift in Sources */,
+				B27F1FFA229A8AF200E504EE /* RoutesViewController.swift in Sources */,
 				B27F1FF6229A8AF200E504EE /* AppDelegate.swift in Sources */,
-				B27F1FF8229A8AF200E504EE /* FirstViewController.swift in Sources */,
+				B27F1FF8229A8AF200E504EE /* StopsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

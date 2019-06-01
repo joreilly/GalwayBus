@@ -6,15 +6,18 @@ import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
-import io.ktor.client.request.parameter
 import io.ktor.client.request.url
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.internal.StringSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.list
+import kotlinx.serialization.map
 
 
 class GalwayBusApi() {
+
+    private val busRouteMapSerializer: KSerializer<Map<String, BusRoute>> = (StringSerializer to BusRoute.serializer()).map
 
     private val client by lazy {
         HttpClient() {
@@ -29,10 +32,12 @@ class GalwayBusApi() {
         }
     }
 
-    suspend fun fetchBusRoutes(): HashMap<String, BusRoute> {
-        return client.get {
+
+    suspend fun fetchBusRoutes(): Map<String, BusRoute> {
+        val jsonString = client.get<String> {
             url("$baseUrl/routes.json")
         }
+        return Json.nonstrict.parse(busRouteMapSerializer, jsonString)
     }
 
     suspend fun fetchBusStops(): List<BusStop> {
@@ -40,8 +45,9 @@ class GalwayBusApi() {
             url("$baseUrl/stops.json")
         }
 
-        return JSON.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
+        return Json.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
     }
+
 
     companion object {
         private const val baseUrl = "https://galwaybus.herokuapp.com"

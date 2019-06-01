@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.common
 
+import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import kotlinx.coroutines.GlobalScope
@@ -17,9 +18,20 @@ class GalwayBusRepository {
     fun fetchBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
             val galwayBusApi = GalwayBusApi()
-            val stops = galwayBusApi.fetchBusStops()
-            success(stops)
+            success(galwayBusApi.fetchBusStops())
         }
     }
 
+    fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
+        GlobalScope.launch(ApplicationDispatcher) {
+            val galwayBusApi = GalwayBusApi()
+            val busRoutes = galwayBusApi.fetchBusRoutes()
+
+            val busRouteList = mutableListOf<BusRoute>()
+            busRoutes.values.forEach {
+                busRouteList.add(it)
+            }
+            success(busRouteList)
+        }
+    }
 }
