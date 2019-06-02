@@ -35,9 +35,14 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "LabelCell", for: indexPath)
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "BusRouteCell", for: indexPath) as? BusRouteTableViewCell else {
+            fatalError("The dequeued cell is not an instance of BusRouteTableViewCell.")
+        }
         
-        cell.textLabel?.text = String(listRoutes[indexPath.row].timetableId)
+        let route = listRoutes[indexPath.row]
+        
+        cell.nameLabel.text = String(route.timetableId)
+        cell.routeNameLabel.text = route.longName
         
         return cell
     }

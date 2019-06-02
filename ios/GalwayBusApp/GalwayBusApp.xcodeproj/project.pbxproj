@@ -13,6 +13,8 @@
 		B27F1FFD229A8AF200E504EE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFB229A8AF200E504EE /* Main.storyboard */; };
 		B27F1FFF229A8AF300E504EE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B27F1FFE229A8AF300E504EE /* Assets.xcassets */; };
 		B27F2002229A8AF300E504EE /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B27F2000229A8AF300E504EE /* LaunchScreen.storyboard */; };
+		B28366F522A3BDF7001A15CF /* BusStopTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28366F422A3BDF7001A15CF /* BusStopTableViewCell.swift */; };
+		B28366F722A3C0E9001A15CF /* BusRouteTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B28366F622A3C0E9001A15CF /* BusRouteTableViewCell.swift */; };
 		EDEE3D0B71B48D32BDB9472C /* Pods_GalwayBusApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 170359068154A044010D0133 /* Pods_GalwayBusApp.framework */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +43,8 @@
 		B27F1FFE229A8AF300E504EE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B27F2001229A8AF300E504EE /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B27F2003229A8AF300E504EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B28366F422A3BDF7001A15CF /* BusStopTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusStopTableViewCell.swift; sourceTree = "<group>"; };
+		B28366F622A3C0E9001A15CF /* BusRouteTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusRouteTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +104,8 @@
 				B27F1FFE229A8AF300E504EE /* Assets.xcassets */,
 				B27F2000229A8AF300E504EE /* LaunchScreen.storyboard */,
 				B27F2003229A8AF300E504EE /* Info.plist */,
+				B28366F422A3BDF7001A15CF /* BusStopTableViewCell.swift */,
+				B28366F622A3C0E9001A15CF /* BusRouteTableViewCell.swift */,
 			);
 			path = GalwayBusApp;
 			sourceTree = "<group>";
@@ -202,6 +208,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B28366F522A3BDF7001A15CF /* BusStopTableViewCell.swift in Sources */,
+				B28366F722A3C0E9001A15CF /* BusRouteTableViewCell.swift in Sources */,
 				B27F1FFA229A8AF200E504EE /* RoutesViewController.swift in Sources */,
 				B27F1FF6229A8AF200E504EE /* AppDelegate.swift in Sources */,
 				B27F1FF8229A8AF200E504EE /* StopsViewController.swift in Sources */,
