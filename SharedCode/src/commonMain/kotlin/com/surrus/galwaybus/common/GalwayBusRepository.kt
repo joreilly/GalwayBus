@@ -14,7 +14,6 @@ class GalwayBusRepository {
         return galwayBusApi.fetchBusStops()
     }
 
-
     fun fetchBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
             val galwayBusApi = GalwayBusApi()
@@ -22,16 +21,26 @@ class GalwayBusRepository {
         }
     }
 
+
+    suspend fun fetchBusRoutes(): List<BusRoute> {
+        val galwayBusApi = GalwayBusApi()
+        val busRoutes = galwayBusApi.fetchBusRoutes()
+        return transformBusRouteMapToList(busRoutes)
+    }
+
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
             val galwayBusApi = GalwayBusApi()
             val busRoutes = galwayBusApi.fetchBusRoutes()
-
-            val busRouteList = mutableListOf<BusRoute>()
-            busRoutes.values.forEach {
-                busRouteList.add(it)
-            }
-            success(busRouteList)
+            success(transformBusRouteMapToList(busRoutes))
         }
+    }
+
+    private fun transformBusRouteMapToList(busRoutesMap: Map<String, BusRoute>): List<BusRoute> {
+        val busRouteList = mutableListOf<BusRoute>()
+        busRoutesMap.values.forEach {
+            busRouteList.add(it)
+        }
+        return busRouteList
     }
 }

@@ -41,7 +41,7 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
         
         let route = listRoutes[indexPath.row]
         
-        cell.nameLabel.text = String(route.timetableId)
+        cell.nameLabel.text = route.timetableId
         cell.routeNameLabel.text = route.longName
         
         return cell

@@ -6,7 +6,7 @@ import kotlinx.serialization.*
 @Serializable
 data class BusRoute(
         @SerialName("timetable_id")
-        val timetableId: Long,
+        val timetableId: String,
         @SerialName("long_name")
         val longName: String,
         @SerialName("short_name")
