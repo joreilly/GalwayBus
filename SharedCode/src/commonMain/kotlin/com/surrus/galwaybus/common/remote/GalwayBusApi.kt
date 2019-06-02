@@ -6,6 +6,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.internal.StringSerializer
@@ -27,7 +28,6 @@ class GalwayBusApi() {
                     setMapper(BusStop::class, BusStop.serializer())
                     //setListMapper(BusStop::class, BusStop.serializer())
                 }
-
             }
         }
     }
@@ -44,7 +44,15 @@ class GalwayBusApi() {
         val jsonArrayString = client.get<String> {
             url("$baseUrl/stops.json")
         }
+        return Json.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
+    }
 
+    suspend fun getNearestStops(latitude: Double, longitude: Double): List<BusStop> {
+        val jsonArrayString = client.get<String> {
+            url("$baseUrl/stops/nearby.json")
+            parameter("latitude", latitude)
+            parameter("longitude", longitude)
+        }
         return Json.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
     }
 

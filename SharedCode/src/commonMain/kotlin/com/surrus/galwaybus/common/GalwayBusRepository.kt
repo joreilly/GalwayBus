@@ -8,33 +8,40 @@ import kotlinx.coroutines.launch
 
 class GalwayBusRepository {
 
+    private val galwayBusApi = GalwayBusApi()
 
     suspend fun fetchBusStops(): List<BusStop> {
-        val galwayBusApi = GalwayBusApi()
         return galwayBusApi.fetchBusStops()
     }
 
     fun fetchBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
-            val galwayBusApi = GalwayBusApi()
-            success(galwayBusApi.fetchBusStops())
+            success(fetchBusStops())
         }
     }
 
 
     suspend fun fetchBusRoutes(): List<BusRoute> {
-        val galwayBusApi = GalwayBusApi()
         val busRoutes = galwayBusApi.fetchBusRoutes()
         return transformBusRouteMapToList(busRoutes)
     }
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
-            val galwayBusApi = GalwayBusApi()
-            val busRoutes = galwayBusApi.fetchBusRoutes()
-            success(transformBusRouteMapToList(busRoutes))
+            success(fetchBusRoutes())
         }
     }
+
+    suspend fun getNearestStops(latitude: Double, longitude: Double): List<BusStop> {
+        return galwayBusApi.getNearestStops(latitude, longitude)
+    }
+
+    fun getNearestStops(latitude: Double, longitude: Double, success: (List<BusStop>) -> Unit) {
+        GlobalScope.launch(ApplicationDispatcher) {
+            success(getNearestStops(latitude, longitude))
+        }
+    }
+
 
     private fun transformBusRouteMapToList(busRoutesMap: Map<String, BusRoute>): List<BusRoute> {
         val busRouteList = mutableListOf<BusRoute>()

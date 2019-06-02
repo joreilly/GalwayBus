@@ -17,3 +17,5 @@ fastlane/metadata/android/screenshots.html
 app/release
 
 api-*.json
+
+ios/GalwayBusApp/GalwayBusApp.xcworkspace/xcuserdata
