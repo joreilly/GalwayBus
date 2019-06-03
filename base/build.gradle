@@ -31,6 +31,9 @@ android {
         }
     }
 
+    packagingOptions {
+        exclude 'META-INF/*.kotlin_module'
+    }
 }
 
 kapt {
@@ -85,6 +88,8 @@ dependencies {
     implementation ArchComponents.roomRuntime
     kapt ArchComponents.roomCompiler
     kapt ArchComponents.lifecycleCompiler
+
+    implementation "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
 
     // Testing
     testImplementation Testing.junit

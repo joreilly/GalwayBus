@@ -1,0 +1,13 @@
+CREATE TABLE busStop(
+id INTEGER NOT NULL PRIMARY KEY,
+name TEXT NOT NULL
+);
+
+insertItem:
+INSERT OR REPLACE INTO busStop(id, name)VALUES(?,?);
+
+selectAll:
+SELECT * FROM busStop;
+
+selectById:
+SELECT * FROM busStop WHERE id = ?;

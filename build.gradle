@@ -26,6 +26,7 @@ buildscript {
         classpath 'com.google.firebase:firebase-plugins:1.1.5'
         classpath 'io.fabric.tools:gradle:1.27.0'
         classpath "androidx.navigation:navigation-safe-args-gradle-plugin:$Versions.nav"
+        classpath "com.squareup.sqldelight:gradle-plugin:$Versions.sqlDelight"
         classpath "com.github.ben-manes:gradle-versions-plugin:0.21.0"
     }
 }

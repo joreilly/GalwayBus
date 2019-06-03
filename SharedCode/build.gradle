@@ -1,6 +1,7 @@
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
+apply plugin: "com.squareup.sqldelight"
 
 // CocoaPods requires the podspec to have a version.
 version = "1.0"
@@ -39,6 +40,9 @@ kotlin {
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
+
+            // SQL Delight
+            implementation "com.squareup.sqldelight:runtime:${Versions.sqlDelight}"
         }
 
         androidMain.dependencies {
@@ -57,6 +61,9 @@ kotlin {
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
+
+            // SQL Delight
+            implementation "com.squareup.sqldelight:runtime-jvm:${Versions.sqlDelight}"
         }
 
         iOSMain.dependencies {
@@ -71,6 +78,9 @@ kotlin {
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
+
+            // SQL Delight
+            implementation "com.squareup.sqldelight:ios-driver:${Versions.sqlDelight}"
         }
     }
 }
@@ -80,22 +90,30 @@ configurations {
     compileClasspath
 }
 
-task packForXCode(type: Sync) {
-    final File frameworkDir = new File(buildDir, "xcode-frameworks")
-    final String mode = project.findProperty("XCODE_CONFIGURATION")?.toUpperCase() ?: 'DEBUG'
 
-    inputs.property "mode", mode
-    dependsOn kotlin.targets.iOS.compilations.main.linkTaskName("FRAMEWORK", mode)
-
-    from { kotlin.targets.iOS.compilations.main.getBinary("FRAMEWORK", mode).parentFile }
-    into frameworkDir
-
-    doLast {
-        new File(frameworkDir, 'gradlew').with {
-            text = "#!/bin/bash\nexport 'JAVA_HOME=${System.getProperty("java.home")}'\ncd '${rootProject.rootDir}'\n./gradlew \$@\n"
-            setExecutable(true)
-        }
+sqldelight {
+    MyDatabase {
+        packageName = "com.surrus.galwaybus.db"
+        sourceFolders = ["sqldelight"]
     }
 }
 
-tasks.build.dependsOn packForXCode
+//task packForXCode(type: Sync) {
+//    final File frameworkDir = new File(buildDir, "xcode-frameworks")
+//    final String mode = project.findProperty("XCODE_CONFIGURATION")?.toUpperCase() ?: 'DEBUG'
+//
+//    inputs.property "mode", mode
+//    dependsOn kotlin.targets.iOS.compilations.main.linkTaskName("FRAMEWORK", mode)
+//
+//    from { kotlin.targets.iOS.compilations.main.getBinary("FRAMEWORK", mode).parentFile }
+//    into frameworkDir
+//
+//    doLast {
+//        new File(frameworkDir, 'gradlew').with {
+//            text = "#!/bin/bash\nexport 'JAVA_HOME=${System.getProperty("java.home")}'\ncd '${rootProject.rootDir}'\n./gradlew \$@\n"
+//            setExecutable(true)
+//        }
+//    }
+//}
+//
+//tasks.build.dependsOn packForXCode
