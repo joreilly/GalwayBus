@@ -1,7 +1,8 @@
 ### Android Galway Bus app using Kotlin/Architecture Components/Clean Architecture
 
 
-[![Google Play logo](http://www.android.com/images/brand/android_app_on_play_logo_large.png)](https://play.google.com/store/apps/details?id=com.surrus.galwaybus)
+[![Get it on Google Play](https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png)](https://play.google.com/store/apps/details?id=com.surrus.galwaybus)
+
 
 This was created as part of effort to get more familiar with developing Android apps using 
 Kotlin and the new [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html),
