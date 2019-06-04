@@ -1,0 +1,541 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXAggregateTarget section */
+		0275AEE3F26F116677512636F19C7A54 /* SharedCode */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1B41B241226B2AFA7A916C666F81A38C /* Build configuration list for PBXAggregateTarget "SharedCode" */;
+			buildPhases = (
+				92E29E1EFB92CA281F72C99890431D63 /* [CP-User] Build SharedCode */,
+			);
+			dependencies = (
+			);
+			name = SharedCode;
+		};
+/* End PBXAggregateTarget section */
+
+/* Begin PBXBuildFile section */
+		058DC836BE263181DCE326EBFB777BBD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */; };
+		21F331F84F03BA6029EB7B9FB86DC5A2 /* Pods-GalwayBusAppSwiftUI-dummy.m in Sources */ = {isa = PBXBuildFile; fileRef = DF90710BD28DA507BAC45B569DF331EC /* Pods-GalwayBusAppSwiftUI-dummy.m */; };
+		429526B99F37CC25E6C10AA6D7A4A587 /* Pods-GalwayBusAppSwiftUI-umbrella.h in Headers */ = {isa = PBXBuildFile; fileRef = 553DA2A100978173287BFD6734FBE3BE /* Pods-GalwayBusAppSwiftUI-umbrella.h */; settings = {ATTRIBUTES = (Public, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C7B76C6EF2138C61E58BEE0BEEA96508 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 0275AEE3F26F116677512636F19C7A54;
+			remoteInfo = SharedCode;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		14AB6CC0700EB51895D5940E2442D6E9 /* Pods-GalwayBusAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-GalwayBusAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
+		15FB03A66EF261A8B6C17CB7A7368C07 /* Pods-GalwayBusAppSwiftUI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-GalwayBusAppSwiftUI.release.xcconfig"; sourceTree = "<group>"; };
+		3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.2.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		479254C968C5721ABDAFF18F33F0C49A /* Pods_GalwayBusAppSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = Pods_GalwayBusAppSwiftUI.framework; path = "Pods-GalwayBusAppSwiftUI.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		553DA2A100978173287BFD6734FBE3BE /* Pods-GalwayBusAppSwiftUI-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-GalwayBusAppSwiftUI-umbrella.h"; sourceTree = "<group>"; };
+		735D54F9D71DF97A91EC310AD02B1F9A /* SharedCode.podspec */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; path = SharedCode.podspec; sourceTree = "<group>"; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9074E1E2C012A716B0FB933FE031CEB7 /* SharedCode.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = SharedCode.xcconfig; sourceTree = "<group>"; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		A16FFEF8F535765BF9503580A676A649 /* Pods-GalwayBusAppSwiftUI-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-GalwayBusAppSwiftUI-acknowledgements.plist"; sourceTree = "<group>"; };
+		C63D59DF0BB89993389D38B7C1FA021E /* SharedCode.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SharedCode.framework; path = build/cocoapods/framework/SharedCode.framework; sourceTree = "<group>"; };
+		D72020A9DCB0A3AFD00F777B351E73E3 /* Pods-GalwayBusAppSwiftUI.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-GalwayBusAppSwiftUI.modulemap"; sourceTree = "<group>"; };
+		DF90710BD28DA507BAC45B569DF331EC /* Pods-GalwayBusAppSwiftUI-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-GalwayBusAppSwiftUI-dummy.m"; sourceTree = "<group>"; };
+		E1AB178196BFBB2E95071002DB8A7219 /* Pods-GalwayBusAppSwiftUI-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-GalwayBusAppSwiftUI-acknowledgements.markdown"; sourceTree = "<group>"; };
+		E483ACEFE512739B1688B8B08716CEB9 /* Pods-GalwayBusAppSwiftUI-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-GalwayBusAppSwiftUI-Info.plist"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		849FB1CCC87ED6E5D98381F2DD2FA7E1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				058DC836BE263181DCE326EBFB777BBD /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0B3739204F94C99B37102E271AE52374 /* Targets Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				74BDCB68718526D3D855E42AEDB277B5 /* Pods-GalwayBusAppSwiftUI */,
+			);
+			name = "Targets Support Files";
+			sourceTree = "<group>";
+		};
+		2A65E8FC01391542B95FAED45A5DA33F /* Development Pods */ = {
+			isa = PBXGroup;
+			children = (
+				7819871DFEC746D063156AD61040ABE3 /* SharedCode */,
+			);
+			name = "Development Pods";
+			sourceTree = "<group>";
+		};
+		3438C2724EDEA759CCF93476154A4610 /* Support Files */ = {
+			isa = PBXGroup;
+			children = (
+				9074E1E2C012A716B0FB933FE031CEB7 /* SharedCode.xcconfig */,
+			);
+			name = "Support Files";
+			path = "../ios/GalwayBusAppSwiftUI/Pods/Target Support Files/SharedCode";
+			sourceTree = "<group>";
+		};
+		46B2CBC7F4844B5F0D70F1E127F989E7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				479254C968C5721ABDAFF18F33F0C49A /* Pods_GalwayBusAppSwiftUI.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		74BDCB68718526D3D855E42AEDB277B5 /* Pods-GalwayBusAppSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				D72020A9DCB0A3AFD00F777B351E73E3 /* Pods-GalwayBusAppSwiftUI.modulemap */,
+				E1AB178196BFBB2E95071002DB8A7219 /* Pods-GalwayBusAppSwiftUI-acknowledgements.markdown */,
+				A16FFEF8F535765BF9503580A676A649 /* Pods-GalwayBusAppSwiftUI-acknowledgements.plist */,
+				DF90710BD28DA507BAC45B569DF331EC /* Pods-GalwayBusAppSwiftUI-dummy.m */,
+				E483ACEFE512739B1688B8B08716CEB9 /* Pods-GalwayBusAppSwiftUI-Info.plist */,
+				553DA2A100978173287BFD6734FBE3BE /* Pods-GalwayBusAppSwiftUI-umbrella.h */,
+				14AB6CC0700EB51895D5940E2442D6E9 /* Pods-GalwayBusAppSwiftUI.debug.xcconfig */,
+				15FB03A66EF261A8B6C17CB7A7368C07 /* Pods-GalwayBusAppSwiftUI.release.xcconfig */,
+			);
+			name = "Pods-GalwayBusAppSwiftUI";
+			path = "Target Support Files/Pods-GalwayBusAppSwiftUI";
+			sourceTree = "<group>";
+		};
+		7819871DFEC746D063156AD61040ABE3 /* SharedCode */ = {
+			isa = PBXGroup;
+			children = (
+				9257D358E77DE65A21D2329E68CD7FF8 /* Frameworks */,
+				9EC91EB8E1FF21BCFC6FD56136E30117 /* Pod */,
+				3438C2724EDEA759CCF93476154A4610 /* Support Files */,
+			);
+			name = SharedCode;
+			path = ../../../SharedCode;
+			sourceTree = "<group>";
+		};
+		9257D358E77DE65A21D2329E68CD7FF8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C63D59DF0BB89993389D38B7C1FA021E /* SharedCode.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9EC91EB8E1FF21BCFC6FD56136E30117 /* Pod */ = {
+			isa = PBXGroup;
+			children = (
+				735D54F9D71DF97A91EC310AD02B1F9A /* SharedCode.podspec */,
+			);
+			name = Pod;
+			sourceTree = "<group>";
+		};
+		C0834CEBB1379A84116EF29F93051C60 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				3212113385A8FBBDB272BD23C409FF61 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		CF1408CF629C7361332E53B88F7BD30C = {
+			isa = PBXGroup;
+			children = (
+				9D940727FF8FB9C785EB98E56350EF41 /* Podfile */,
+				2A65E8FC01391542B95FAED45A5DA33F /* Development Pods */,
+				D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */,
+				46B2CBC7F4844B5F0D70F1E127F989E7 /* Products */,
+				0B3739204F94C99B37102E271AE52374 /* Targets Support Files */,
+			);
+			sourceTree = "<group>";
+		};
+		D210D550F4EA176C3123ED886F8F87F5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				C0834CEBB1379A84116EF29F93051C60 /* iOS */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		440CD519F78EBD32DAA52AB22139C615 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				429526B99F37CC25E6C10AA6D7A4A587 /* Pods-GalwayBusAppSwiftUI-umbrella.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		20062B5FA268D0DCB37EAF72AA5288E0 /* Pods-GalwayBusAppSwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC07C4461A835C8AA25D7AF3EB25DD2F /* Build configuration list for PBXNativeTarget "Pods-GalwayBusAppSwiftUI" */;
+			buildPhases = (
+				440CD519F78EBD32DAA52AB22139C615 /* Headers */,
+				4BFD7979C8DDCFEADA5339ADE6520DCC /* Sources */,
+				849FB1CCC87ED6E5D98381F2DD2FA7E1 /* Frameworks */,
+				0862B1BED7F6C56204521CCF7799541D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4BF9147F0C0D559841D33F0737B43435 /* PBXTargetDependency */,
+			);
+			name = "Pods-GalwayBusAppSwiftUI";
+			productName = "Pods-GalwayBusAppSwiftUI";
+			productReference = 479254C968C5721ABDAFF18F33F0C49A /* Pods_GalwayBusAppSwiftUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BFDFE7DC352907FC980B868725387E98 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1020;
+				LastUpgradeCheck = 1020;
+			};
+			buildConfigurationList = 4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
+			productRefGroup = 46B2CBC7F4844B5F0D70F1E127F989E7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				20062B5FA268D0DCB37EAF72AA5288E0 /* Pods-GalwayBusAppSwiftUI */,
+				0275AEE3F26F116677512636F19C7A54 /* SharedCode */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		0862B1BED7F6C56204521CCF7799541D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		92E29E1EFB92CA281F72C99890431D63 /* [CP-User] Build SharedCode */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			name = "[CP-User] Build SharedCode";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "                set -ev\n                REPO_ROOT=\"$PODS_TARGET_SRCROOT\"\n                \"$REPO_ROOT/../gradlew\" -p \"$REPO_ROOT\" :SharedCode:syncFramework                     -Pkotlin.native.cocoapods.target=$KOTLIN_TARGET                     -Pkotlin.native.cocoapods.configuration=$CONFIGURATION                     -Pkotlin.native.cocoapods.cflags=\"$OTHER_CFLAGS\"                     -Pkotlin.native.cocoapods.paths.headers=\"$HEADER_SEARCH_PATHS\"                     -Pkotlin.native.cocoapods.paths.frameworks=\"$FRAMEWORK_SEARCH_PATHS\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		4BFD7979C8DDCFEADA5339ADE6520DCC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21F331F84F03BA6029EB7B9FB86DC5A2 /* Pods-GalwayBusAppSwiftUI-dummy.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4BF9147F0C0D559841D33F0737B43435 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SharedCode;
+			target = 0275AEE3F26F116677512636F19C7A54 /* SharedCode */;
+			targetProxy = C7B76C6EF2138C61E58BEE0BEEA96508 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		204B8AEA4AE90A551A1768B355C2F9F0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_DEBUG=1",
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Debug;
+		};
+		3CCC6195EDBEE5DA2A49DF962113BE16 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"POD_CONFIGURATION_RELEASE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				SYMROOT = "${SRCROOT}/../build";
+			};
+			name = Release;
+		};
+		5E0EA48A26C647106BFB888C82DBEB52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9074E1E2C012A716B0FB933FE031CEB7 /* SharedCode.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A56FF1AE4792A0922EEE9AD42EBD7422 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9074E1E2C012A716B0FB933FE031CEB7 /* SharedCode.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB660E3B31C7FEC584DFDBDF174029D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 14AB6CC0700EB51895D5940E2442D6E9 /* Pods-GalwayBusAppSwiftUI.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		DFA28F0672E8F51FC29279FF427E9A7D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 15FB03A66EF261A8B6C17CB7A7368C07 /* Pods-GalwayBusAppSwiftUI.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = NO;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_IDENTITY = "";
+				"CODE_SIGN_IDENTITY[sdk=appletvos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "";
+				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "";
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI-Info.plist";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACH_O_TYPE = staticlib;
+				MODULEMAP_FILE = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI.modulemap";
+				OTHER_LDFLAGS = "";
+				OTHER_LIBTOOLFLAGS = "";
+				PODS_ROOT = "$(SRCROOT)";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.${PRODUCT_NAME:rfc1034identifier}";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1B41B241226B2AFA7A916C666F81A38C /* Build configuration list for PBXAggregateTarget "SharedCode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A56FF1AE4792A0922EEE9AD42EBD7422 /* Debug */,
+				5E0EA48A26C647106BFB888C82DBEB52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4821239608C13582E20E6DA73FD5F1F9 /* Build configuration list for PBXProject "Pods" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				204B8AEA4AE90A551A1768B355C2F9F0 /* Debug */,
+				3CCC6195EDBEE5DA2A49DF962113BE16 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DC07C4461A835C8AA25D7AF3EB25DD2F /* Build configuration list for PBXNativeTarget "Pods-GalwayBusAppSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BB660E3B31C7FEC584DFDBDF174029D3 /* Debug */,
+				DFA28F0672E8F51FC29279FF427E9A7D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BFDFE7DC352907FC980B868725387E98 /* Project object */;
+}
