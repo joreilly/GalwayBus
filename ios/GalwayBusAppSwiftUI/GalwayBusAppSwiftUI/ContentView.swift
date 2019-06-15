@@ -4,14 +4,14 @@ import SharedCode
 
 
 
-class BusRouteStore: BindableObject {
+class BusRouteViewModel: BindableObject {
     var listRoutes: [BusRoute] = [] {
         didSet {
             didChange.send(self)
         }
     }
     
-    var didChange = PassthroughSubject<BusRouteStore, Never>()
+    var didChange = PassthroughSubject<BusRouteViewModel, Never>()
     
     let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {
@@ -27,16 +27,16 @@ class BusRouteStore: BindableObject {
 }
 
 struct ContentView : View {
-    @EnvironmentObject var busRouteStore: BusRouteStore
+    @EnvironmentObject var busRouteViewModel: BusRouteViewModel
 
     var body: some View {
         NavigationView {
-            List(busRouteStore.listRoutes.identified(by: \.timetableId)) { route in
+            List(busRouteViewModel.listRoutes.identified(by: \.timetableId)) { route in
                 RouteRow(route: route)
             }
             .navigationBarTitle(Text("Routes"), displayMode: .large)
             .onAppear() {
-                self.busRouteStore.fetch()
+                self.busRouteViewModel.fetch()
             }
         }
     }

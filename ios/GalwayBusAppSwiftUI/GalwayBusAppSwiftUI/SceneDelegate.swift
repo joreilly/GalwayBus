@@ -21,11 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         // Use a UIHostingController as window root view controller
 
-        let store = BusRouteStore(repository: GalwayBusRepository())
+        let busRouteViewModel = BusRouteViewModel(repository: GalwayBusRepository())
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.rootViewController = UIHostingController(
-            rootView: ContentView().environmentObject(store)
+            rootView: ContentView().environmentObject(busRouteViewModel)
         )
         self.window = window
         window.makeKeyAndVisible()
