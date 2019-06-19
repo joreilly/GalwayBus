@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B223496722BAD55B006A4E31 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B223496622BAD55A006A4E31 /* libsqlite3.tbd */; };
 		B27F1FF6229A8AF200E504EE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF5229A8AF200E504EE /* AppDelegate.swift */; };
 		B27F1FF8229A8AF200E504EE /* StopsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF7229A8AF200E504EE /* StopsViewController.swift */; };
 		B27F1FFA229A8AF200E504EE /* RoutesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B27F1FF9229A8AF200E504EE /* RoutesViewController.swift */; };
@@ -35,6 +36,7 @@
 		170359068154A044010D0133 /* Pods_GalwayBusApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GalwayBusApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.debug.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.debug.xcconfig"; sourceTree = "<group>"; };
 		710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.release.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.release.xcconfig"; sourceTree = "<group>"; };
+		B223496622BAD55A006A4E31 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		B27F1FF2229A8AF200E504EE /* GalwayBusApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBusApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27F1FF5229A8AF200E504EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B27F1FF7229A8AF200E504EE /* StopsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StopsViewController.swift; sourceTree = "<group>"; };
@@ -52,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B223496722BAD55B006A4E31 /* libsqlite3.tbd in Frameworks */,
 				EDEE3D0B71B48D32BDB9472C /* Pods_GalwayBusApp.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -62,6 +65,7 @@
 		317B257004B61D2E35FF0377 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B223496622BAD55A006A4E31 /* libsqlite3.tbd */,
 				170359068154A044010D0133 /* Pods_GalwayBusApp.framework */,
 			);
 			name = Frameworks;
