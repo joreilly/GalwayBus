@@ -3,15 +3,33 @@ package com.surrus.galwaybus.common
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
+import com.surrus.galwaybus.db.GalwayBusQueries
+import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+
+
+
+expect fun createDb() : MyDatabase
 
 class GalwayBusRepository {
 
     private val galwayBusApi = GalwayBusApi()
 
     suspend fun fetchBusStops(): List<BusStop> {
-        return galwayBusApi.fetchBusStops()
+        val busStops = galwayBusApi.fetchBusStops()
+
+
+        val database = createDb()
+        val galwayBusQueries = database.galwayBusQueries
+
+        val results = galwayBusQueries.selectAll().executeAsList()
+
+        //galwayBusQueries.insertItem(busStops[0].stop_id.toLong(), busStops[0].irish_long_name)
+
+
+        return busStops
+
     }
 
     fun fetchBusStops(success: (List<BusStop>) -> Unit) {

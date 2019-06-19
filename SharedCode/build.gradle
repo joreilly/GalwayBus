@@ -1,3 +1,4 @@
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
@@ -5,6 +6,32 @@ apply plugin: "com.squareup.sqldelight"
 
 // CocoaPods requires the podspec to have a version.
 version = "1.0"
+
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        minSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+
+        //This is for MultiplatformSettings
+        debug {
+            // MPP libraries don't currently get this resolution automatically
+            matchingFallbacks = ['release']
+        }
+    }
+}
+
 
 kotlin {
     targets {
@@ -15,7 +42,7 @@ kotlin {
             compilations.main.outputKinds('FRAMEWORK')
         }
 
-        fromPreset(presets.jvm, 'android')
+        fromPreset(presets.android, 'android')
     }
 
     cocoapods {
@@ -63,7 +90,7 @@ kotlin {
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
 
             // SQL Delight
-            implementation "com.squareup.sqldelight:runtime-jvm:${Versions.sqlDelight}"
+            implementation "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
         }
 
         iOSMain.dependencies {

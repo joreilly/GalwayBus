@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
+import com.squareup.sqldelight.android.AndroidSqliteDriver
+import com.surrus.galwaybus.common.appContext
+
 
 class GalwayBusApplication : Application() {
 
@@ -26,6 +29,7 @@ class GalwayBusApplication : Application() {
         super.onCreate()
 
         Logger.i("GalwayBusApplication init")
+        appContext = this
 
         var s = createApplicationScreenMessage()
 
@@ -58,7 +62,8 @@ class GalwayBusApplication : Application() {
         // exploring multiplatform kotlin
         val repo = GalwayBusRepository()
         GlobalScope.launch {
-            val stops = repo.getNearestStops(53.2743394, -9.0514163)
+            //val stops = repo.getNearestStops(53.2743394, -9.0514163)
+            val stops = repo.fetchBusStops()
             Logger.d(stops)
 
 
