@@ -5,6 +5,7 @@ import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.GalwayBusQueries
 import com.surrus.galwaybus.db.MyDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -15,26 +16,34 @@ expect fun createDb() : MyDatabase
 class GalwayBusRepository {
 
     private val galwayBusApi = GalwayBusApi()
+    private val galwayBusDb = createDb()
+    private val galwayBusQueries = galwayBusDb.galwayBusQueries
 
-    suspend fun fetchBusStops(): List<BusStop> {
-        val busStops = galwayBusApi.fetchBusStops()
-
-
-        val database = createDb()
-        val galwayBusQueries = database.galwayBusQueries
-
-        val results = galwayBusQueries.selectAll().executeAsList()
-
-        //galwayBusQueries.insertItem(busStops[0].stop_id.toLong(), busStops[0].irish_long_name)
-
-
-        return busStops
-
+    init {
+        GlobalScope.launch (ApplicationDispatcher) {
+            fetchAndStoreBusStops()
+        }
     }
 
-    fun fetchBusStops(success: (List<BusStop>) -> Unit) {
+    suspend fun fetchAndStoreBusStops() {
+        val busStops = galwayBusApi.fetchBusStops()
+
+        busStops.forEach {
+            galwayBusQueries.insertItem(it.stop_id.toLong(), it.short_name, it.irish_short_name)
+        }
+    }
+
+    suspend fun getBusStops(): List<BusStop> {
+        val results = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+            BusStop(stop_id.toInt(), short_name, irish_short_name)
+        }).executeAsList()
+
+        return results
+    }
+
+    fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
-            success(fetchBusStops())
+            success(getBusStops())
         }
     }
 

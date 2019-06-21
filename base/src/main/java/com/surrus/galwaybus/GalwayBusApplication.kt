@@ -63,10 +63,8 @@ class GalwayBusApplication : Application() {
         val repo = GalwayBusRepository()
         GlobalScope.launch {
             //val stops = repo.getNearestStops(53.2743394, -9.0514163)
-            val stops = repo.fetchBusStops()
+            val stops = repo.getBusStops()
             Logger.d(stops)
-
-
 
         }
 

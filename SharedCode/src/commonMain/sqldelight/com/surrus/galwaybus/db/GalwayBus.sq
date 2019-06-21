@@ -1,13 +1,15 @@
-CREATE TABLE busStop(
-id INTEGER NOT NULL PRIMARY KEY,
-name TEXT NOT NULL
+
+CREATE TABLE BusStop(
+stop_id INTEGER NOT NULL PRIMARY KEY,
+short_name TEXT NOT NULL,
+irish_short_name TEXT NOT NULL
 );
 
 insertItem:
-INSERT OR REPLACE INTO busStop(id, name)VALUES(?,?);
+INSERT OR REPLACE INTO BusStop(stop_id, short_name, irish_short_name)VALUES(?,?,?);
 
 selectAll:
-SELECT * FROM busStop;
+SELECT * FROM BusStop;
 
 selectById:
-SELECT * FROM busStop WHERE id = ?;
+SELECT * FROM BusStop WHERE stop_id = ?;

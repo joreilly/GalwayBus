@@ -21,7 +21,7 @@ class FirstViewController: UIViewController, UITableViewDataSource, UITableViewD
         tableView.dataSource = self
         
         let g = GalwayBusRepository()
-        g.fetchBusStops(success: { data in
+        g.getBusStops(success: { data in
             self.listStops = data
             self.tableView.reloadData()
             return KotlinUnit()
@@ -41,7 +41,7 @@ class FirstViewController: UIViewController, UITableViewDataSource, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LabelCell", for: indexPath)
         
-        cell.textLabel?.text = listStops[indexPath.row].long_name
+        cell.textLabel?.text = listStops[indexPath.row].short_name + " (" + listStops[indexPath.row].irish_short_name + ")"
         
         return cell
     }
