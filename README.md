@@ -32,6 +32,16 @@ implementations interact directly with the `Repository`.  In either case,
  any dependencies on Android framework and can be easily unit tested.
 
 
+### Kotlin Multiplatform
+
+More recently I've also been using this project to explore some of the relatively new Kotlin Multiplatform
+capabilities.  There is now **kotlin-multiplatform** `ShareCode` module for example and some sample iOS apps in `ios` folder. Have also 
+written a couple of post about some of my experiences doing this so far
+
+* [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform.html)
+* [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
+
+
 ### Languages, libraries and tools used
 
 * [Kotlin](https://kotlinlang.org/)
