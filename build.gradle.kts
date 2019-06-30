@@ -19,6 +19,8 @@ buildscript {
         classpath("io.fabric.tools:gradle:1.31.0")
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.nav}")
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
+        classpath("co.touchlab:kotlinxcodesync:0.1.5")
+        classpath("com.google.cloud.tools:appengine-gradle-plugin:${Versions.appengine}")
     }
 }
 

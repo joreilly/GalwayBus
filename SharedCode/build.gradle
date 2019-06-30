@@ -3,6 +3,7 @@ apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 apply plugin: "com.squareup.sqldelight"
+apply plugin: 'co.touchlab.kotlinxcodesync'
 
 // CocoaPods requires the podspec to have a version.
 version = "1.0"
@@ -35,6 +36,7 @@ android {
 
 kotlin {
     targets {
+        jvm()
         final def iOSTarget = System.getenv('SDK_NAME')?.startsWith("iphoneos") \
                               ? presets.iosArm64 : presets.iosX64
 
@@ -116,6 +118,26 @@ kotlin {
             // SQL Delight
             implementation "com.squareup.sqldelight:ios-driver:${Versions.sqlDelight}"
         }
+
+        jvmMain.dependencies {
+            // Kotlin
+            implementation "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
+
+            // Coroutines
+            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+
+            // Ktor
+            implementation "io.ktor:ktor-client-core-jvm:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-json-jvm:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-serialization-jvm:${Versions.ktor}"
+
+
+            // Serialize
+            implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
+
+            // SQL Delight
+            implementation "com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}"
+        }
     }
 }
 
@@ -132,22 +154,7 @@ sqldelight {
     }
 }
 
-//task packForXCode(type: Sync) {
-//    final File frameworkDir = new File(buildDir, "xcode-frameworks")
-//    final String mode = project.findProperty("XCODE_CONFIGURATION")?.toUpperCase() ?: 'DEBUG'
-//
-//    inputs.property "mode", mode
-//    dependsOn kotlin.targets.iOS.compilations.main.linkTaskName("FRAMEWORK", mode)
-//
-//    from { kotlin.targets.iOS.compilations.main.getBinary("FRAMEWORK", mode).parentFile }
-//    into frameworkDir
-//
-//    doLast {
-//        new File(frameworkDir, 'gradlew').with {
-//            text = "#!/bin/bash\nexport 'JAVA_HOME=${System.getProperty("java.home")}'\ncd '${rootProject.rootDir}'\n./gradlew \$@\n"
-//            setExecutable(true)
-//        }
-//    }
-//}
-//
-//tasks.build.dependsOn packForXCode
+xcode {
+    projectPath = "../ios/GalwayBusApp/GalwayBusApp.xcodeproj"
+    target = "GalwayBusApp"
+}
