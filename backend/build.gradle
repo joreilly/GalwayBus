@@ -1,0 +1,30 @@
+//apply plugin: 'kotlin'
+apply plugin: 'kotlin-platform-jvm'
+apply plugin: 'war'
+apply plugin: 'com.google.cloud.tools.appengine'
+
+appengine {
+    deploy {
+        version = "2"
+        projectId = "api-project-68012425471"
+    }
+}
+
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$Versions.kotlin"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+
+    implementation "io.ktor:ktor-server-servlet:$Versions.ktor"
+    implementation "io.ktor:ktor-html-builder:$Versions.ktor"
+    implementation "io.ktor:ktor-gson:$Versions.ktor"
+    implementation "io.ktor:ktor-client-apache:$Versions.ktor"
+    implementation "io.ktor:ktor-server-netty:$Versions.ktor"
+
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
+
+    implementation "com.google.cloud:google-cloud-logging-logback:0.60.0-alpha"
+
+    implementation project(":SharedCode")
+}
+

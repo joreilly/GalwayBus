@@ -6,7 +6,7 @@ object Versions {
     const val kotlinCoroutines = "1.3.0"
     const val koin = "2.0.0"
     const val ktor = "1.2.4"
-    const val kotlinxSerialization = "0.11.1"   
+    const val kotlinxSerialization = "0.11.1"
     const val sqlDelight = "1.2.0"
     const val retrofit = "2.4.0"
     const val okHttp = "3.12.0"
@@ -26,6 +26,8 @@ object Versions {
     const val fragmentTest = "1.1.0-alpha09"
     const val screengrab = "1.2.0"
     const val mockWebServer = "3.11.0"
+
+    const val appengine = "2.1.0"
 }
 
 

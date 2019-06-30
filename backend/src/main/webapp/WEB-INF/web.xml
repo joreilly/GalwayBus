@@ -1,0 +1,20 @@
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.5"
+    xmlns="http://java.sun.com/xml/ns/javaee"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+
+    <servlet>
+        <display-name>KtorServlet</display-name>
+        <servlet-name>KtorServlet</servlet-name>
+        <servlet-class>io.ktor.server.servlet.ServletApplicationEngine</servlet-class>
+        <!-- path to application.conf file, required -->
+        <init-param>
+            <param-name>io.ktor.config</param-name>
+            <param-value>application.conf</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>KtorServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+</web-app>

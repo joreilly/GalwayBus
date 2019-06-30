@@ -5,14 +5,9 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
-import com.surrus.galwaybus.db.GalwayBusQueries
 import com.surrus.galwaybus.db.MyDatabase
-import io.ktor.client.features.logging.Logger
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 

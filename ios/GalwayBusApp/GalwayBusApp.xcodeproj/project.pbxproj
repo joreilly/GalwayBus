@@ -34,8 +34,16 @@
 
 /* Begin PBXFileReference section */
 		170359068154A044010D0133 /* Pods_GalwayBusApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GalwayBusApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2151DD7C871C344ED28AD885 /* Dispatcher.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = Dispatcher.kt; path = ../../SharedCode/src/iosMain/kotlin/com/surrus/galwaybus/common/Dispatcher.kt; sourceTree = "<group>"; };
 		316BC0E668B25951D636FC20 /* Pods-GalwayBusApp.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.debug.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.debug.xcconfig"; sourceTree = "<group>"; };
+		342BEE4E3199D38F3428A139 /* DbDriver.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = DbDriver.kt; path = ../../SharedCode/src/androidMain/kotlin/com/surrus/galwaybus/common/DbDriver.kt; sourceTree = "<group>"; };
+		3F061FFF839FB6131EF9F2D0 /* Dispatcher.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = Dispatcher.kt; path = ../../SharedCode/src/commonMain/kotlin/com/surrus/galwaybus/common/Dispatcher.kt; sourceTree = "<group>"; };
+		401D59CFE58A9507F217E63A /* Dispatcher.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = Dispatcher.kt; path = ../../SharedCode/src/androidMain/kotlin/com/surrus/galwaybus/common/Dispatcher.kt; sourceTree = "<group>"; };
+		4CD8B1C9FA2BC8EF42700D13 /* DbDriver.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = DbDriver.kt; path = ../../SharedCode/src/iosMain/kotlin/com/surrus/galwaybus/common/DbDriver.kt; sourceTree = "<group>"; };
 		710CC103844540F692ACC73E /* Pods-GalwayBusApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusApp.release.xcconfig"; path = "Target Support Files/Pods-GalwayBusApp/Pods-GalwayBusApp.release.xcconfig"; sourceTree = "<group>"; };
+		789FBE0D70E58E37E0CF99AC /* BusRoute.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = BusRoute.kt; path = ../../SharedCode/src/commonMain/kotlin/com/surrus/galwaybus/common/model/BusRoute.kt; sourceTree = "<group>"; };
+		85C7954F3C143A1702A74BA8 /* GalwayBusRepository.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = GalwayBusRepository.kt; path = ../../SharedCode/src/commonMain/kotlin/com/surrus/galwaybus/common/GalwayBusRepository.kt; sourceTree = "<group>"; };
+		A31CB9E59876350937DCD65B /* Dispatcher.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = Dispatcher.kt; path = ../../SharedCode/src/jvmMain/kotlin/com/surrus/galwaybus/common/Dispatcher.kt; sourceTree = "<group>"; };
 		B223496622BAD55A006A4E31 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		B27F1FF2229A8AF200E504EE /* GalwayBusApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBusApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B27F1FF5229A8AF200E504EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -47,6 +55,9 @@
 		B27F2003229A8AF300E504EE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B28366F422A3BDF7001A15CF /* BusStopTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusStopTableViewCell.swift; sourceTree = "<group>"; };
 		B28366F622A3C0E9001A15CF /* BusRouteTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusRouteTableViewCell.swift; sourceTree = "<group>"; };
+		EC291C0953F5A511983047B0 /* BusStop.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = BusStop.kt; path = ../../SharedCode/src/commonMain/kotlin/com/surrus/galwaybus/common/model/BusStop.kt; sourceTree = "<group>"; };
+		FC2DAD828A4D7F0505DA59A0 /* DbDriver.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = DbDriver.kt; path = ../../SharedCode/src/jvmMain/kotlin/com/surrus/galwaybus/common/DbDriver.kt; sourceTree = "<group>"; };
+		FF983BC4AC0CB533952EE7E1 /* GalwayBusApi.kt */ = {isa = PBXFileReference; includeInIndex = 1; name = GalwayBusApi.kt; path = ../../SharedCode/src/commonMain/kotlin/com/surrus/galwaybus/common/remote/GalwayBusApi.kt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -62,6 +73,39 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A43871B663D8336C0DBC029 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				E80E9C3AAA573850B134795A /* surrus */,
+			);
+			name = com;
+			sourceTree = "<group>";
+		};
+		1D34FAC031A2A638FD01AE76 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				FC2DAD828A4D7F0505DA59A0 /* DbDriver.kt */,
+				A31CB9E59876350937DCD65B /* Dispatcher.kt */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		207AE6FFAE2BAF747909B41F /* kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				1A43871B663D8336C0DBC029 /* com */,
+			);
+			name = kotlin;
+			sourceTree = "<group>";
+		};
+		30AB322A8DCF1CA6221DE797 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				717A2D8698C36EBFB5B4FC30 /* surrus */,
+			);
+			name = com;
+			sourceTree = "<group>";
+		};
 		317B257004B61D2E35FF0377 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +113,148 @@
 				170359068154A044010D0133 /* Pods_GalwayBusApp.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		370D9FE20D80B5D12A067723 /* surrus */ = {
+			isa = PBXGroup;
+			children = (
+				98BC65B5C707D3092CEBF3C9 /* galwaybus */,
+			);
+			name = surrus;
+			sourceTree = "<group>";
+		};
+		378D56C80BDDE86DE601834B /* surrus */ = {
+			isa = PBXGroup;
+			children = (
+				EC300B2A1002ADA188BF0FF4 /* galwaybus */,
+			);
+			name = surrus;
+			sourceTree = "<group>";
+		};
+		39E61E6623E5D9864AE8FF7B /* galwaybus */ = {
+			isa = PBXGroup;
+			children = (
+				A5EBE8EB2C832AC4C63D6E53 /* common */,
+			);
+			name = galwaybus;
+			sourceTree = "<group>";
+		};
+		473F9E2D650C6AD5F819A9DF /* common */ = {
+			isa = PBXGroup;
+			children = (
+				342BEE4E3199D38F3428A139 /* DbDriver.kt */,
+				401D59CFE58A9507F217E63A /* Dispatcher.kt */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		481CA246411BF99D49B943D9 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				378D56C80BDDE86DE601834B /* surrus */,
+			);
+			name = com;
+			sourceTree = "<group>";
+		};
+		4C393E2CD5FC1C1B9F6A1473 /* surrus */ = {
+			isa = PBXGroup;
+			children = (
+				708EB763157D4ED4094B81C8 /* galwaybus */,
+			);
+			name = surrus;
+			sourceTree = "<group>";
+		};
+		58A5CC091E373C51BE452213 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				3F061FFF839FB6131EF9F2D0 /* Dispatcher.kt */,
+				85C7954F3C143A1702A74BA8 /* GalwayBusRepository.kt */,
+				B501D51C86F2B5B0F57103B5 /* model */,
+				A0C4E40763B12EFB38A84DE3 /* remote */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		708EB763157D4ED4094B81C8 /* galwaybus */ = {
+			isa = PBXGroup;
+			children = (
+				8B83E1A405ECE5D1EEC9CAC6 /* db */,
+			);
+			name = galwaybus;
+			sourceTree = "<group>";
+		};
+		717A2D8698C36EBFB5B4FC30 /* surrus */ = {
+			isa = PBXGroup;
+			children = (
+				96C802E2DCB6539B1C91D94B /* galwaybus */,
+			);
+			name = surrus;
+			sourceTree = "<group>";
+		};
+		73C8F344BDAF5D1F88E0352C /* main */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = main;
+			sourceTree = "<group>";
+		};
+		80E47B5DA0296DEC47F304ED /* com */ = {
+			isa = PBXGroup;
+			children = (
+				370D9FE20D80B5D12A067723 /* surrus */,
+			);
+			name = com;
+			sourceTree = "<group>";
+		};
+		8B83E1A405ECE5D1EEC9CAC6 /* db */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = db;
+			sourceTree = "<group>";
+		};
+		8D4F9C2AF19944BFA8788B9F /* sqldelight */ = {
+			isa = PBXGroup;
+			children = (
+				B55082859CD1311A361D5A99 /* com */,
+			);
+			name = sqldelight;
+			sourceTree = "<group>";
+		};
+		91B89536015E91068B8D97E8 /* Kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				D3652F5A03F3A28C22B82C89 /* androidMain */,
+				A992CD5E5587B6A2A5FD63F5 /* commonMain */,
+				93E81A9049DF231C4A80C5B0 /* iosMain */,
+				FE351F3D5478D22D3E82F79E /* jvmMain */,
+				73C8F344BDAF5D1F88E0352C /* main */,
+			);
+			name = Kotlin;
+			sourceTree = "<group>";
+		};
+		93E81A9049DF231C4A80C5B0 /* iosMain */ = {
+			isa = PBXGroup;
+			children = (
+				207AE6FFAE2BAF747909B41F /* kotlin */,
+			);
+			name = iosMain;
+			sourceTree = "<group>";
+		};
+		96C802E2DCB6539B1C91D94B /* galwaybus */ = {
+			isa = PBXGroup;
+			children = (
+				58A5CC091E373C51BE452213 /* common */,
+			);
+			name = galwaybus;
+			sourceTree = "<group>";
+		};
+		98BC65B5C707D3092CEBF3C9 /* galwaybus */ = {
+			isa = PBXGroup;
+			children = (
+				473F9E2D650C6AD5F819A9DF /* common */,
+			);
+			name = galwaybus;
 			sourceTree = "<group>";
 		};
 		9982FDBE02DB54D9A32D5CB7 /* Pods */ = {
@@ -80,6 +266,40 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		9C72EF6298C2E2B973672E15 /* kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				80E47B5DA0296DEC47F304ED /* com */,
+			);
+			name = kotlin;
+			sourceTree = "<group>";
+		};
+		A0C4E40763B12EFB38A84DE3 /* remote */ = {
+			isa = PBXGroup;
+			children = (
+				FF983BC4AC0CB533952EE7E1 /* GalwayBusApi.kt */,
+			);
+			name = remote;
+			sourceTree = "<group>";
+		};
+		A5EBE8EB2C832AC4C63D6E53 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				4CD8B1C9FA2BC8EF42700D13 /* DbDriver.kt */,
+				2151DD7C871C344ED28AD885 /* Dispatcher.kt */,
+			);
+			name = common;
+			sourceTree = "<group>";
+		};
+		A992CD5E5587B6A2A5FD63F5 /* commonMain */ = {
+			isa = PBXGroup;
+			children = (
+				ECC21DEF06B70F311BAEF6AC /* kotlin */,
+				8D4F9C2AF19944BFA8788B9F /* sqldelight */,
+			);
+			name = commonMain;
+			sourceTree = "<group>";
+		};
 		B27F1FE9229A8AF200E504EE = {
 			isa = PBXGroup;
 			children = (
@@ -87,6 +307,7 @@
 				B27F1FF3229A8AF200E504EE /* Products */,
 				9982FDBE02DB54D9A32D5CB7 /* Pods */,
 				317B257004B61D2E35FF0377 /* Frameworks */,
+				91B89536015E91068B8D97E8 /* Kotlin */,
 			);
 			sourceTree = "<group>";
 		};
@@ -112,6 +333,71 @@
 				B28366F622A3C0E9001A15CF /* BusRouteTableViewCell.swift */,
 			);
 			path = GalwayBusApp;
+			sourceTree = "<group>";
+		};
+		B501D51C86F2B5B0F57103B5 /* model */ = {
+			isa = PBXGroup;
+			children = (
+				789FBE0D70E58E37E0CF99AC /* BusRoute.kt */,
+				EC291C0953F5A511983047B0 /* BusStop.kt */,
+			);
+			name = model;
+			sourceTree = "<group>";
+		};
+		B55082859CD1311A361D5A99 /* com */ = {
+			isa = PBXGroup;
+			children = (
+				4C393E2CD5FC1C1B9F6A1473 /* surrus */,
+			);
+			name = com;
+			sourceTree = "<group>";
+		};
+		D3652F5A03F3A28C22B82C89 /* androidMain */ = {
+			isa = PBXGroup;
+			children = (
+				9C72EF6298C2E2B973672E15 /* kotlin */,
+			);
+			name = androidMain;
+			sourceTree = "<group>";
+		};
+		DAC7BA4D42E38357CB0D2444 /* kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				481CA246411BF99D49B943D9 /* com */,
+			);
+			name = kotlin;
+			sourceTree = "<group>";
+		};
+		E80E9C3AAA573850B134795A /* surrus */ = {
+			isa = PBXGroup;
+			children = (
+				39E61E6623E5D9864AE8FF7B /* galwaybus */,
+			);
+			name = surrus;
+			sourceTree = "<group>";
+		};
+		EC300B2A1002ADA188BF0FF4 /* galwaybus */ = {
+			isa = PBXGroup;
+			children = (
+				1D34FAC031A2A638FD01AE76 /* common */,
+			);
+			name = galwaybus;
+			sourceTree = "<group>";
+		};
+		ECC21DEF06B70F311BAEF6AC /* kotlin */ = {
+			isa = PBXGroup;
+			children = (
+				30AB322A8DCF1CA6221DE797 /* com */,
+			);
+			name = kotlin;
+			sourceTree = "<group>";
+		};
+		FE351F3D5478D22D3E82F79E /* jvmMain */ = {
+			isa = PBXGroup;
+			children = (
+				DAC7BA4D42E38357CB0D2444 /* kotlin */,
+			);
+			name = jvmMain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
