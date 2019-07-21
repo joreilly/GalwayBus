@@ -24,7 +24,6 @@ class SecondViewController: UIViewController, UITableViewDataSource, UITableView
         g.fetchBusRoutes(success: { data in
             self.listRoutes = data
             self.tableView.reloadData()
-            return KotlinUnit()
         })
     }
 

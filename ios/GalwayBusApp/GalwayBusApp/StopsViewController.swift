@@ -24,12 +24,10 @@ class FirstViewController: UIViewController, UITableViewDataSource, UITableViewD
         g.getBusStops(success: { data in
             self.listStops = data
             self.tableView.reloadData()
-            return KotlinUnit()
         })
         
         
         g.getNearestStops(latitude: 53.2743394, longitude: -9.0514163, success: { data in
-            return KotlinUnit()
         })
     }
 

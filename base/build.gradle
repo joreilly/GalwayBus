@@ -19,9 +19,7 @@ android {
 
         vectorDrawables.useSupportLibrary = true
 
-        //resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
-
-        resValue 'string', 'google_maps_key', '123'
+        resValue 'string', 'google_maps_key', System.getenv('GOOGLE_API_KEY')
     }
 
     buildTypes {

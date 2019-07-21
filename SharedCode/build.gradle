@@ -39,7 +39,9 @@ kotlin {
                               ? presets.iosArm64 : presets.iosX64
 
         fromPreset(iOSTarget, 'iOS') {
-            compilations.main.outputKinds('FRAMEWORK')
+            binaries {
+                framework('common')
+            }
         }
 
         fromPreset(presets.android, 'android')
@@ -64,12 +66,14 @@ kotlin {
             implementation "io.ktor:ktor-client-core:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json:${Versions.ktor}"
             implementation "io.ktor:ktor-client-logging:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-serialization:${Versions.ktor}"
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
 
             // SQL Delight
             implementation "com.squareup.sqldelight:runtime:${Versions.sqlDelight}"
+            implementation "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
         }
 
         androidMain.dependencies {
@@ -85,12 +89,14 @@ kotlin {
             implementation "io.ktor:ktor-client-core-jvm:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json-jvm:${Versions.ktor}"
             implementation "io.ktor:ktor-client-logging-jvm:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-serialization-jvm:${Versions.ktor}"
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
 
             // SQL Delight
             implementation "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
+            implementation "com.squareup.sqldelight:coroutines-extensions-jvm:${Versions.sqlDelight}"
         }
 
         iOSMain.dependencies {
@@ -102,6 +108,7 @@ kotlin {
             implementation "io.ktor:ktor-client-core-native:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json-native:${Versions.ktor}"
             implementation "io.ktor:ktor-client-logging-native:${Versions.ktor}"
+            implementation "io.ktor:ktor-client-serialization-native:${Versions.ktor}"
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
