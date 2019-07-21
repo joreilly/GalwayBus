@@ -19,12 +19,18 @@ import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.surrus.galwaybus.common.appContext
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+
+
+import kotlinx.coroutines.flow.collect
 
 
 class GalwayBusApplication : Application() {
 
+    @ExperimentalCoroutinesApi
+    @UseExperimental(InternalCoroutinesApi::class)
     override fun onCreate() {
         super.onCreate()
 
@@ -61,11 +67,13 @@ class GalwayBusApplication : Application() {
 
         // exploring multiplatform kotlin
         val repo = GalwayBusRepository()
+
+
         GlobalScope.launch {
             //val stops = repo.getNearestStops(53.2743394, -9.0514163)
-            val stops = repo.getBusStops()
-            Logger.d(stops)
-
+            repo.getBusStopsFlow().collect {
+                Logger.d(it)
+            }
         }
 
         Logger.i("GalwayBusApplication init completed")

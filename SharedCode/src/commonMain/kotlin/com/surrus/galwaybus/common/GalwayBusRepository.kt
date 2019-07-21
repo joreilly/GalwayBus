@@ -1,12 +1,18 @@
 package com.surrus.galwaybus.common
 
+import com.squareup.sqldelight.runtime.coroutines.asFlow
+import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.GalwayBusQueries
 import com.surrus.galwaybus.db.MyDatabase
+import io.ktor.client.features.logging.Logger
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -33,19 +39,23 @@ class GalwayBusRepository {
         }
     }
 
-    suspend fun getBusStops(): List<BusStop> {
-        val results = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+    @ExperimentalCoroutinesApi
+    suspend fun getBusStopsFlow() = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+            BusStop(stop_id.toInt(), short_name, irish_short_name)
+        }).asFlow().mapToList()
+
+
+    suspend fun getBusStops() = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
             BusStop(stop_id.toInt(), short_name, irish_short_name)
         }).executeAsList()
 
-        return results
-    }
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(ApplicationDispatcher) {
             success(getBusStops())
         }
     }
+
 
 
     suspend fun fetchBusRoutes(): List<BusRoute> {
