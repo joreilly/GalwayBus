@@ -4,16 +4,10 @@ import SharedCode
 
 
 
-class BusRouteViewModel: BindableObject {
-    var listRoutes: [BusRoute] = [] {
-        didSet {
-            didChange.send(self)
-        }
-    }
+class BusRouteViewModel: ObservableObject {
+    @Published private(set) var listRoutes: [BusRoute] = []
     
-    var didChange = PassthroughSubject<BusRouteViewModel, Never>()
-    
-    let repository: GalwayBusRepository
+    private let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {
         self.repository = repository
     }
@@ -21,27 +15,25 @@ class BusRouteViewModel: BindableObject {
     func fetch() {
         repository.fetchBusRoutes(success: { data in
             self.listRoutes = data
-            return KotlinUnit()
         })
     }
 }
 
+
+
 struct ContentView : View {
     @EnvironmentObject var busRouteViewModel: BusRouteViewModel
-
+    
     var body: some View {
         NavigationView {
-            List(busRouteViewModel.listRoutes.identified(by: \.timetableId)) { route in
+            List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
                 RouteRow(route: route)
             }
             .navigationBarTitle(Text("Routes"), displayMode: .large)
-            .onAppear() {
-                self.busRouteViewModel.fetch()
-            }
+            .onAppear(perform: busRouteViewModel.fetch)
         }
     }
 }
-
 
 struct RouteRow : View {
     var route: BusRoute
@@ -49,13 +41,13 @@ struct RouteRow : View {
     var body: some View {
         HStack {
             Image("ic_bus")
-            
             VStack(alignment: .leading) {
                 Text(route.timetableId).font(.headline)
-                Text(route.longName).font(.subheadline)
-            }
+                Text(route.longName).font(.subheadline)            }
         }
     }
 }
+
+
 
 

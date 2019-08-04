@@ -4,7 +4,7 @@ object Versions {
     const val kotlinCoroutines = "1.3.0-M2"
     const val koin = "2.0.0"
     const val ktor = "1.2.2"
-    const val kotlinxSerialization = "0.11.1"
+    const val kotlinxSerialization = "0.11.1"   
     const val sqlDelight = "1.1.4"
     const val retrofit = "2.4.0"
     const val okHttp = "3.12.0"
