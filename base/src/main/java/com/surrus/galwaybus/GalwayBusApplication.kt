@@ -12,7 +12,6 @@ import com.crashlytics.android.core.CrashlyticsCore
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.base.BuildConfig
 import com.surrus.galwaybus.common.GalwayBusRepository
-import com.surrus.galwaybus.common.createApplicationScreenMessage
 import com.surrus.galwaybus.di.koin.appModule
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -36,8 +35,6 @@ class GalwayBusApplication : Application() {
 
         Logger.i("GalwayBusApplication init")
         appContext = this
-
-        var s = createApplicationScreenMessage()
 
         // Stetho
         //Stetho.initializeWithDefaults(this);

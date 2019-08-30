@@ -5,7 +5,13 @@ apply plugin: 'io.fabric'
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
-keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+try {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+catch(Exception e) {
+}
+
+
 
 
 ext.versionMajor = 1
