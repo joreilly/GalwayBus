@@ -42,7 +42,7 @@ kapt {
 
 
 dependencies {
-    application project(":app-apk")
+    application project(':app')
     //feature project(":ar")
 
     implementation "com.google.android.instantapps:instantapps:${instantAppsVer}"
