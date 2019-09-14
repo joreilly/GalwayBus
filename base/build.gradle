@@ -7,13 +7,13 @@ apply plugin: "androidx.navigation.safeargs"
 
 
 android {
-    compileSdkVersion project.compileSdkVersion
+    compileSdkVersion AndroidSdk.compile
 
     baseFeature = true
 
     defaultConfig {
-        minSdkVersion project.minSdkVersion
-        targetSdkVersion project.targetSdkVersion
+        minSdkVersion AndroidSdk.min
+        targetSdkVersion AndroidSdk.target
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -45,7 +45,7 @@ dependencies {
     application project(':app')
     //feature project(":ar")
 
-    implementation "com.google.android.instantapps:instantapps:${instantAppsVer}"
+    implementation "com.google.android.instantapps:instantapps:1.1.0"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation Kotlin.stdLib

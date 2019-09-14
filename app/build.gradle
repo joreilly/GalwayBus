@@ -36,7 +36,7 @@ def versionName() {
 
 
 android {
-    compileSdkVersion project.compileSdkVersion
+    compileSdkVersion AndroidSdk.compile
 
     signingConfigs {
         config {
@@ -50,8 +50,9 @@ android {
 
     defaultConfig {
         applicationId "com.surrus.galwaybus"
-        minSdkVersion project.minSdkVersion
-        targetSdkVersion project.targetSdkVersion
+        minSdkVersion AndroidSdk.min
+        targetSdkVersion AndroidSdk.target
+
         versionCode this.versionCode()
         versionName this.versionName()
 

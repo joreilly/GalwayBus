@@ -1,5 +1,7 @@
 
 object Versions {
+    const val androidBuildToolsVersion = "3.5.0"
+
     const val kotlin = "1.3.41"
     const val kotlinCoroutines = "1.3.0-M2"
     const val koin = "2.0.0"
@@ -27,12 +29,33 @@ object Versions {
 }
 
 
+object BuildPlugins {
+
+    const val androidGradlePlugin = "com.android.tools.build:gradle:${Versions.androidBuildToolsVersion}"
+    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
+
+    const val androidApplication = "com.android.application"
+    const val androidLibrary = "com.android.library"
+    const val kotlinAndroid = "kotlin-android"
+    const val kotlinAndroidExtensions = "kotlin-android-extensions"
+    const val kotlinKapt = "kotlin-kapt"
+}
+
+
+
+
 object Kotlin {
     const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
 }
 
+
+object AndroidSdk {
+    const val min = 21
+    const val compile = 28
+    const val target = compile
+}
 
 object ArchComponents {
     val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
