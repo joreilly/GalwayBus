@@ -14,6 +14,7 @@
 		B22B4ECA22A5BF1F0026DB68 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B22B4EC922A5BF1F0026DB68 /* Assets.xcassets */; };
 		B22B4ECD22A5BF1F0026DB68 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B22B4ECC22A5BF1F0026DB68 /* Preview Assets.xcassets */; };
 		B22B4ED022A5BF1F0026DB68 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B22B4ECE22A5BF1F0026DB68 /* LaunchScreen.storyboard */; };
+		B25F1A51232EB97400FA764B /* ViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B25F1A50232EB97400FA764B /* ViewModels.swift */; };
 		E4D277E57E09FA972A967A9D /* Pods_GalwayBusAppSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FEDD91CAF8DAAE9B814E99AB /* Pods_GalwayBusAppSwiftUI.framework */; };
 /* End PBXBuildFile section */
 
@@ -28,6 +29,7 @@
 		B22B4ECC22A5BF1F0026DB68 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		B22B4ECF22A5BF1F0026DB68 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B22B4ED122A5BF1F0026DB68 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		B25F1A50232EB97400FA764B /* ViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModels.swift; sourceTree = "<group>"; };
 		E90E1DBD986605D20499FB9E /* Pods-GalwayBusAppSwiftUI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusAppSwiftUI.debug.xcconfig"; path = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI.debug.xcconfig"; sourceTree = "<group>"; };
 		FEDD91CAF8DAAE9B814E99AB /* Pods_GalwayBusAppSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GalwayBusAppSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -82,6 +84,7 @@
 				B22B4ECE22A5BF1F0026DB68 /* LaunchScreen.storyboard */,
 				B22B4ED122A5BF1F0026DB68 /* Info.plist */,
 				B22B4ECB22A5BF1F0026DB68 /* Preview Content */,
+				B25F1A50232EB97400FA764B /* ViewModels.swift */,
 			);
 			path = GalwayBusAppSwiftUI;
 			sourceTree = "<group>";
@@ -202,6 +205,7 @@
 			files = (
 				B22B4EC422A5BF1D0026DB68 /* AppDelegate.swift in Sources */,
 				B22B4EC622A5BF1D0026DB68 /* SceneDelegate.swift in Sources */,
+				B25F1A51232EB97400FA764B /* ViewModels.swift in Sources */,
 				B22B4EC822A5BF1D0026DB68 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

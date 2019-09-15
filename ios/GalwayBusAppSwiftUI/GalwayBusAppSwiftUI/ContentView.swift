@@ -1,39 +1,20 @@
 import SwiftUI
-import Combine
 import SharedCode
 
-
-
-class BusRouteViewModel: ObservableObject {
-    @Published private(set) var listRoutes: [BusRoute] = []
-    
-    private let repository: GalwayBusRepository
-    init(repository: GalwayBusRepository) {
-        self.repository = repository
-    }
-    
-    func fetch() {
-        repository.fetchBusRoutes(success: { data in
-            self.listRoutes = data
-        })
-    }
-}
-
-    
-
 struct ContentView : View {
-    @EnvironmentObject var busRouteViewModel: BusRouteViewModel
+    @ObservedObject var busRouteViewModel: BusRouteViewModel
+    @ObservedObject var busStopViewModel: BusStopViewModel
     
     var body: some View {
         TabView {
-            RouteListView().environmentObject(busRouteViewModel)
+            RouteListView(busRouteViewModel: busRouteViewModel)
                 .tabItem {
                     VStack {
                         Image(systemName: "1.circle")
                         Text("Routes")
                     }
                 }
-            Text("Stops")
+            BusStopListView(busStopViewModel: busStopViewModel)
                 .tabItem {
                     VStack {
                         Image(systemName: "2.circle")
@@ -46,7 +27,7 @@ struct ContentView : View {
 
 
 struct RouteListView : View {
-    @EnvironmentObject var busRouteViewModel: BusRouteViewModel
+    @ObservedObject var busRouteViewModel: BusRouteViewModel
     
     var body: some View {
         
@@ -60,7 +41,6 @@ struct RouteListView : View {
     }
 }
 
-
 struct RouteRow : View {
     var route: BusRoute
     
@@ -69,10 +49,43 @@ struct RouteRow : View {
             Image("ic_bus")
             VStack(alignment: .leading) {
                 Text(route.timetableId).font(.headline)
-                Text(route.longName).font(.subheadline)            }
+                Text(route.longName).font(.subheadline)
+            }
         }
     }
 }
+
+struct BusStopListView : View {
+    @ObservedObject var busStopViewModel: BusStopViewModel
+    
+    var body: some View {
+        
+        NavigationView {
+            List(busStopViewModel.listStops, id: \.stop_id) { busStop in
+                BusStopRow(busStop: busStop)
+            }
+            .navigationBarTitle(Text("Stops"), displayMode: .large)
+            .onAppear(perform: busStopViewModel.fetch)
+        }
+    }
+}
+
+
+struct BusStopRow : View {
+    var busStop: BusStop
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(busStop.short_name).font(.headline)
+                Text(busStop.irish_short_name).font(.subheadline)
+            }
+        }
+    }
+}
+
+
+
 
 
 
