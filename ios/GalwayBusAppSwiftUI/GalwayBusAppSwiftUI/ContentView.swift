@@ -19,12 +19,37 @@ class BusRouteViewModel: ObservableObject {
     }
 }
 
-
+    
 
 struct ContentView : View {
     @EnvironmentObject var busRouteViewModel: BusRouteViewModel
     
     var body: some View {
+        TabView {
+            RouteListView().environmentObject(busRouteViewModel)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "1.circle")
+                        Text("Routes")
+                    }
+                }
+            Text("Stops")
+                .tabItem {
+                    VStack {
+                        Image(systemName: "2.circle")
+                        Text("Stops")
+                    }
+                }
+        }
+    }
+}
+
+
+struct RouteListView : View {
+    @EnvironmentObject var busRouteViewModel: BusRouteViewModel
+    
+    var body: some View {
+        
         NavigationView {
             List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
                 RouteRow(route: route)
@@ -34,6 +59,7 @@ struct ContentView : View {
         }
     }
 }
+
 
 struct RouteRow : View {
     var route: BusRoute
