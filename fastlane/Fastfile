@@ -36,7 +36,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:bundleInstalledRelease",
+              task: ":app:bundleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
@@ -45,7 +45,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "alpha",
-            aab: "app-apk/build/outputs/bundle/installedRelease/app-apk.aab",
+            aab: "app/build/outputs/bundle/installedRelease/app-apk.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -58,7 +58,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:bundleInstalledRelease",
+              task: ":appk:bundleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
@@ -67,7 +67,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "internal",
-            aab: "app-apk/build/outputs/bundle/installedRelease/app-apk.aab",
+            aab: "app/build/outputs/bundle/installedRelease/app-apk.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -79,7 +79,7 @@ platform :android do
     lane :buildApp do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:bundleInstalledRelease",
+              task: ":app:bundleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
@@ -89,7 +89,7 @@ platform :android do
     lane :buildAppApk do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:assembleInstalledRelease",
+              task: ":app:assembleInstalledRelease",
               properties: {
                   'versionCode' => version
               }
@@ -99,7 +99,7 @@ platform :android do
     lane :buildInstantApp do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app-apk:bundleInstantRelease",
+              task: ":app:bundleInstantRelease",
               properties: {
                   'versionCode' => versionInstant
               }
