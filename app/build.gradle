@@ -39,6 +39,14 @@ android {
     compileSdkVersion AndroidSdk.compile
 
     signingConfigs {
+
+        debug {
+            keyAlias 'debug'
+            keyPassword 'android'
+            storeFile file('../debug.jks')
+            storePassword 'android'
+        }
+
         config {
             storeFile file('/Users/jooreill/devroot/keystore/galwaybus_android.jks')
             keyAlias keystoreProperties['keyAlias']
@@ -64,6 +72,10 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.config
+        }
+
+        debug {
+            signingConfig signingConfigs.debug
         }
 
         applicationVariants.all { variant ->
