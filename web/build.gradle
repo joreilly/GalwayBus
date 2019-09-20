@@ -1,0 +1,71 @@
+apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-dce-js'
+apply plugin: 'org.jetbrains.kotlin.frontend'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation project(":SharedCode")
+
+    implementation Kotlin.stdlibJs
+
+    implementation Kotlin.htmlJs
+    implementation Kotlin.coroutinesCoreCommon
+    implementation Kotlin.coroutinesCoreJs
+    implementation Kotlin.serializationRuntimeJs
+
+    implementation Kotlin.extensions
+    implementation Kotlin.react
+    implementation Kotlin.reactDom
+
+    implementation "com.squareup.sqldelight:coroutines-extensions-js:${Versions.sqlDelight}"
+}
+
+kotlinFrontend {
+
+    downloadNodeJsVersion = Versions.node
+
+    sourceMaps = false
+
+    npm {
+        replaceVersion "kotlinx-html-js", Versions.kotlin
+        replaceVersion "kotlinx-html-shared", Versions.kotlin
+        replaceVersion "kotlin-js-library", Versions.kotlin
+
+        dependency "react", Versions.react
+        dependency "react-dom"
+        dependency "google-maps-react"
+
+        // wont be needed once https://github.com/ktorio/ktor/issues/961 is fixed
+        dependency "text-encoding"
+
+        devDependency "webpack", "4"
+        devDependency "babel-loader", "8"
+        devDependency "@babel/core"
+        devDependency "@babel/preset-env"
+        devDependency "css-loader"
+        devDependency "karma"
+        devDependency "style-loader"
+        devDependency "source-map-loader"
+        devDependency "html-loader"
+    }
+
+    webpackBundle {
+        publicPath = "/frontend/"
+        port = 8080
+        proxyUrl = "http://localhost:9090/"
+        sourceMapEnabled = true
+        stats = "errors-only"
+    }
+}
+
+compileKotlin2Js {
+    kotlinOptions.metaInfo = true
+    kotlinOptions.outputFile = "$project.buildDir.path/js/${project.name}.js"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.sourceMapEmbedSources = "always"
+    kotlinOptions.moduleKind = 'commonjs'
+    kotlinOptions.main = "call"
+}

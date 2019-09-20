@@ -47,7 +47,18 @@ kotlin {
         }
 
         fromPreset(presets.android, 'android')
+
     }
+
+    js {
+        compileKotlinJs {
+            kotlinOptions.metaInfo = true
+            kotlinOptions.sourceMap = true
+            kotlinOptions.moduleKind = "commonjs"
+            kotlinOptions.main = "call"
+        }
+    }
+
 
     cocoapods {
         // Configure fields required by CocoaPods.
@@ -138,6 +149,16 @@ kotlin {
             // SQL Delight
             implementation "com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}"
         }
+
+        jsMain.dependencies {
+            api Kotlin.stdlibJs
+            api Kotlin.serializationRuntimeJs
+            api Ktor.clientJs
+            api Ktor.clientJsonJs
+            api Ktor.clientLoggingJs
+            api Ktor.clientSerializationJs
+        }
+
     }
 }
 

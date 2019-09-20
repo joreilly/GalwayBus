@@ -16,7 +16,7 @@ import kotlinx.serialization.list
 import kotlinx.serialization.map
 
 
-class GalwayBusApi() {
+class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
 
     private val busRouteMapSerializer: KSerializer<Map<String, BusRoute>> = (StringSerializer to BusRoute.serializer()).map
 
@@ -57,7 +57,8 @@ class GalwayBusApi() {
     }
 
 
-    companion object {
-        private const val baseUrl = "https://galwaybus.herokuapp.com"
-    }
+//    companion object {
+//        //private const val baseUrl = "https://galwaybus.herokuapp.com"
+//        private const val baseUrl = "https://localhost:8080"
+//    }
 }

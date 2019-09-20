@@ -2,6 +2,7 @@
 apply plugin: 'kotlin-platform-jvm'
 apply plugin: 'war'
 apply plugin: 'com.google.cloud.tools.appengine'
+apply plugin: 'application'
 
 appengine {
     deploy {
@@ -11,15 +12,22 @@ appengine {
 }
 
 
+mainClassName = "io.ktor.server.netty.EngineMain"
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$Versions.kotlin"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+
 
     implementation "io.ktor:ktor-server-servlet:$Versions.ktor"
     implementation "io.ktor:ktor-html-builder:$Versions.ktor"
     implementation "io.ktor:ktor-gson:$Versions.ktor"
     implementation "io.ktor:ktor-client-apache:$Versions.ktor"
     implementation "io.ktor:ktor-server-netty:$Versions.ktor"
+
+    implementation Ktor.locations
+    implementation Ktor.freemaker
+
 
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
 

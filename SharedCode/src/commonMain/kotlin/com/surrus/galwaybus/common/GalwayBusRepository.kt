@@ -12,37 +12,42 @@ import kotlinx.coroutines.launch
 
 
 
-expect fun createDb() : MyDatabase
+expect fun createDb() : MyDatabase?
 
 class GalwayBusRepository {
 
     private val galwayBusApi = GalwayBusApi()
     private val galwayBusDb = createDb()
-    private val galwayBusQueries = galwayBusDb.galwayBusQueries
+    private val galwayBusQueries = galwayBusDb?.galwayBusQueries
 
     init {
         GlobalScope.launch (ApplicationDispatcher) {
-            fetchAndStoreBusStops()
+            //fetchAndStoreBusStops()
         }
     }
+
 
     suspend fun fetchAndStoreBusStops() {
         val busStops = galwayBusApi.fetchBusStops()
 
         busStops.forEach {
-            galwayBusQueries.insertItem(it.stop_id.toLong(), it.short_name, it.irish_short_name)
+            galwayBusQueries?.insertItem(it.stop_id.toLong(), it.short_name, it.irish_short_name)
         }
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun getBusStopsFlow() = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+    suspend fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name ->
             BusStop(stop_id.toInt(), short_name, irish_short_name)
-        }).asFlow().mapToList()
+        })?.asFlow()?.mapToList()
 
 
-    suspend fun getBusStops() = galwayBusQueries.selectAll(mapper = { stop_id, short_name, irish_short_name ->
-            BusStop(stop_id.toInt(), short_name, irish_short_name)
-        }).executeAsList()
+    suspend fun getBusStops(): List<BusStop> {
+        return galwayBusQueries?.let {
+            it.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+                BusStop(stop_id.toInt(), short_name, irish_short_name)
+            }).executeAsList()
+        } ?: emptyList<BusStop>()
+    }
 
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
@@ -50,8 +55,6 @@ class GalwayBusRepository {
             success(getBusStops())
         }
     }
-
-
 
     suspend fun fetchBusRoutes(): List<BusRoute> {
         val busRoutes = galwayBusApi.fetchBusRoutes()

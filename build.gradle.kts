@@ -21,6 +21,8 @@ buildscript {
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
         classpath("co.touchlab:kotlinxcodesync:0.1.5")
         classpath("com.google.cloud.tools:appengine-gradle-plugin:${Versions.appengine}")
+        classpath("org.jetbrains.kotlin:kotlin-frontend-plugin:${Versions.kotlinFrontendPlugin}")
+
     }
 }
 
@@ -30,9 +32,12 @@ allprojects {
         jcenter()
         mavenCentral()
         maven(url = "https://dl.bintray.com/kotlin/kotlin-eap")
-        maven(url = "https://kotlin.bintray.com/kotlinx")
-        maven(url = "http://kotlin.bintray.com/kotlin-dev")
+        maven(url = "https://dl.bintray.com/kotlin/squash")
+        maven(url = "https://dl.bintray.com/kotlin/kotlinx.html")
         maven(url = "https://dl.bintray.com/kotlin/ktor")
+        maven(url = "https://kotlin.bintray.com/kotlinx")
+        maven(url = "https://kotlin.bintray.com/kotlin-dev")
+        maven(url = "https://kotlin.bintray.com/kotlin-js-wrappers")
     }
 }
 

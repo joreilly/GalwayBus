@@ -1,61 +1,68 @@
 package com.surrus.galwaybus.backend
 
-
-
-import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
-import io.ktor.application.*
-import io.ktor.features.*
+import freemarker.cache.ClassTemplateLoader
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.features.CallLogging
+import io.ktor.features.Compression
+import io.ktor.features.ConditionalHeaders
+import io.ktor.features.ContentNegotiation
+import io.ktor.features.DefaultHeaders
+import io.ktor.features.PartialContent
+import io.ktor.features.StatusPages
+import io.ktor.freemarker.FreeMarker
 import io.ktor.gson.gson
-import io.ktor.html.*
+import io.ktor.html.respondHtml
+import io.ktor.http.HttpStatusCode
+import io.ktor.locations.KtorExperimentalLocationsAPI
+import io.ktor.locations.Locations
 import io.ktor.response.respond
-import io.ktor.routing.*
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import kotlinx.html.*
+import io.ktor.routing.Routing
+import io.ktor.routing.get
+import io.ktor.routing.routing
+import io.ktor.util.error
+import kotlinx.html.body
+import kotlinx.html.head
+import kotlinx.html.p
+import kotlinx.html.title
+import org.example.kotlin.multiplatform.backend.serializable
 
-// Entry Point of the application as defined in resources/application.conf.
-// @see https://ktor.io/servers/configuration.html#hocon-file
 fun Application.main() {
-    // This adds Date and Server headers to each response, and allows custom additional headers
+
     install(DefaultHeaders)
-    // This uses use the logger to log every call (request/response)
     install(CallLogging)
+//    install(ConditionalHeaders)
+//    install(PartialContent)
+//    install(Compression)
+//    //install(Locations)
+//    install(StatusPages) {
+//        exception<Throwable> { cause ->
+//            environment.log.error(cause)
+//            call.respond(HttpStatusCode.InternalServerError)
+//        }
+//    }
 
     install(ContentNegotiation) {
+        //serializable { }
         gson {
             setPrettyPrinting()
         }
     }
 
-    //val busStop = BusStop(1, "name", "irish name")
+    install(FreeMarker) {
+        templateLoader = ClassTemplateLoader(javaClass.classLoader, "")
+    }
 
-    routing {
-        // Here we use a DSL for building HTML on the route "/"
-        // @see https://github.com/Kotlin/kotlinx.html
-        get("/") {
-            call.respondHtml {
-                head {
-                    title { +"Ktor on Google App Engine Standard" }
-                }
-                body {
-                    p {
-                        +"hi there! This is Ktor running on Google Appengine Standard"
-                    }
-                }
-            }
-        }
-        get("/bus") {
+    install(Routing) {
+        index()
 
+        get("/stops.json") {
             val galwayBusApi = GalwayBusApi()
             val busStops = galwayBusApi.fetchBusStops()
             call.respond(busStops)
         }
     }
-}
 
-fun main() {
-    embeddedServer(Netty, port = 8090) { main() }.start(wait = true)
 }

@@ -7,7 +7,7 @@ import com.surrus.galwaybus.db.MyDatabase
 
 lateinit var appContext: Context
 
-actual fun createDb(): MyDatabase {
+actual fun createDb(): MyDatabase? {
     val driver = AndroidSqliteDriver(MyDatabase.Schema, appContext, "galwaybus.db")
     return MyDatabase(driver)
 }

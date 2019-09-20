@@ -28,6 +28,16 @@ object Versions {
     const val mockWebServer = "3.11.0"
 
     const val appengine = "2.1.0"
+
+    const val html = "0.6.9"
+    const val reactRouterDom = "4.3.1"
+    const val kotlinReactRouterDom = "$reactRouterDom-pre.79-kotlin-1.3.41"
+
+    const val node = "10.13.0"
+    const val react = "16.8.6"
+    const val kotlinFrontendPlugin = "0.0.45"
+    const val kotlinJsExt = "1.0.1-pre.79-kotlin-1.3.41"
+    const val kotlinWrapper = "$react-pre.79-kotlin-1.3.41"
 }
 
 
@@ -48,10 +58,38 @@ object BuildPlugins {
 
 object Kotlin {
     const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    const val stdlibCommon = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
+    const val stdlibJs = "org.jetbrains.kotlin:kotlin-stdlib-js:${Versions.kotlin}"
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
     const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
+    const val coroutinesCoreCommon = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
+    const val coroutinesCoreJs = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.kotlinCoroutines}"
+    const val coroutinesCoreNative = "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
+    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinCoroutines}"
+
+    const val serializationRuntime = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
+    const val serializationRuntimeCommon = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
+    const val serializationRuntimeJs = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.kotlinxSerialization}"
+    const val serializationRuntimeNative = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
+
+    const val htmlJs = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
+
+    const val extensions = "org.jetbrains:kotlin-extensions:${Versions.kotlinJsExt}"
+    const val react = "org.jetbrains:kotlin-react:${Versions.kotlinWrapper}"
+    const val reactDom = "org.jetbrains:kotlin-react-dom:${Versions.kotlinWrapper}"
+    const val reactRouterDom = "org.jetbrains:kotlin-react-router-dom:${Versions.kotlinReactRouterDom}"
+    const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
 }
 
+
+object Ktor {
+    const val clientJs = "io.ktor:ktor-client-js:${Versions.ktor}"
+    const val clientJsonJs = "io.ktor:ktor-client-json-js:${Versions.ktor}"
+    const val clientLoggingJs = "io.ktor:ktor-client-logging-js:${Versions.ktor}"
+    const val clientSerializationJs = "io.ktor:ktor-client-serialization-js:${Versions.ktor}"
+    const val freemaker = "io.ktor:ktor-freemarker:${Versions.ktor}"
+    const val locations = "io.ktor:ktor-locations:${Versions.ktor}"
+}
 
 object AndroidSdk {
     const val min = 21
