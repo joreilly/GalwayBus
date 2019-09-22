@@ -21,10 +21,29 @@ struct ContentView : View {
                         Text("Stops")
                     }
                 }
+            MapContainer(busStopViewModel: busStopViewModel)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "3.circle")
+                        Text("Maps")
+                    }
+                }
+                .onAppear {
+                    self.busStopViewModel.fetch()
+                }
         }
     }
 }
 
+
+
+struct MapContainer: View {
+    @ObservedObject var busStopViewModel: BusStopViewModel
+
+    var body: some View {
+        MapView(busStops: busStopViewModel.listStops)
+    }
+}
 
 struct RouteListView : View {
     @ObservedObject var busRouteViewModel: BusRouteViewModel

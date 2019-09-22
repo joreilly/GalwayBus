@@ -5,6 +5,7 @@ import SharedCode
 class BusRouteViewModel: ObservableObject {
     @Published private(set) var listRoutes: [BusRoute] = []
     
+    
     private let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {
         self.repository = repository
@@ -19,7 +20,8 @@ class BusRouteViewModel: ObservableObject {
 
     
 class BusStopViewModel: ObservableObject {
-    @Published private(set) var listStops: [BusStop] = []
+    //@Published private(set) var listStops: [listStops] = []
+    @Published var listStops = [BusStop]()
     
     private let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A9038C62337992F00E57AC4 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9038C52337992F00E57AC4 /* MapView.swift */; };
 		B214E8E922BAD6DD0041C7C8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B214E8E822BAD6DD0041C7C8 /* libsqlite3.tbd */; };
 		B22B4EC422A5BF1D0026DB68 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B4EC322A5BF1D0026DB68 /* AppDelegate.swift */; };
 		B22B4EC622A5BF1D0026DB68 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B4EC522A5BF1D0026DB68 /* SceneDelegate.swift */; };
@@ -19,6 +20,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1A9038C52337992F00E57AC4 /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		9728EB6CC7C3252A7E50C577 /* Pods-GalwayBusAppSwiftUI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GalwayBusAppSwiftUI.release.xcconfig"; path = "Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI.release.xcconfig"; sourceTree = "<group>"; };
 		B214E8E822BAD6DD0041C7C8 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		B22B4EC022A5BF1D0026DB68 /* GalwayBusAppSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GalwayBusAppSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -77,6 +79,7 @@
 		B22B4EC222A5BF1D0026DB68 /* GalwayBusAppSwiftUI */ = {
 			isa = PBXGroup;
 			children = (
+				1A9038C52337992F00E57AC4 /* MapView.swift */,
 				B22B4EC322A5BF1D0026DB68 /* AppDelegate.swift */,
 				B22B4EC522A5BF1D0026DB68 /* SceneDelegate.swift */,
 				B22B4EC722A5BF1D0026DB68 /* ContentView.swift */,
@@ -205,6 +208,7 @@
 			files = (
 				B22B4EC422A5BF1D0026DB68 /* AppDelegate.swift in Sources */,
 				B22B4EC622A5BF1D0026DB68 /* SceneDelegate.swift in Sources */,
+				1A9038C62337992F00E57AC4 /* MapView.swift in Sources */,
 				B25F1A51232EB97400FA764B /* ViewModels.swift in Sources */,
 				B22B4EC822A5BF1D0026DB68 /* ContentView.swift in Sources */,
 			);
