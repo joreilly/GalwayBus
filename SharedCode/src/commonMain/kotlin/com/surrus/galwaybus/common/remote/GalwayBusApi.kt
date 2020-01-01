@@ -23,7 +23,7 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
     private val client by lazy {
         HttpClient() {
             install(JsonFeature) {
-                serializer = KotlinxSerializer(Json(JsonConfiguration(strictMode = false))).apply {
+                serializer = KotlinxSerializer(Json.nonstrict).apply {
                     setMapper(BusRoute::class, BusRoute.serializer())
                     setMapper(BusStop::class, BusStop.serializer())
                     //setListMapper(BusStop::class, BusStop.serializer())

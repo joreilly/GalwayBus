@@ -6,6 +6,7 @@ import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.MyDatabase
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,13 +22,13 @@ class GalwayBusRepository {
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
 
     init {
-        GlobalScope.launch (ApplicationDispatcher) {
-            //fetchAndStoreBusStops()
+        GlobalScope.launch (Dispatchers.Main) {
+            fetchAndStoreBusStops()
         }
     }
 
 
-    suspend fun fetchAndStoreBusStops() {
+    private suspend fun fetchAndStoreBusStops() {
         val busStops = galwayBusApi.fetchBusStops()
 
         busStops.forEach {
@@ -42,16 +43,14 @@ class GalwayBusRepository {
 
 
     suspend fun getBusStops(): List<BusStop> {
-        return galwayBusQueries?.let {
-            it.selectAll(mapper = { stop_id, short_name, irish_short_name ->
-                BusStop(stop_id.toInt(), short_name, irish_short_name)
-            }).executeAsList()
-        } ?: emptyList<BusStop>()
+        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name ->
+            BusStop(stop_id.toInt(), short_name, irish_short_name)
+        })?.executeAsList() ?: emptyList<BusStop>()
     }
 
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
-        GlobalScope.launch(ApplicationDispatcher) {
+        GlobalScope.launch(Dispatchers.Main) {
             success(getBusStops())
         }
     }
@@ -62,7 +61,7 @@ class GalwayBusRepository {
     }
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
-        GlobalScope.launch(ApplicationDispatcher) {
+        GlobalScope.launch(Dispatchers.Main) {
             success(fetchBusRoutes())
         }
     }
@@ -72,7 +71,7 @@ class GalwayBusRepository {
     }
 
     fun getNearestStops(latitude: Double, longitude: Double, success: (List<BusStop>) -> Unit) {
-        GlobalScope.launch(ApplicationDispatcher) {
+        GlobalScope.launch(Dispatchers.Main) {
             success(getNearestStops(latitude, longitude))
         }
     }

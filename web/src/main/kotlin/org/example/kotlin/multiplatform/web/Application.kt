@@ -31,6 +31,10 @@ class Application : RComponent<ApplicationProps, RState>() {
             }
             child(busStopList(), props = props)
         }
+
+        Map {
+
+        }
     }
 }
 
