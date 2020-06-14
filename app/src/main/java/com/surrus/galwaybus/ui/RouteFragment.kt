@@ -38,8 +38,8 @@ import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.Constants
 
 import com.surrus.galwaybus.R
-import com.surrus.galwaybus.model.Bus
-import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.common.model.Bus
+import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
@@ -57,16 +57,15 @@ import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.util.*
 
-class RouteFragment : Fragment(), OnMapReadyCallback {
+
+class RouteFragment : Fragment(R.layout.fragment_route), OnMapReadyCallback {
 
     private val busStopsViewModel: BusStopsViewModel by sharedViewModel()
     private val busInfoViewModel: BusInfoViewModel by viewModel()
 
     private lateinit var routeId: String
     private lateinit var routeName: String
-    private lateinit var schedulePdf: String
 
     private var direction: Int = 0
 
@@ -79,17 +78,11 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     private val params by navArgs<RouteFragmentArgs>()
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_route, container, false)
-    }
-
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         routeId = params.routId
         routeName = params.routeName
-        schedulePdf = params.schedulePdf
 
         activity?.title = "$routeId - $routeName"
 
@@ -247,8 +240,8 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 var title: String
                 var snippet: String
                 if (bus.departure_metadata != null) {
-                    title = "To ${bus.departure_metadata.destination} ($routeId)"
-                    val delayMins = bus.departure_metadata.delay/60
+                    title = "To ${bus.departure_metadata?.destination} ($routeId)"
+                    val delayMins = bus.departure_metadata?.delay?.div(60) ?: 0
                     val minsString = resources.getQuantityString(R.plurals.mins, delayMins)
                     snippet = "Delay: $delayMins $minsString. Vehicle id: ${bus.vehicle_id}"
                 } else {
@@ -323,8 +316,8 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
                 val title: String
                 val subTitle: String
                 if (bus.departure_metadata != null) {
-                    title = "To ${bus.departure_metadata.destination} ($routeId)"
-                    val delayMins = bus.departure_metadata.delay / 60
+                    title = "To ${bus.departure_metadata?.destination} ($routeId)"
+                    val delayMins = bus.departure_metadata?.delay?.div(60) ?: 0
                     val minsString = resources.getQuantityString(R.plurals.mins, delayMins)
 
                     delayTextView.visibility = VISIBLE
@@ -338,7 +331,7 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
 
 
                 if (!bus.route.isNullOrEmpty()) {
-                    val timestampList = bus.route.toList().sortedBy { it.first }
+                    val timestampList = bus.route?.toList()?.sortedBy { it.first }
                     if (!timestampList.isNullOrEmpty()) {
                         val date = DateTime(timestampList[0].first.toLong() * 1000)
                         val departureTimeString = date.toString(DateTimeFormat.shortTime())
@@ -381,11 +374,10 @@ class RouteFragment : Fragment(), OnMapReadyCallback {
     companion object {
         const val COORDINATE_OFFSET = 0.00002f
 
-        fun bundleArgs(routeId: String, routeName: String, schedulePdf: String): Bundle {
+        fun bundleArgs(routeId: String, routeName: String): Bundle {
             return Bundle().apply {
                 this.putString(Constants.ROUTE_ID, routeId)
                 this.putString(Constants.ROUTE_NAME, routeName)
-                this.putString(Constants.SCHEDULE_PDF, schedulePdf)
             }
         }
     }

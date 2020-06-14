@@ -32,7 +32,8 @@ import com.karumi.dexter.listener.single.BasePermissionListener
 import com.orhanobut.logger.Logger
 
 import com.surrus.galwaybus.R
-import com.surrus.galwaybus.model.BusStop
+import com.surrus.galwaybus.common.model.BusStop
+//import com.surrus.galwaybus.model.BusStop
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
@@ -42,7 +43,7 @@ import kotlinx.android.synthetic.main.fragment_nearby.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 
 
-class NearbyFragment : Fragment(), OnMapReadyCallback {
+class NearbyFragment : Fragment(R.layout.fragment_nearby), OnMapReadyCallback {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var map: GoogleMap? = null
@@ -142,11 +143,6 @@ class NearbyFragment : Fragment(), OnMapReadyCallback {
         }
     }
 
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Logger.d("onCreateView")
-        return inflater.inflate(R.layout.fragment_nearby, container, false)
-    }
 
 
     @SuppressLint("MissingPermission")

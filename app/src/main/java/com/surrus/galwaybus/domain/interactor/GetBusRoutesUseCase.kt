@@ -1,12 +1,11 @@
 package com.surrus.galwaybus.domain.interactor
 
-import com.surrus.galwaybus.domain.model.BusRouteSchedule
-import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import kotlinx.coroutines.*
 
 
-open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusRepository) {
+open class GetBusRoutesUseCase constructor() {
 
+/*
      open suspend fun getBusRoutes(): List<BusRouteSchedule>  {
 
         // TODO: start of switching over to common repository...will need to inject as dependencyu
@@ -24,5 +23,5 @@ open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusReposi
                 }
     }
 
-
+*/
 }

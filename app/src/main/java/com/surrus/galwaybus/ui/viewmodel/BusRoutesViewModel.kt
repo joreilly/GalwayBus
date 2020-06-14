@@ -1,23 +1,17 @@
 package com.surrus.galwaybus.ui.viewmodel
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.surrus.galwaybus.domain.interactor.GetBusRoutesUseCase
-import com.surrus.galwaybus.domain.model.BusRouteSchedule
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import com.surrus.galwaybus.common.GalwayBusRepository
+import com.surrus.galwaybus.common.model.BusRoute
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 
-open class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase)
+open class BusRoutesViewModel constructor(private val galwayBusRepository: GalwayBusRepository)
     : ViewModel() {
 
-    private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
+    val busRoutes: MutableLiveData<List<BusRoute>> = MutableLiveData()
 
     init {
         fetchRoutes()
@@ -25,10 +19,8 @@ open class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBu
 
     fun fetchRoutes() {
         viewModelScope.launch {
-            val busRoutesData = getBusRoutesUseCase.getBusRoutes()
-            busRoutes.postValue(busRoutesData)
+            val busRoutesList = galwayBusRepository.fetchBusRoutes()
+            busRoutes.postValue(busRoutesList)
         }
     }
-
-    open fun getBusRoutes(): LiveData<List<BusRouteSchedule>> = busRoutes
 }

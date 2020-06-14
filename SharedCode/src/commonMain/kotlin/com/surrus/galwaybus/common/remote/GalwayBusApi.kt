@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.common.remote
 
+import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import io.ktor.client.HttpClient
@@ -23,6 +24,12 @@ import kotlinx.serialization.json.JsonConfiguration
 @Serializable
 data class GetRouteStopsResponse(val route: BusRoute, val stops: List<List<BusStop>>)
 
+@Serializable
+data class GetBusListForRouteResponse(val bus: List<Bus>)
+
+
+// https://github.com/appsandwich/galwaybus
+
 class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
     private val nonStrictJson = Json(JsonConfiguration(isLenient = true, ignoreUnknownKeys = true))
 
@@ -39,7 +46,6 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
     }
 
     private val busScheduleMapSerializer = MapSerializer(String.serializer(), MapSerializer(String.serializer(), String.serializer()).list)
-
 
 
     suspend fun fetchBusRoutes(): Map<String, BusRoute> {
@@ -65,6 +71,10 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
 
     suspend fun fetchRouteStops(routeId: String): List<List<BusStop>> {
         return client.get<GetRouteStopsResponse>("$baseUrl/routes/$routeId.json").stops
+    }
+
+    suspend fun fetchBusListForRoute(routeId: String): List<Bus> {
+        return client.get<GetBusListForRouteResponse>("$baseUrl/bus/$routeId.json").bus
     }
 
 }

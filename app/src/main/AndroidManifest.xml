@@ -49,24 +49,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:host="www.surrus.com" android:pathPrefix="/galwaybus" android:scheme="http"/>
-                <data android:host="www.surrus.com" android:pathPrefix="/galwaybus" android:scheme="https"/>
-            </intent-filter>
-
-            <meta-data android:name="default-url" android:value="https://www.surrus.com/galwaybus" />
-
         </activity>
 
         <activity
             android:name="com.surrus.galwaybus.ui.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
-        <activity
-            android:name="com.surrus.galwaybus.ui.SchedulePdfActivity"
             android:parentActivityName="com.surrus.galwaybus.ui.HomeActivity" />
 
 

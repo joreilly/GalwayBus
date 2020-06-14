@@ -29,14 +29,14 @@ class RouteListFragment : Fragment() {
             layoutManager = LinearLayoutManager(context)
 
             busRoutesAdapter = BusRoutesRecyclerViewAdapter {
-                val action = RouteListFragmentDirections.actionRouteListFragmentToRouteFragment(it.timetableId, it.longName, it.schedulePdf)
+                val action = RouteListFragmentDirections.actionRouteListFragmentToRouteFragment(it.timetableId, it.longName)
                 findNavController().navigate(action)
             }
             adapter = busRoutesAdapter
         }
 
 
-        busRoutesViewModel.getBusRoutes().observe(this) {
+        busRoutesViewModel.busRoutes.observe(this) {
             busRoutesAdapter.busRouteList = it!!
             busRoutesAdapter.notifyDataSetChanged()
         }

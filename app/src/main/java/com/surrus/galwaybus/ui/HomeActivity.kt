@@ -21,7 +21,6 @@ import androidx.navigation.ui.setupWithNavController
 //import com.google.ar.core.Session
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.Logger
-import com.surrus.galwaybus.domain.repository.GalwayBusRepository
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*

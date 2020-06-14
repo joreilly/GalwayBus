@@ -3,7 +3,6 @@ apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlinx-serialization'
 apply plugin: "androidx.navigation.safeargs"
 
@@ -75,6 +74,7 @@ android {
         resValue 'string', 'google_maps_key', googleMapsKey
     }
 
+
     buildTypes {
         release {
             minifyEnabled true
@@ -129,21 +129,13 @@ dependencies {
     implementation Okhttp.okhttp
     implementation Okhttp.loggingInterceptor
 
-    implementation Retrofit.retrofit
-    implementation Retrofit.converterGson
-    implementation Retrofit.converterScalars
-    implementation Retrofit.coroutinesAdapter
-
-
     implementation ArchComponents.navFragmentKtx
     implementation ArchComponents.navUiKtx
     implementation ArchComponents.work
     implementation ArchComponents.fragment
 
     implementation ArchComponents.lifecycleExtensions
-    implementation ArchComponents.roomRuntime
-    kapt ArchComponents.roomCompiler
-    kapt ArchComponents.lifecycleCompiler
+    //kapt ArchComponents.lifecycleCompiler
 
     implementation "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
 

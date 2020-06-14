@@ -8,13 +8,11 @@ object Versions {
     const val ktor = "1.3.2"
     const val kotlinxSerialization = "0.20.0"
     const val sqlDelight = "1.3.0"
-    const val retrofit = "2.4.0"
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
     const val ktx = "1.0.1"
     const val nav = "2.1.0-alpha04"
     const val work = "2.1.0-alpha02"
-    const val room = "2.1.0-beta01"
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
 
@@ -58,7 +56,7 @@ object BuildPlugins {
 
 
 object Kotlin {
-    const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
     const val stdlibCommon = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
     const val stdlibJs = "org.jetbrains.kotlin:kotlin-stdlib-js:${Versions.kotlin}"
     const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
@@ -95,7 +93,7 @@ object Ktor {
 
 object AndroidSdk {
     const val min = 21
-    const val compile = 28
+    const val compile = 29
     const val target = compile
 }
 
@@ -105,8 +103,6 @@ object ArchComponents {
     val navFragmentKtx = "androidx.navigation:navigation-fragment-ktx:${Versions.nav}"
     val navUiKtx = "androidx.navigation:navigation-ui-ktx:${Versions.nav}"
     val work = "androidx.work:work-runtime-ktx:${Versions.work}"
-    val roomRuntime = "androidx.room:room-runtime:${Versions.room}"
-    val roomCompiler =  "androidx.room:room-compiler:${Versions.room}"
     val lifecycleExtensions =  "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
     val lifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"
 }
@@ -132,13 +128,6 @@ object PlayServices {
 object Okhttp {
     val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okHttp}"
     val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
-}
-
-object Retrofit {
-    val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
-    val converterGson = "com.squareup.retrofit2:converter-gson:${Versions.retrofit}"
-    val converterScalars = "com.squareup.retrofit2:converter-scalars:${Versions.retrofit}"
-    val coroutinesAdapter = "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
 }
 
 object Testing {

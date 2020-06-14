@@ -25,7 +25,6 @@
         tools:layout="@layout/fragment_route">
         <argument android:name="routId" app:argType="string" />
         <argument android:name="routeName" app:argType="string" />
-        <argument android:name="schedulePdf" app:argType="string" />
     </fragment>
 
 </navigation>

@@ -1,12 +1,11 @@
 package com.surrus.galwaybus.remote
 
-import com.surrus.galwaybus.data.repository.GalwayBusRemote
 import com.surrus.galwaybus.model.*
 import java.io.IOException
 
 
-class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusService) : GalwayBusRemote {
-
+class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusService) {
+/*
     override suspend fun getBusRoutes(): List<BusRoute> {
         try {
             val busRoutesResponse = galwayBusService.getBusRoutes().await()
@@ -117,5 +116,5 @@ class GalwayBusRemoteImpl  constructor(private val galwayBusService: GalwayBusSe
             return Result.Error(IOException("Error occurred fetching bus information"))
         }
     }
-
+*/
 }

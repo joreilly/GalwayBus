@@ -4,17 +4,12 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.surrus.galwaybus.domain.interactor.GetBusStopsUseCase
-import com.surrus.galwaybus.model.BusStop
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import com.surrus.galwaybus.common.GalwayBusRepository
+import com.surrus.galwaybus.common.model.BusStop
 import kotlinx.coroutines.launch
-import kotlin.coroutines.CoroutineContext
 
 
-class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsUseCase)
+class BusStopsViewModel constructor(private val galwayBusRepository: GalwayBusRepository)
     : ViewModel() {
 
     private val routeId: MutableLiveData<String> = MutableLiveData()
@@ -45,7 +40,7 @@ class BusStopsViewModel constructor(private val getBusStopsUseCase: GetBusStopsU
 
             busStops.value = emptyList()
             viewModelScope.launch {
-                busStopList = getBusStopsUseCase.getBusStops(routeIdString)
+                busStopList = galwayBusRepository.fetchRouteStops(routeIdString)
                 if (busStopList.size >= 2) {
                     busStops.value = busStopList[direction.value!!]
                 }
