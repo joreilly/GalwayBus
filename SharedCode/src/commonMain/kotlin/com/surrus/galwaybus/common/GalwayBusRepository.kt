@@ -29,7 +29,7 @@ class GalwayBusRepository {
 
 
     private suspend fun fetchAndStoreBusStops() {
-        val busStops = galwayBusApi.fetchBusStops()
+        val busStops = galwayBusApi.fetchAllBusStops()
 
         busStops.forEach {
             galwayBusQueries?.insertItem(it.stop_id.toLong(), it.short_name, it.irish_short_name)
@@ -49,11 +49,18 @@ class GalwayBusRepository {
     }
 
 
+
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             success(getBusStops())
         }
     }
+
+    suspend fun fetchSchedules() = galwayBusApi.fetchSchedules()
+        .mapValues {
+            it.value[0].values.elementAt(0)
+        }
+
 
     suspend fun fetchBusRoutes(): List<BusRoute> {
         val busRoutes = galwayBusApi.fetchBusRoutes()
@@ -66,13 +73,13 @@ class GalwayBusRepository {
         }
     }
 
-    suspend fun getNearestStops(latitude: Double, longitude: Double): List<BusStop> {
-        return galwayBusApi.getNearestStops(latitude, longitude)
+    suspend fun fetchNearestStops(latitude: Double, longitude: Double): List<BusStop> {
+        return galwayBusApi.fetchNearestStops(latitude, longitude)
     }
 
     fun getNearestStops(latitude: Double, longitude: Double, success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
-            success(getNearestStops(latitude, longitude))
+            success(fetchNearestStops(latitude, longitude))
         }
     }
 

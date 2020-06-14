@@ -5,60 +5,66 @@ import com.surrus.galwaybus.common.model.BusStop
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
+import io.ktor.client.features.logging.DEFAULT
+import io.ktor.client.features.logging.LogLevel
+import io.ktor.client.features.logging.Logger
+import io.ktor.client.features.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.list
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
-import kotlinx.serialization.list
-import kotlinx.serialization.map
 
+
+@Serializable
+data class GetRouteStopsResponse(val route: BusRoute, val stops: List<List<BusStop>>)
 
 class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
-
-    private val busRouteMapSerializer: KSerializer<Map<String, BusRoute>> = (StringSerializer to BusRoute.serializer()).map
+    private val nonStrictJson = Json(JsonConfiguration(isLenient = true, ignoreUnknownKeys = true))
 
     private val client by lazy {
         HttpClient() {
             install(JsonFeature) {
-                serializer = KotlinxSerializer(Json.nonstrict).apply {
-                    setMapper(BusRoute::class, BusRoute.serializer())
-                    setMapper(BusStop::class, BusStop.serializer())
-                    //setListMapper(BusStop::class, BusStop.serializer())
-                }
+                serializer = KotlinxSerializer(nonStrictJson)
+            }
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.ALL
             }
         }
     }
 
+    private val busScheduleMapSerializer = MapSerializer(String.serializer(), MapSerializer(String.serializer(), String.serializer()).list)
+
+
 
     suspend fun fetchBusRoutes(): Map<String, BusRoute> {
-        val jsonString = client.get<String> {
-            url("$baseUrl/routes.json")
-        }
-        return Json.nonstrict.parse(busRouteMapSerializer, jsonString)
+        return client.get("$baseUrl/routes.json")
     }
 
-    suspend fun fetchBusStops(): List<BusStop> {
-        val jsonArrayString = client.get<String> {
-            url("$baseUrl/stops.json")
-        }
-        return Json.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
+    suspend fun fetchAllBusStops(): List<BusStop> {
+        return client.get("$baseUrl/stops.json")
     }
 
-    suspend fun getNearestStops(latitude: Double, longitude: Double): List<BusStop> {
-        val jsonArrayString = client.get<String> {
+    suspend fun fetchSchedules(): Map<String, List<Map<String, String>>> {
+        val jsonString = client.get<String>("$baseUrl/schedules.json")
+        return nonStrictJson.parse(busScheduleMapSerializer, jsonString)
+    }
+
+    suspend fun fetchNearestStops(latitude: Double, longitude: Double): List<BusStop> {
+        return client.get{
             url("$baseUrl/stops/nearby.json")
             parameter("latitude", latitude)
             parameter("longitude", longitude)
         }
-        return Json.nonstrict.parse(BusStop.serializer().list, jsonArrayString)
     }
 
+    suspend fun fetchRouteStops(routeId: String): List<List<BusStop>> {
+        return client.get<GetRouteStopsResponse>("$baseUrl/routes/$routeId.json").stops
+    }
 
-//    companion object {
-//        //private const val baseUrl = "https://galwaybus.herokuapp.com"
-//        private const val baseUrl = "https://localhost:8080"
-//    }
 }

@@ -9,22 +9,19 @@ open class GetBusRoutesUseCase constructor(val galwayRepository: GalwayBusReposi
 
      open suspend fun getBusRoutes(): List<BusRouteSchedule>  {
 
-        return withContext(Dispatchers.IO) {
+        // TODO: start of switching over to common repository...will need to inject as dependencyu
+        val galwayBusRepositoryCommon = com.surrus.galwaybus.common.GalwayBusRepository()
+        val routeList = galwayBusRepositoryCommon.fetchBusRoutes()
 
-            // TODO: start of switching over to common repository...will need to inject as dependencyu
-            val galwayBusRepositoryCommon = com.surrus.galwaybus.common.GalwayBusRepository()
-            val routeList = galwayBusRepositoryCommon.fetchBusRoutes()
+        val scheduleMap = galwayBusRepositoryCommon.fetchSchedules()
 
-            val scheduleMap = galwayRepository.getSchedules()
-
-            // merge data
-            routeList
-                    .filter {  scheduleMap[it.timetableId] != null }
-                    .map {
-                        val schedulePdf = scheduleMap[it.timetableId]!!.pdfUrl
-                        BusRouteSchedule(it.timetableId, it.shortName, it.longName, schedulePdf)
-                    }
-        }
+        // merge data
+        return routeList
+                .filter {  scheduleMap[it.timetableId] != null }
+                .map {
+                    val schedulePdf = scheduleMap[it.timetableId] ?: ""
+                    BusRouteSchedule(it.timetableId, it.shortName, it.longName, schedulePdf)
+                }
     }
 
 

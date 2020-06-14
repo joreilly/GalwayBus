@@ -17,7 +17,6 @@ import kotlin.coroutines.CoroutineContext
 open class BusRoutesViewModel constructor(private val getBusRoutesUseCase: GetBusRoutesUseCase)
     : ViewModel() {
 
-
     private val busRoutes: MutableLiveData<List<BusRouteSchedule>> = MutableLiveData()
 
     init {

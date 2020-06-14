@@ -1,15 +1,16 @@
 
 object Versions {
-    const val androidBuildToolsVersion = "4.0.0-alpha06"
+    const val androidBuildToolsVersion = "4.2.0-alpha01"
 
-    const val kotlin = "1.3.61"
-    const val kotlinCoroutines = "1.3.3"
-    const val koin = "2.0.0"
-    const val ktor = "1.3.0-rc"
-    const val kotlinxSerialization = "0.14.0"
-    const val sqlDelight = "1.2.1"
+    const val kotlin = "1.3.72"
+    const val kotlinCoroutines = "1.3.5-native-mt"
+    const val koin = "3.0.0-alpha-2"
+    const val ktor = "1.3.2"
+    const val kotlinxSerialization = "0.20.0"
+    const val sqlDelight = "1.3.0"
     const val retrofit = "2.4.0"
     const val okHttp = "3.12.0"
+    const val slf4j = "1.7.30"
     const val ktx = "1.0.1"
     const val nav = "2.1.0-alpha04"
     const val work = "2.1.0-alpha02"
@@ -89,6 +90,7 @@ object Ktor {
     const val clientSerializationJs = "io.ktor:ktor-client-serialization-js:${Versions.ktor}"
     const val freemaker = "io.ktor:ktor-freemarker:${Versions.ktor}"
     const val locations = "io.ktor:ktor-locations:${Versions.ktor}"
+    const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
 }
 
 object AndroidSdk {

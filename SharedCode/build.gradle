@@ -72,6 +72,10 @@ kotlin {
             // Kotlin
             implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
 
+
+            // klock
+            implementation "com.soywiz.korlibs.klock:klock:1.7.3"
+
             // Coroutines
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
 
@@ -130,7 +134,7 @@ kotlin {
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
 
             // SQL Delight
-            implementation "com.squareup.sqldelight:ios-driver:${Versions.sqlDelight}"
+            implementation("com.squareup.sqldelight:native-driver:${Versions.sqlDelight}")
         }
 
         jvmMain.dependencies {
@@ -144,7 +148,7 @@ kotlin {
             implementation "io.ktor:ktor-client-core-jvm:${Versions.ktor}"
             implementation "io.ktor:ktor-client-json-jvm:${Versions.ktor}"
             implementation "io.ktor:ktor-client-serialization-jvm:${Versions.ktor}"
-
+            implementation Ktor.slf4j
 
             // Serialize
             implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"

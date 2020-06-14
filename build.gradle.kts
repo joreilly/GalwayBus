@@ -38,6 +38,7 @@ allprojects {
         maven(url = "https://kotlin.bintray.com/kotlinx")
         maven(url = "https://kotlin.bintray.com/kotlin-dev")
         maven(url = "https://kotlin.bintray.com/kotlin-js-wrappers")
+        maven( url = "https://dl.bintray.com/ekito/koin")
     }
 }
 
