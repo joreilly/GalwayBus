@@ -5,8 +5,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.surrus.galwaybus.R
-import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Departure
+import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Departure
+//import com.surrus.galwaybus.model.BusStop
+//import com.surrus.galwaybus.model.Departure
 import com.surrus.galwaybus.util.ext.inflate
 import kotlinx.android.synthetic.main.bus_stops_list_item.view.*
 import kotlinx.android.synthetic.main.bus_times_list_item.view.*
@@ -38,7 +40,7 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
                 subtitle.visibility = View.GONE
             }
 
-            if (busStop.times != null && busStop.times.isNotEmpty()) {
+            if (busStop.times.isNotEmpty()) {
                 timesLayout.visibility = View.VISIBLE
 
                 with (busTimesList) {

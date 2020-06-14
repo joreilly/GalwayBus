@@ -2,6 +2,7 @@ package com.surrus.galwaybus.common
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
+import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.remote.GalwayBusApi
@@ -15,7 +16,7 @@ import kotlinx.coroutines.launch
 
 expect fun createDb() : MyDatabase?
 
-class GalwayBusRepository {
+open class GalwayBusRepository {
 
     private val galwayBusApi = GalwayBusApi()
     private val galwayBusDb = createDb()
@@ -32,7 +33,7 @@ class GalwayBusRepository {
         val busStops = galwayBusApi.fetchAllBusStops()
 
         busStops.forEach {
-            galwayBusQueries?.insertItem(it.stop_id.toLong(), it.short_name, it.irish_short_name)
+            galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, it.irishShortName)
         }
     }
 
@@ -49,6 +50,9 @@ class GalwayBusRepository {
     }
 
 
+    suspend fun fetchRouteStops(routeId: String) = galwayBusApi.fetchRouteStops(routeId)
+
+    suspend fun fetchBusListForRoute(routeId: String) = galwayBusApi.fetchBusListForRoute(routeId)
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {

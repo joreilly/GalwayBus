@@ -43,4 +43,10 @@ class GalwayBusTest {
         println(result)
     }
 
+    @Test
+    fun fetchBusListForRoute() = runBlocking  {
+        val result = galwayBusApi.fetchBusListForRoute("401")
+        println(result)
+    }
+
 }
