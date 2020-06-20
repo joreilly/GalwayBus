@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.Bus
+import com.surrus.galwaybus.common.model.Result
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import kotlinx.coroutines.launch
@@ -23,16 +24,11 @@ class BusInfoViewModel constructor(private val galwaysBusRepository: GalwayBusRe
         busLocationTimer?.cancel()
         busLocationTimer = fixedRateTimer("getDepartesTimer", true, 0, POLL_INTERVAL) {
             viewModelScope.launch {
-
-                val busList = galwaysBusRepository.fetchBusListForRoute(routeId)
-
-                busListForRoute.postValue(Resource(ResourceState.SUCCESS, busList, null))
-
-//                val result = getBusInfoUseCase.getBusListForRoute(routeId)
-//                busListForRoute.postValue(when (result) {
-//                    is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
-//                    is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
-//                })
+                val result = galwaysBusRepository.fetchBusListForRoute(routeId)
+                busListForRoute.postValue(when (result) {
+                    is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
+                    is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
+                })
             }
         }
     }

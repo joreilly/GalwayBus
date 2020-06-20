@@ -6,13 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Result
 import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
-import com.surrus.galwaybus.model.Result
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
@@ -40,19 +37,13 @@ class NearestBusStopsViewModel constructor(private val galwayBusRepository: Galw
                 viewModelScope.launch {
 
                     location.value?.let {
-
-                        val busStopsList = galwayBusRepository.fetchNearestStops(it.latitude, it.longitude)
-
-                        busStops.postValue(Resource(ResourceState.SUCCESS, busStopsList, null))
-//                        val result = getNearestBusStopsUseCase.getNearestBusStops(location.value!!)
-//                        busStops.postValue(when (result) {
-//                            is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
-//                            is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
-//                        })
-
+                        val result = galwayBusRepository.fetchNearestStops(it.latitude, it.longitude)
+                        busStops.postValue(when (result) {
+                            is Result.Success -> Resource(ResourceState.SUCCESS, result.data, null)
+                            is Result.Error -> Resource(ResourceState.ERROR, null, result.exception.message)
+                        })
                     }
                 }
-
             }
         }
     }

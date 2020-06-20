@@ -5,13 +5,13 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Result
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-
 
 
 expect fun createDb() : MyDatabase?
@@ -52,7 +52,14 @@ open class GalwayBusRepository {
 
     suspend fun fetchRouteStops(routeId: String) = galwayBusApi.fetchRouteStops(routeId)
 
-    suspend fun fetchBusListForRoute(routeId: String) = galwayBusApi.fetchBusListForRoute(routeId)
+    suspend fun fetchBusListForRoute(routeId: String): Result<List<Bus>> {
+        try {
+            val busList = galwayBusApi.fetchBusListForRoute(routeId)
+            return Result.Success(busList)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
+    }
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
@@ -77,16 +84,14 @@ open class GalwayBusRepository {
         }
     }
 
-    suspend fun fetchNearestStops(latitude: Double, longitude: Double): List<BusStop> {
-        return galwayBusApi.fetchNearestStops(latitude, longitude)
-    }
-
-    fun getNearestStops(latitude: Double, longitude: Double, success: (List<BusStop>) -> Unit) {
-        GlobalScope.launch(Dispatchers.Main) {
-            success(fetchNearestStops(latitude, longitude))
+    suspend fun fetchNearestStops(latitude: Double, longitude: Double): Result<List<BusStop>> {
+        try {
+            val busStops = galwayBusApi.fetchNearestStops(latitude, longitude)
+            return Result.Success(busStops)
+        } catch (e: Exception) {
+            return Result.Error(e)
         }
     }
-
 
     private fun transformBusRouteMapToList(busRoutesMap: Map<String, BusRoute>): List<BusRoute> {
         val busRouteList = mutableListOf<BusRoute>()
