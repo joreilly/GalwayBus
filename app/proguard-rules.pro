@@ -12,26 +12,8 @@
 # keep everything in this package from being removed or renamed
 -keep class com.surrus.galwaybus.** { *; }
 
-
-# Keep all retrofit classes: https://github.com/square/retrofit/issues/117
-# -keep class retrofit.http.** { *; }
-
-# Retrofit 2.X
-## https://square.github.io/retrofit/ ##
-
--dontwarn retrofit2.**
--keep class retrofit2.** { *; }
--keepattributes Signature
--keepattributes Exceptions
-
--keepclasseswithmembers class * {
-    @retrofit2.http.* <methods>;
-}
--dontwarn retrofit2.Platform$Java8
--dontwarn retrofit2.adapter.rxjava.CompletableHelper$**
-
-
--dontwarn rx.Completable**
+# joda
+-keep class net.danlew.android.joda.R$raw { *; }
 
 
 # okhttp
@@ -45,38 +27,6 @@
 -dontnote android.net.http.*
 -dontnote org.apache.commons.codec.**
 -dontnote org.apache.http.**
-
-
-# dagger
-
--dontwarn com.google.errorprone.annotations.**
-
-
-# rxjava
-
--dontwarn sun.misc.Unsafe
--dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
-
--keep class rx.schedulers.Schedulers {
-    public static <methods>;
-}
--keep class rx.schedulers.ImmediateScheduler {
-    public <methods>;
-}
--keep class rx.schedulers.TestScheduler {
-    public <methods>;
-}
--keep class rx.schedulers.Schedulers {
-    public static ** test();
-}
--keepclassmembers class rx.internal.util.unsafe.*ArrayQueue*Field* {
-    long producerIndex;
-    long consumerIndex;
-}
--keepclassmembers class rx.internal.util.unsafe.BaseLinkedQueueProducerNodeRef {
-    long producerNode;
-    long consumerNode;
-}
 
 
 

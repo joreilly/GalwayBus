@@ -27,7 +27,6 @@ written a couple of post about some of my experiences doing this so far
 * [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
 * [Android Support Libraries](https://developer.android.com/topic/libraries/support-library/index.html)
 * [Koin](https://github.com/InsertKoinIO/koin)
-* [Retrofit](http://square.github.io/retrofit/)
 * [OkHttp](http://square.github.io/okhttp/)
 * [Gson](https://github.com/google/gson)
 * [Logger](https://github.com/orhanobut/logger)
