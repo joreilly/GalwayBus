@@ -1,0 +1,6 @@
+framework module Pods_GalwayBus {
+  umbrella header "Pods-GalwayBus-umbrella.h"
+
+  export *
+  module * { export * }
+}

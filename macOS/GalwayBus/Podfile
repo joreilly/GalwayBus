@@ -1,0 +1,4 @@
+
+target 'GalwayBus' do
+    pod 'SharedCode', :path => '../../SharedCode'
+end

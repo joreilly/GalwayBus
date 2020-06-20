@@ -16,6 +16,10 @@ import kotlinx.coroutines.launch
 
 expect fun createDb() : MyDatabase?
 
+// TEMP until following is resolved https://github.com/ktorio/ktor/issues/1622
+expect fun ktorScope(block: suspend () -> Unit)
+
+
 open class GalwayBusRepository {
 
     private val galwayBusApi = GalwayBusApi()
@@ -23,7 +27,7 @@ open class GalwayBusRepository {
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
 
     init {
-        GlobalScope.launch (Dispatchers.Main) {
+        ktorScope {
             fetchAndStoreBusStops()
         }
     }
@@ -79,7 +83,7 @@ open class GalwayBusRepository {
     }
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
-        GlobalScope.launch(Dispatchers.Main) {
+        ktorScope {
             success(fetchBusRoutes())
         }
     }
