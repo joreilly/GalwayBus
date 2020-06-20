@@ -1,6 +1,6 @@
 package com.surrus.galwaybus.common
 
-import com.squareup.sqldelight.drivers.ios.NativeSqliteDriver
+import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import com.surrus.galwaybus.db.MyDatabase
 
 actual fun createDb(): MyDatabase? {

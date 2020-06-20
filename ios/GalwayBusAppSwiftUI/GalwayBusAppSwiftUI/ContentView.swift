@@ -96,8 +96,8 @@ struct BusStopRow : View {
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(busStop.short_name).font(.headline)
-                Text(busStop.irish_short_name).font(.subheadline)
+                Text(busStop.shortName).font(.headline)
+                Text(busStop.irishShortName).font(.subheadline)
             }
         }
     }

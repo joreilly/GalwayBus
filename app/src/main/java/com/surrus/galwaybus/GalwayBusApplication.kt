@@ -9,16 +9,12 @@ import net.danlew.android.joda.JodaTimeAndroid
 import com.crashlytics.android.Crashlytics
 import io.fabric.sdk.android.Fabric
 import com.crashlytics.android.core.CrashlyticsCore
-import com.surrus.galwaybus.common.GalwayBusRepository
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.di.koin.appModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 import com.surrus.galwaybus.common.appContext
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
 
 class GalwayBusApplication : Application() {
@@ -54,17 +50,6 @@ class GalwayBusApplication : Application() {
             androidContext(this@GalwayBusApplication)
             modules(appModule)
         }
-
-        val repo = GalwayBusRepository()
-
-
-        GlobalScope.launch {
-//            val stops = repo.getNearestStops(53.2743394, -9.0514163)
-//            Logger.d(stops)
-            val schedules = repo.fetchSchedules()
-            Logger.d(schedules)
-        }
-
 
         Logger.i("GalwayBusApplication init completed")
     }

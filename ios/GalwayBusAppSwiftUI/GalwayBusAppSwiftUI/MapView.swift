@@ -25,7 +25,8 @@ struct MapView: UIViewRepresentable {
 
             let centerCoordinate = CLLocationCoordinate2D(latitude: stop.latitude, longitude: stop.longitude)
             annotation.coordinate = centerCoordinate
-            annotation.title = stop.short_name
+            annotation.title = stop.shortName
+            print(stop.shortName)
             view.addAnnotation(annotation)
         }
     }

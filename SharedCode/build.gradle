@@ -72,10 +72,6 @@ kotlin {
             // Kotlin
             implementation "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
 
-
-            // klock
-            implementation "com.soywiz.korlibs.klock:klock:1.7.3"
-
             // Coroutines
             implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
 
@@ -118,11 +114,8 @@ kotlin {
 
         iOSMain.dependencies {
             // Coroutines
-            implementation('org.jetbrains.kotlinx:kotlinx-coroutines-core-native') {
-                version {
-                    strictly '1.3.3-native-mt'
-                }
-            }
+            implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
+
             // Ktor
             implementation "io.ktor:ktor-client-ios:${Versions.ktor}"
             implementation "io.ktor:ktor-client-core-native:${Versions.ktor}"
