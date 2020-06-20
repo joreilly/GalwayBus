@@ -1,4 +1,4 @@
-### Android Galway Bus app using Kotlin/Architecture Components/Clean Architecture
+### Android Galway Bus app using Kotlin Multiplatform shared code
 
 
 [![Get it on Google Play](https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png)](https://play.google.com/store/apps/details?id=com.surrus.galwaybus)
@@ -23,14 +23,10 @@ written a couple of post about some of my experiences doing this so far
 
 * [Kotlin](https://kotlinlang.org/)
 * [Kotlin Corooutines](https://kotlinlang.org/docs/reference/coroutines-overview.html)
-* [Room](https://developer.android.com/topic/libraries/architecture/room.html)
+* [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization)
+* [Ktor client library](https://github.com/ktorio/ktor)
 * [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
 * [Android Support Libraries](https://developer.android.com/topic/libraries/support-library/index.html)
 * [Koin](https://github.com/InsertKoinIO/koin)
-* [OkHttp](http://square.github.io/okhttp/)
-* [Gson](https://github.com/google/gson)
 * [Logger](https://github.com/orhanobut/logger)
-* [PdfViewPager](https://github.com/voghDev/PdfViewPager)
 * [Mockito](http://site.mockito.org/)
-* [MockWebServer](https://github.com/square/okhttp/tree/master/mockwebserver)
-* [Stetho](https://github.com/facebook/stetho)
