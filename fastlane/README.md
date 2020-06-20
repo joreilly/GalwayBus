@@ -41,11 +41,6 @@ fastlane android buildApp
 fastlane android buildAppApk
 ```
 
-### android buildInstantApp
-```
-fastlane android buildInstantApp
-```
-
 ### android promoteAppToProd
 ```
 fastlane android promoteAppToProd

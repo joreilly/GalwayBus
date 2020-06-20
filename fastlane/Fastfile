@@ -17,12 +17,10 @@ default_platform :android
 
 platform :android do
 
-    version = 83
-    versionInstant = 82
+    version = 84
 
 
     before_all do
-        # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
     end
 
     desc "Runs all the tests"
@@ -36,7 +34,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app:bundleInstalledRelease",
+              task: ":app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -45,7 +43,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "alpha",
-            aab: "app/build/outputs/bundle/installedRelease/app-apk.aab",
+            aab: "app/build/outputs/bundle/release/app-release.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -58,7 +56,7 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":appk:bundleInstalledRelease",
+              task: ":app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -67,7 +65,7 @@ platform :android do
         supply(
             package_name: "com.surrus.galwaybus",
             track: "internal",
-            aab: "app/build/outputs/bundle/installedRelease/app-apk.aab",
+            aab: "app/build/outputs/bundle/release/app-release.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -79,7 +77,7 @@ platform :android do
     lane :buildApp do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app:bundleInstalledRelease",
+              task: ":app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -89,19 +87,9 @@ platform :android do
     lane :buildAppApk do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app:assembleInstalledRelease",
+              task: ":app:assembleRelease",
               properties: {
                   'versionCode' => version
-              }
-        )
-    end
-
-    lane :buildInstantApp do |options|
-        gradle(task: 'clean')
-        gradle(
-              task: ":app:bundleInstantRelease",
-              properties: {
-                  'versionCode' => versionInstant
               }
         )
     end
@@ -147,10 +135,6 @@ platform :android do
 
   after_all do |lane|
     # This block is called, only if the executed lane was successful
-
-    # slack(
-    #   message: "Successfully deployed new App Update."
-    # )
   end
 
   error do |lane, exception|
