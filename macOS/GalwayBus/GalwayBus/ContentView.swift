@@ -22,7 +22,7 @@ struct ContentView : View {
             MapContainer(busStopViewModel: busStopViewModel, busRouteViewModel: busRouteViewModel)
                 .tabItem {
                     VStack {
-                        Text("Maps")
+                        Text("Map")
                     }
                 }
         }
@@ -42,6 +42,7 @@ struct MapContainer: View {
             List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
                 RouteRow(route: route)
             }
+            .frame(width: 400)
             .listStyle(SidebarListStyle())
             .onReceive(timer) { _ in
                 self.busStopViewModel.fetchBusList()
