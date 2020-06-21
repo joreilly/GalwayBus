@@ -65,6 +65,14 @@ open class GalwayBusRepository {
         }
     }
 
+    fun fetchBusListForRoute(routeId: String, success: (List<Bus>) -> Unit) {
+        ktorScope {
+            val busList = galwayBusApi.fetchBusListForRoute(routeId)
+            success(busList)
+        }
+    }
+
+
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         GlobalScope.launch(Dispatchers.Main) {
             success(getBusStops())

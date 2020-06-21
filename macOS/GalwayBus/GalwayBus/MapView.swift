@@ -1,24 +1,34 @@
 import SwiftUI
 import MapKit
+import SharedCode
 
 struct MapView {
-    var coordinate: CLLocationCoordinate2D
-
+    var busList: [Bus]
+    
     func makeMapView() -> MKMapView {
         MKMapView(frame: .zero)
     }
     
     func updateMapView(_ view: MKMapView, context: Context) {
-        let span = MKCoordinateSpan(latitudeDelta: 150, longitudeDelta: 150)
+        let coordinate = CLLocationCoordinate2D(latitude: 53.2743394, longitude: -9.0514163)
+
+        let span = MKCoordinateSpan(latitudeDelta: 0.04, longitudeDelta: 0.04)
         let region = MKCoordinateRegion(center: coordinate, span: span)
         view.showsZoomControls = true
         view.setRegion(region, animated: false)
         
         view.removeAnnotations(view.annotations)
-        let annotation = MKPointAnnotation()
-        annotation.coordinate = coordinate
-        view.addAnnotation(annotation)
+        
+        for bus in busList {
+            let annotation = MKPointAnnotation()
+
+            let centerCoordinate = CLLocationCoordinate2D(latitude: bus.latitude, longitude: bus.longitude)
+            annotation.coordinate = centerCoordinate
+            annotation.title = bus.vehicle_id
+            view.addAnnotation(annotation)
+        }
     }
+    
 }
 
 #if os(macOS)

@@ -19,7 +19,41 @@ struct ContentView : View {
                         Text("Stops")
                     }
                 }
+            MapContainer(busStopViewModel: busStopViewModel, busRouteViewModel: busRouteViewModel)
+                .tabItem {
+                    VStack {
+                        Text("Maps")
+                    }
+                }
         }
+    }
+}
+
+
+struct MapContainer: View {
+    @ObservedObject var busStopViewModel: BusStopViewModel
+    @ObservedObject var busRouteViewModel: BusRouteViewModel
+    
+    let timer = Timer.publish(every: 10, on: .main, in: .common).autoconnect()
+    
+
+    var body: some View {
+        NavigationView {
+            List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
+                RouteRow(route: route)
+            }
+            .listStyle(SidebarListStyle())
+            .onReceive(timer) { _ in
+                self.busStopViewModel.fetchBusList()
+            }
+            .onAppear(perform: {
+                self.busRouteViewModel.fetch()
+                self.busStopViewModel.fetchBusList()
+            })
+            
+            MapView(busList: busStopViewModel.busList)
+        }
+
     }
 }
 
@@ -41,7 +75,7 @@ struct RouteRow : View {
     
     var body: some View {
         HStack {
-            Image("ic_bus")
+            Image("ic_bus").resizable().frame(width: 50.0, height: 50.0)
             VStack(alignment: .leading) {
                 Text(route.timetableId).font(.headline)
                 Text(route.longName).font(.subheadline)

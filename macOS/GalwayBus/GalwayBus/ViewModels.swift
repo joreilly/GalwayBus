@@ -20,8 +20,8 @@ class BusRouteViewModel: ObservableObject {
 
     
 class BusStopViewModel: ObservableObject {
-    //@Published private(set) var listStops: [listStops] = []
     @Published var listStops = [BusStop]()
+    @Published var busList = [Bus]()
     
     private let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {
@@ -33,6 +33,13 @@ class BusStopViewModel: ObservableObject {
             self.listStops = data
         })
     }
+    
+    func fetchBusList() {
+        repository.fetchBusListForRoute(routeId: "401", success: { data in
+            self.busList = data
+        })
+    }
+
 }
 
 
