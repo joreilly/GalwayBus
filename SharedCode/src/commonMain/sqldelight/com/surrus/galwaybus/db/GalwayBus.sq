@@ -2,11 +2,14 @@
 CREATE TABLE BusStop(
 stop_id INTEGER NOT NULL PRIMARY KEY,
 short_name TEXT NOT NULL,
-irish_short_name TEXT NOT NULL
+irish_short_name TEXT NOT NULL,
+latitude REAL NOT NULL,
+longitude REAL NOT NULL
 );
 
 insertItem:
-INSERT OR REPLACE INTO BusStop(stop_id, short_name, irish_short_name)VALUES(?,?,?);
+INSERT OR REPLACE INTO BusStop(stop_id, short_name, irish_short_name, latitude, longitude)
+VALUES(?,?,?,?,?);
 
 selectAll:
 SELECT * FROM BusStop;

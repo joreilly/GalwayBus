@@ -12,7 +12,6 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.view.View.GONE
 import android.view.View.VISIBLE
-import android.widget.CheckBox
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
@@ -40,6 +39,7 @@ import com.surrus.galwaybus.Constants
 import com.surrus.galwaybus.R
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Result
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
@@ -171,31 +171,43 @@ class RouteFragment : Fragment(R.layout.fragment_route), OnMapReadyCallback {
     private fun updateUI() {
         busStopsViewModel.busStops.removeObservers(this)
 
-        busStopsViewModel.busStops.observe(this) { busStopsList ->
+        busStopsViewModel.busStops.observe(this) { busStopsListResult ->
 
-            busInfoViewModel.busListForRoute.removeObservers(this)
-            busInfoViewModel.busListForRoute.observe(this) { resource ->
-
-                progressBar.max = BusInfoViewModel.POLL_INTERVAL.toInt()
-                progressCountdownTimer?.cancel()
-                progressCountdownTimer = object: CountDownTimer(BusInfoViewModel.POLL_INTERVAL, 500){
-                    override fun onTick(millisUntilFinished: Long){
-                        progressBar.progress = BusInfoViewModel.POLL_INTERVAL.toInt() - millisUntilFinished.toInt()
-                    }
-                    override fun onFinish() {
-                    }
-                }
-                progressCountdownTimer?.start()
-
-                when (resource?.status) {
-                    ResourceState.SUCCESS -> updateMap(busStopsList!!, resource.data!!)
-                    ResourceState.ERROR -> {
-                        Snackbar.make(this.rootLayout, resource.message as CharSequence, Snackbar.LENGTH_LONG).show()
-                    }
-                    ResourceState.LOADING -> TODO()
+            when (busStopsListResult) {
+                is Result.Success -> { updateRouteBusMap(busStopsListResult.data) }
+                is Result.Error -> {
+                    Snackbar.make(this.rootLayout, busStopsListResult.exception.message as CharSequence, Snackbar.LENGTH_LONG).show()
                 }
             }
+
         }
+    }
+
+
+    private fun updateRouteBusMap(busStopList: List<BusStop>) {
+        busInfoViewModel.busListForRoute.removeObservers(this)
+        busInfoViewModel.busListForRoute.observe(this) { resource ->
+
+            progressBar.max = BusInfoViewModel.POLL_INTERVAL.toInt()
+            progressCountdownTimer?.cancel()
+            progressCountdownTimer = object: CountDownTimer(BusInfoViewModel.POLL_INTERVAL, 500){
+                override fun onTick(millisUntilFinished: Long){
+                    progressBar.progress = BusInfoViewModel.POLL_INTERVAL.toInt() - millisUntilFinished.toInt()
+                }
+                override fun onFinish() {
+                }
+            }
+            progressCountdownTimer?.start()
+
+            when (resource?.status) {
+                ResourceState.SUCCESS -> updateMap(busStopList, resource.data!!)
+                ResourceState.ERROR -> {
+                    Snackbar.make(this.rootLayout, resource.message as CharSequence, Snackbar.LENGTH_LONG).show()
+                }
+                ResourceState.LOADING -> TODO()
+            }
+        }
+
     }
 
     private fun updateMap(busStopList: List<BusStop>, busListForRoute: List<Bus>) {

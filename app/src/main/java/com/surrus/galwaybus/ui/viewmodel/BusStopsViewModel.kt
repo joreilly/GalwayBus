@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Result
 import kotlinx.coroutines.launch
 
 
@@ -13,12 +14,12 @@ class BusStopsViewModel constructor(private val galwayBusRepository: GalwayBusRe
     : ViewModel() {
 
     private val routeId: MutableLiveData<String> = MutableLiveData()
-    private val direction: MutableLiveData<Int> = MutableLiveData()
+    private val direction: MutableLiveData<Int> = MutableLiveData(0)
 
-    val busStops = MediatorLiveData<List<BusStop>>().apply {
+    val busStops = MediatorLiveData<Result<List<BusStop>>>().apply {
         this.addSource(direction) {
             if (busStopList.isNotEmpty()) {
-                this.value = busStopList[direction.value!!]
+                this.value = Result.Success(busStopList[direction.value!!])
             }
         }
     }
@@ -38,12 +39,16 @@ class BusStopsViewModel constructor(private val galwayBusRepository: GalwayBusRe
         if (routeId.value != routeIdString) {
             routeId.value = routeIdString
 
-            busStops.value = emptyList()
             viewModelScope.launch {
-                busStopList = galwayBusRepository.fetchRouteStops(routeIdString)
-                if (busStopList.size >= 2) {
-                    busStops.value = busStopList[direction.value!!]
-                }
+                val result = galwayBusRepository.fetchRouteStops(routeIdString)
+                busStops.postValue(when (result) {
+                    is Result.Success -> {
+                        busStopList = result.data
+
+                        Result.Success(busStopList[direction.value!!])
+                    }
+                    is Result.Error -> Result.Error(result.exception)
+                })
             }
         }
     }

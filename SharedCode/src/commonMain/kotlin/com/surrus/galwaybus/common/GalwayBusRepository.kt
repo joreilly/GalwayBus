@@ -34,27 +34,38 @@ open class GalwayBusRepository {
 
 
     private suspend fun fetchAndStoreBusStops() {
-        val busStops = galwayBusApi.fetchAllBusStops()
+        try {
+            val busStops = galwayBusApi.fetchAllBusStops()
 
-        busStops.forEach {
-            galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, it.irishShortName)
+            busStops.forEach {
+                galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, it.irishShortName, it.latitude, it.longitude)
+            }
+        } catch(e: Exception) {
+            // TODO how should we handle this
         }
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name ->
-            BusStop(stop_id.toInt(), short_name, irish_short_name)
+    suspend fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name, latitude, longitude ->
+            BusStop(stop_id.toInt(), short_name, irish_short_name, latitude = latitude, longitude = longitude)
         })?.asFlow()?.mapToList()
 
 
     suspend fun getBusStops(): List<BusStop> {
-        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name ->
-            BusStop(stop_id.toInt(), short_name, irish_short_name)
+        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name, latitude, longitude  ->
+            BusStop(stop_id.toInt(), short_name, irish_short_name, latitude = latitude, longitude = longitude)
         })?.executeAsList() ?: emptyList<BusStop>()
     }
 
 
-    suspend fun fetchRouteStops(routeId: String) = galwayBusApi.fetchRouteStops(routeId)
+    suspend fun fetchRouteStops(routeId: String): Result<List<List<BusStop>>> {
+        try {
+            val busStopLists = galwayBusApi.fetchRouteStops(routeId)
+            return Result.Success(busStopLists)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
+    }
 
     suspend fun fetchBusListForRoute(routeId: String): Result<List<Bus>> {
         try {

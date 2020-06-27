@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 85
+    version = 86
 
 
     before_all do
@@ -105,7 +105,8 @@ platform :android do
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
-            skip_upload_screenshots: true
+            skip_upload_screenshots: true,
+            version_code: 1001086
         )
     end
 

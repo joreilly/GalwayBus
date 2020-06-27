@@ -12,7 +12,7 @@ import com.surrus.galwaybus.ui.viewmodel.BusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_stops.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
-
+import com.surrus.galwaybus.common.model.Result
 
 class StopsFragment : Fragment() {
 
@@ -44,8 +44,10 @@ class StopsFragment : Fragment() {
         }
 
         busStopsViewModel.busStops.observe(this) {
-            busStopsAdapter.busStopList = it!!
-            busStopsAdapter.notifyDataSetChanged()
+            if (it is Result.Success) {
+                busStopsAdapter.busStopList = it.data
+                busStopsAdapter.notifyDataSetChanged()
+            }
         }
 
     }
