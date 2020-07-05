@@ -33,8 +33,8 @@ import com.orhanobut.logger.Logger
 
 import com.surrus.galwaybus.R
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Location
 //import com.surrus.galwaybus.model.BusStop
-import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel

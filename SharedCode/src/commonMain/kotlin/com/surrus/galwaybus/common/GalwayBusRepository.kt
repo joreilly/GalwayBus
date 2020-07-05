@@ -2,11 +2,11 @@ package com.surrus.galwaybus.common
 
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
-import com.surrus.galwaybus.common.model.Bus
-import com.surrus.galwaybus.common.model.BusRoute
-import com.surrus.galwaybus.common.model.BusStop
-import com.surrus.galwaybus.common.model.Result
+import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.GalwayBusApi
+import com.surrus.galwaybus.common.remote.RTPIApi
+import com.surrus.galwaybus.common.remote.RealtimeBusInformation
+import com.surrus.galwaybus.common.remote.Stop
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -122,5 +122,31 @@ open class GalwayBusRepository {
             busRouteList.add(it)
         }
         return busRouteList
+    }
+
+
+    // RTPI based queries
+    private val rtpiApi = RTPIApi()
+
+    suspend fun getNearestStops(center: Location): Result<List<Stop>> {
+        try {
+            val result = rtpiApi.getBusStopInformation()
+            val nearestStops = result.results.map { stop ->
+                stop to center.distance((Location(stop.latitude.toDouble(), stop.longitude.toDouble())))      //poses.sortedBy { point.distance(it) }.drop(1).take(10)
+            }.sortedBy { it.second }.take(20).map { it -> it.first }
+
+            return Result.Success(nearestStops)
+        } catch(e: Exception) {
+            return Result.Error(e)
+        }
+    }
+
+    suspend fun getRealtimeBusInformation(stopId: String): Result<List<RealtimeBusInformation>> {
+        try {
+            val result = rtpiApi.getRealtimeBusInformation(stopId)
+            return Result.Success(result.results)
+        } catch(e: Exception) {
+            return Result.Error(e)
+        }
     }
 }

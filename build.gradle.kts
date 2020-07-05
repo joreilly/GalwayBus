@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.2.0-alpha02")
+        classpath("com.android.tools.build:gradle:4.2.0-alpha03")
         classpath(BuildPlugins.kotlinGradlePlugin)
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
         classpath("com.google.gms:google-services:4.2.0")
@@ -22,7 +22,6 @@ buildscript {
         classpath("co.touchlab:kotlinxcodesync:0.1.5")
         classpath("com.google.cloud.tools:appengine-gradle-plugin:${Versions.appengine}")
         classpath("org.jetbrains.kotlin:kotlin-frontend-plugin:${Versions.kotlinFrontendPlugin}")
-
     }
 }
 

@@ -6,9 +6,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.LogAdapter
 import com.orhanobut.logger.Logger
 import net.danlew.android.joda.JodaTimeAndroid
-import com.crashlytics.android.Crashlytics
-import io.fabric.sdk.android.Fabric
-import com.crashlytics.android.core.CrashlyticsCore
+//import com.crashlytics.android.Crashlytics
+//import io.fabric.sdk.android.Fabric
+//import com.crashlytics.android.core.CrashlyticsCore
 //import com.facebook.stetho.Stetho
 import com.surrus.galwaybus.di.koin.appModule
 import org.koin.android.ext.koin.androidContext
@@ -32,10 +32,10 @@ class GalwayBusApplication : Application() {
         FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(!BuildConfig.DEBUG)
 
         // Initialize Crashltyics
-        val crashlyticsCore = CrashlyticsCore.Builder()
-                .disabled(BuildConfig.DEBUG)
-                .build()
-        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
+//        val crashlyticsCore = CrashlyticsCore.Builder()
+//                .disabled(BuildConfig.DEBUG)
+//                .build()
+//        Fabric.with(this, Crashlytics.Builder().core(crashlyticsCore).build())
 
         // Initialize Logger
         if (!BuildConfig.DEBUG) {

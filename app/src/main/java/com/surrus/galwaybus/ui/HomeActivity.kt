@@ -1,18 +1,12 @@
 package com.surrus.galwaybus.ui
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 
 
 import com.surrus.galwaybus.R
-import androidx.core.view.MenuItemCompat
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.widget.Toast
 import androidx.navigation.Navigation
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
@@ -21,7 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 //import com.google.ar.core.Session
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.orhanobut.logger.Logger
-import com.surrus.galwaybus.model.Location
+import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*
 import org.koin.android.ext.android.inject

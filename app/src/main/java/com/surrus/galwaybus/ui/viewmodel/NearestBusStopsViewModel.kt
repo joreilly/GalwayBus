@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.orhanobut.logger.Logger
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
-import com.surrus.galwaybus.model.Location
 import com.surrus.galwaybus.ui.data.Resource
 import com.surrus.galwaybus.ui.data.ResourceState
 import kotlinx.coroutines.launch

@@ -1,0 +1,136 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
+
+
+
+def keystorePropertiesFile = rootProject.file("keystore.properties")
+def keystoreProperties = new Properties()
+try {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+catch(Exception e) {
+}
+
+ext.versionMajor = 1
+ext.versionMinor = 1
+ext.versionPatch = project.hasProperty('versionCode') ? project.property('versionCode') as int : 1
+
+def versionCode() {
+    if (!project.hasProperty('versionCode'))
+        return 1
+    def code = versionMajor * 1000000 + versionMinor * 1000 + versionPatch
+    println "versionCode is set to $code"
+    return code
+}
+
+def versionName() {
+    if (!project.hasProperty('versionCode'))
+        return "1.0"
+    def name = "${versionMajor}.${versionMinor}.${versionPatch}"
+    println "versionName is set to $name"
+    return name
+}
+
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "30.0.0"
+
+    signingConfigs {
+
+        debug {
+            keyAlias 'debug'
+            keyPassword 'android'
+            storeFile file('../debug.jks')
+            storePassword 'android'
+        }
+
+        config {
+            storeFile file('/Users/joreilly/dev/keystore/galwaybus_android.jks')
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storePassword keystoreProperties['storePassword']
+            v2SigningEnabled true
+        }
+    }
+
+    defaultConfig {
+        applicationId "com.surrus.galwaybus"
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        final String googleMapsKey = System.getenv('GOOGLE_API_KEY') ?: 'test'
+        resValue 'string', 'google_maps_key', googleMapsKey
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        compose true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion "${Versions.compose}"
+        kotlinCompilerVersion '1.3.70-dev-withExperimentalGoogleExtensions-20200424'
+    }
+
+    packagingOptions {
+        exclude 'META-INF/*.kotlin_module'
+    }
+}
+
+dependencies {
+    implementation 'androidx.core:core-ktx:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.1.0'
+
+    implementation 'com.google.android.material:material:1.1.0'
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
+
+    implementation Kotlin.stdLib
+    implementation Kotlin.coroutinesCore
+    implementation Kotlin.coroutinesAndroid
+
+    implementation Koin.core
+    implementation Koin.android
+    implementation Koin.androidViewModel
+
+
+    implementation "androidx.ui:ui-core:${Versions.compose}"
+    implementation "androidx.ui:ui-layout:${Versions.compose}"
+    implementation "androidx.ui:ui-material:${Versions.compose}"
+    implementation "androidx.ui:ui-tooling:${Versions.compose}"
+    implementation "androidx.ui:ui-graphics:${Versions.compose}"
+    implementation "androidx.ui:ui-livedata:${Versions.compose}"
+
+    implementation "dev.chrisbanes.accompanist:accompanist-coil:${Versions.coilVersion}"
+
+    implementation 'com.karumi:dexter:4.2.0'
+
+    implementation PlayServices.location
+    implementation PlayServices.maps
+
+    testImplementation 'junit:junit:4.13'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    implementation project(":SharedCode")
+}
+
