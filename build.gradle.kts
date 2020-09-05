@@ -11,11 +11,11 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.2.0-alpha04")
+        classpath("com.android.tools.build:gradle:4.2.0-alpha09")
         classpath(BuildPlugins.kotlinGradlePlugin)
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
-        classpath("com.google.gms:google-services:4.2.0")
-        classpath("com.google.firebase:firebase-plugins:1.1.5")
+        classpath("com.google.gms:google-services:4.3.3")
+        classpath("com.google.firebase:firebase-plugins:2.0.0")
         classpath("io.fabric.tools:gradle:1.31.0")
         classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.nav}")
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
@@ -38,9 +38,8 @@ allprojects {
         maven(url = "https://kotlin.bintray.com/kotlin-dev")
         maven(url = "https://kotlin.bintray.com/kotlin-js-wrappers")
         maven( url = "https://dl.bintray.com/ekito/koin")
+        maven( url = "https://dl.bintray.com/touchlabpublic/kotlin")
+        maven( url = "https://jitpack.io" )
     }
 }
 
-tasks.register("clean").configure {
-    delete("build")
-}

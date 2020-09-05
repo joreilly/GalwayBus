@@ -10,6 +10,3 @@ actual fun createDb(): MyDatabase? {
     return null
 }
 
-actual fun ktorScope(block: suspend () -> Unit) {
-    GlobalScope.launch(Dispatchers.Main) { block() }
-}

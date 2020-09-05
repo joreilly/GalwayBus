@@ -15,6 +15,3 @@ actual fun createDb(): MyDatabase? {
     return MyDatabase(driver)
 }
 
-actual fun ktorScope(block: suspend () -> Unit) {
-    GlobalScope.launch(Dispatchers.Main) { block() }
-}

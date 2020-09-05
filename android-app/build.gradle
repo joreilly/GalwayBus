@@ -85,9 +85,10 @@ android {
     buildFeatures {
         compose true
     }
+
     composeOptions {
-        kotlinCompilerExtensionVersion "${Versions.compose}"
-        kotlinCompilerVersion '1.3.70-dev-withExperimentalGoogleExtensions-20200424'
+        kotlinCompilerVersion = "1.4.0"
+        kotlinCompilerExtensionVersion = Versions.compose
     }
 
     packagingOptions {
@@ -95,11 +96,18 @@ android {
     }
 }
 
-dependencies {
-    implementation 'androidx.core:core-ktx:1.3.0'
-    implementation 'androidx.appcompat:appcompat:1.1.0'
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    kotlinOptions {
+        jvmTarget = "1.8"
+        freeCompilerArgs += ["-Xallow-jvm-ir-dependencies", "-Xskip-prerelease-check"]
+    }
+}
 
-    implementation 'com.google.android.material:material:1.1.0'
+dependencies {
+    implementation 'androidx.core:core-ktx:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    implementation 'com.google.android.material:material:1.2.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
@@ -112,24 +120,24 @@ dependencies {
     implementation Koin.android
     implementation Koin.androidViewModel
 
-
-    implementation "androidx.ui:ui-core:${Versions.compose}"
-    implementation "androidx.ui:ui-layout:${Versions.compose}"
-    implementation "androidx.ui:ui-material:${Versions.compose}"
-    implementation "androidx.ui:ui-tooling:${Versions.compose}"
-    implementation "androidx.ui:ui-graphics:${Versions.compose}"
-    implementation "androidx.ui:ui-livedata:${Versions.compose}"
-
+    implementation("com.google.android.libraries.maps:maps:3.1.0-beta")
+    implementation(Compose.ui)
+    implementation(Compose.uiGraphics)
+    implementation(Compose.uiTooling)
+    implementation(Compose.foundationLayout)
+    implementation(Compose.material)
+    implementation(Compose.runtimeLiveData)
     implementation "dev.chrisbanes.accompanist:accompanist-coil:${Versions.coilVersion}"
+    implementation "com.github.zsoltk:compose-router:${Versions.composeRouterVersion}"
 
     implementation 'com.karumi:dexter:4.2.0'
 
     implementation PlayServices.location
-    implementation PlayServices.maps
+    //implementation PlayServices.maps
 
     testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     implementation project(":SharedCode")
 }

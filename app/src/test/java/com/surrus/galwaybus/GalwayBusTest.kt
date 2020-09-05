@@ -108,7 +108,9 @@ class GalwayBusTest {
     @Test
     fun fetchRealtimeBusInformation() = runBlocking {
 
-        val result = api.getRealtimeBusInformation("522301")
+        //val result = api.getRealtimeBusInformation("522301")
+
+        val result = api.getBusStopInformation()
         println(result)
     }
 

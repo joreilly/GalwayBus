@@ -14,11 +14,11 @@ import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
 import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 
 @Serializable
@@ -31,7 +31,7 @@ data class GetBusListForRouteResponse(val bus: List<Bus>)
 // https://github.com/appsandwich/galwaybus
 
 class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
-    private val nonStrictJson = Json(JsonConfiguration(isLenient = true, ignoreUnknownKeys = true))
+    private val nonStrictJson = Json { isLenient = true; ignoreUnknownKeys = true }
 
     private val client by lazy {
         HttpClient() {
@@ -40,12 +40,12 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
             }
             install(Logging) {
                 logger = Logger.DEFAULT
-                level = LogLevel.ALL
+                level = LogLevel.INFO
             }
         }
     }
 
-    private val busScheduleMapSerializer = MapSerializer(String.serializer(), MapSerializer(String.serializer(), String.serializer()).list)
+    private val busScheduleMapSerializer = MapSerializer(String.serializer(), ListSerializer(MapSerializer(String.serializer(), String.serializer())))
 
 
     suspend fun fetchBusRoutes(): Map<String, BusRoute> {
@@ -58,7 +58,7 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
 
     suspend fun fetchSchedules(): Map<String, List<Map<String, String>>> {
         val jsonString = client.get<String>("$baseUrl/schedules.json")
-        return nonStrictJson.parse(busScheduleMapSerializer, jsonString)
+        return nonStrictJson.decodeFromString(busScheduleMapSerializer, jsonString)
     }
 
     suspend fun fetchNearestStops(latitude: Double, longitude: Double): List<BusStop> {

@@ -12,23 +12,22 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.url
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 
 
 class RTPIApi {
     private val baseUrl = "https://data.smartdublin.ie/cgi-bin/rtpi"
 
-    private val nonStrictJson = Json(JsonConfiguration(isLenient = true, ignoreUnknownKeys = true))
+    private val nonStrictJson = Json { isLenient = true; ignoreUnknownKeys = true }
 
     private val client by lazy {
         HttpClient() {
             install(JsonFeature) {
                 serializer = KotlinxSerializer(nonStrictJson)
             }
-//            install(Logging) {
-//                logger = Logger.DEFAULT
-//                level = LogLevel.ALL
-//            }
+            install(Logging) {
+                logger = Logger.DEFAULT
+                level = LogLevel.INFO
+            }
         }
     }
 

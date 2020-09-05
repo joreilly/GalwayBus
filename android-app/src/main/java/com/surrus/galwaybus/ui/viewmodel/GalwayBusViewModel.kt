@@ -53,8 +53,13 @@ class GalwayBusViewModel(private val galwayBusRepository: GalwayBusRepository) :
     fun getNearestStops(location: Location) {
         viewModelScope.launch {
             val result = galwayBusRepository.getNearestStops(location)
-            if (result is Result.Success) {
-                uiState.value = UiState.Success(result.data)
+            when (result) {
+                is Result.Success -> {
+                    uiState.value = UiState.Success(result.data)
+                }
+                is Result.Error -> {
+                    uiState.value = UiState.Error(result.exception)
+                }
             }
         }
     }

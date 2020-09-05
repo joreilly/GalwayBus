@@ -1,12 +1,7 @@
-### Android Galway Bus app using Kotlin Multiplatform shared code
+### Galway Bus Kotlin Multiplatform project using Jetpack Compose and SwiftUI
 
 
 [![Get it on Google Play](https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png)](https://play.google.com/store/apps/details?id=com.surrus.galwaybus)
-
-
-Note also that this is using [REST endpoint](https://github.com/appsandwich/galwaybus) provided by @appsandwich to retrieve
- Galway Bus route/timetable info  (Thanks Vinny!)
-
 
 
 ### Kotlin Multiplatform
@@ -23,10 +18,10 @@ written a couple of post about some of my experiences doing this so far
 
 * [Kotlin](https://kotlinlang.org/)
 * [Kotlin Corooutines](https://kotlinlang.org/docs/reference/coroutines-overview.html)
-* [Kotlin Serialization](https://github.com/Kotlin/kotlinx.serialization)
+* [Kotlinx Serialization](https://github.com/Kotlin/kotlinx.serialization)
 * [Ktor client library](https://github.com/ktorio/ktor)
 * [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
-* [Android Support Libraries](https://developer.android.com/topic/libraries/support-library/index.html)
 * [Koin](https://github.com/InsertKoinIO/koin)
 * [Logger](https://github.com/orhanobut/logger)
-* [Mockito](http://site.mockito.org/)
+* [Jetpack Compose](https://developer.android.com/jetpack/compose)
+* [SwiftUI](https://developer.apple.com/documentation/swiftui)

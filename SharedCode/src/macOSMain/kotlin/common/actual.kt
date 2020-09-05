@@ -8,4 +8,3 @@ actual fun createDb(): MyDatabase? {
     return MyDatabase(driver)
 }
 
-actual fun ktorScope(block: suspend () -> Unit) = kotlinx.coroutines.runBlocking { block() }

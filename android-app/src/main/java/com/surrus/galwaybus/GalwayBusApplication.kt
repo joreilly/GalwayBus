@@ -14,11 +14,9 @@ class GalwayBusApplication : Application() {
         super.onCreate()
 
         appContext = this
-
         startKoin {
             androidContext(this@GalwayBusApplication)
             modules(appModule)
         }
     }
-
 }
