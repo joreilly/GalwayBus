@@ -140,11 +140,11 @@ fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<S
             BottomAppBar(content = {
                 BottomNavigationItem(icon = { Icon(Icons.Default.LocationOn) }, label = { Text("Nearby") },
                         selected = bottomBarSelectedIndex == 0,
-                        onSelect = { bottomBarSelectedIndex = 0 })
+                        onClick = { bottomBarSelectedIndex = 0 })
 
                 BottomNavigationItem(icon = { Icon(Icons.Default.Star) }, label = { Text("Starred") },
                         selected = bottomBarSelectedIndex == 1,
-                        onSelect = { bottomBarSelectedIndex = 1 })
+                        onClick = { bottomBarSelectedIndex = 1 })
             })
         }
     )
@@ -189,7 +189,7 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
 fun StopViewRow(stop: Stop, itemClick : (stop : Stop) -> Unit) {
     Row(
         modifier = Modifier.clickable(onClick = { itemClick(stop) }).padding(8.dp).fillMaxWidth(),
-        verticalGravity = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
         Image(imageResource(R.drawable.ic_aiga_bus), modifier = Modifier.preferredSize(32.dp))

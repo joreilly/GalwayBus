@@ -42,7 +42,7 @@ fun BusStopScreen(viewModel: GalwayBusViewModel, stopId: String, stopName: Strin
 @Composable
 fun BusStopDeparture(departure: RealtimeBusInformation) {
 
-    Row(verticalGravity = Alignment.CenterVertically,
+    Row(verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
         Text(departure.route, modifier = Modifier.preferredWidth(48.dp), style = TextStyle(fontSize = 18.sp))
 
