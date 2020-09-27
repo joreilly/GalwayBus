@@ -12,6 +12,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.ColumnScope.weight
 import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
@@ -22,9 +23,11 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -44,9 +47,7 @@ import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.remote.Stop
-import com.surrus.galwaybus.ui.BusStopScreen
-import com.surrus.galwaybus.ui.GalwayBusTheme
-import com.surrus.galwaybus.ui.rememberMapViewWithLifecycle
+import com.surrus.galwaybus.ui.*
 import com.surrus.galwaybus.ui.viewmodel.GalwayBusViewModel
 import com.surrus.galwaybus.ui.viewmodel.Screen
 import com.surrus.galwaybus.ui.viewmodel.UiState
@@ -156,29 +157,54 @@ fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<S
 fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<Stop>>>) {
     val mapView = rememberMapViewWithLifecycle()
 
-    Column {
-        val uiState = busStopState.value
-        if (uiState is UiState.Success) {
-            MapViewContainer(viewModel, uiState.data, mapView, modifier = Modifier.weight(0.4f) )
+    var sheetState by remember { mutableStateOf(BottomSheetState(show = true)) }
+    var drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
+
+    val departureListState = viewModel.busDepartureList.observeAsState(emptyList())
+
+    BottomDrawerLayout(
+        drawerState = drawerState,
+        drawerShape = if (sheetState.rounded) RoundedCornerShape(16.dp) else RectangleShape,
+        drawerContent = {
+            Text(
+                text = "Departures",
+                style = typography.h6,
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
+
+            LazyColumnFor(items = departureListState.value, itemContent = { departure ->
+                BusStopDeparture(departure)
+            })
         }
+    ) {
+        Column {
+            val uiState = busStopState.value
+            if (uiState is UiState.Success) {
+                MapViewContainer(viewModel, uiState.data, mapView, modifier = Modifier.weight(0.4f))
+            }
 
 
-        Box(modifier = Modifier.weight(0.6f)) {
-            when (val uiState = busStopState.value) {
-                is UiState.Success -> {
-                    LazyColumnFor(items = uiState.data, itemContent = { stop ->
-                        StopViewRow(stop) {
-                            viewModel.navigateTo(Screen.BusStopView(stop.stopid, stop.shortname))
-                        }
-                    })
-                }
-                is UiState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-                        CircularProgressIndicator()
+            Box(modifier = Modifier.weight(0.6f)) {
+                when (val uiState = busStopState.value) {
+                    is UiState.Success -> {
+                        LazyColumnFor(items = uiState.data, itemContent = { stop ->
+                            StopViewRow(stop) {
+                                viewModel.getBusStopDepartures(it.stopid)
+                                sheetState = sheetState.copy(show = true, image = true, buttons = true, rounded = true)
+                                drawerState.open()
+                                //viewModel.navigateTo(Screen.BusStopView(stop.stopid, stop.shortname))
+                            }
+                        })
                     }
-                }
-                is UiState.Error -> {
-                    Snackbar(text = { Text("Error retrieving bus stop info") })
+                    is UiState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                    is UiState.Error -> {
+                        Snackbar(text = { Text("Error retrieving bus stop info") })
+                    }
                 }
             }
         }
@@ -296,6 +322,14 @@ private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @Colo
     return BitmapDescriptorFactory.fromBitmap(bm)
 }
 
+
+data class BottomSheetState(
+        var show: Boolean = false,
+        var image: Boolean = false,
+        var buttons: Boolean = false,
+        var fullScree: Boolean = false,
+        var rounded: Boolean = false
+)
 
 
 @Preview(showBackground = true)
