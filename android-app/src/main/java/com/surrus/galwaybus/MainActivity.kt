@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.ColumnScope.weight
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -234,7 +234,7 @@ fun StopViewRow(stop: Stop, itemClick : (stop : Stop) -> Unit) {
 private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<Stop>, map: MapView, modifier: Modifier) {
     val currentLocation = viewModel.location.observeAsState()
 
-    AndroidView({ map }, modifier = Modifier.weight(0.4f)) { mapView ->
+    AndroidView({ map }) { mapView ->
         mapView.getMapAsync { map ->
 
             map.isMyLocationEnabled = true
