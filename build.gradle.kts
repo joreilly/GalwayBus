@@ -11,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:4.2.0-alpha12")
+        classpath("com.android.tools.build:gradle:4.2.0-alpha13")
         classpath(BuildPlugins.kotlinGradlePlugin)
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
         classpath("com.google.gms:google-services:4.3.3")
