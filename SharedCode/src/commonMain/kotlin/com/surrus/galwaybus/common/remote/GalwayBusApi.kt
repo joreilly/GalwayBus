@@ -3,6 +3,7 @@ package com.surrus.galwaybus.common.remote
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.Departure
 import io.ktor.client.HttpClient
 import io.ktor.client.features.json.JsonFeature
 import io.ktor.client.features.json.serializer.KotlinxSerializer
@@ -16,7 +17,6 @@ import io.ktor.client.request.url
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
-import kotlinx.serialization.builtins.list
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 
@@ -27,10 +27,13 @@ data class GetRouteStopsResponse(val route: BusRoute, val stops: List<List<BusSt
 @Serializable
 data class GetBusListForRouteResponse(val bus: List<Bus>)
 
+@Serializable
+data class BusStopResponse(val stop: BusStop, val times: List<Departure> = emptyList())
+
 
 // https://github.com/appsandwich/galwaybus
 
-class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
+class GalwayBusApi(val baseUrl: String = "https://api.galwaybusabu.com/v1") {
     private val nonStrictJson = Json { isLenient = true; ignoreUnknownKeys = true }
 
     private val client by lazy {
@@ -54,6 +57,10 @@ class GalwayBusApi(val baseUrl: String = "https://galwaybus.herokuapp.com") {
 
     suspend fun fetchAllBusStops(): List<BusStop> {
         return client.get("$baseUrl/stops.json")
+    }
+
+    suspend fun fetchBusStop(stopRef: String): BusStopResponse {
+        return client.get("$baseUrl/stops/$stopRef.json")
     }
 
     suspend fun fetchSchedules(): Map<String, List<Map<String, String>>> {

@@ -1,4 +1,4 @@
-package com.surrus.galwaybus.ui
+package dev.johnoreilly.galwaybus.ui
 
 import android.os.Bundle
 import androidx.annotation.FloatRange
@@ -11,9 +11,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import com.surrus.galwaybus.MaxZoom
-import com.surrus.galwaybus.MinZoom
-import com.surrus.galwaybus.R
+import dev.johnoreilly.galwaybus.MaxZoom
+import dev.johnoreilly.galwaybus.MinZoom
+import dev.johnoreilly.galwaybus.R
 
 /**
  * Remembers a MapView and gives it the lifecycle of the current LifecycleOwner

@@ -1,4 +1,4 @@
-package com.surrus.galwaybus
+package dev.johnoreilly.galwaybus
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -8,12 +8,14 @@ import android.os.Bundle
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.Crossfade
+import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
@@ -45,12 +47,11 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.single.BasePermissionListener
+import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
-import com.surrus.galwaybus.common.remote.Stop
-import com.surrus.galwaybus.ui.*
-import com.surrus.galwaybus.ui.viewmodel.GalwayBusViewModel
-import com.surrus.galwaybus.ui.viewmodel.Screen
-import com.surrus.galwaybus.ui.viewmodel.UiState
+import dev.johnoreilly.galwaybus.ui.*
+import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
+import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 import org.koin.android.viewmodel.ext.android.viewModel
 
 
@@ -85,43 +86,18 @@ class MainActivity : AppCompatActivity() {
 
 
         setContent {
-            AppContent(galwayBusViewModel)
-        }
-    }
-
-
-    override fun onBackPressed() {
-        if (!galwayBusViewModel.onBack()) {
-            super.onBackPressed()
-        }
-    }
-}
-
-
-
-
-@Composable
-private fun AppContent(viewModel: GalwayBusViewModel) {
-    val busStopState = viewModel.uiState.observeAsState(UiState.Loading)
-    val currentScreenState = viewModel.currentScreen.observeAsState()
-
-    GalwayBusTheme {
-        Crossfade(currentScreenState.value) { screen ->
-            when (screen) {
-                is Screen.Home -> {
-                    MainLayout(viewModel, busStopState)
-                }
-                is Screen.BusStopView -> {
-                    BusStopScreen(viewModel, screen.stopId, screen.stopName)
-                }
+            GalwayBusTheme {
+                MainLayout(galwayBusViewModel)
             }
         }
     }
 }
 
+
 @Composable
-fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<Stop>>>) {
+fun MainLayout(viewModel: GalwayBusViewModel) {
     var bottomBarSelectedIndex by remember { mutableStateOf(0) }
+    val busStopState = viewModel.uiState.observeAsState(UiState.Loading)
 
     Scaffold(
         topBar = {
@@ -138,7 +114,7 @@ fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<S
             }
         },
         bottomBar = {
-            BottomAppBar(content = {
+            BottomAppBar {
                 BottomNavigationItem(icon = { Icon(Icons.Default.LocationOn) }, label = { Text("Nearby") },
                         selected = bottomBarSelectedIndex == 0,
                         onClick = { bottomBarSelectedIndex = 0 })
@@ -146,7 +122,7 @@ fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<S
                 BottomNavigationItem(icon = { Icon(Icons.Default.Star) }, label = { Text("Starred") },
                         selected = bottomBarSelectedIndex == 1,
                         onClick = { bottomBarSelectedIndex = 1 })
-            })
+            }
         }
     )
 }
@@ -154,26 +130,24 @@ fun MainLayout(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<S
 
 @SuppressLint("MissingPermission")
 @Composable
-fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<Stop>>>) {
+fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<List<BusStop>>>) {
     val mapView = rememberMapViewWithLifecycle()
 
     var sheetState by remember { mutableStateOf(BottomSheetState(show = true)) }
     var drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
-    val departureListState = viewModel.busDepartureList.observeAsState(emptyList())
+    val departureList by viewModel.busDepartureList.observeAsState(emptyList())
 
     BottomDrawerLayout(
         drawerState = drawerState,
-        drawerShape = if (sheetState.rounded) RoundedCornerShape(16.dp) else RectangleShape,
+        drawerShape = RoundedCornerShape(16.dp),
         drawerContent = {
-            Text(
-                text = "Departures",
-                style = typography.h6,
+            Text(text = "Departures", style = typography.h6,
                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
 
-            LazyColumnFor(items = departureListState.value, itemContent = { departure ->
+            LazyColumnFor(items = departureList, itemContent = { departure ->
                 BusStopDeparture(departure)
             })
         }
@@ -181,7 +155,9 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
         Column {
             val uiState = busStopState.value
             if (uiState is UiState.Success) {
-                MapViewContainer(viewModel, uiState.data, mapView, modifier = Modifier.weight(0.4f))
+                Box(modifier = Modifier.weight(0.4f)) {
+                    MapViewContainer(viewModel, uiState.data, mapView)
+                }
             }
 
 
@@ -190,10 +166,9 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
                     is UiState.Success -> {
                         LazyColumnFor(items = uiState.data, itemContent = { stop ->
                             StopViewRow(stop) {
-                                viewModel.getBusStopDepartures(it.stopid)
-                                sheetState = sheetState.copy(show = true, image = true, buttons = true, rounded = true)
+                                viewModel.setStopRef(it.stopRef)
+                                sheetState = sheetState.copy(show = true)
                                 drawerState.open()
-                                //viewModel.navigateTo(Screen.BusStopView(stop.stopid, stop.shortname))
                             }
                         })
                     }
@@ -212,7 +187,7 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
 }
 
 @Composable
-fun StopViewRow(stop: Stop, itemClick : (stop : Stop) -> Unit) {
+fun StopViewRow(stop: BusStop, itemClick : (stop : BusStop) -> Unit) {
     Row(
         modifier = Modifier.clickable(onClick = { itemClick(stop) }).padding(8.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
@@ -223,15 +198,15 @@ fun StopViewRow(stop: Stop, itemClick : (stop : Stop) -> Unit) {
         Spacer(modifier = Modifier.preferredSize(12.dp))
 
         Column {
-            Text(text = stop.fullname, style = TextStyle(fontSize = 18.sp))
-            Text(text = stop.stopid, style = TextStyle(color = Color.DarkGray, fontSize = 12.sp))
+            Text(text = stop.longName, style = TextStyle(fontSize = 18.sp))
+            Text(text = stop.stopRef, style = TextStyle(color = Color.DarkGray, fontSize = 12.sp))
         }
     }
 }
 
 @SuppressLint("MissingPermission")
 @Composable
-private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<Stop>, map: MapView, modifier: Modifier) {
+private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, map: MapView) {
     val currentLocation = viewModel.location.observeAsState()
 
     AndroidView({ map }) { mapView ->
@@ -261,7 +236,7 @@ private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<Stop>, m
 
                 val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
                 val markerOptions = MarkerOptions()
-                        .title(busStop.shortname)
+                        .title(busStop.shortName)
                         .position(busStopLocation)
                         .icon(icon)
 
@@ -287,8 +262,8 @@ private fun ZoomControls(
 private fun ZoomButton(text: String, onClick: () -> Unit) {
     Button(
             modifier = Modifier.padding(8.dp),
-            backgroundColor = MaterialTheme.colors.onPrimary,
-            contentColor = MaterialTheme.colors.primary,
+//            backgroundColor = MaterialTheme.colors.onPrimary,
+//            contentColor = MaterialTheme.colors.primary,
             onClick = onClick
     ) {
         Text(text = text, style = MaterialTheme.typography.h5)
@@ -324,11 +299,7 @@ private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @Colo
 
 
 data class BottomSheetState(
-        var show: Boolean = false,
-        var image: Boolean = false,
-        var buttons: Boolean = false,
-        var fullScree: Boolean = false,
-        var rounded: Boolean = false
+        var show: Boolean = false
 )
 
 
@@ -336,7 +307,7 @@ data class BottomSheetState(
 @Composable
 fun DefaultPreview() {
     GalwayBusTheme {
-        val stop = Stop("1234", "Some Stop", "Stop full name","0.0", "0.0")
-        StopViewRow(stop) {}
+//        val stop = BusStop("1234", "Some Stop", "Stop full name","0.0", "0.0")
+//        StopViewRow(stop) {}
     }
 }

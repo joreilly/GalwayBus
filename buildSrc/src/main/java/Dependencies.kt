@@ -1,7 +1,7 @@
 
 object Versions {
     const val kotlin = "1.4.10"
-    const val kotlinCoroutines = "1.3.9-native-mt-2"
+    const val kotlinCoroutines = "1.4.2-native-mt"
     const val ktor = "1.4.1"
     const val kotlinxSerialization = "1.0.0-RC2"
     const val koin = "3.0.0-alpha-4"
@@ -14,9 +14,12 @@ object Versions {
     const val work = "2.1.0-alpha02"
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
-    const val compose = "1.0.0-alpha04"
-    const val coilVersion = "0.3.0"
-    const val composeRouterVersion = "0.18.0"
+    const val compose = "1.0.0-alpha07"
+    const val coilVersion = "0.3.3.1"
+    const val composeRouterVersion = "0.22.0"
+
+    const val kermit = "0.1.8"
+    const val kotlinxDateTime = "0.1.1"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
@@ -37,8 +40,6 @@ object Versions {
     const val node = "10.13.0"
     const val react = "16.8.6"
     const val kotlinFrontendPlugin = "0.0.45"
-    const val kotlinJsExt = "1.0.1-pre.79-kotlin-1.3.41"
-    const val kotlinWrapper = "$react-pre.79-kotlin-1.3.41"
 }
 
 object Compose {
@@ -53,42 +54,35 @@ object Compose {
 
 object BuildPlugins {
     const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-
-    const val androidApplication = "com.android.application"
-    const val androidLibrary = "com.android.library"
-    const val kotlinAndroid = "kotlin-android"
-    const val kotlinAndroidExtensions = "kotlin-android-extensions"
-    const val kotlinKapt = "kotlin-kapt"
 }
 
 
-
+object Deps {
+    const val kermit = "co.touchlab:kermit:${Versions.kermit}"
+    const val kotlinxDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.1.1"
+}
 
 object Kotlin {
-    const val stdLib = "org.jetbrains.kotlin:kotlin-stdlib:${Versions.kotlin}"
-    const val stdlibCommon = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
-    const val stdlibJs = "org.jetbrains.kotlin:kotlin-stdlib-js:${Versions.kotlin}"
-    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
-    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
-    const val coroutinesCoreCommon = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
-    const val coroutinesCoreJs = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.kotlinCoroutines}"
-    const val coroutinesCoreNative = "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
-    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinCoroutines}"
-
-    const val serializationRuntime = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
-    const val serializationRuntimeCommon = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
-    const val serializationRuntimeJs = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.kotlinxSerialization}"
-    const val serializationRuntimeNative = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
-
-    const val htmlJs = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
-
-    const val extensions = "org.jetbrains:kotlin-extensions:${Versions.kotlinJsExt}"
-    const val react = "org.jetbrains:kotlin-react:${Versions.kotlinWrapper}"
-    const val reactDom = "org.jetbrains:kotlin-react-dom:${Versions.kotlinWrapper}"
-    const val reactRouterDom = "org.jetbrains:kotlin-react-router-dom:${Versions.kotlinReactRouterDom}"
-    const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
+//    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+//    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
+//    const val coroutinesCoreCommon = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
+//    const val coroutinesCoreJs = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.kotlinCoroutines}"
+//    const val coroutinesCoreNative = "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
+//    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinCoroutines}"
+//
+//    const val serializationRuntime = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
+//    const val serializationRuntimeCommon = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
+//    const val serializationRuntimeJs = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.kotlinxSerialization}"
+//    const val serializationRuntimeNative = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
+//
+//    const val htmlJs = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
+//
+//    const val extensions = "org.jetbrains:kotlin-extensions:${Versions.kotlinJsExt}"
+//    const val react = "org.jetbrains:kotlin-react:${Versions.kotlinWrapper}"
+//    const val reactDom = "org.jetbrains:kotlin-react-dom:${Versions.kotlinWrapper}"
+//    const val reactRouterDom = "org.jetbrains:kotlin-react-router-dom:${Versions.kotlinReactRouterDom}"
+//    const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
 }
-
 
 object Ktor {
     const val clientJs = "io.ktor:ktor-client-js:${Versions.ktor}"

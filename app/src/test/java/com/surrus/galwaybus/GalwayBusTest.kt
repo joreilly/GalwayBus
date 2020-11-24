@@ -5,10 +5,7 @@ import com.nhaarman.mockitokotlin2.mock
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.appContext
 import com.surrus.galwaybus.common.model.Location
-import com.surrus.galwaybus.common.model.Result
 import com.surrus.galwaybus.common.remote.GalwayBusApi
-import com.surrus.galwaybus.common.remote.RTPIApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -21,7 +18,7 @@ class GalwayBusTest {
 
     private val galwayBusApi = GalwayBusApi()
 
-    private val api = RTPIApi()
+    //private val api = RTPIApi()
 
 
     @Test
@@ -87,20 +84,20 @@ class GalwayBusTest {
 //        }.sortedBy { it.second }.take(10)
         //println(nearestPoints)
 
-        if (nearestStopsResult is Result.Success) {
-            nearestStopsResult.data.forEach { stop ->
-
-                async {
-                    val result = api.getRealtimeBusInformation(stop.stopid)
-                    println(stop.shortname)
-
-                    result.results.forEach {
-                        println(it.duetime + " " + it.route)
-                    }
-                }
-
-            }
-        }
+//        if (nearestStopsResult is Result.Success) {
+//            nearestStopsResult.data.forEach { stop ->
+//
+//                async {
+//                    val result = api.getRealtimeBusInformation(stop.stopid)
+//                    println(stop.shortname)
+//
+//                    result.results.forEach {
+//                        println(it.duetime + " " + it.route)
+//                    }
+//                }
+//
+//            }
+//        }
 
     }
 

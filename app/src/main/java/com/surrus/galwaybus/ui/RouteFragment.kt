@@ -367,7 +367,6 @@ class RouteFragment : Fragment(R.layout.fragment_route), OnMapReadyCallback {
             } else if (marker.tag is BusStop) {
                 val busStop = marker.tag as BusStop
                 titleTextView.text = busStop.longName
-                delayTextView.text = busStop.irishShortName
                 departureTimeTextView.text = busStop.stopRef
                 updatedWhenTextView.visibility = GONE
             }

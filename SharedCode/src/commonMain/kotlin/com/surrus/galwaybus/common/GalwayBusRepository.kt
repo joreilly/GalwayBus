@@ -4,20 +4,31 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.GalwayBusApi
-import com.surrus.galwaybus.common.remote.RTPIApi
-import com.surrus.galwaybus.common.remote.RealtimeBusInformation
-import com.surrus.galwaybus.common.remote.Stop
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.serialization.SerialName
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
 
 
 expect fun createDb() : MyDatabase?
 
-open class GalwayBusRepository {
 
+@ExperimentalTime
+data class GalwayBusDeparture(
+        val timetableId: String,
+        val displayName: String,
+        val departTimestamp: String,
+        val durationUntilDeparture: Duration)
+
+
+@ExperimentalTime
+open class GalwayBusRepository {
     private val galwayBusApi = GalwayBusApi()
     private val galwayBusDb = createDb()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
@@ -34,7 +45,7 @@ open class GalwayBusRepository {
             val busStops = galwayBusApi.fetchAllBusStops()
 
             busStops.forEach {
-                galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, it.irishShortName, it.latitude, it.longitude)
+                galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, "", it.latitude, it.longitude)
             }
         } catch(e: Exception) {
             // TODO how should we handle this
@@ -67,6 +78,27 @@ open class GalwayBusRepository {
         try {
             val busList = galwayBusApi.fetchBusListForRoute(routeId)
             return Result.Success(busList)
+        } catch (e: Exception) {
+            return Result.Error(e)
+        }
+    }
+
+    suspend fun fetchBusStopDepartures(stopRef: String): Result<List<GalwayBusDeparture>> {
+        try {
+            val busStopResponse = galwayBusApi.fetchBusStop(stopRef)
+
+            val now = Clock.System.now()
+            val departures = busStopResponse.times
+                .map {
+                    val departureTime = Instant.parse(it.departTimestamp)
+                    val durationUntilDeparture: Duration = departureTime - now
+                    GalwayBusDeparture(it.timetableId, it.displayName, it.departTimestamp,
+                            durationUntilDeparture)
+                }
+                .filter { !it.durationUntilDeparture.isNegative() }
+                .take(5)
+
+            return Result.Success(departures)
         } catch (e: Exception) {
             return Result.Error(e)
         }
@@ -122,27 +154,27 @@ open class GalwayBusRepository {
 
 
     // RTPI based queries
-    private val rtpiApi = RTPIApi()
+    //private val rtpiApi = RTPIApi()
 
-    suspend fun getNearestStops(center: Location): Result<List<Stop>> {
-        try {
-            val result = rtpiApi.getBusStopInformation()
-            val nearestStops = result.results.map { stop ->
-                stop to center.distance((Location(stop.latitude.toDouble(), stop.longitude.toDouble())))      //poses.sortedBy { point.distance(it) }.drop(1).take(10)
-            }.sortedBy { it.second }.take(20).map { it -> it.first }
+//    suspend fun getNearestStops(center: Location): Result<List<Stop>> {
+//        try {
+//            val result = rtpiApi.getBusStopInformation()
+//            val nearestStops = result.results.map { stop ->
+//                stop to center.distance((Location(stop.latitude.toDouble(), stop.longitude.toDouble())))      //poses.sortedBy { point.distance(it) }.drop(1).take(10)
+//            }.sortedBy { it.second }.take(20).map { it -> it.first }
+//
+//            return Result.Success(nearestStops)
+//        } catch(e: Exception) {
+//            return Result.Error(e)
+//        }
+//    }
 
-            return Result.Success(nearestStops)
-        } catch(e: Exception) {
-            return Result.Error(e)
-        }
-    }
-
-    suspend fun getRealtimeBusInformation(stopId: String): Result<List<RealtimeBusInformation>> {
-        try {
-            val result = rtpiApi.getRealtimeBusInformation(stopId)
-            return Result.Success(result.results)
-        } catch(e: Exception) {
-            return Result.Error(e)
-        }
-    }
+//    suspend fun getRealtimeBusInformation(stopId: String): Result<List<RealtimeBusInformation>> {
+//        try {
+//            val result = rtpiApi.getRealtimeBusInformation(stopId)
+//            return Result.Success(result.results)
+//        } catch(e: Exception) {
+//            return Result.Error(e)
+//        }
+//    }
 }
