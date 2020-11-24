@@ -13,9 +13,10 @@ import com.surrus.galwaybus.ui.data.ResourceState
 import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
+import kotlin.time.ExperimentalTime
 
 
-
+@ExperimentalTime
 class NearestBusStopsViewModel constructor(private val galwayBusRepository: GalwayBusRepository)
     : ViewModel() {
 

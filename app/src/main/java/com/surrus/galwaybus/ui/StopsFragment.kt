@@ -13,7 +13,9 @@ import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_stops.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import com.surrus.galwaybus.common.model.Result
+import kotlin.time.ExperimentalTime
 
+@ExperimentalTime
 class StopsFragment : Fragment() {
 
     private var routeId: String? = null

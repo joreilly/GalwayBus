@@ -105,9 +105,8 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    implementation Kotlin.stdLib
-    implementation Kotlin.coroutinesCore
-    implementation Kotlin.coroutinesAndroid
+//    implementation Kotlin.coroutinesCore
+//    implementation Kotlin.coroutinesAndroid
 
     implementation Koin.core
     implementation Koin.android

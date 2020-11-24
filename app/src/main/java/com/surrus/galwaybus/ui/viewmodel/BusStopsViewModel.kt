@@ -8,8 +8,10 @@ import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Result
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 class BusStopsViewModel constructor(private val galwayBusRepository: GalwayBusRepository)
     : ViewModel() {
 

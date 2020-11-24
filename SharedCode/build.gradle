@@ -73,6 +73,9 @@ kotlin {
 
             // koin
             api("org.koin:koin-core:${Versions.koin}")
+
+            api(Deps.kermit)
+            api(Deps.kotlinxDateTime)
         }
 
         androidMain.dependencies {

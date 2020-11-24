@@ -1,11 +1,11 @@
-package com.surrus.galwaybus
+package dev.johnoreilly.galwaybus
 
 import android.app.Application
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
 import com.surrus.galwaybus.common.appContext
-import com.surrus.galwaybus.di.appModule
+import dev.johnoreilly.galwaybus.di.appModule
 
 
 class GalwayBusApplication : Application() {

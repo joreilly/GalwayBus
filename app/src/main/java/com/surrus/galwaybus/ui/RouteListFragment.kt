@@ -13,8 +13,10 @@ import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_route_list.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 class RouteListFragment : Fragment() {
     private val firebaseAnaltyics by inject<FirebaseAnalytics>()
     private val busRoutesViewModel: BusRoutesViewModel by viewModel()

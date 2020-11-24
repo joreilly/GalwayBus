@@ -12,13 +12,13 @@ buildscript {
 
     dependencies {
         classpath("xml-apis:xml-apis:1.4.01")
-        classpath("com.android.tools.build:gradle:4.2.0-alpha15")
+        classpath("com.android.tools.build:gradle:7.0.0-alpha02")
         classpath(BuildPlugins.kotlinGradlePlugin)
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
         classpath("com.google.gms:google-services:4.3.3")
         classpath("com.google.firebase:firebase-plugins:2.0.0")
         classpath("io.fabric.tools:gradle:1.31.0")
-        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:${Versions.nav}")
+        classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.0.0")
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
         classpath("co.touchlab:kotlinxcodesync:0.1.5")
         classpath("com.google.cloud.tools:appengine-gradle-plugin:${Versions.appengine}")

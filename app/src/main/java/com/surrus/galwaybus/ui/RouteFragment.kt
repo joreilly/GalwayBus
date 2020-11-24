@@ -57,8 +57,10 @@ import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 class RouteFragment : Fragment(R.layout.fragment_route), OnMapReadyCallback {
 
     private val busStopsViewModel: BusStopsViewModel by sharedViewModel()
@@ -367,7 +369,6 @@ class RouteFragment : Fragment(R.layout.fragment_route), OnMapReadyCallback {
             } else if (marker.tag is BusStop) {
                 val busStop = marker.tag as BusStop
                 titleTextView.text = busStop.longName
-                delayTextView.text = busStop.irishShortName
                 departureTimeTextView.text = busStop.stopRef
                 updatedWhenTextView.visibility = GONE
             }

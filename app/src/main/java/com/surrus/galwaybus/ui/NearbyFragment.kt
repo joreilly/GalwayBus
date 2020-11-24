@@ -41,8 +41,10 @@ import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import com.surrus.galwaybus.util.ext.observe
 import kotlinx.android.synthetic.main.fragment_nearby.*
 import org.koin.android.viewmodel.ext.android.sharedViewModel
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 class NearbyFragment : Fragment(R.layout.fragment_nearby), OnMapReadyCallback {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient

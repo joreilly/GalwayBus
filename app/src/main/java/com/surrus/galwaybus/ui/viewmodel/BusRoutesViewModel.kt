@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusRoute
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 open class BusRoutesViewModel constructor(private val galwayBusRepository: GalwayBusRepository)
     : ViewModel() {
 

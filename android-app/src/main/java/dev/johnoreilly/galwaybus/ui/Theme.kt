@@ -1,4 +1,4 @@
-package com.surrus.galwaybus.ui
+package dev.johnoreilly.galwaybus.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.MaterialTheme

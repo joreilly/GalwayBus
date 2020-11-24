@@ -8,8 +8,10 @@ import com.surrus.galwaybus.ui.viewmodel.BusInfoViewModel
 import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import org.koin.android.viewmodel.dsl.viewModel
 import org.koin.dsl.module
+import kotlin.time.ExperimentalTime
 
 
+@OptIn(ExperimentalTime::class)
 val galwayBusAppModule = module {
 
     viewModel { NearestBusStopsViewModel(get()) }

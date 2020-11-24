@@ -20,8 +20,10 @@ import com.surrus.galwaybus.ui.viewmodel.NearestBusStopsViewModel
 import kotlinx.android.synthetic.main.activity_home.*
 import org.koin.android.ext.android.inject
 import org.koin.android.viewmodel.ext.android.viewModel
+import kotlin.time.ExperimentalTime
 
 
+@ExperimentalTime
 class HomeActivity : AppCompatActivity() {
     private val firebaseAnaltyics by inject<FirebaseAnalytics>()
     private val nearestBusStopsViewModel by viewModel<NearestBusStopsViewModel>()

@@ -1,6 +1,5 @@
 package com.surrus.galwaybus.ui
 
-import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -33,12 +32,8 @@ class BusStopsRecyclerViewAdapter(val listener: (BusStop) -> Unit) : RecyclerVie
         fun bind(busStop: BusStop, listener: (BusStop) -> Unit) = with(itemView) {
             title.text = busStop.longName
 
-            if (!TextUtils.isEmpty(busStop.irishShortName)) {
-                subtitle.visibility = View.VISIBLE
-                subtitle.text = "${busStop.stopRef} (${busStop.irishShortName})"
-            } else {
-                subtitle.visibility = View.GONE
-            }
+            subtitle.visibility = View.VISIBLE
+            subtitle.text = "${busStop.stopRef}"
 
             if (busStop.times.isNotEmpty()) {
                 timesLayout.visibility = View.VISIBLE
