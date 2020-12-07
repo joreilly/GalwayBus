@@ -14,4 +14,4 @@ jobs:
       with:
         java-version: 11
     - name: Build with Gradle
-      run: ./gradlew :app:assembleDebug
+      run: ./gradlew :android-app:assembleDebug
