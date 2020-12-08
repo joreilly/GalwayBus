@@ -35,8 +35,7 @@ def versionName() {
 
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion "30.0.0"
+    compileSdkVersion AndroidSdk.compile
 
     signingConfigs {
 
@@ -58,10 +57,11 @@ android {
 
     defaultConfig {
         applicationId "dev.johnoreilly.galwaybus"
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion AndroidSdk.min
+        targetSdkVersion AndroidSdk.target
+
+        versionCode this.versionCode()
+        versionName this.versionName()
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -71,8 +71,9 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {

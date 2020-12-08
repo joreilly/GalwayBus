@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 87
+    version = 2
 
 
     before_all do
@@ -34,16 +34,16 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app:bundleRelease",
+              task: ":android-app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
         )
 
         supply(
-            package_name: "com.surrus.galwaybus",
+            package_name: "dev.johnoreilly.galwaybus",
             track: "alpha",
-            aab: "app/build/outputs/bundle/release/app-release.aab",
+            aab: "android-app/build/outputs/bundle/release/android-app-release.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -56,16 +56,16 @@ platform :android do
 
         gradle(task: 'clean')
         gradle(
-              task: ":app:bundleRelease",
+              task: ":android-app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
        )
 
         supply(
-            package_name: "com.surrus.galwaybus",
+            package_name: "dev.johnoreilly.galwaybus",
             track: "internal",
-            aab: "app/build/outputs/bundle/release/app-release.aab",
+            aab: "android-app/build/outputs/bundle/release/android-app-release.aab",
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
@@ -77,7 +77,7 @@ platform :android do
     lane :buildApp do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app:bundleRelease",
+              task: ":android-app:bundleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -87,7 +87,7 @@ platform :android do
     lane :buildAppApk do |options|
         gradle(task: 'clean')
         gradle(
-              task: ":app:assembleRelease",
+              task: ":android-app:assembleRelease",
               properties: {
                   'versionCode' => version
               }
@@ -99,7 +99,7 @@ platform :android do
     lane :promoteAppToProd do |options|
 
         supply(
-            package_name: "com.surrus.galwaybus",
+            package_name: "dev.johnoreilly.galwaybus",
             track: "internal",
             track_promote_to: "production",
             skip_upload_apk: true,
@@ -121,10 +121,10 @@ platform :android do
         screengrab(
             locales: ['en-US'],
             clear_previous_screenshots: true,
-            app_package_name: "com.surrus.galwaybus",
-            use_tests_in_packages: ['com.surrus.galwaybus.screenshots'],
-            app_apk_path: "app/build/outputs/apk/debug/app-debug.apk",
-            tests_apk_path: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+            app_package_name: "dev.johnoreilly.galwaybus",
+            use_tests_in_packages: ['dev.johnoreilly.galwaybus.screenshots'],
+            app_apk_path: "android-app/build/outputs/apk/debug/app-debug.apk",
+            tests_apk_path: "android-app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
         )
     end
 
