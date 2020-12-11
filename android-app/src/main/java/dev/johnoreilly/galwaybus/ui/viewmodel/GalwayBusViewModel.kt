@@ -1,18 +1,14 @@
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
 import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.BusStop
-import com.surrus.galwaybus.common.model.Departure
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.flow.switchMap
 import kotlinx.coroutines.launch
 
 
@@ -30,27 +26,21 @@ class GalwayBusViewModel(
 
     val uiState = MutableLiveData<UiState<List<BusStop>>>()
 
-    //val busDepartureList = MutableLiveData<List<GalwayBusDeparture>>(emptyList())
-
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
 
-
+    val favorites = MutableStateFlow<Set<String>>(setOf())
 
     val location: MutableLiveData<Location> = MutableLiveData()
-    val cameraPosition: MutableLiveData<Location> = MutableLiveData()
-    private val zoomLevel: MutableLiveData<Float> = MutableLiveData()
-
-    private var pollingJob: Job? = null
-
+    //val cameraPosition: MutableLiveData<Location> = MutableLiveData()
 
     init {
-        location.value = Location(53.2743394, -9.0514163) // default if we can't get location
-        getNearestStops(Location(53.2743394, -9.0514163))
+        setLocation(Location(53.2743394, -9.0514163)) // default if we can't get location
     }
 
     fun setLocation(loc: Location) {
         location.value = loc
+        getNearestStops(loc)
     }
 
     fun setStopRef(stopRefValue: String) {
@@ -72,35 +62,27 @@ class GalwayBusViewModel(
     }
 
     private fun pollBusDepartures(stopRef: String): Flow<List<GalwayBusDeparture>> = flow {
+        emit(emptyList())
         while (true) {
             val result = galwayBusRepository.fetchBusStopDepartures(stopRef)
             if (result is Result.Success) {
                 logger.d("GalwayBusViewModel") { result.data.toString() }
                 emit(result.data)
             }
-            delay(10000)
+            delay(POLL_INTERVAL)
         }
     }
 
-/*
-    fun getBusStopDepartures(stopRef: String) {
-        pollingJob?.cancel()
 
-        busDepartureList.value = emptyList()
-        pollingJob = viewModelScope.launch {
-            while (true) {
-                val result = galwayBusRepository.fetchBusStopDepartures(stopRef)
-                if (result is Result.Success) {
-                    busDepartureList.value = result.data
-                    logger.d { result.data.toString() }
-                }
-                delay(10000)
-            }
+    fun toggleFavorite(stopRef: String) {
+        val set = favorites.value.toMutableSet()
+        if (!set.add(stopRef)) {
+            set.remove(stopRef)
         }
+        favorites.value = set
     }
 
- */
     companion object {
-
+        private const val POLL_INTERVAL =  10000L
     }
 }

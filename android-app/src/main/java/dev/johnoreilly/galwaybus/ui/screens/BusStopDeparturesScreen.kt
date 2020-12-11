@@ -8,23 +8,32 @@ import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.surrus.galwaybus.common.GalwayBusDeparture
+import dev.johnoreilly.galwaybus.R
+import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 
 
 @Composable
 fun BusStopDeparture(departure: GalwayBusDeparture) {
     Row(verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
-        Text(departure.timetableId, modifier = Modifier.preferredWidth(48.dp), style = typography.subtitle1)
 
-        Text(departure.displayName, modifier = Modifier.weight(1f).padding(start = 16.dp), style = typography.subtitle1)
+        Text(departure.timetableId, fontWeight = FontWeight.Bold,
+                modifier = Modifier.preferredWidth(36.dp), style = typography.subtitle1)
+
+        Text(departure.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f).padding(start = 16.dp), style = typography.subtitle1)
+
 
         val minutesUntilDeparture = departure.durationUntilDeparture.inMinutes.toInt()
         val departureText = if (minutesUntilDeparture == 0)
-            "Due"
+            stringResource(R.string.bus_time_due)
         else
-            "${minutesUntilDeparture} mins"
+            "$minutesUntilDeparture ${quantityStringResource(R.plurals.mins, minutesUntilDeparture)}"
         Text(departureText, modifier = Modifier.padding(start = 16.dp), style = typography.subtitle1)
     }
 }

@@ -1,4 +1,4 @@
-package dev.johnoreilly.galwaybus.ui
+package dev.johnoreilly.galwaybus.ui.utils
 
 import android.os.Bundle
 import androidx.annotation.FloatRange
@@ -11,8 +11,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.google.android.libraries.maps.GoogleMap
 import com.google.android.libraries.maps.MapView
-import dev.johnoreilly.galwaybus.MaxZoom
-import dev.johnoreilly.galwaybus.MinZoom
 import dev.johnoreilly.galwaybus.R
 
 /**
@@ -56,10 +54,3 @@ private fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserv
         }
     }
 
-fun GoogleMap.setZoom(
-    @FloatRange(from = MinZoom.toDouble(), to = MaxZoom.toDouble()) zoom: Float
-) {
-    resetMinMaxZoomPreference()
-    setMinZoomPreference(zoom)
-    setMaxZoomPreference(zoom)
-}

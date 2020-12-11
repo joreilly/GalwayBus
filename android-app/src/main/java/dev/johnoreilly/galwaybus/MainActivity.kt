@@ -7,7 +7,6 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.Crossfade
 import androidx.compose.material.Text
 import androidx.compose.material.*
 import androidx.compose.foundation.*
@@ -17,6 +16,8 @@ import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.*
@@ -25,7 +26,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.AmbientContext
+import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.TextStyle
@@ -36,94 +38,91 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.BitmapDescriptor
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.MarkerOptions
-import com.karumi.dexter.Dexter
-import com.karumi.dexter.listener.PermissionGrantedResponse
-import com.karumi.dexter.listener.single.BasePermissionListener
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
+import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
+import kotlinx.coroutines.flow.collect
 import org.koin.android.viewmodel.ext.android.viewModel
 
-
 class MainActivity : AppCompatActivity() {
-
     private val galwayBusViewModel by viewModel<GalwayBusViewModel>()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    @ExperimentalComposeApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        Dexter.withActivity(this)
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(object : BasePermissionListener() {
-                    @SuppressLint("MissingPermission")
-                    override fun onPermissionGranted(response: PermissionGrantedResponse) {
-                        println("Permission granted")
-                        fusedLocationClient.lastLocation.addOnSuccessListener { fusedLocation ->
-                            if (fusedLocation != null) {
-                                //val location = Location(fusedLocation.latitude, fusedLocation.longitude)
-
-                                // Center in Eyre Squre for now
-                                val location = Location(53.2743394, -9.0514163)
-                                galwayBusViewModel.setLocation(location)
-                                galwayBusViewModel.getNearestStops(location)
-                            }
-                        }
-                    }
-                }).check()
-
-
         setContent {
             GalwayBusTheme {
-                MainLayout(galwayBusViewModel)
+                val fusedLocationWrapper = fusedLocationWrapper()
+
+                val fineLocation = checkSelfPermissionState(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                )
+                MainLayout(fineLocation, fusedLocationWrapper, galwayBusViewModel)
             }
         }
     }
 }
 
 
+@SuppressLint("MissingPermission")
 @Composable
-fun MainLayout(viewModel: GalwayBusViewModel) {
+fun MainLayout(fineLocation: PermissionState,
+               fusedLocationWrapper: FusedLocationWrapper,
+               viewModel: GalwayBusViewModel
+) {
     var bottomBarSelectedIndex by remember { mutableStateOf(0) }
     val busStopState = viewModel.uiState.observeAsState(UiState.Loading)
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Galway Bus") })
-        },
-        bodyContent = {
-            when (bottomBarSelectedIndex) {
-                0 -> {
-                    BusStopListBody(viewModel, busStopState)
-                }
-                1 -> {
-                    Text("Starred items")
-                }
-            }
-        },
-        bottomBar = {
-            BottomAppBar {
-                BottomNavigationItem(icon = { Icon(Icons.Default.LocationOn) }, label = { Text("Nearby") },
-                        selected = bottomBarSelectedIndex == 0,
-                        onClick = { bottomBarSelectedIndex = 0 })
+    val hasLocationPermission by fineLocation.hasPermission.collectAsState()
 
-                BottomNavigationItem(icon = { Icon(Icons.Default.Star) }, label = { Text("Starred") },
-                        selected = bottomBarSelectedIndex == 1,
-                        onClick = { bottomBarSelectedIndex = 1 })
+    Scaffold(
+            topBar = {
+                TopAppBar(title = { Text("Galway Bus") })
+            },
+            bodyContent = {
+                if (hasLocationPermission) {
+
+                    LaunchedEffect(fusedLocationWrapper) {
+                        fusedLocationWrapper.lastLocation().collect {
+                            val loc = Location(it.latitude, it.longitude)
+                            viewModel.setLocation(loc)
+                            viewModel.getNearestStops(loc)
+                        }
+                    }
+
+                    when (bottomBarSelectedIndex) {
+                        0 -> {
+                            BusStopListBody(viewModel, busStopState)
+                        }
+                        1 -> {
+                            Text("Starred items")
+                        }
+                    }
+                } else {
+                    fineLocation.launchPermissionRequest()
+                }
+            },
+            bottomBar = {
+                BottomAppBar {
+                    BottomNavigationItem(icon = { Icon(Icons.Default.LocationOn) }, label = { Text("Nearby") },
+                            selected = bottomBarSelectedIndex == 0,
+                            onClick = { bottomBarSelectedIndex = 0 })
+
+                    BottomNavigationItem(icon = { Icon(Icons.Default.Favorite) }, label = { Text("Favorites") },
+                            selected = bottomBarSelectedIndex == 1,
+                            onClick = { bottomBarSelectedIndex = 1 })
+                }
             }
-        }
     )
 }
 
@@ -137,6 +136,8 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
     var drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
+
+    val favorites by viewModel.favorites.collectAsState(setOf())
 
     BottomDrawerLayout(
         drawerState = drawerState,
@@ -165,11 +166,18 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
                 when (val uiState = busStopState.value) {
                     is UiState.Success -> {
                         LazyColumnFor(items = uiState.data, itemContent = { stop ->
-                            StopViewRow(stop) {
-                                viewModel.setStopRef(it.stopRef)
-                                sheetState = sheetState.copy(show = true)
-                                drawerState.open()
-                            }
+                            StopViewRow(stop = stop,
+                                itemClick = {
+                                    viewModel.setLocation(Location(it.latitude, it.longitude))
+                                    viewModel.setStopRef(it.stopRef)
+                                    sheetState = sheetState.copy(show = true)
+                                    drawerState.open()
+                                },
+                                isFavorite = favorites.contains(stop.stopRef),
+                                onToggleFavorite = {
+                                    viewModel.toggleFavorite(stop.stopRef)
+                                }
+                            )
                         })
                     }
                     is UiState.Loading -> {
@@ -187,22 +195,48 @@ fun BusStopListBody(viewModel: GalwayBusViewModel, busStopState: State<UiState<L
 }
 
 @Composable
-fun StopViewRow(stop: BusStop, itemClick : (stop : BusStop) -> Unit) {
+fun StopViewRow(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
     Row(
         modifier = Modifier.clickable(onClick = { itemClick(stop) }).padding(8.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(imageResource(R.drawable.ic_aiga_bus), modifier = Modifier.preferredSize(32.dp))
+        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp))
 
-        Spacer(modifier = Modifier.preferredSize(12.dp))
+        Spacer(modifier = Modifier.preferredSize(16.dp))
 
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
             Text(text = stop.longName, style = TextStyle(fontSize = 18.sp))
             Text(text = stop.stopRef, style = TextStyle(color = Color.DarkGray, fontSize = 12.sp))
         }
+        FavoritesButton(
+                isFavorite = isFavorite,
+                onClick = onToggleFavorite
+        )
+
     }
 }
+
+
+@Composable
+fun FavoritesButton(
+        isFavorite: Boolean,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+) {
+    IconToggleButton(
+            checked = isFavorite,
+            onCheckedChange = { onClick() },
+            modifier = modifier
+    ) {
+        if (isFavorite) {
+            Icon(imageVector = Icons.Filled.Favorite, tint = maroon500)
+        } else {
+            Icon(imageVector = Icons.Filled.FavoriteBorder, tint = maroon500)
+        }
+    }
+}
+
 
 @SuppressLint("MissingPermission")
 @Composable
@@ -211,7 +245,6 @@ private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>
 
     AndroidView({ map }) { mapView ->
         mapView.getMapAsync { map ->
-
             map.isMyLocationEnabled = true
             map.uiSettings.isZoomControlsEnabled = true
 
@@ -222,14 +255,9 @@ private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>
 
             map.setOnCameraIdleListener{
                 val cameraPosition = map.cameraPosition
-
                 val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
-                //nearestBusStopsViewModel.setZoomLevel(cameraPosition.zoom)
                 viewModel.setLocation(location)
-
-                viewModel.getNearestStops(location)
             }
-
 
             for (busStop in stops) {
                 val busStopLocation = LatLng(busStop.latitude.toDouble(), busStop.longitude.toDouble())
@@ -246,36 +274,6 @@ private fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>
         }
     }
 }
-
-@Composable
-private fun ZoomControls(
-        zoom: Float,
-        onZoomChanged: (Float) -> Unit
-) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-        ZoomButton("-", onClick = { onZoomChanged(zoom * 0.8f) })
-        ZoomButton("+", onClick = { onZoomChanged(zoom * 1.2f) })
-    }
-}
-
-@Composable
-private fun ZoomButton(text: String, onClick: () -> Unit) {
-    Button(
-            modifier = Modifier.padding(8.dp),
-//            backgroundColor = MaterialTheme.colors.onPrimary,
-//            contentColor = MaterialTheme.colors.primary,
-            onClick = onClick
-    ) {
-        Text(text = text, style = MaterialTheme.typography.h5)
-    }
-}
-
-
-
-private const val InitialZoom = 5f
-const val MinZoom = 2f
-const val MaxZoom = 20f
-
 
 
 
@@ -298,16 +296,5 @@ private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @Colo
 }
 
 
-data class BottomSheetState(
-        var show: Boolean = false
-)
+data class BottomSheetState(var show: Boolean = false)
 
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    GalwayBusTheme {
-//        val stop = BusStop("1234", "Some Stop", "Stop full name","0.0", "0.0")
-//        StopViewRow(stop) {}
-    }
-}

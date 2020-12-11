@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Galway Bus</string>
+
+    <string name="bus_time_due">Due</string>
+
+    <plurals name="mins">
+        <item quantity="one">min</item>
+        <item quantity="other">mins</item>
+    </plurals>
+
 </resources>
