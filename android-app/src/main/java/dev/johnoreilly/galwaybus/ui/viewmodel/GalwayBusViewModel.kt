@@ -82,6 +82,10 @@ class GalwayBusViewModel(
         favorites.value = set
     }
 
+    fun centerInEyreSquare() {
+        setLocation(Location(53.2743394, -9.0514163))
+    }
+
     companion object {
         private const val POLL_INTERVAL =  10000L
     }

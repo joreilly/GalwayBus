@@ -16,10 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
@@ -87,7 +84,13 @@ fun MainLayout(fineLocation: PermissionState,
 
     Scaffold(
             topBar = {
-                TopAppBar(title = { Text("Galway Bus") })
+                TopAppBar(title = { Text("Galway Bus") },
+                    actions = {
+                        IconButton(onClick = { viewModel.centerInEyreSquare() }) {
+                            Icon(Icons.Filled.Home)
+                        }
+                    }
+                )
             },
             bodyContent = {
                 if (hasLocationPermission) {
