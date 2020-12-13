@@ -31,8 +31,6 @@ data class GetBusListForRouteResponse(val bus: List<Bus>)
 data class BusStopResponse(val stop: BusStop, val times: List<Departure> = emptyList())
 
 
-// https://github.com/appsandwich/galwaybus
-
 class GalwayBusApi(val baseUrl: String = "https://api.galwaybusabu.com/v1") {
     private val nonStrictJson = Json { isLenient = true; ignoreUnknownKeys = true }
 
@@ -43,7 +41,7 @@ class GalwayBusApi(val baseUrl: String = "https://api.galwaybusabu.com/v1") {
             }
             install(Logging) {
                 logger = Logger.DEFAULT
-                level = LogLevel.INFO
+                level = LogLevel.ALL
             }
         }
     }

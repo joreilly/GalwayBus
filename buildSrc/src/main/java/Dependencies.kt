@@ -4,8 +4,10 @@ object Versions {
     const val kotlinCoroutines = "1.4.2-native-mt"
     const val ktor = "1.4.1"
     const val kotlinxSerialization = "1.0.0-RC2"
+    const val kotlinxDateTime = "0.1.1"
     const val koin = "3.0.0-alpha-4"
     const val sqlDelight = "1.4.2"
+    const val multiplatformSettings = "0.6.3"
 
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
@@ -15,11 +17,10 @@ object Versions {
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
     const val compose = "1.0.0-alpha08"
-    const val nav_compose_version = "1.0.0-alpha02"
+    const val nav_compose_version = "1.0.0-alpha03"
     const val coilVersion = "0.4.0"
 
     const val kermit = "0.1.8"
-    const val kotlinxDateTime = "0.1.1"
 
     const val junit = "4.12"
     const val coreTesting = "2.0.0"
@@ -61,7 +62,8 @@ object BuildPlugins {
 
 object Deps {
     const val kermit = "co.touchlab:kermit:${Versions.kermit}"
-    const val kotlinxDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:0.1.1"
+    const val kotlinxDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}"
+    const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
 }
 
 object Kotlin {

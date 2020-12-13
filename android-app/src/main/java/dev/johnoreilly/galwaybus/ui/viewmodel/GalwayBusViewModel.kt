@@ -1,5 +1,7 @@
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
+import android.app.Application
+import android.preference.PreferenceManager
 import androidx.lifecycle.*
 import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusDeparture
@@ -20,22 +22,35 @@ sealed class UiState<out T: Any> {
 
 
 class GalwayBusViewModel(
+        application: Application,
         private val galwayBusRepository: GalwayBusRepository,
         private val logger: Kermit
-) : ViewModel() {
+) : AndroidViewModel(application) {
 
     val uiState = MutableLiveData<UiState<List<BusStop>>>()
 
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
-
+    var busStops = listOf<BusStop>()
     val favorites = MutableStateFlow<Set<String>>(setOf())
 
     val location: MutableLiveData<Location> = MutableLiveData()
+
     //val cameraPosition: MutableLiveData<Location> = MutableLiveData()
 
+    val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(application)
+
     init {
-        setLocation(Location(53.2743394, -9.0514163)) // default if we can't get location
+        centerInEyreSquare()
+        val savedFavorites = sharedPrefs.getStringSet(FAVORITES_KEY, emptySet())
+        if (savedFavorites != null) {
+            favorites.value = savedFavorites
+        }
+        viewModelScope.launch {
+            galwayBusRepository.getBusStopsFlow()?.collect {
+                busStops = it
+            }
+        }
     }
 
     fun setLocation(loc: Location) {
@@ -47,16 +62,18 @@ class GalwayBusViewModel(
         stopRef.value = stopRefValue
     }
 
+    fun getBusStop(stopRef: String): BusStop {
+        println("getBusStop, stopRef = $stopRef")
+        println(busStops)
+        return busStops.first { it.stop_id == stopRef }
+    }
+
     fun getNearestStops(location: Location) {
         viewModelScope.launch {
             val result = galwayBusRepository.fetchNearestStops(location.latitude, location.longitude)
-            when (result) {
-                is Result.Success -> {
-                    uiState.value = UiState.Success(result.data)
-                }
-                is Result.Error -> {
-                    uiState.value = UiState.Error(result.exception)
-                }
+            uiState.value = when (result) {
+                is Result.Success -> UiState.Success(result.data)
+                is Result.Error -> UiState.Error(result.exception)
             }
         }
     }
@@ -80,6 +97,8 @@ class GalwayBusViewModel(
             set.remove(stopRef)
         }
         favorites.value = set
+
+        sharedPrefs.edit().putStringSet(FAVORITES_KEY, set).apply()
     }
 
     fun centerInEyreSquare() {
@@ -88,5 +107,6 @@ class GalwayBusViewModel(
 
     companion object {
         private const val POLL_INTERVAL =  10000L
+        private const val FAVORITES_KEY = "favorites"
     }
 }

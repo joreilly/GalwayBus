@@ -11,13 +11,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 
 expect fun createDb() : MyDatabase?
-
 
 @ExperimentalTime
 data class GalwayBusDeparture(
@@ -35,6 +33,7 @@ open class GalwayBusRepository {
 
     init {
         GlobalScope.launch(Dispatchers.Main) {
+            // TODO have "staleness check" here?
             fetchAndStoreBusStops()
         }
     }
@@ -42,25 +41,28 @@ open class GalwayBusRepository {
 
     private suspend fun fetchAndStoreBusStops() {
         try {
-            val busStops = galwayBusApi.fetchAllBusStops()
+            val existingBusStops = getBusStops()
+            if (existingBusStops.isEmpty()) {
+                val busStops = galwayBusApi.fetchAllBusStops().filter { it.galway }
 
-            busStops.forEach {
-                galwayBusQueries?.insertItem(it.stop_id.toLong(), it.shortName, "", it.latitude, it.longitude)
+                busStops.forEach {
+                    galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
+                }
             }
         } catch(e: Exception) {
-            // TODO how should we handle this
+            e.printStackTrace()
         }
     }
 
     @ExperimentalCoroutinesApi
-    suspend fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name, latitude, longitude ->
-            BusStop(stop_id.toInt(), short_name, irish_short_name, latitude = latitude, longitude = longitude)
+    fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
+            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
         })?.asFlow()?.mapToList()
 
 
-    suspend fun getBusStops(): List<BusStop> {
-        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, irish_short_name, latitude, longitude  ->
-            BusStop(stop_id.toInt(), short_name, irish_short_name, latitude = latitude, longitude = longitude)
+    fun getBusStops(): List<BusStop> {
+        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, long_name, stop_ref, latitude, longitude  ->
+            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
         })?.executeAsList() ?: emptyList<BusStop>()
     }
 

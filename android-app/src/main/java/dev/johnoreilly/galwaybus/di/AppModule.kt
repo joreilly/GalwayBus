@@ -9,7 +9,7 @@ import org.koin.dsl.module
 
 val galwayBusAppModule = module {
 
-    viewModel { GalwayBusViewModel(get(),get()) }
+    viewModel { GalwayBusViewModel(get(), get(),get()) }
 
     single { Kermit(LogcatLogger()) }
     single { com.surrus.galwaybus.common.GalwayBusRepository() }

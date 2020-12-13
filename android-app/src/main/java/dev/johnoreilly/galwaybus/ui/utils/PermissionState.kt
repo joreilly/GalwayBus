@@ -69,7 +69,6 @@ private class PermissionResultCall(
  * Instantiate and manage it in composition like this
  */
 @ExperimentalComposeApi
-@ExperimentalCoroutinesApi
 @Composable
 fun checkSelfPermissionState(activity: AppCompatActivity, permission: String): PermissionState {
     val key = currentComposer.currentCompoundKeyHash.toString()

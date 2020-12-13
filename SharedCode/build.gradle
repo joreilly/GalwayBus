@@ -74,6 +74,7 @@ kotlin {
             // koin
             api("org.koin:koin-core:${Versions.koin}")
 
+            api(Deps.multiplatformSettings)
             api(Deps.kermit)
             api(Deps.kotlinxDateTime)
         }
