@@ -5,6 +5,7 @@ import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.AmbientContext
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.lifecycle.Lifecycle
@@ -18,7 +19,7 @@ import dev.johnoreilly.galwaybus.R
  */
 @Composable
 fun rememberMapViewWithLifecycle(): MapView {
-    val context = ContextAmbient.current
+    val context = AmbientContext.current
     val mapView = remember {
         MapView(context).apply {
             id = R.id.map

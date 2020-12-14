@@ -65,9 +65,11 @@ fun MainLayout(fineLocation: PermissionState,
             if (hasLocationPermission) {
                 LaunchedEffect(fusedLocationWrapper) {
                     fusedLocationWrapper.lastLocation().collect {
-                        val loc = Location(it.latitude, it.longitude)
-                        viewModel.setLocation(loc)
-                        viewModel.getNearestStops(loc)
+                        if (it != null) {
+                            val loc = Location(it.latitude, it.longitude)
+                            viewModel.setLocation(loc)
+                            viewModel.getNearestStops(loc)
+                        }
                     }
                 }
 

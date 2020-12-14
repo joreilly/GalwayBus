@@ -1,7 +1,11 @@
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
 import android.app.Application
-import android.preference.PreferenceManager
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.preferencesSetKey
+import androidx.datastore.preferences.createDataStore
 import androidx.lifecycle.*
 import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusDeparture
@@ -32,20 +36,19 @@ class GalwayBusViewModel(
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
     var busStops = listOf<BusStop>()
-    val favorites = MutableStateFlow<Set<String>>(setOf())
-
     val location: MutableLiveData<Location> = MutableLiveData()
 
     //val cameraPosition: MutableLiveData<Location> = MutableLiveData()
 
-    val sharedPrefs = PreferenceManager.getDefaultSharedPreferences(application)
+    private val FAVORITES_KEY = preferencesSetKey<String>("favorites")
+    private val dataStore: DataStore<Preferences> = application.createDataStore("settings")
+    val favorites: Flow<Set<String>> = dataStore.data
+        .map { preferences ->
+            preferences[FAVORITES_KEY] ?: emptySet()
+        }
 
     init {
         centerInEyreSquare()
-        val savedFavorites = sharedPrefs.getStringSet(FAVORITES_KEY, emptySet())
-        if (savedFavorites != null) {
-            favorites.value = savedFavorites
-        }
         viewModelScope.launch {
             galwayBusRepository.getBusStopsFlow()?.collect {
                 busStops = it
@@ -92,13 +95,16 @@ class GalwayBusViewModel(
 
 
     fun toggleFavorite(stopRef: String) {
-        val set = favorites.value.toMutableSet()
-        if (!set.add(stopRef)) {
-            set.remove(stopRef)
+        viewModelScope.launch {
+            dataStore.edit { settings ->
+                val currentFavorites = settings[FAVORITES_KEY] ?: emptySet()
+                val newFavorites = currentFavorites.toMutableSet()
+                if (!newFavorites.add(stopRef)) {
+                    newFavorites.remove(stopRef)
+                }
+                settings[FAVORITES_KEY] = newFavorites
+            }
         }
-        favorites.value = set
-
-        sharedPrefs.edit().putStringSet(FAVORITES_KEY, set).apply()
     }
 
     fun centerInEyreSquare() {
