@@ -99,7 +99,7 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel) {
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                     favorites: Set<String>, itemClick : (stop : BusStop) -> Unit) {
     LazyColumnFor(items = busStopList, itemContent = { stop ->
-        StopViewRow(stop = stop,
+        BusStopView(stop = stop,
             itemClick = itemClick,
             isFavorite = favorites.contains(stop.stopRef),
             onToggleFavorite = {
@@ -110,7 +110,7 @@ fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
 }
 
 @Composable
-fun StopViewRow(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
+fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
     Row(
             modifier = Modifier.clickable(onClick = { itemClick(stop) }).padding(8.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -144,13 +144,14 @@ fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, map: M
 
             currentLocation.value?.let {
                 val position = LatLng(it.latitude, it.longitude)
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15.0f))
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(position,  viewModel.getZoomLevel()))
             }
 
             map.setOnCameraIdleListener{
                 val cameraPosition = map.cameraPosition
                 val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
                 viewModel.setLocation(location)
+                viewModel.setZoomLevel(cameraPosition.zoom)
             }
 
             for (busStop in stops) {

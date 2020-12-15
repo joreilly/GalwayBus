@@ -38,7 +38,8 @@ class GalwayBusViewModel(
     var busStops = listOf<BusStop>()
     val location: MutableLiveData<Location> = MutableLiveData()
 
-    //val cameraPosition: MutableLiveData<Location> = MutableLiveData()
+    val cameraPosition: MutableLiveData<Location> = MutableLiveData()
+    private val zoomLevel: MutableLiveData<Float> = MutableLiveData(15.0f)
 
     private val FAVORITES_KEY = preferencesSetKey<String>("favorites")
     private val dataStore: DataStore<Preferences> = application.createDataStore("settings")
@@ -59,6 +60,19 @@ class GalwayBusViewModel(
     fun setLocation(loc: Location) {
         location.value = loc
         getNearestStops(loc)
+    }
+
+    fun setZoomLevel(zl: Float) {
+        zoomLevel.value = zl
+    }
+
+    fun getZoomLevel(): Float {
+        return zoomLevel.value ?: 15.0f
+    }
+
+
+    fun setCameraPosition(loc: Location) {
+        cameraPosition.value = loc
     }
 
     fun setStopRef(stopRefValue: String) {

@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         setContent {
             GalwayBusTheme {
                 val fusedLocationWrapper = fusedLocationWrapper()
-
                 val fineLocation = checkSelfPermissionState(this,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 )
@@ -66,9 +65,9 @@ fun MainLayout(fineLocation: PermissionState,
                 LaunchedEffect(fusedLocationWrapper) {
                     fusedLocationWrapper.lastLocation().collect {
                         if (it != null) {
+                            println("JFOR, got location update")
                             val loc = Location(it.latitude, it.longitude)
                             viewModel.setLocation(loc)
-                            viewModel.getNearestStops(loc)
                         }
                     }
                 }
