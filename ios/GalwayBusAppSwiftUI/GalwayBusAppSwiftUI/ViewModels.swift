@@ -20,7 +20,6 @@ class BusRouteViewModel: ObservableObject {
 
     
 class BusStopViewModel: ObservableObject {
-    //@Published private(set) var listStops: [listStops] = []
     @Published var listStops = [BusStop]()
     
     private let repository: GalwayBusRepository

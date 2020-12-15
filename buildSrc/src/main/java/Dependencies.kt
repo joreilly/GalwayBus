@@ -1,9 +1,9 @@
 
 object Versions {
-    const val kotlin = "1.4.20"
+    const val kotlin = "1.4.21"
     const val kotlinCoroutines = "1.4.2-native-mt"
-    const val ktor = "1.4.1"
-    const val kotlinxSerialization = "1.0.0-RC2"
+    const val ktor = "1.4.0"
+    const val kotlinxSerialization = "1.0.0-RC"
     const val kotlinxDateTime = "0.1.1"
     const val koin = "3.0.0-alpha-4"
     const val sqlDelight = "1.4.2"
