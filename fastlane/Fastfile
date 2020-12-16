@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 13
+    version = 14
 
 
     before_all do

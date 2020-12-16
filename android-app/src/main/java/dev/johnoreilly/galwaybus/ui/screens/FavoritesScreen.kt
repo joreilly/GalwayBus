@@ -25,7 +25,7 @@ fun FavoritesScreen(viewModel: GalwayBusViewModel) {
 
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
     val favorites by viewModel.favorites.collectAsState(setOf())
-    val busStopList = favorites.map { viewModel.getBusStop(it) }
+    val busStopList = favorites.mapNotNull { viewModel.getBusStop(it) }
 
     BottomDrawerLayout(
             drawerState = drawerState,

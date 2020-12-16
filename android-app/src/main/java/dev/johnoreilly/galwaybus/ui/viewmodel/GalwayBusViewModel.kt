@@ -79,10 +79,9 @@ class GalwayBusViewModel(
         stopRef.value = stopRefValue
     }
 
-    fun getBusStop(stopRef: String): BusStop {
+    fun getBusStop(stopRef: String): BusStop? {
         println("getBusStop, stopRef = $stopRef")
-        println(busStops)
-        return busStops.first { it.stop_id == stopRef }
+        return busStops.firstOrNull { it.stop_id == stopRef }
     }
 
     fun getNearestStops(location: Location) {

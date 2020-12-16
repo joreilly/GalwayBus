@@ -44,7 +44,7 @@ open class GalwayBusRepository {
             if (existingBusStops.isEmpty()) {
                 val busStops = galwayBusApi.fetchAllBusStops()
 
-                val galwayBusStops = busStops.filter { it.distance < 10000.0 }
+                val galwayBusStops = busStops.filter { it.distance < 20000.0 }
                 galwayBusStops.forEach {
                     galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
