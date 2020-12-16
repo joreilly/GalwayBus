@@ -3,15 +3,15 @@
 
 ### Jetpack Compose
 
-The Jetpack Compose version of app is in separate `android-app` module and is still work in progress.  The existing
-`app` module (based on fragments/layouts etc) is what's currently used for version in Play Store.
+The main Jetpack Compose based app module is contained in `android-app`...this is also the version that's now 
+published to Play Store.  The previous "legacy" version of app (based on fragments/layouts etc) is still contained in `app` module but will be removed in near future.
 
 
 ### Kotlin Multiplatform
 
-Currently this project is being mostly used as platform to explore some of the relatively new Kotlin Multiplatform
-capabilities.  There is now **Kotlin Multiplatform** `ShareCode` module for example and some sample iOS apps in `ios` folder. Have also
-written a couple of posts about some of my experiences doing this so far with this project.  Also, 
+Currently this project is also being used as platform to explore some of the relatively new **Kotlin Multiplatform**
+capabilities.  There is a Kotlin Multiplatform `ShareCode` module for example along with sample iOS
+and macOS apps. Have also written a couple of posts about some of my experiences doing this so far with this project.  Also, 
 see [PeopleInSpace](https://github.com/joreilly/PeopleInSpace) and [BikeShare](https://github.com/joreilly/BikeShare) for 
 other examples of use of Kotlin Multiplatform code.
 
