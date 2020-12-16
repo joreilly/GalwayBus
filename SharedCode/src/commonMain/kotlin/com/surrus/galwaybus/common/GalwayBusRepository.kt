@@ -44,7 +44,8 @@ open class GalwayBusRepository {
             if (existingBusStops.isEmpty()) {
                 val busStops = galwayBusApi.fetchAllBusStops()
 
-                busStops.forEach {
+                val galwayBusStops = busStops.filter { it.distance < 10000.0 }
+                galwayBusStops.forEach {
                     galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
             }
@@ -96,7 +97,6 @@ open class GalwayBusRepository {
                     GalwayBusDeparture(it.timetableId, it.displayName, it.departTimestamp,
                             durationUntilDeparture)
                 }
-                .filter { !it.durationUntilDeparture.isNegative() }
                 .take(5)
 
             return Result.Success(departures)
@@ -154,4 +154,5 @@ open class GalwayBusRepository {
         }
         return busRouteList
     }
+
 }

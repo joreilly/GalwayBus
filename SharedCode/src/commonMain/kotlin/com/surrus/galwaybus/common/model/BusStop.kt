@@ -13,6 +13,7 @@ data class BusStop(val stop_id: String,
                    val longitude: Double = 0.0,
                    var times: List<Departure> = emptyList(),
                    val routes: List<String> = emptyList(),
+                   val distance: Double = 0.0,
                    val galway: Boolean = false)
 
 

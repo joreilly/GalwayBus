@@ -30,7 +30,7 @@ fun BusStopDeparture(departure: GalwayBusDeparture) {
 
 
         val minutesUntilDeparture = departure.durationUntilDeparture.inMinutes.toInt()
-        val departureText = if (minutesUntilDeparture == 0)
+        val departureText = if (minutesUntilDeparture <= 0)
             stringResource(R.string.bus_time_due)
         else
             "$minutesUntilDeparture ${quantityStringResource(R.plurals.mins, minutesUntilDeparture)}"

@@ -55,10 +55,6 @@ object Compose {
 }
 
 
-object BuildPlugins {
-    const val kotlinGradlePlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-}
-
 
 object Deps {
     const val kermit = "co.touchlab:kermit:${Versions.kermit}"
