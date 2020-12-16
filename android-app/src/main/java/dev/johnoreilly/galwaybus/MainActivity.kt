@@ -65,7 +65,6 @@ fun MainLayout(fineLocation: PermissionState,
                 LaunchedEffect(fusedLocationWrapper) {
                     fusedLocationWrapper.lastLocation().collect {
                         if (it != null) {
-                            println("JFOR, got location update")
                             val loc = Location(it.latitude, it.longitude)
                             viewModel.setLocation(loc)
                         }
