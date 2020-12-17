@@ -2,6 +2,7 @@ package dev.johnoreilly.galwaybus.ui.screens
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomDrawerLayout
@@ -36,9 +37,11 @@ fun FavoritesScreen(viewModel: GalwayBusViewModel) {
                         textAlign = TextAlign.Center
                 )
 
-                LazyColumnFor(items = departureList, itemContent = { departure ->
-                    BusStopDeparture(departure)
-                })
+                LazyColumn {
+                    items(items = departureList, itemContent = { departure ->
+                        BusStopDeparture(departure)
+                    })
+                }
             }
     ) {
 

@@ -7,6 +7,7 @@ import androidx.annotation.ColorRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -60,9 +61,11 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel) {
                         textAlign = TextAlign.Center
                 )
 
-                LazyColumnFor(items = departureList, itemContent = { departure ->
-                    BusStopDeparture(departure)
-                })
+                LazyColumn {
+                    items(items = departureList, itemContent = { departure ->
+                        BusStopDeparture(departure)
+                    })
+                }
             }
     ) {
         Column {
@@ -98,15 +101,17 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel) {
 @Composable
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                     favorites: Set<String>, itemClick : (stop : BusStop) -> Unit) {
-    LazyColumnFor(items = busStopList, itemContent = { stop ->
-        BusStopView(stop = stop,
-            itemClick = itemClick,
-            isFavorite = favorites.contains(stop.stopRef),
-            onToggleFavorite = {
-                viewModel.toggleFavorite(stop.stopRef)
-            }
-        )
-    })
+    LazyColumn {
+        items(items = busStopList, itemContent = { stop ->
+            BusStopView(stop = stop,
+                    itemClick = itemClick,
+                    isFavorite = favorites.contains(stop.stopRef),
+                    onToggleFavorite = {
+                        viewModel.toggleFavorite(stop.stopRef)
+                    }
+            )
+        })
+    }
 }
 
 @Composable
