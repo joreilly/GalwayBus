@@ -3,7 +3,6 @@ apply plugin: 'kotlin-multiplatform'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'org.jetbrains.kotlin.native.cocoapods'
 apply plugin: "com.squareup.sqldelight"
-apply plugin: 'co.touchlab.kotlinxcodesync'
 
 // CocoaPods requires the podspec to have a version.
 version = "1.0"
@@ -122,7 +121,3 @@ sqldelight {
     }
 }
 
-xcode {
-    projectPath = "../ios/GalwayBusApp/GalwayBusApp.xcodeproj"
-    target = "GalwayBusApp"
-}
