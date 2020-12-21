@@ -11,7 +11,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.setContent
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.FavoritesScreen
@@ -41,13 +44,24 @@ class MainActivity : AppCompatActivity() {
 }
 
 
+sealed class BottomNavigationScreens(val route: String, val label: String, val icon: ImageVector) {
+    object NearbyScreen : BottomNavigationScreens("Nearby", "Nearby", Icons.Default.LocationOn)
+    object FavoritesScreen : BottomNavigationScreens("Favorites", "Favorites", Icons.Default.Favorite)
+}
+
 @SuppressLint("MissingPermission")
 @Composable
 fun MainLayout(fineLocation: PermissionState,
                fusedLocationWrapper: FusedLocationWrapper,
                viewModel: GalwayBusViewModel
 ) {
-    var bottomBarSelectedIndex by remember { mutableStateOf(0) }
+    val navController = rememberNavController()
+
+    val bottomNavigationItems = listOf(
+            BottomNavigationScreens.NearbyScreen,
+            BottomNavigationScreens.FavoritesScreen
+    )
+
     val hasLocationPermission by fineLocation.hasPermission.collectAsState()
 
     Scaffold(
@@ -71,30 +85,48 @@ fun MainLayout(fineLocation: PermissionState,
                     }
                 }
 
-                when (bottomBarSelectedIndex) {
-                    0 -> NearestBusStopsScreen(viewModel)
-                    1 -> FavoritesScreen(viewModel)
+                NavHost(navController, startDestination = BottomNavigationScreens.NearbyScreen.route) {
+                    composable(BottomNavigationScreens.NearbyScreen.route) {
+                        NearestBusStopsScreen(viewModel)
+                    }
+                    composable(BottomNavigationScreens.FavoritesScreen.route) {
+                        FavoritesScreen(viewModel)
+                    }
                 }
+
             } else {
                 fineLocation.launchPermissionRequest()
             }
         },
         bottomBar = {
-            BottomAppBar {
-                BottomNavigationItem(icon = { Icon(Icons.Default.LocationOn) }, label = { Text("Nearby") },
-                        selected = bottomBarSelectedIndex == 0,
-                        onClick = { bottomBarSelectedIndex = 0 })
-
-                BottomNavigationItem(icon = { Icon(Icons.Default.Favorite) }, label = { Text("Favorites") },
-                        selected = bottomBarSelectedIndex == 1,
-                        onClick = { bottomBarSelectedIndex = 1 })
+            BottomNavigation {
+                val currentRoute = currentRoute(navController)
+                bottomNavigationItems.forEach { screen ->
+                    BottomNavigationItem(
+                            icon = { Icon(screen.icon) },
+                            label = { Text(screen.label) },
+                            selected = currentRoute == screen.route,
+                            alwaysShowLabels = false, // This hides the title for the unselected items
+                            onClick = {
+                                // This if check gives us a "singleTop" behavior where we do not create a
+                                // second instance of the composable if we are already on that destination
+                                if (currentRoute != screen.route) {
+                                    navController.navigate(screen.route)
+                                }
+                            }
+                    )
+                }
             }
-        }
+      }
     )
 }
 
 
-
+@Composable
+private fun currentRoute(navController: NavHostController): String? {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    return navBackStackEntry?.arguments?.getString(KEY_ROUTE)
+}
 
 
 @Composable
