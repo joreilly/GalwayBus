@@ -43,59 +43,67 @@ import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 
 @SuppressLint("MissingPermission")
 @Composable
-fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
+fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val mapView = rememberMapViewWithLifecycle()
 
     val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
-    val busStopState = viewModel.uiState.observeAsState(UiState.Loading)
+    val busStopState = viewModel.busStopListState.observeAsState(UiState.Loading)
 
     val favorites by viewModel.favorites.collectAsState(setOf())
 
-    BottomDrawerLayout(
-            drawerState = drawerState,
-            drawerShape = RoundedCornerShape(16.dp),
-            drawerContent = {
-                Text(text = "Departures", style = typography.h6,
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                )
+    Scaffold(
+        topBar = { TopAppBar(title = { Text( "Galway Bus - Nearby") }) },
+        bottomBar = bottomBar)
+    {
 
-                LazyColumn {
-                    items(items = departureList, itemContent = { departure ->
-                        BusStopDeparture(departure) {
-                            viewModel.setRouteId(departure.timetableId)
-                            navController.navigate(Screens.BusInfoScreen.route)
-                        }
-                    })
-                }
-            }
-    ) {
-        Column {
-            val uiState = busStopState.value
-            if (uiState is UiState.Success) {
-                Box(modifier = Modifier.weight(0.4f)) {
-                    MapViewContainer(viewModel, uiState.data, mapView)
-                }
-            }
+        BottomDrawerLayout(
+                drawerState = drawerState,
+                drawerShape = RoundedCornerShape(16.dp),
+                drawerContent = {
+                    Text(text = "Departures", style = typography.h6,
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            textAlign = TextAlign.Center
+                    )
 
-
-            Box(modifier = Modifier.weight(0.6f)) {
-                when (val uiState = busStopState.value) {
-                    is UiState.Success -> {
-                        BusStopListView(viewModel, uiState.data, favorites) {
-                            viewModel.setLocation(Location(it.latitude, it.longitude))
-                            viewModel.setStopRef(it.stopRef)
-                            drawerState.open()
-                        }
+                    LazyColumn {
+                        items(items = departureList, itemContent = { departure ->
+                            BusStopDeparture(departure) {
+                                viewModel.setRouteId(departure.timetableId)
+                                navController.navigate(Screens.BusInfoScreen.route)
+                            }
+                        })
                     }
-                    is UiState.Loading -> {
-                        Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-                            CircularProgressIndicator()
-                        }
+                }
+        ) {
+            Column {
+                val uiState = busStopState.value
+                if (uiState is UiState.Success) {
+                    Box(modifier = Modifier.weight(0.4f)) {
+                        MapViewContainer(viewModel, uiState.data, mapView)
                     }
-                    is UiState.Error -> Snackbar(text = { Text("Error retrieving bus stop info") })
+                }
+
+
+                Box(modifier = Modifier.weight(0.6f)) {
+                    when (val uiState = busStopState.value) {
+                        is UiState.Success -> {
+                            BusStopListView(viewModel, uiState.data, favorites) {
+                                viewModel.setLocation(Location(it.latitude, it.longitude))
+                                viewModel.setStopRef(it.stopRef)
+                                drawerState.open()
+                            }
+                        }
+                        is UiState.Loading -> {
+                            Box(
+                                modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+                        is UiState.Error -> Snackbar(text = { Text("Error retrieving bus stop info") })
+                    }
                 }
             }
         }

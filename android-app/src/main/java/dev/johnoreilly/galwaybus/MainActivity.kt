@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.*
 import androidx.compose.material.Icon
@@ -59,72 +58,56 @@ fun MainLayout(fineLocation: PermissionState,
                viewModel: GalwayBusViewModel
 ) {
     val navController = rememberNavController()
-
-    val bottomNavigationItems = listOf(
-            Screens.NearbyScreen,
-            Screens.FavoritesScreen
-    )
-
+    val bottomNavigationItems = listOf(Screens.NearbyScreen, Screens.FavoritesScreen)
     val hasLocationPermission by fineLocation.hasPermission.collectAsState()
+    val bottomBar: @Composable () -> Unit = { GalwayBusBottomNavigation(navController, bottomNavigationItems) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Galway Bus") },
-                actions = {
-                    IconButton(onClick = { viewModel.centerInEyreSquare() }) {
-                        Icon(Icons.Filled.Home)
+    if (hasLocationPermission) {
+        LaunchedEffect(fusedLocationWrapper) {
+            fusedLocationWrapper.lastLocation().collect {
+                if (it != null) {
+                    val loc = Location(it.latitude, it.longitude)
+                    viewModel.setLocation(loc)
+                }
+            }
+        }
+
+        NavHost(navController, startDestination = Screens.NearbyScreen.route) {
+            composable(Screens.NearbyScreen.route) {
+                NearestBusStopsScreen(bottomBar, viewModel, navController)
+            }
+            composable(Screens.FavoritesScreen.route) {
+                FavoritesScreen(bottomBar, viewModel, navController)
+            }
+            composable(Screens.BusInfoScreen.route) {
+                BusInfoScreen(viewModel, popBack = { navController.popBackStack() })
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun GalwayBusBottomNavigation(navController: NavHostController, items: List<Screens>) {
+
+    BottomNavigation {
+        val currentRoute = currentRoute(navController)
+        items.forEach { screen ->
+            BottomNavigationItem(
+                icon = { screen.icon?.let { Icon(it) } },
+                label = { Text(screen.label) },
+                selected = currentRoute == screen.route,
+                alwaysShowLabels = false, // This hides the title for the unselected items
+                onClick = {
+                    // This if check gives us a "singleTop" behavior where we do not create a
+                    // second instance of the composable if we are already on that destination
+                    if (currentRoute != screen.route) {
+                        navController.navigate(screen.route)
                     }
                 }
             )
-        },
-        bodyContent = { paddingValues ->
-            if (hasLocationPermission) {
-                LaunchedEffect(fusedLocationWrapper) {
-                    fusedLocationWrapper.lastLocation().collect {
-                        if (it != null) {
-                            val loc = Location(it.latitude, it.longitude)
-                            viewModel.setLocation(loc)
-                        }
-                    }
-                }
-
-                NavHost(navController, startDestination = Screens.NearbyScreen.route) {
-                    composable(Screens.NearbyScreen.route) {
-                        NearestBusStopsScreen(viewModel, navController)
-                    }
-                    composable(Screens.FavoritesScreen.route) {
-                        FavoritesScreen(viewModel, navController)
-                    }
-                    composable(Screens.BusInfoScreen.route) {
-                        BusInfoScreen(Modifier.padding(paddingValues), viewModel)
-                    }
-                }
-
-            } else {
-                fineLocation.launchPermissionRequest()
-            }
-        },
-        bottomBar = {
-            BottomNavigation {
-                val currentRoute = currentRoute(navController)
-                bottomNavigationItems.forEach { screen ->
-                    BottomNavigationItem(
-                            icon = { screen.icon?.let { Icon(it) } },
-                            label = { Text(screen.label) },
-                            selected = currentRoute == screen.route,
-                            alwaysShowLabels = false, // This hides the title for the unselected items
-                            onClick = {
-                                // This if check gives us a "singleTop" behavior where we do not create a
-                                // second instance of the composable if we are already on that destination
-                                if (currentRoute != screen.route) {
-                                    navController.navigate(screen.route)
-                                }
-                            }
-                    )
-                }
-            }
-      }
-    )
+        }
+    }
 }
 
 

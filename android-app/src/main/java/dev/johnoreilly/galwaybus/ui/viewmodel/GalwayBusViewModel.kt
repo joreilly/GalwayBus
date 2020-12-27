@@ -32,7 +32,7 @@ class GalwayBusViewModel(
         private val logger: Kermit
 ) : AndroidViewModel(application) {
 
-    val uiState = MutableLiveData<UiState<List<BusStop>>>()
+    val busStopListState = MutableLiveData<UiState<List<BusStop>>>()
 
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
@@ -96,7 +96,7 @@ class GalwayBusViewModel(
     private fun getNearestStops(location: Location) {
         viewModelScope.launch {
             val result = galwayBusRepository.fetchNearestStops(location.latitude, location.longitude)
-            uiState.value = when (result) {
+            busStopListState.value = when (result) {
                 is Result.Success -> UiState.Success(result.data)
                 is Result.Error -> UiState.Error(result.exception)
             }
@@ -149,6 +149,5 @@ class GalwayBusViewModel(
 
     companion object {
         private const val POLL_INTERVAL =  10000L
-        private const val FAVORITES_KEY = "favorites"
     }
 }

@@ -2,8 +2,11 @@ package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -19,19 +22,33 @@ import dev.johnoreilly.galwaybus.ui.utils.rememberMapViewWithLifecycle
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 
 @Composable
-fun BusInfoScreen(modifier: Modifier, viewModel: GalwayBusViewModel) {
+fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
     val busInfoList by viewModel.busInfoList.observeAsState(emptyList())
     val mapView = rememberMapViewWithLifecycle()
+    val routeId = viewModel.routeId.value
+    val stopRef = viewModel.stopRef.value
 
-    Column(modifier) {
-        val stopRef = viewModel.stopRef.value
-        stopRef?.let {
-            viewModel.getBusStop(stopRef)?.let { stop ->
-                if (busInfoList.isNotEmpty()) {
-                    BusInfoMapViewContainer(stop, busInfoList, mapView)
+    Scaffold(topBar = {
+        TopAppBar(
+            title = { Text(routeId ?: "") },
+            navigationIcon = {
+                IconButton(onClick = { popBack() }) {
+                    Icon(Icons.Filled.ArrowBack)
+                }
+            }
+        )
+    }) { paddingValues ->
+
+        Column(Modifier.padding(paddingValues)) {
+            stopRef?.let {
+                viewModel.getBusStop(stopRef)?.let { stop ->
+                    if (busInfoList.isNotEmpty()) {
+                        BusInfoMapViewContainer(stop, busInfoList, mapView)
+                    }
                 }
             }
         }
+
     }
 }
 
@@ -39,6 +56,8 @@ fun BusInfoScreen(modifier: Modifier, viewModel: GalwayBusViewModel) {
 @SuppressLint("MissingPermission")
 @Composable
 fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView) {
+    var firstTimeShowingMap by remember { mutableStateOf(true)}
+
     AndroidView({ map }) { mapView ->
         mapView.getMapAsync { map ->
             map.isMyLocationEnabled = true
@@ -67,7 +86,10 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView)
                 builder.include(busStopLocation)
             }
 
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
+            if (firstTimeShowingMap) {
+                firstTimeShowingMap = false
+                map.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
+            }
         }
     }
 }

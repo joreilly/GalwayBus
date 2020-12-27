@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomDrawerLayout
-import androidx.compose.material.BottomDrawerValue
-import androidx.compose.material.Text
-import androidx.compose.material.rememberBottomDrawerState
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -23,20 +20,25 @@ import dev.johnoreilly.galwaybus.ui.typography
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 
 @Composable
-fun FavoritesScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
+fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
     val favorites by viewModel.favorites.collectAsState(setOf())
     val busStopList = favorites.mapNotNull { viewModel.getBusStop(it) }
 
-    BottomDrawerLayout(
+    Scaffold(
+        topBar = { TopAppBar(title = { Text( "Galway Bus - Favourites") }) },
+        bottomBar = bottomBar)
+    {
+
+        BottomDrawerLayout(
             drawerState = drawerState,
             drawerShape = RoundedCornerShape(16.dp),
             drawerContent = {
                 Text(text = "Departures", style = typography.h6,
-                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    textAlign = TextAlign.Center
                 )
 
                 LazyColumn {
@@ -48,11 +50,13 @@ fun FavoritesScreen(viewModel: GalwayBusViewModel, navController: NavHostControl
                     })
                 }
             }
-    ) {
+        ) {
 
-        BusStopListView(viewModel, busStopList, favorites) {
-            viewModel.setStopRef(it.stopRef)
-            drawerState.open()
+            BusStopListView(viewModel, busStopList, favorites) {
+                viewModel.setStopRef(it.stopRef)
+                drawerState.open()
+            }
         }
+
     }
 }
