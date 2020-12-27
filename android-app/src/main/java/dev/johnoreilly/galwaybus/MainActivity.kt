@@ -83,6 +83,8 @@ fun MainLayout(fineLocation: PermissionState,
                 BusInfoScreen(viewModel, popBack = { navController.popBackStack() })
             }
         }
+    } else {
+        fineLocation.launchPermissionRequest()
     }
 }
 
