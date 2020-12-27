@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -54,7 +56,15 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
     val favorites by viewModel.favorites.collectAsState(setOf())
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text( "Galway Bus - Nearby") }) },
+        topBar = {
+            TopAppBar(title = { Text("Galway Bus") },
+                actions = {
+                    IconButton(onClick = { viewModel.centerInEyreSquare() }) {
+                        Icon(Icons.Filled.Home)
+                    }
+                }
+            )
+        },
         bottomBar = bottomBar)
     {
 

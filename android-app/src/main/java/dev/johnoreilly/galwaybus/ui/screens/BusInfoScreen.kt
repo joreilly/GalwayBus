@@ -1,13 +1,13 @@
 package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.android.libraries.maps.CameraUpdateFactory
@@ -44,6 +44,10 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
                 viewModel.getBusStop(stopRef)?.let { stop ->
                     if (busInfoList.isNotEmpty()) {
                         BusInfoMapViewContainer(stop, busInfoList, mapView)
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }
