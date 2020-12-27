@@ -8,7 +8,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -24,6 +23,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.navigate
 import com.google.android.libraries.maps.CameraUpdateFactory
 import com.google.android.libraries.maps.MapView
 import com.google.android.libraries.maps.model.BitmapDescriptor
@@ -42,7 +43,7 @@ import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 
 @SuppressLint("MissingPermission")
 @Composable
-fun NearestBusStopsScreen(viewModel: GalwayBusViewModel) {
+fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
     val mapView = rememberMapViewWithLifecycle()
 
     val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
@@ -63,7 +64,10 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel) {
 
                 LazyColumn {
                     items(items = departureList, itemContent = { departure ->
-                        BusStopDeparture(departure)
+                        BusStopDeparture(departure) {
+                            viewModel.setRouteId(departure.timetableId)
+                            navController.navigate(Screens.BusInfoScreen.route)
+                        }
                     })
                 }
             }
@@ -177,7 +181,7 @@ fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, map: M
 
 
 // TODO move this in to common code
-private fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {
+fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {
 
     // retrieve the actual drawable
     val drawable = ContextCompat.getDrawable(context, vectorResId) ?: return null

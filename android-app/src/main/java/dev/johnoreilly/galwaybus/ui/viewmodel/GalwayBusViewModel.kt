@@ -10,6 +10,7 @@ import androidx.lifecycle.*
 import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.GalwayBusRepository
+import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
@@ -35,6 +36,10 @@ class GalwayBusViewModel(
 
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
+
+    val routeId = MutableLiveData<String>("")
+    val busInfoList = routeId.switchMap { pollBusInfoForRoute(it).asLiveData() }
+
     var busStops = listOf<BusStop>()
     val location: MutableLiveData<Location> = MutableLiveData()
 
@@ -79,12 +84,16 @@ class GalwayBusViewModel(
         stopRef.value = stopRefValue
     }
 
+    fun setRouteId(routeIdValue: String) {
+        routeId.value = routeIdValue
+    }
+
     fun getBusStop(stopRef: String): BusStop? {
         println("getBusStop, stopRef = $stopRef")
         return busStops.firstOrNull { it.stop_id == stopRef }
     }
 
-    fun getNearestStops(location: Location) {
+    private fun getNearestStops(location: Location) {
         viewModelScope.launch {
             val result = galwayBusRepository.fetchNearestStops(location.latitude, location.longitude)
             uiState.value = when (result) {
@@ -103,6 +112,20 @@ class GalwayBusViewModel(
                 emit(result.data)
             }
             delay(POLL_INTERVAL)
+        }
+    }
+
+    fun pollBusInfoForRoute(routeId: String): Flow<List<Bus>> = flow {
+        if (routeId.isNotEmpty()) {
+            emit(emptyList())
+            while (true) {
+                val result = galwayBusRepository.fetchBusListForRoute(routeId)
+                if (result is Result.Success) {
+                    logger.d("GalwayBusViewModel") { result.data.toString() }
+                    emit(result.data)
+                }
+                delay(POLL_INTERVAL)
+            }
         }
     }
 

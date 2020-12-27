@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.*
 import androidx.compose.material.Icon
@@ -17,6 +18,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
+import dev.johnoreilly.galwaybus.ui.screens.BusInfoScreen
 import dev.johnoreilly.galwaybus.ui.screens.FavoritesScreen
 import dev.johnoreilly.galwaybus.ui.screens.NearestBusStopsScreen
 import dev.johnoreilly.galwaybus.ui.utils.*
@@ -44,9 +46,10 @@ class MainActivity : AppCompatActivity() {
 }
 
 
-sealed class BottomNavigationScreens(val route: String, val label: String, val icon: ImageVector) {
-    object NearbyScreen : BottomNavigationScreens("Nearby", "Nearby", Icons.Default.LocationOn)
-    object FavoritesScreen : BottomNavigationScreens("Favorites", "Favorites", Icons.Default.Favorite)
+sealed class Screens(val route: String, val label: String, val icon: ImageVector? = null) {
+    object NearbyScreen : Screens("Nearby", "Nearby", Icons.Default.LocationOn)
+    object FavoritesScreen : Screens("Favorites", "Favorites", Icons.Default.Favorite)
+    object BusInfoScreen : Screens("BusInfo", "BusInfo")
 }
 
 @SuppressLint("MissingPermission")
@@ -58,8 +61,8 @@ fun MainLayout(fineLocation: PermissionState,
     val navController = rememberNavController()
 
     val bottomNavigationItems = listOf(
-            BottomNavigationScreens.NearbyScreen,
-            BottomNavigationScreens.FavoritesScreen
+            Screens.NearbyScreen,
+            Screens.FavoritesScreen
     )
 
     val hasLocationPermission by fineLocation.hasPermission.collectAsState()
@@ -74,7 +77,7 @@ fun MainLayout(fineLocation: PermissionState,
                 }
             )
         },
-        bodyContent = {
+        bodyContent = { paddingValues ->
             if (hasLocationPermission) {
                 LaunchedEffect(fusedLocationWrapper) {
                     fusedLocationWrapper.lastLocation().collect {
@@ -85,12 +88,15 @@ fun MainLayout(fineLocation: PermissionState,
                     }
                 }
 
-                NavHost(navController, startDestination = BottomNavigationScreens.NearbyScreen.route) {
-                    composable(BottomNavigationScreens.NearbyScreen.route) {
-                        NearestBusStopsScreen(viewModel)
+                NavHost(navController, startDestination = Screens.NearbyScreen.route) {
+                    composable(Screens.NearbyScreen.route) {
+                        NearestBusStopsScreen(viewModel, navController)
                     }
-                    composable(BottomNavigationScreens.FavoritesScreen.route) {
-                        FavoritesScreen(viewModel)
+                    composable(Screens.FavoritesScreen.route) {
+                        FavoritesScreen(viewModel, navController)
+                    }
+                    composable(Screens.BusInfoScreen.route) {
+                        BusInfoScreen(Modifier.padding(paddingValues), viewModel)
                     }
                 }
 
@@ -103,7 +109,7 @@ fun MainLayout(fineLocation: PermissionState,
                 val currentRoute = currentRoute(navController)
                 bottomNavigationItems.forEach { screen ->
                     BottomNavigationItem(
-                            icon = { Icon(screen.icon) },
+                            icon = { screen.icon?.let { Icon(it) } },
                             label = { Text(screen.label) },
                             selected = currentRoute == screen.route,
                             alwaysShowLabels = false, // This hides the title for the unselected items

@@ -1,5 +1,6 @@
 package dev.johnoreilly.galwaybus.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material.Text
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,15 +16,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.surrus.galwaybus.common.GalwayBusDeparture
+import com.surrus.galwaybus.common.model.BusStop
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 
 
 @Composable
-fun BusStopDeparture(departure: GalwayBusDeparture) {
+fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departure : GalwayBusDeparture) -> Unit) {
     ProvideTextStyle(typography.subtitle1) {
         Row(verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
+                modifier = Modifier.clickable(onClick = { departureSelected(departure) })
+                    .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
 
             Text(departure.timetableId, fontWeight = FontWeight.Bold,
                     modifier = Modifier.preferredWidth(36.dp))
