@@ -1,6 +1,9 @@
 package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.view.View
+import android.widget.TextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -70,8 +73,24 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView)
             map.clear()
             val builder = LatLngBounds.Builder()
 
+            val busStopLocation = LatLng(stop.latitude, stop.longitude)
+
+            // bus stop marker
+            val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
+            val markerOptions = MarkerOptions()
+                .title(stop.shortName)
+                .position(busStopLocation)
+                .icon(icon)
+
+            val marker = map.addMarker(markerOptions)
+            marker.tag = stop
+            builder.include(busStopLocation)
+
+
+
+            // bus markers
             for (bus in busInfoList) {
-                val busStopLocation = LatLng(bus.latitude, bus.longitude)
+                val busLocation = LatLng(bus.latitude, bus.longitude)
 
                 val tintColor = if (bus.direction == 1) {
                     R.color.direction1
@@ -79,15 +98,30 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView)
                     R.color.direction2
                 }
 
+                val title = if (bus.departure_metadata != null) {
+                    bus.departure_metadata?.destination
+                } else {
+                    bus.vehicle_id
+                }
+
+                val snippet = if (bus.departure_metadata != null) {
+                    val delayMins = bus.departure_metadata?.delay?.div(60) ?: 0
+                    "Delay = $delayMins min(s)"
+                } else {
+                    ""
+                }
+
+
                 val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.bus_side, tintColor)
                 val markerOptions = MarkerOptions()
-                    .title(bus.vehicle_id)
-                    .position(busStopLocation)
+                    .title(title)
+                    .snippet(snippet)
+                    .position(busLocation)
                     .icon(icon)
 
                 val marker = map.addMarker(markerOptions)
                 marker.tag = bus
-                builder.include(busStopLocation)
+                builder.include(busLocation)
             }
 
             if (firstTimeShowingMap) {
