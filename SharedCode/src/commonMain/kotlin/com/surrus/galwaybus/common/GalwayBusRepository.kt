@@ -91,12 +91,15 @@ open class GalwayBusRepository {
 
             val now = Clock.System.now()
             val departures = busStopResponse.times
-                .map {
-                    val departureTime = Instant.parse(it.departTimestamp)
-                    val durationUntilDeparture: Duration = departureTime - now
-                    GalwayBusDeparture(it.timetableId, it.displayName, it.departTimestamp,
+                .map { departure ->
+                    departure.departTimestamp?.let {
+                        val departureTime = Instant.parse(departure.departTimestamp)
+                        val durationUntilDeparture: Duration = departureTime - now
+                        GalwayBusDeparture(departure.timetableId, departure.displayName, departure.departTimestamp,
                             durationUntilDeparture)
+                    }
                 }
+                .filterNotNull()
                 .take(5)
 
             return Result.Success(departures)
@@ -143,6 +146,7 @@ open class GalwayBusRepository {
             val busStops = galwayBusApi.fetchNearestStops(latitude, longitude)
             return Result.Success(busStops)
         } catch (e: Exception) {
+            println(e)
             return Result.Error(e)
         }
     }

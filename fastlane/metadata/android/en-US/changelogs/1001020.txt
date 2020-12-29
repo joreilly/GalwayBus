@@ -1,2 +1,0 @@
-- Add option to centre map in Eyre Square
-- Layout fixes
