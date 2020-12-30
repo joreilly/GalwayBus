@@ -21,6 +21,7 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
 import dev.johnoreilly.galwaybus.R
+import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 import dev.johnoreilly.galwaybus.ui.utils.rememberMapViewWithLifecycle
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 
@@ -106,7 +107,7 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView)
 
                 val snippet = if (bus.departure_metadata != null) {
                     val delayMins = bus.departure_metadata?.delay?.div(60) ?: 0
-                    "Delay = $delayMins min(s)"
+                    "Delay: $delayMins ${mapView.context.resources.getQuantityString(R.plurals.mins, delayMins)}"
                 } else {
                     ""
                 }
