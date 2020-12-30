@@ -19,6 +19,12 @@ other examples of use of Kotlin Multiplatform code.
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
 
+
+### Google Maps SDK
+
+The project depends on `GOOGLE_API_KEY` environment variable to be defined for maps functionality to work.  Alternatively
+you can update where this is read in `build.gradle`
+
 ### Languages, libraries and tools used
 
 * [Kotlin](https://kotlinlang.org/)
