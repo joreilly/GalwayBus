@@ -33,6 +33,10 @@ import com.google.android.libraries.maps.model.BitmapDescriptor
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.*
@@ -100,6 +104,13 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                     when (val uiState = busStopState.value) {
                         is UiState.Success -> {
                             BusStopListView(viewModel, uiState.data, favorites) {
+
+                                val firebaseAnalytics = Firebase.analytics
+                                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
+                                    param(FirebaseAnalytics.Param.ITEM_ID, it.longName)
+                                    param(FirebaseAnalytics.Param.ITEM_NAME, "SELECT_STOP")
+                                }
+
                                 viewModel.setLocation(Location(it.latitude, it.longitude))
                                 viewModel.setStopRef(it.stopRef)
                                 drawerState.open()
