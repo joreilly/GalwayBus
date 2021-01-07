@@ -106,9 +106,9 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                             BusStopListView(viewModel, uiState.data, favorites) {
 
                                 val firebaseAnalytics = Firebase.analytics
-                                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
-                                    param(FirebaseAnalytics.Param.ITEM_ID, it.longName)
-                                    param(FirebaseAnalytics.Param.ITEM_NAME, "SELECT_STOP")
+                                firebaseAnalytics.logEvent("select_stop") {
+                                    param("stop_name", it.longName)
+                                    param("stop_ref", it.stopRef)
                                 }
 
                                 viewModel.setLocation(Location(it.latitude, it.longitude))

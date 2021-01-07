@@ -14,6 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.ktx.Firebase
 import dev.johnoreilly.galwaybus.Screens
 import dev.johnoreilly.galwaybus.ui.BusStopDeparture
 import dev.johnoreilly.galwaybus.ui.typography
@@ -53,6 +56,13 @@ fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
         ) {
 
             BusStopListView(viewModel, busStopList, favorites) {
+
+                val firebaseAnalytics = Firebase.analytics
+                firebaseAnalytics.logEvent("select_stop") {
+                    param("stop_name", it.longName)
+                    param("stop_ref", it.stopRef)
+                }
+
                 viewModel.setStopRef(it.stopRef)
                 drawerState.open()
             }
