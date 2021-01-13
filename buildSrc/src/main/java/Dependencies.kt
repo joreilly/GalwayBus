@@ -16,9 +16,9 @@ object Versions {
     const val work = "2.1.0-alpha02"
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
-    const val compose = "1.0.0-alpha09"
-    const val nav_compose_version = "1.0.0-alpha04"
-    const val coilVersion = "0.4.0"
+    const val compose = "1.0.0-alpha10"
+    const val nav_compose_version = "1.0.0-alpha05"
+    const val coilVersion = "0.4.2"
 
     const val kermit = "0.1.8"
 
