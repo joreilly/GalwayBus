@@ -31,20 +31,8 @@ data class GetBusListForRouteResponse(val bus: List<Bus>)
 data class BusStopResponse(val stop: BusStop, val times: List<Departure> = emptyList())
 
 
-class GalwayBusApi(val baseUrl: String = "https://api.galwaybusabu.com/v1") {
+class GalwayBusApi(private val client: HttpClient, val baseUrl: String = "https://api.galwaybusabu.com/v1") {
     private val nonStrictJson = Json { isLenient = true; ignoreUnknownKeys = true }
-
-    private val client by lazy {
-        HttpClient() {
-            install(JsonFeature) {
-                serializer = KotlinxSerializer(nonStrictJson)
-            }
-            install(Logging) {
-                logger = Logger.DEFAULT
-                level = LogLevel.ALL
-            }
-        }
-    }
 
     private val busScheduleMapSerializer = MapSerializer(String.serializer(), ListSerializer(MapSerializer(String.serializer(), String.serializer())))
 
@@ -81,5 +69,4 @@ class GalwayBusApi(val baseUrl: String = "https://api.galwaybusabu.com/v1") {
     suspend fun fetchBusListForRoute(routeId: String): List<Bus> {
         return client.get<GetBusListForRouteResponse>("$baseUrl/bus/$routeId.json").bus
     }
-
 }

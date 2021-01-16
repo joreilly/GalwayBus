@@ -1,5 +1,6 @@
 package com.surrus.galwaybus.common
 
+import co.touchlab.kermit.Kermit
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
@@ -9,6 +10,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -24,8 +27,10 @@ data class GalwayBusDeparture(
 
 
 @ExperimentalTime
-open class GalwayBusRepository {
-    private val galwayBusApi = GalwayBusApi()
+open class GalwayBusRepository : KoinComponent {
+    private val galwayBusApi: GalwayBusApi by inject()
+    private val logger: Kermit by inject()
+
     private val galwayBusDb = createDb()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
     private val coroutineScope: CoroutineScope = MainScope()
@@ -124,11 +129,6 @@ open class GalwayBusRepository {
         }
     }
 
-    suspend fun fetchSchedules() = galwayBusApi.fetchSchedules()
-        .mapValues {
-            it.value[0].values.elementAt(0)
-        }
-
 
     suspend fun fetchBusRoutes(): List<BusRoute> {
         val busRoutes = galwayBusApi.fetchBusRoutes()
@@ -136,6 +136,7 @@ open class GalwayBusRepository {
     }
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
+        logger.d { "fetchBusRoutes" }
         GlobalScope.launch(Dispatchers.Main) {
             success(fetchBusRoutes())
         }
