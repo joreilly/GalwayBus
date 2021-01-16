@@ -84,6 +84,12 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                     LazyColumn {
                         items(items = departureList, itemContent = { departure ->
                             BusStopDeparture(departure) {
+
+                                val firebaseAnalytics = Firebase.analytics
+                                firebaseAnalytics.logEvent("select_route_bus_positions") {
+                                    param("route", it.timetableId)
+                                }
+
                                 viewModel.setRouteId(departure.timetableId)
                                 navController.navigate(Screens.BusInfoScreen.route)
                             }
@@ -108,7 +114,6 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                                 val firebaseAnalytics = Firebase.analytics
                                 firebaseAnalytics.logEvent("select_stop") {
                                     param("stop_name", it.longName)
-                                    param("stop_ref", it.stopRef)
                                 }
 
                                 viewModel.setLocation(Location(it.latitude, it.longitude))
