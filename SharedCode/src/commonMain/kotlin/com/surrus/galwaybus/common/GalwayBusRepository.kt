@@ -18,7 +18,7 @@ import kotlin.time.ExperimentalTime
 
 expect fun createDb() : MyDatabase?
 
-@ExperimentalTime
+@OptIn(ExperimentalTime::class)
 data class GalwayBusDeparture(
         val timetableId: String,
         val displayName: String,
@@ -26,7 +26,7 @@ data class GalwayBusDeparture(
         val durationUntilDeparture: Duration)
 
 
-@ExperimentalTime
+@OptIn(ExperimentalTime::class)
 open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi by inject()
     private val logger: Kermit by inject()
@@ -114,7 +114,7 @@ open class GalwayBusRepository : KoinComponent {
     }
 
     fun fetchBusListForRoute(routeId: String, success: (List<Bus>) -> Unit) {
-        GlobalScope.launch(Dispatchers.Main) {
+        coroutineScope.launch {
             val busList = galwayBusApi.fetchBusListForRoute(routeId)
             success(busList)
         }
@@ -137,7 +137,7 @@ open class GalwayBusRepository : KoinComponent {
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
         logger.d { "fetchBusRoutes" }
-        GlobalScope.launch(Dispatchers.Main) {
+        coroutineScope.launch {
             success(fetchBusRoutes())
         }
     }
