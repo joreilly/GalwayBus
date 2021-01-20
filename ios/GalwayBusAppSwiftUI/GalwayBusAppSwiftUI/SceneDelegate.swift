@@ -19,12 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let repository = GalwayBusRepository()  
         let busRouteViewModel = BusRouteViewModel(repository: repository)
         let busStopViewModel = BusStopViewModel(repository: repository)
+        let nearbyStopsViewModel = NearbyStopsViewModel(repository: repository)
 
         // Use a UIHostingController as window root view controller
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = UIHostingController(rootView:
-                ContentView(busRouteViewModel: busRouteViewModel, busStopViewModel: busStopViewModel))
+                                                                ContentView(busRouteViewModel: busRouteViewModel, busStopViewModel: busStopViewModel, nearbyStopsViewModel: nearbyStopsViewModel))
             self.window = window
             window.makeKeyAndVisible()
         }

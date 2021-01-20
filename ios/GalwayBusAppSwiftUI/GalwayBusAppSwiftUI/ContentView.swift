@@ -1,35 +1,27 @@
 import SwiftUI
+import MapKit
 import SharedCode
 
 struct ContentView : View {
     @ObservedObject var busRouteViewModel: BusRouteViewModel
     @ObservedObject var busStopViewModel: BusStopViewModel
+    @ObservedObject var nearbyStopsViewModel: NearbyStopsViewModel
     
     var body: some View {
         TabView {
+            NearbyView(nearbyStopsViewModel: nearbyStopsViewModel)
+                .tabItem {
+                    VStack {
+                        Image(systemName: "location")
+                        Text("Nearby")
+                    }
+                }
             RouteListView(busRouteViewModel: busRouteViewModel)
                 .tabItem {
                     VStack {
-                        Image(systemName: "1.circle")
+                        Image(systemName: "heart")
                         Text("Routes")
                     }
-                }
-            BusStopListView(busStopViewModel: busStopViewModel)
-                .tabItem {
-                    VStack {
-                        Image(systemName: "2.circle")
-                        Text("Stops")
-                    }
-                }
-            MapContainer(busStopViewModel: busStopViewModel)
-                .tabItem {
-                    VStack {
-                        Image(systemName: "3.circle")
-                        Text("Maps")
-                    }
-                }
-                .onAppear {
-                    self.busStopViewModel.fetch()
                 }
         }
     }
@@ -37,13 +29,57 @@ struct ContentView : View {
 
 
 
-struct MapContainer: View {
-    @ObservedObject var busStopViewModel: BusStopViewModel
+extension BusStop: Identifiable { }
+
+struct NearbyView : View {
+    @ObservedObject var nearbyStopsViewModel: NearbyStopsViewModel
+    @State var region = MKCoordinateRegion(center: .init(latitude: 0, longitude: 0),
+                                           latitudinalMeters: 500, longitudinalMeters: 500)
 
     var body: some View {
-        MapView(busStops: busStopViewModel.listStops)
+
+        VStack {
+            Map(coordinateRegion: $region,
+                interactionModes: MapInteractionModes.all,
+                showsUserLocation: true,
+                annotationItems: nearbyStopsViewModel.listStops) { (busStop) -> MapPin in
+                    let coordinate = CLLocationCoordinate2D(latitude: busStop.latitude,
+                                                            longitude: busStop.longitude)
+                return MapPin(coordinate: coordinate)
+            }
+            
+            
+            List(nearbyStopsViewModel.listStops, id: \.stop_id) { busStop in
+                BusStopView(busStop: busStop)
+            }
+            
+            
+        }
+        .onAppear(perform: {
+            region.center = CLLocationCoordinate2D(latitude: 53.2743394, longitude: -9.0514163)
+
+            nearbyStopsViewModel.fetch()
+        })
     }
 }
+
+
+struct BusStopView : View {
+    var busStop: BusStop
+    
+    var body: some View {
+        HStack {
+            Image("ic_bus").resizable().frame(width: 48, height: 48.0)
+            VStack(alignment: .leading) {
+                Text(busStop.longName).font(.headline)
+                Text(busStop.stopRef).font(.subheadline)
+            }
+            Spacer()
+            Image(systemName: "heart")
+        }
+    }
+}
+
 
 struct RouteListView : View {
     @ObservedObject var busRouteViewModel: BusRouteViewModel
