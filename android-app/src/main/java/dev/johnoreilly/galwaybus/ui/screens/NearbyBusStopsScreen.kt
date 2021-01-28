@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -64,7 +65,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
             TopAppBar(title = { Text("Galway Bus") },
                 actions = {
                     IconButton(onClick = { viewModel.centerInEyreSquare() }) {
-                        Icon(Icons.Filled.Home)
+                        Icon(Icons.Filled.Home, contentDescription = null)
                     }
                 }
             )
@@ -82,7 +83,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                     )
 
                     LazyColumn {
-                        items(items = departureList, itemContent = { departure ->
+                        items(departureList) { departure ->
                             BusStopDeparture(departure) {
 
                                 val firebaseAnalytics = Firebase.analytics
@@ -93,7 +94,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                                 viewModel.setRouteId(departure.timetableId)
                                 navController.navigate(Screens.BusInfoScreen.route)
                             }
-                        })
+                        }
                     }
                 }
         ) {
@@ -140,7 +141,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                     favorites: Set<String>, itemClick : (stop : BusStop) -> Unit) {
     LazyColumn {
-        items(items = busStopList, itemContent = { stop ->
+        items(busStopList) { stop ->
             BusStopView(stop = stop,
                     itemClick = itemClick,
                     isFavorite = favorites.contains(stop.stopRef),
@@ -148,7 +149,7 @@ fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                         viewModel.toggleFavorite(stop.stopRef)
                     }
             )
-        })
+        }
     }
 }
 
@@ -159,7 +160,7 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
             verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp))
+        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp), contentDescription = null)
 
         Spacer(modifier = Modifier.preferredSize(16.dp))
 
