@@ -96,7 +96,7 @@ private fun GalwayBusBottomNavigation(navController: NavHostController, items: L
         val currentRoute = currentRoute(navController)
         items.forEach { screen ->
             BottomNavigationItem(
-                icon = { screen.icon?.let { Icon(it, contentDescription = null) } },
+                icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } },
                 label = { Text(screen.label) },
                 selected = currentRoute == screen.route,
                 alwaysShowLabels = false, // This hides the title for the unselected items
@@ -132,9 +132,9 @@ fun FavoritesButton(
             modifier = modifier
     ) {
         if (isFavorite) {
-            Icon(imageVector = Icons.Filled.Favorite, tint = maroon500, contentDescription = null)
+            Icon(imageVector = Icons.Filled.Favorite, tint = maroon500, contentDescription = "Favorited")
         } else {
-            Icon(imageVector = Icons.Filled.FavoriteBorder, contentDescription = null)
+            Icon(imageVector = Icons.Filled.FavoriteBorder, contentDescription = "Unfavorited")
         }
     }
 }

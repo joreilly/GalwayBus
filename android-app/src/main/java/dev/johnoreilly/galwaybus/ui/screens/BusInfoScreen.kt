@@ -37,7 +37,7 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
             title = { Text(routeId ?: "") },
             navigationIcon = {
                 IconButton(onClick = { popBack() }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         )

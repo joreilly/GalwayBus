@@ -65,7 +65,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
             TopAppBar(title = { Text("Galway Bus") },
                 actions = {
                     IconButton(onClick = { viewModel.centerInEyreSquare() }) {
-                        Icon(Icons.Filled.Home, contentDescription = null)
+                        Icon(Icons.Filled.Home, contentDescription = "Center in Eyre Square")
                     }
                 }
             )
@@ -160,7 +160,7 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
             verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp), contentDescription = null)
+        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp), contentDescription = "Bus")
 
         Spacer(modifier = Modifier.preferredSize(16.dp))
 
