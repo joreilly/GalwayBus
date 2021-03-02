@@ -10,8 +10,9 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import org.koin.core.KoinComponent
-import org.koin.core.inject
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
+import org.koin.core.component.inject
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -28,8 +29,8 @@ data class GalwayBusDeparture(
 
 @OptIn(ExperimentalTime::class)
 open class GalwayBusRepository : KoinComponent {
-    private val galwayBusApi: GalwayBusApi by inject()
-    private val logger: Kermit by inject()
+    private val galwayBusApi: GalwayBusApi = get()
+    private val logger: Kermit = get()
 
     private val galwayBusDb = createDb()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries

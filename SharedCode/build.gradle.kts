@@ -96,7 +96,7 @@ kotlin {
                 implementation("com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}")
 
                 // koin
-                api("org.koin:koin-core:${Versions.koin}")
+                api(Koin.core)
 
                 api(Deps.multiplatformSettings)
                 api(Deps.kermit)

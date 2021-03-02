@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,7 +23,9 @@ import dev.johnoreilly.galwaybus.Screens
 import dev.johnoreilly.galwaybus.ui.BusStopDeparture
 import dev.johnoreilly.galwaybus.ui.typography
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
+import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @Composable
 fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
@@ -30,18 +33,21 @@ fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
     val favorites by viewModel.favorites.collectAsState(setOf())
     val busStopList = favorites.mapNotNull { viewModel.getBusStop(it) }
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text( "Galway Bus - Favourites") }) },
         bottomBar = bottomBar)
     {
 
-        BottomDrawerLayout(
+        BottomDrawer(
             drawerState = drawerState,
             drawerShape = RoundedCornerShape(16.dp),
             drawerContent = {
                 Text(text = "Departures", style = typography.h6,
-                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth(),
                     textAlign = TextAlign.Center
                 )
 
@@ -65,7 +71,9 @@ fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
                 }
 
                 viewModel.setStopRef(it.stopRef)
-                drawerState.open()
+                coroutineScope.launch {
+                    drawerState.open()
+                }
             }
         }
 

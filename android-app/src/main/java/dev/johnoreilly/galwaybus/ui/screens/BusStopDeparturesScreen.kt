@@ -5,8 +5,7 @@ import androidx.compose.material.Text
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.surrus.galwaybus.common.GalwayBusDeparture
-import com.surrus.galwaybus.common.model.BusStop
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 
@@ -29,7 +27,7 @@ fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departu
                     .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
 
             Text(departure.timetableId, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.preferredWidth(36.dp))
+                    modifier = Modifier.width(36.dp))
 
             Text(departure.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f).padding(start = 16.dp))

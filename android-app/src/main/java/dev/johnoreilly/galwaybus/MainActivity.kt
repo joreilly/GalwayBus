@@ -3,6 +3,7 @@ package dev.johnoreilly.galwaybus
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.Text
 import androidx.compose.material.*
@@ -12,7 +13,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.setContent
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
@@ -23,11 +23,12 @@ import dev.johnoreilly.galwaybus.ui.screens.NearestBusStopsScreen
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.flow.collect
-import org.koin.android.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
     private val galwayBusViewModel by viewModel<GalwayBusViewModel>()
 
+    @ExperimentalMaterialApi
     @ExperimentalComposeApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +52,7 @@ sealed class Screens(val route: String, val label: String, val icon: ImageVector
     object BusInfoScreen : Screens("BusInfo", "BusInfo")
 }
 
+@ExperimentalMaterialApi
 @SuppressLint("MissingPermission")
 @Composable
 fun MainLayout(fineLocation: PermissionState,
@@ -99,7 +101,7 @@ private fun GalwayBusBottomNavigation(navController: NavHostController, items: L
                 icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } },
                 label = { Text(screen.label) },
                 selected = currentRoute == screen.route,
-                alwaysShowLabels = false, // This hides the title for the unselected items
+                alwaysShowLabel = false, // This hides the title for the unselected items
                 onClick = {
                     // This if check gives us a "singleTop" behavior where we do not create a
                     // second instance of the composable if we are already on that destination

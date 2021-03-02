@@ -1,7 +1,7 @@
 package dev.johnoreilly.galwaybus.di
 
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
-import org.koin.android.viewmodel.dsl.viewModel
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 

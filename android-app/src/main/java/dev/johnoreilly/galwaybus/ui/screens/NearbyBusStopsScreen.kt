@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -47,12 +48,16 @@ import dev.johnoreilly.galwaybus.ui.typography
 import dev.johnoreilly.galwaybus.ui.utils.rememberMapViewWithLifecycle
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
+import kotlinx.coroutines.launch
 
+@ExperimentalMaterialApi
 @SuppressLint("MissingPermission")
 @Composable
 fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val mapView = rememberMapViewWithLifecycle()
+    val coroutineScope = rememberCoroutineScope()
 
+    val snackbarHostState = remember { SnackbarHostState() }
     val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
@@ -73,7 +78,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
         bottomBar = bottomBar)
     {
 
-        BottomDrawerLayout(
+        BottomDrawer(
                 drawerState = drawerState,
                 drawerShape = RoundedCornerShape(16.dp),
                 drawerContent = {
@@ -119,7 +124,9 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 
                                 viewModel.setLocation(Location(it.latitude, it.longitude))
                                 viewModel.setStopRef(it.stopRef)
-                                drawerState.open()
+                                coroutineScope.launch {
+                                    drawerState.open()
+                                }
                             }
                         }
                         is UiState.Loading -> {
@@ -129,7 +136,13 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                                 CircularProgressIndicator()
                             }
                         }
-                        is UiState.Error -> Snackbar(text = { Text("Error retrieving bus stop info") })
+                        is UiState.Error -> {
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Error retrieving bus stop info"
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -160,9 +173,9 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
             verticalAlignment = Alignment.CenterVertically
     ) {
 
-        Image(imageResource(R.drawable.ic_bus), modifier = Modifier.preferredSize(32.dp), contentDescription = "Bus")
+        Image(painterResource(R.drawable.ic_bus), modifier = Modifier.size(32.dp), contentDescription = "Bus")
 
-        Spacer(modifier = Modifier.preferredSize(16.dp))
+        Spacer(modifier = Modifier.size(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(text = stop.longName, style = TextStyle(fontSize = 18.sp))

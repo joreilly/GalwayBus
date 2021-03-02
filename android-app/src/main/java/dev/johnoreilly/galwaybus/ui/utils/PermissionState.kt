@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -71,16 +72,17 @@ private class PermissionResultCall(
 @ExperimentalComposeApi
 @Composable
 fun checkSelfPermissionState(activity: AppCompatActivity, permission: String): PermissionState {
-    val key = currentComposer.currentCompoundKeyHash.toString()
+    val key = "1" //currentComposer.currentCompoundKeyHash.toString()
     val call = remember(activity, permission) {
         PermissionResultCall(key, activity, permission)
     }
-    // drive initialCheck and unregister from composition lifecycle
-    onCommit(call) {
+
+    DisposableEffect(call) {
         call.initialCheck()
         onDispose {
             call.unregister()
         }
     }
+
     return call.checkSelfPermission()
 }
