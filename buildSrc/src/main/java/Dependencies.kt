@@ -1,8 +1,8 @@
 
 object Versions {
-    const val kotlin = "1.4.30"
-    const val kotlinCoroutines = "1.4.2-native-mt"
-    const val ktor = "1.5.0"
+    const val kotlin = "1.4.31"
+    const val kotlinCoroutines = "1.4.3-native-mt"
+    const val ktor = "1.5.2"
     const val kotlinxSerialization = "1.0.1"
     const val kotlinxDateTime = "0.1.1"
     const val koin = "3.0.1-beta-1"
@@ -16,9 +16,9 @@ object Versions {
     const val work = "2.1.0-alpha02"
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
-    const val compose = "1.0.0-beta01"
-    const val nav_compose_version = "1.0.0-alpha08"
-    const val coilVersion = "0.6.0"
+    const val compose = "1.0.0-beta02"
+    const val nav_compose_version = "1.0.0-alpha09"
+    const val coilVersion = "0.6.2"
 
     const val kermit = "0.1.8"
 
