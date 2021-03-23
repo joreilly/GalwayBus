@@ -15,7 +15,7 @@ and macOS apps. Have also written a couple of posts about some of my experiences
 see [PeopleInSpace](https://github.com/joreilly/PeopleInSpace) and [BikeShare](https://github.com/joreilly/BikeShare) for 
 other examples of use of Kotlin Multiplatform code.
 
-* [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform.html)
+* [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform/)
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
 
