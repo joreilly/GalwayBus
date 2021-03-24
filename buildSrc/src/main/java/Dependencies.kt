@@ -16,7 +16,7 @@ object Versions {
     const val work = "2.1.0-alpha02"
     const val lifecycle = "2.2.0-alpha01"
     const val fragment = "1.1.0-alpha09"
-    const val compose = "1.0.0-beta02"
+    const val compose = "1.0.0-beta03"
     const val nav_compose_version = "1.0.0-alpha09"
     const val coilVersion = "0.6.2"
 
