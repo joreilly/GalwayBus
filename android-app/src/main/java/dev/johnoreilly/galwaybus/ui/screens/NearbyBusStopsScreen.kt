@@ -9,7 +9,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -18,7 +17,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -35,10 +33,10 @@ import com.google.android.libraries.maps.model.BitmapDescriptor
 import com.google.android.libraries.maps.model.BitmapDescriptorFactory
 import com.google.android.libraries.maps.model.LatLng
 import com.google.android.libraries.maps.model.MarkerOptions
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.*
@@ -58,12 +56,13 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    val drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
 
-    val departureList by viewModel.busDepartureList.observeAsState(emptyList())
     val busStopState = viewModel.busStopListState.observeAsState(UiState.Loading)
 
     val favorites by viewModel.favorites.collectAsState(setOf())
+
+    val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+
 
     Scaffold(
         topBar = {
@@ -78,31 +77,12 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
         bottomBar = bottomBar)
     {
 
-        BottomDrawer(
-                drawerState = drawerState,
-                drawerShape = RoundedCornerShape(16.dp),
-                drawerContent = {
-                    Text(text = "Departures", style = typography.h6,
-                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
-                            textAlign = TextAlign.Center
-                    )
-
-                    LazyColumn {
-                        items(departureList) { departure ->
-                            BusStopDeparture(departure) {
-
-                                val firebaseAnalytics = Firebase.analytics
-                                firebaseAnalytics.logEvent("select_route_bus_positions") {
-                                    param("route", it.timetableId)
-                                }
-
-                                viewModel.setRouteId(departure.timetableId)
-                                navController.navigate(Screens.BusInfoScreen.route)
-                            }
-                        }
-                    }
-                }
-        ) {
+        ModalBottomSheetLayout(modifier = Modifier.padding(it), sheetState = sheetState, sheetContent = {
+            DeparturesSheetContent(viewModel) {
+                viewModel.setRouteId(it.timetableId)
+                navController.navigate(Screens.BusInfoScreen.route)
+            }
+        }) {
             Column {
                 val uiState = busStopState.value
                 if (uiState is UiState.Success) {
@@ -123,15 +103,16 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                                 }
 
                                 viewModel.setLocation(Location(it.latitude, it.longitude))
-                                viewModel.setStopRef(it.stopRef)
+
                                 coroutineScope.launch {
-                                    drawerState.open()
+                                    sheetState.show()
+                                    viewModel.setStopRef(it.stopRef)
                                 }
                             }
                         }
                         is UiState.Loading -> {
                             Box(
-                                modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+                                    modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
                             ) {
                                 CircularProgressIndicator()
                             }
@@ -139,7 +120,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                         is UiState.Error -> {
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "Error retrieving bus stop info"
+                                        message = "Error retrieving bus stop info"
                                 )
                             }
                         }
@@ -149,6 +130,44 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
         }
     }
 }
+
+
+@Composable
+fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (departure: GalwayBusDeparture) -> Unit)
+{
+    val departureList by viewModel.busDepartureList.observeAsState(emptyList())
+
+    Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
+
+        Text(text = "Departures", style = typography.h6,
+                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                textAlign = TextAlign.Center
+        )
+
+        LazyColumn {
+            items(departureList) { departure ->
+                BusStopDeparture(departure) { departure ->
+
+                    val firebaseAnalytics = Firebase.analytics
+                    firebaseAnalytics.logEvent("select_route_bus_positions") {
+                        param("route", departure.timetableId)
+                    }
+
+                    departureSelected(departure)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Layout1() {
+    Text(
+            modifier = Modifier.padding(16.dp),
+            text = "BottomSheetLayout 1"
+    )
+}
+
 
 @Composable
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
