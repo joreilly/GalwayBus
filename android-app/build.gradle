@@ -121,6 +121,8 @@ dependencies {
     implementation Koin.android
 
     implementation("com.google.android.libraries.maps:maps:3.1.0-beta")
+    implementation("com.google.maps.android:maps-v3-ktx:2.2.0")
+
     implementation(Compose.ui)
     implementation(Compose.uiGraphics)
     implementation(Compose.uiTooling)

@@ -36,6 +36,7 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import com.google.maps.android.ktx.awaitMap
 import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
@@ -161,15 +162,6 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
 }
 
 @Composable
-private fun Layout1() {
-    Text(
-            modifier = Modifier.padding(16.dp),
-            text = "BottomSheetLayout 1"
-    )
-}
-
-
-@Composable
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                     favorites: Set<String>, itemClick : (stop : BusStop) -> Unit) {
     LazyColumn {
@@ -210,11 +202,15 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
 
 @SuppressLint("MissingPermission")
 @Composable
-fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, map: MapView) {
+fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, mapView: MapView) {
     val currentLocation = viewModel.location.observeAsState()
 
-    AndroidView({ map }) { mapView ->
-        mapView.getMapAsync { map ->
+    val coroutineScope = rememberCoroutineScope()
+
+    AndroidView({ mapView }) { mapView ->
+        coroutineScope.launch {
+            val map = mapView.awaitMap()
+
             map.isMyLocationEnabled = true
             map.uiSettings.isZoomControlsEnabled = true
 
