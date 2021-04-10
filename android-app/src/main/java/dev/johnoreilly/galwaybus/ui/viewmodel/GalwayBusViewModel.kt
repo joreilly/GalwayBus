@@ -1,11 +1,12 @@
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
 import android.app.Application
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.preferencesSetKey
-import androidx.datastore.preferences.createDataStore
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.*
 import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusDeparture
@@ -46,15 +47,15 @@ class GalwayBusViewModel(
     val cameraPosition: MutableLiveData<Location> = MutableLiveData()
     private val zoomLevel: MutableLiveData<Float> = MutableLiveData(15.0f)
 
-    private val FAVORITES_KEY = preferencesSetKey<String>("favorites")
-    private val dataStore: DataStore<Preferences> = application.createDataStore("settings")
-    val favorites: Flow<Set<String>> = dataStore.data
+    private val context = application
+    private val FAVORITES_KEY = stringSetPreferencesKey("favorites")
+    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+    val favorites: Flow<Set<String>> = context.dataStore.data
         .map { preferences ->
             preferences[FAVORITES_KEY] ?: emptySet()
         }
 
     init {
-        centerInEyreSquare()
         viewModelScope.launch {
             galwayBusRepository.getBusStopsFlow()?.collect {
                 busStops = it
@@ -132,7 +133,7 @@ class GalwayBusViewModel(
 
     fun toggleFavorite(stopRef: String) {
         viewModelScope.launch {
-            dataStore.edit { settings ->
+            context.dataStore.edit { settings ->
                 val currentFavorites = settings[FAVORITES_KEY] ?: emptySet()
                 val newFavorites = currentFavorites.toMutableSet()
                 if (!newFavorites.add(stopRef)) {
