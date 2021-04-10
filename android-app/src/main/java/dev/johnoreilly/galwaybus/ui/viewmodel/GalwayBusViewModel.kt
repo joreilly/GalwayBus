@@ -41,7 +41,12 @@ class GalwayBusViewModel(
     val routeId = MutableLiveData<String>("")
     val busInfoList = routeId.switchMap { pollBusInfoForRoute(it).asLiveData() }
 
-    var busStops = listOf<BusStop>()
+    //var busStops = listOf<BusStop>()
+    val busStops = galwayBusRepository.getBusStopsFlow()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+
+
     val location: MutableLiveData<Location> = MutableLiveData()
 
     val cameraPosition: MutableLiveData<Location> = MutableLiveData()
@@ -54,14 +59,6 @@ class GalwayBusViewModel(
         .map { preferences ->
             preferences[FAVORITES_KEY] ?: emptySet()
         }
-
-    init {
-        viewModelScope.launch {
-            galwayBusRepository.getBusStopsFlow()?.collect {
-                busStops = it
-            }
-        }
-    }
 
     fun setLocation(loc: Location) {
         location.value = loc
@@ -90,8 +87,9 @@ class GalwayBusViewModel(
     }
 
     fun getBusStop(stopRef: String): BusStop? {
-        println("getBusStop, stopRef = $stopRef")
-        return busStops.firstOrNull { it.stop_id == stopRef }
+        val busStop = busStops.value.firstOrNull { it.stop_id == stopRef }
+        logger.i {  "getBusStop, stopRef = $stopRef, busStop = $busStop, list size = ${busStops.value.size}" }
+        return busStop
     }
 
     private fun getNearestStops(location: Location) {

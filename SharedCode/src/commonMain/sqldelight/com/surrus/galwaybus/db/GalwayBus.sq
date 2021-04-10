@@ -17,3 +17,6 @@ SELECT * FROM BusStop;
 
 selectById:
 SELECT * FROM BusStop WHERE stop_id = ?;
+
+deleteAll:
+DELETE FROM BusStop;

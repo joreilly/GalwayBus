@@ -8,6 +8,7 @@ import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
@@ -45,19 +46,24 @@ open class GalwayBusRepository : KoinComponent {
 
 
     private suspend fun fetchAndStoreBusStops() {
+        logger.i { "fetchAndStoreBusStops" }
         try {
-            val existingBusStops = getBusStops()
-            if (existingBusStops.isEmpty()) {
+            //val existingBusStops = getBusStops()
+            //if (existingBusStops.isEmpty()) {
                 val busStops = galwayBusApi.fetchAllBusStops()
+                logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
 
+                galwayBusQueries?.deleteAll()
                 val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
                 galwayBusStops.forEach {
                     if (it.latitude != null && it.longitude != null) {
                         galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                     }
                 }
-            }
+            logger.i { "fetchAndStoreBusStops, finished storing bus stops in db" }
+            //}
         } catch(e: Exception) {
+            logger.e { "fetchAndStoreBusStops, exception e = $e" }
             e.printStackTrace()
         }
     }
@@ -65,7 +71,7 @@ open class GalwayBusRepository : KoinComponent {
     @ExperimentalCoroutinesApi
     fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
             BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
-        })?.asFlow()?.mapToList()
+        })?.asFlow()?.mapToList() ?: flowOf(emptyList())
 
 
     fun getBusStops(): List<BusStop> {
