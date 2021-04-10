@@ -19,10 +19,10 @@ struct MapView: UIViewRepresentable {
         
         for stop in busStops {
             let annotation = MKPointAnnotation()
-            let centerCoordinate = CLLocationCoordinate2D(latitude: stop.latitude, longitude: stop.longitude)
+            let centerCoordinate = CLLocationCoordinate2D(latitude: stop.latitude!.doubleValue, longitude: stop.longitude!.doubleValue)
             annotation.coordinate = centerCoordinate
             annotation.title = stop.longName
-            print(String(stop.latitude) + " " + String(stop.longitude))
+            //print(String(stop.latitude!) + " " + String(stop.longitude!))
             view.addAnnotation(annotation)
         }
     }

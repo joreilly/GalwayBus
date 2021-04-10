@@ -43,9 +43,8 @@ struct NearbyView : View {
                 interactionModes: MapInteractionModes.all,
                 showsUserLocation: true,
                 annotationItems: nearbyStopsViewModel.listStops) { (busStop) -> MapPin in
-                    let coordinate = CLLocationCoordinate2D(latitude: busStop.latitude,
-                                                            longitude: busStop.longitude)
-                return MapPin(coordinate: coordinate)
+                let coordinate = CLLocationCoordinate2D(latitude: busStop.latitude!.doubleValue, longitude: busStop.longitude!.doubleValue)
+                    return MapPin(coordinate: coordinate)
             }
             
             
