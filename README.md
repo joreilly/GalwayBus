@@ -1,6 +1,8 @@
 ### Galway Bus Kotlin Multiplatform project using Jetpack Compose and SwiftUI
 
 
+**Note**: if you are trying this project out and aren't in Galway then hit the home icon in title bar to center in Galway so you can see meaningful data!
+
 ### Jetpack Compose
 
 The main Jetpack Compose based app module is contained in `android-app`...this is also the version that's now 
