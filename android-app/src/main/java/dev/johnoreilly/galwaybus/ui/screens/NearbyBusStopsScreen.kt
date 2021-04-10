@@ -103,7 +103,11 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                                     param("stop_name", it.longName)
                                 }
 
-                                viewModel.setLocation(Location(it.latitude, it.longitude))
+                                it.latitude?.let { latitude ->
+                                    it.longitude?.let { longitude ->
+                                        viewModel.setLocation(Location(latitude, longitude))
+                                    }
+                                }
 
                                 coroutineScope.launch {
                                     sheetState.show()
@@ -180,7 +184,8 @@ fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
 @Composable
 fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
     Row(
-            modifier = Modifier.clickable(onClick = { itemClick(stop) }).padding(8.dp).fillMaxWidth(),
+            modifier = Modifier.clickable(onClick = { itemClick(stop) })
+                    .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -227,16 +232,21 @@ fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, mapVie
             }
 
             for (busStop in stops) {
-                val busStopLocation = LatLng(busStop.latitude.toDouble(), busStop.longitude.toDouble())
+                busStop.latitude?.let { latitude ->
+                    busStop.longitude?.let { longitude ->
 
-                val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-                val markerOptions = MarkerOptions()
-                        .title(busStop.shortName)
-                        .position(busStopLocation)
-                        .icon(icon)
+                        val busStopLocation = LatLng(latitude, longitude)
 
-                val marker = map.addMarker(markerOptions)
-                marker.tag = busStop
+                        val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                        val markerOptions = MarkerOptions()
+                                .title(busStop.shortName)
+                                .position(busStopLocation)
+                                .icon(icon)
+
+                        val marker = map.addMarker(markerOptions)
+                        marker.tag = busStop
+                    }
+                }
             }
         }
     }

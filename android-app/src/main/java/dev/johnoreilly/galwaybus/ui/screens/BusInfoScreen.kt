@@ -74,20 +74,22 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, map: MapView)
             map.clear()
             val builder = LatLngBounds.Builder()
 
-            val busStopLocation = LatLng(stop.latitude, stop.longitude)
+            stop.latitude?.let { latitude ->
+                stop.longitude?.let { longitude ->
+                    val busStopLocation = LatLng(latitude, longitude)
 
-            // bus stop marker
-            val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-            val markerOptions = MarkerOptions()
-                .title(stop.shortName)
-                .position(busStopLocation)
-                .icon(icon)
+                    // bus stop marker
+                    val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                    val markerOptions = MarkerOptions()
+                            .title(stop.shortName)
+                            .position(busStopLocation)
+                            .icon(icon)
 
-            val marker = map.addMarker(markerOptions)
-            marker.tag = stop
-            builder.include(busStopLocation)
-
-
+                    val marker = map.addMarker(markerOptions)
+                    marker.tag = stop
+                    builder.include(busStopLocation)
+                }
+            }
 
             // bus markers
             for (bus in busInfoList) {
