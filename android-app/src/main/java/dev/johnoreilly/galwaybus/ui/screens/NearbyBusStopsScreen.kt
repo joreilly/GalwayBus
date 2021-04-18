@@ -141,10 +141,11 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (departure: GalwayBusDeparture) -> Unit)
 {
     val departureList by viewModel.busDepartureList.observeAsState(emptyList())
+    val busStop by viewModel.currentBusStop.observeAsState(null)
 
     Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
 
-        Text(text = "Departures", style = typography.h6,
+        Text(text = busStop?.longName ?: "", style = typography.h6,
                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                 textAlign = TextAlign.Center
         )

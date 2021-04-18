@@ -37,11 +37,11 @@ class GalwayBusViewModel(
 
     val stopRef = MutableLiveData<String>("")
     val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
+    val currentBusStop = stopRef.map { getBusStop(it) }
 
     val routeId = MutableLiveData<String>("")
     val busInfoList = routeId.switchMap { pollBusInfoForRoute(it).asLiveData() }
 
-    //var busStops = listOf<BusStop>()
     val busStops = galwayBusRepository.getBusStopsFlow()
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
