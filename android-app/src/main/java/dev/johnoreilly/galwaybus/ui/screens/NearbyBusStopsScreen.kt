@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -111,7 +112,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 
                                 coroutineScope.launch {
                                     sheetState.show()
-                                    viewModel.setStopRef(it.stopRef)
+                                    viewModel.setCurrentStop(it)
                                 }
                             }
                         }
@@ -140,8 +141,8 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 @Composable
 fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (departure: GalwayBusDeparture) -> Unit)
 {
-    val departureList by viewModel.busDepartureList.observeAsState(emptyList())
-    val busStop by viewModel.currentBusStop.observeAsState(null)
+    val departureList by viewModel.busDepartureList.collectAsState(emptyList())
+    val busStop by viewModel.currentBusStop.collectAsState()
 
     Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
 

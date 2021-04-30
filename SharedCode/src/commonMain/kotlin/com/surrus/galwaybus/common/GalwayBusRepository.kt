@@ -48,20 +48,17 @@ open class GalwayBusRepository : KoinComponent {
     private suspend fun fetchAndStoreBusStops() {
         logger.i { "fetchAndStoreBusStops" }
         try {
-            //val existingBusStops = getBusStops()
-            //if (existingBusStops.isEmpty()) {
-                val busStops = galwayBusApi.fetchAllBusStops()
-                logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
+            val busStops = galwayBusApi.fetchAllBusStops()
+            logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
 
-                galwayBusQueries?.deleteAll()
-                val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
-                galwayBusStops.forEach {
-                    if (it.latitude != null && it.longitude != null) {
-                        galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
-                    }
+            galwayBusQueries?.deleteAll()
+            val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
+            galwayBusStops.forEach {
+                if (it.latitude != null && it.longitude != null) {
+                    galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
+            }
             logger.i { "fetchAndStoreBusStops, finished storing bus stops in db" }
-            //}
         } catch(e: Exception) {
             logger.e { "fetchAndStoreBusStops, exception e = $e" }
             e.printStackTrace()

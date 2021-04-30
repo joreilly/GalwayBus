@@ -15,6 +15,7 @@ import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -27,6 +28,7 @@ sealed class UiState<out T: Any> {
 }
 
 
+@ExperimentalCoroutinesApi
 class GalwayBusViewModel(
         application: Application,
         private val galwayBusRepository: GalwayBusRepository,
@@ -35,17 +37,12 @@ class GalwayBusViewModel(
 
     val busStopListState = MutableLiveData<UiState<List<BusStop>>>()
 
-    val stopRef = MutableLiveData<String>("")
-    val busDepartureList = stopRef.switchMap { pollBusDepartures(it).asLiveData() }
-    val currentBusStop = stopRef.map { getBusStop(it) }
+    var currentBusStop =  MutableStateFlow<BusStop?>(null)
 
-    val routeId = MutableLiveData<String>("")
-    val busInfoList = routeId.switchMap { pollBusInfoForRoute(it).asLiveData() }
+    val busDepartureList = currentBusStop.filterNotNull().flatMapLatest { pollBusDepartures(it.stopRef) }
 
-    val busStops = galwayBusRepository.getBusStopsFlow()
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
-
-
+    val routeId = MutableStateFlow<String>("")
+    val busInfoList = routeId.flatMapLatest { pollBusInfoForRoute(it)  }
 
     val location: MutableLiveData<Location> = MutableLiveData()
 
@@ -55,10 +52,14 @@ class GalwayBusViewModel(
     private val context = application
     private val FAVORITES_KEY = stringSetPreferencesKey("favorites")
     val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-    val favorites: Flow<Set<String>> = context.dataStore.data
-        .map { preferences ->
-            preferences[FAVORITES_KEY] ?: emptySet()
-        }
+    val favorites: Flow<Set<String>> = context.dataStore.data.map { preferences ->
+        preferences[FAVORITES_KEY] ?: emptySet()
+    }
+
+    val favoriteBusStopList = galwayBusRepository.getBusStopsFlow().combine(favorites) { busStops, favorites ->
+        favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
 
     fun setLocation(loc: Location) {
         location.value = loc
@@ -73,23 +74,16 @@ class GalwayBusViewModel(
         return zoomLevel.value ?: 15.0f
     }
 
-
     fun setCameraPosition(loc: Location) {
         cameraPosition.value = loc
     }
 
-    fun setStopRef(stopRefValue: String) {
-        stopRef.value = stopRefValue
+    fun setCurrentStop(busStop: BusStop) {
+        currentBusStop.value = busStop
     }
 
     fun setRouteId(routeIdValue: String) {
         routeId.value = routeIdValue
-    }
-
-    fun getBusStop(stopRef: String): BusStop? {
-        val busStop = busStops.value.firstOrNull { it.stop_id == stopRef }
-        logger.i {  "getBusStop, stopRef = $stopRef, busStop = $busStop, list size = ${busStops.value.size}" }
-        return busStop
     }
 
     private fun getNearestStops(location: Location) {

@@ -1,15 +1,11 @@
 package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.view.View
-import android.widget.TextView
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -21,16 +17,15 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
 import dev.johnoreilly.galwaybus.R
-import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 import dev.johnoreilly.galwaybus.ui.utils.rememberMapViewWithLifecycle
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 
 @Composable
 fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
-    val busInfoList by viewModel.busInfoList.observeAsState(emptyList())
+    val busInfoList by viewModel.busInfoList.collectAsState(emptyList())
     val mapView = rememberMapViewWithLifecycle()
     val routeId = viewModel.routeId.value
-    val stopRef = viewModel.stopRef.value
+    val currentBusStop = viewModel.currentBusStop.collectAsState()
 
     Scaffold(topBar = {
         TopAppBar(
@@ -44,8 +39,8 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
     }) { paddingValues ->
 
         Column(Modifier.padding(paddingValues)) {
-            stopRef?.let {
-                viewModel.getBusStop(stopRef)?.let { stop ->
+            currentBusStop.value?.let { stop ->
+                //viewModel.getBusStop(stopRef)?.let { stop ->
                     if (busInfoList.isNotEmpty()) {
                         BusInfoMapViewContainer(stop, busInfoList, mapView)
                     } else {
@@ -53,7 +48,7 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
                             CircularProgressIndicator()
                         }
                     }
-                }
+                //}
             }
         }
 

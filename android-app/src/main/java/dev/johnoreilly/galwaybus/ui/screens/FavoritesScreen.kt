@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val favorites by viewModel.favorites.collectAsState(setOf())
-    val busStopList = favorites.mapNotNull { viewModel.getBusStop(it) }
+
+    val busStopList by viewModel.favoriteBusStopList.collectAsState(emptyList())
     val coroutineScope = rememberCoroutineScope()
 
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
@@ -47,7 +48,7 @@ fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
 
                 coroutineScope.launch {
                     sheetState.show()
-                    viewModel.setStopRef(it.stopRef)
+                    viewModel.setCurrentStop(it)
                 }
             }
         }
