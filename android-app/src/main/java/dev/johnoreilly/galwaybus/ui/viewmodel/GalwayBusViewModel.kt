@@ -35,7 +35,7 @@ class GalwayBusViewModel(
         private val logger: Kermit
 ) : AndroidViewModel(application) {
 
-    val busStopListState = MutableLiveData<UiState<List<BusStop>>>()
+    val busStopListState = MutableStateFlow<UiState<List<BusStop>>>(UiState.Loading)
 
     var currentBusStop =  MutableStateFlow<BusStop?>(null)
 
@@ -44,10 +44,10 @@ class GalwayBusViewModel(
     val routeId = MutableStateFlow<String>("")
     val busInfoList = routeId.flatMapLatest { pollBusInfoForRoute(it)  }
 
-    val location: MutableLiveData<Location> = MutableLiveData()
+    val location = MutableStateFlow<Location?>(null)
 
-    val cameraPosition: MutableLiveData<Location> = MutableLiveData()
-    private val zoomLevel: MutableLiveData<Float> = MutableLiveData(15.0f)
+    val cameraPosition = MutableStateFlow<Location?>(null)
+    private val zoomLevel = MutableStateFlow<Float>(15.0f)
 
     private val context = application
     private val FAVORITES_KEY = stringSetPreferencesKey("favorites")

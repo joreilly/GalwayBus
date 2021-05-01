@@ -13,7 +13,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +58,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val busStopState = viewModel.busStopListState.observeAsState(UiState.Loading)
+    val busStopState = viewModel.busStopListState.collectAsState(UiState.Loading)
 
     val favorites by viewModel.favorites.collectAsState(setOf())
 
@@ -210,7 +209,7 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
 @SuppressLint("MissingPermission")
 @Composable
 fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, mapView: MapView) {
-    val currentLocation = viewModel.location.observeAsState()
+    val currentLocation = viewModel.location.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
