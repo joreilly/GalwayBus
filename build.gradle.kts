@@ -4,6 +4,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
 
     dependencies {
@@ -11,7 +12,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
-        classpath("com.google.gms:google-services:4.3.4")
+        classpath("com.google.gms:google-services:4.3.8")
     }
 }
 
@@ -19,10 +20,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven(url = "https://dl.bintray.com/ekito/koin")
-        maven(url = "https://kotlin.bintray.com/kotlin-js-wrappers/")
-        maven(url = "https://jitpack.io")
-        maven(url = "https://kotlin.bintray.com/kotlinx/")
+        jcenter()
     }
 }
 
