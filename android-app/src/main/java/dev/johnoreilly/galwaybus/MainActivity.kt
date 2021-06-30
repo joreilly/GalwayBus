@@ -95,7 +95,10 @@ fun MainLayout(fineLocation: PermissionState,
 private fun GalwayBusBottomNavigation(navController: NavHostController, items: List<Screens>) {
 
     BottomNavigation {
-        val currentRoute = currentRoute(navController)
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+
         items.forEach { screen ->
             BottomNavigationItem(
                 icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } },
@@ -113,14 +116,6 @@ private fun GalwayBusBottomNavigation(navController: NavHostController, items: L
         }
     }
 }
-
-
-@Composable
-private fun currentRoute(navController: NavHostController): String? {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    return navBackStackEntry?.arguments?.getString(KEY_ROUTE)
-}
-
 
 @Composable
 fun FavoritesButton(

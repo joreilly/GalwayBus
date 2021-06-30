@@ -1,24 +1,19 @@
 
 object Versions {
-    const val kotlin = "1.4.32"
-    const val kotlinCoroutines = "1.4.3-native-mt"
-    const val ktor = "1.5.3"
-    const val kotlinxSerialization = "1.1.0"
-    const val kotlinxDateTime = "0.1.1"
-    const val koin = "3.0.1"
-    const val sqlDelight = "1.4.4"
+    const val kotlin = "1.5.10"
+    const val kotlinCoroutines = "1.5.0-native-mt"
+    const val ktor = "1.6.0"
+    const val kotlinxSerialization = "1.2.1"
+    const val kotlinxDateTime = "0.2.1"
+    const val koin = "3.1.1"
+    const val sqlDelight = "1.5.0"
     const val multiplatformSettings = "0.7.3"
 
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
-    const val ktx = "1.0.1"
-    const val nav = "2.1.0-alpha04"
-    const val work = "2.1.0-alpha02"
-    const val lifecycle = "2.2.0-alpha01"
-    const val fragment = "1.1.0-alpha09"
-    const val compose = "1.0.0-beta06"
-    const val nav_compose_version = "1.0.0-alpha10"
-    const val coilVersion = "0.9.0"
+    const val compose = "1.0.0-beta09"
+    const val navCompose = "2.4.0-alpha03"
+    const val coilVersion = "0.12.0"
 
     const val kermit = "0.1.8"
 
@@ -49,7 +44,7 @@ object Compose {
     const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
     const val foundationLayout = "androidx.compose.foundation:foundation-layout:${Versions.compose}"
     const val material = "androidx.compose.material:material:${Versions.compose}"
-    const val navigation = "androidx.navigation:navigation-compose:${Versions.nav_compose_version}"
+    const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
     const val accompanist= "com.google.accompanist:accompanist-coil:${Versions.coilVersion}"
 }
 
@@ -98,17 +93,6 @@ object AndroidSdk {
     const val compile = 29
     const val target = compile
 }
-
-object ArchComponents {
-    val coreKtx = "androidx.core:core-ktx:${Versions.ktx}"
-    val fragment = "androidx.fragment:fragment-ktx:${Versions.fragment}"
-    val navFragmentKtx = "androidx.navigation:navigation-fragment-ktx:${Versions.nav}"
-    val navUiKtx = "androidx.navigation:navigation-ui-ktx:${Versions.nav}"
-    val work = "androidx.work:work-runtime-ktx:${Versions.work}"
-    val lifecycleExtensions =  "androidx.lifecycle:lifecycle-extensions:${Versions.lifecycle}"
-    val lifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Versions.lifecycle}"
-}
-
 
 object Koin {
     val core = "io.insert-koin:koin-core:${Versions.koin}"
