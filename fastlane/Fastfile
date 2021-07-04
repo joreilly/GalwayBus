@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    version = 43
+    versionNum = 44
 
 
     before_all do
@@ -36,7 +36,7 @@ platform :android do
         gradle(
               task: ":android-app:bundleRelease",
               properties: {
-                  'versionCode' => version
+                  'versionNum' => versionNum
               }
         )
 
@@ -58,7 +58,7 @@ platform :android do
         gradle(
               task: ":android-app:bundleRelease",
               properties: {
-                  'versionCode' => version
+                  'versionNum' => versionNum
               }
        )
 
@@ -79,7 +79,7 @@ platform :android do
         gradle(
               task: ":android-app:bundleRelease",
               properties: {
-                  'versionCode' => version
+                  'versionNum' => versionNum
               }
         )
     end
@@ -89,7 +89,7 @@ platform :android do
         gradle(
               task: ":android-app:assembleRelease",
               properties: {
-                  'versionCode' => version
+                  'versionNum' => versionNum
               }
         )
     end

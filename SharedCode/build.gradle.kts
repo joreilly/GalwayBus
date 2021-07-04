@@ -20,11 +20,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 
 android {
-    compileSdkVersion(AndroidSdk.compile)
+    compileSdk = AndroidSdk.compile
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(AndroidSdk.min)
-        targetSdkVersion(AndroidSdk.target)
+        minSdk = AndroidSdk.min
+        targetSdk = AndroidSdk.target
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -58,12 +58,6 @@ kotlin {
         jvm()
     }
 
-    js {
-        browser {
-        }
-    }
-
-
     cocoapods {
         // Configure fields required by CocoaPods.
         summary = "Some description for a Kotlin/Native module"
@@ -74,30 +68,37 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                // Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}") {
+                implementation(Deps.Kotlinx.coroutinesCore) {
                     isForce = true
                 }
 
-                // Ktor
-                implementation("io.ktor:ktor-client-core:${Versions.ktor}")
-                implementation("io.ktor:ktor-client-json:${Versions.ktor}")
-                implementation("io.ktor:ktor-client-logging:${Versions.ktor}")
-                implementation("io.ktor:ktor-client-serialization:${Versions.ktor}")
+                with(Deps.Ktor) {
+                    implementation(clientCore)
+                    implementation(clientJson)
+                    implementation(clientLogging)
+                    implementation(clientSerialization)
+                }
 
-                // Serialize
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.kotlinxSerialization}")
+                with(Deps.Kotlinx) {
+                    implementation(serializationCore)
+                    implementation(dateTime)
+                }
 
-                // SQL Delight
-                implementation("com.squareup.sqldelight:runtime:${Versions.sqlDelight}")
-                implementation("com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}")
+                with(Deps.SqlDelight) {
+                    implementation(runtime)
+                    implementation(coroutineExtensions)
+                }
 
-                // koin
-                api(Koin.core)
+                with(Deps.Koin) {
+                    api(core)
+                    api(test)
+                }
+
+                with(Deps.Log) {
+                    api(kermit)
+                }
 
                 api(Deps.multiplatformSettings)
-                api(Deps.kermit)
-                api(Deps.kotlinxDateTime)
             }
         }
 
@@ -132,11 +133,6 @@ kotlin {
             }
         }
 
-        val jsMain by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-js:${Versions.ktor}")
-            }
-        }
     }
 }
 

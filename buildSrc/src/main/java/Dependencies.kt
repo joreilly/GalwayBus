@@ -1,5 +1,9 @@
 
 object Versions {
+    const val androidMinSdk = 21
+    const val androidCompileSdk = 30
+    const val androidTargetSdk = androidCompileSdk
+
     const val kotlin = "1.5.10"
     const val kotlinCoroutines = "1.5.0-native-mt"
     const val ktor = "1.6.0"
@@ -11,9 +15,9 @@ object Versions {
 
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
-    const val compose = "1.0.0-beta09"
-    const val navCompose = "2.4.0-alpha03"
-    const val coilVersion = "0.12.0"
+    const val compose = "1.0.0-rc01"
+    const val navCompose = "2.4.0-alpha04"
+    const val accompanist = "0.13.0"
 
     const val kermit = "0.1.8"
 
@@ -27,66 +31,9 @@ object Versions {
     const val screengrab = "1.2.0"
     const val mockWebServer = "3.11.0"
 
-    const val appengine = "2.1.0"
-
-    const val html = "0.6.9"
-    const val reactRouterDom = "4.3.1"
-    const val kotlinReactRouterDom = "$reactRouterDom-pre.79-kotlin-1.3.41"
-
-    const val node = "10.13.0"
-    const val react = "16.8.6"
-    const val kotlinFrontendPlugin = "0.0.45"
-}
-
-object Compose {
-    const val ui = "androidx.compose.ui:ui:${Versions.compose}"
-    const val uiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"
-    const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
-    const val foundationLayout = "androidx.compose.foundation:foundation-layout:${Versions.compose}"
-    const val material = "androidx.compose.material:material:${Versions.compose}"
-    const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
-    const val accompanist= "com.google.accompanist:accompanist-coil:${Versions.coilVersion}"
 }
 
 
-
-object Deps {
-    const val kermit = "co.touchlab:kermit:${Versions.kermit}"
-    const val kotlinxDateTime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}"
-    const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
-}
-
-object Kotlin {
-//    const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
-//    const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.kotlinCoroutines}"
-//    const val coroutinesCoreCommon = "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${Versions.kotlinCoroutines}"
-//    const val coroutinesCoreJs = "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${Versions.kotlinCoroutines}"
-//    const val coroutinesCoreNative = "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:${Versions.kotlinCoroutines}"
-//    const val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.kotlinCoroutines}"
-//
-//    const val serializationRuntime = "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${Versions.kotlinxSerialization}"
-//    const val serializationRuntimeCommon = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${Versions.kotlinxSerialization}"
-//    const val serializationRuntimeJs = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${Versions.kotlinxSerialization}"
-//    const val serializationRuntimeNative = "org.jetbrains.kotlinx:kotlinx-serialization-runtime-native:${Versions.kotlinxSerialization}"
-//
-//    const val htmlJs = "org.jetbrains.kotlinx:kotlinx-html-js:${Versions.html}"
-//
-//    const val extensions = "org.jetbrains:kotlin-extensions:${Versions.kotlinJsExt}"
-//    const val react = "org.jetbrains:kotlin-react:${Versions.kotlinWrapper}"
-//    const val reactDom = "org.jetbrains:kotlin-react-dom:${Versions.kotlinWrapper}"
-//    const val reactRouterDom = "org.jetbrains:kotlin-react-router-dom:${Versions.kotlinReactRouterDom}"
-//    const val reflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
-}
-
-object Ktor {
-    const val clientJs = "io.ktor:ktor-client-js:${Versions.ktor}"
-    const val clientJsonJs = "io.ktor:ktor-client-json-js:${Versions.ktor}"
-    const val clientLoggingJs = "io.ktor:ktor-client-logging-js:${Versions.ktor}"
-    const val clientSerializationJs = "io.ktor:ktor-client-serialization-js:${Versions.ktor}"
-    const val freemaker = "io.ktor:ktor-freemarker:${Versions.ktor}"
-    const val locations = "io.ktor:ktor-locations:${Versions.ktor}"
-    const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
-}
 
 object AndroidSdk {
     const val min = 21
@@ -112,25 +59,69 @@ object PlayServices {
 }
 
 
-object Okhttp {
-    val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okHttp}"
-    val loggingInterceptor = "com.squareup.okhttp3:logging-interceptor:${Versions.okHttp}"
+object Deps {
+
+    object Kotlinx {
+        const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+        const val serializationCore = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.kotlinxSerialization}"
+        const val dateTime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}"
+    }
+
+    object Test {
+        const val junit = "junit:junit:${Versions.junit}"
+        const val mockito = "org.mockito:mockito-inline:${Versions.mockito}"
+        const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
+    }
+
+    object Compose {
+        const val ui = "androidx.compose.ui:ui:${Versions.compose}"
+        const val uiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"
+        const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
+        const val foundationLayout = "androidx.compose.foundation:foundation-layout:${Versions.compose}"
+        const val material = "androidx.compose.material:material:${Versions.compose}"
+        const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
+        const val accompanistCoil = "com.google.accompanist:accompanist-coil:${Versions.accompanist}"
+        const val accompanistPlaceholder = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
+    }
+
+    object Koin {
+        const val core = "io.insert-koin:koin-core:${Versions.koin}"
+        const val test = "io.insert-koin:koin-test:${Versions.koin}"
+        const val testJUnit4 = "io.insert-koin:koin-test-junit4:${Versions.koin}"
+        const val android = "io.insert-koin:koin-android:${Versions.koin}"
+        const val compose = "io.insert-koin:koin-androidx-compose:${Versions.koin}"
+    }
+
+    object Ktor {
+        const val serverCore = "io.ktor:ktor-server-core:${Versions.ktor}"
+        const val serverNetty = "io.ktor:ktor-server-netty:${Versions.ktor}"
+        const val serialization = "io.ktor:ktor-serialization:${Versions.ktor}"
+        const val websockets = "io.ktor:ktor-websockets:${Versions.ktor}"
+        const val clientCore = "io.ktor:ktor-client-core:${Versions.ktor}"
+        const val clientJson = "io.ktor:ktor-client-json:${Versions.ktor}"
+        const val clientLogging = "io.ktor:ktor-client-logging:${Versions.ktor}"
+        const val clientSerialization = "io.ktor:ktor-client-serialization:${Versions.ktor}"
+        const val clientAndroid = "io.ktor:ktor-client-android:${Versions.ktor}"
+        const val clientApache = "io.ktor:ktor-client-apache:${Versions.ktor}"
+        const val clientIos = "io.ktor:ktor-client-ios:${Versions.ktor}"
+        const val clientCio = "io.ktor:ktor-client-cio:${Versions.ktor}"
+        const val clientJs = "io.ktor:ktor-client-js:${Versions.ktor}"
+    }
+
+    object SqlDelight {
+        const val runtime = "com.squareup.sqldelight:runtime:${Versions.sqlDelight}"
+        const val coroutineExtensions = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
+        const val androidDriver = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
+        const val nativeDriver = "com.squareup.sqldelight:native-driver:${Versions.sqlDelight}"
+        const val nativeDriverMacos = "com.squareup.sqldelight:native-driver-macosx64:${Versions.sqlDelight}"
+        const val sqliteDriver = "com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}"
+    }
+
+    object Log {
+        const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+        const val kermit = "co.touchlab:kermit:${Versions.kermit}"
+    }
+
+    const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
+
 }
-
-object Testing {
-    val junit = "junit:junit:${Versions.junit}"
-    val coreTesting = "android.arch.core:core-testing:${Versions.coreTesting}"
-    val couroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
-
-    val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
-    val fragmentTesting = "androidx.fragment:fragment-testing:${Versions.fragmentTest}"
-    val screengrab = "tools.fastlane:screengrab:${Versions.screengrab}"
-    val mockWebServer = "com.squareup.okhttp3:mockwebserver:${Versions.mockWebServer}"
-}
-
-object Mockito {
-    val core = "org.mockito:mockito-core:${Versions.mockito}"
-    val android = "org.mockito:mockito-android:${Versions.mockito}"
-    val kotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
-}
-
