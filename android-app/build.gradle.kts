@@ -53,9 +53,9 @@ android {
 
         create("release") {
             storeFile = file("/Users/joreilly/dev/keystore/galwaybus_android.jks")
-            keyAlias = keystoreProperties["keyAlias"] as String
-            keyPassword = keystoreProperties["keyPassword"] as String
-            storePassword = keystoreProperties["storePassword"] as String
+            keyAlias = keystoreProperties["keyAlias"] as String?
+            keyPassword = keystoreProperties["keyPassword"] as String?
+            storePassword = keystoreProperties["storePassword"] as String?
             isV2SigningEnabled = true
         }
     }
@@ -70,7 +70,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val googleMapsKey = System.getenv("GOOGLE_API_KEY") as String ?: "test"
+        val googleMapsKey = System.getenv("GOOGLE_API_KEY") ?: "test"
         resValue("string", "google_maps_key", googleMapsKey)
     }
 
