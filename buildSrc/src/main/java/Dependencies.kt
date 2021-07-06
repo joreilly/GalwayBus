@@ -11,7 +11,7 @@ object Versions {
     const val kotlinxDateTime = "0.2.1"
     const val koin = "3.1.1"
     const val sqlDelight = "1.5.0"
-    const val multiplatformSettings = "0.7.3"
+    const val multiplatformSettings = "0.7.6"
 
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"

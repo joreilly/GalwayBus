@@ -3,8 +3,8 @@ package dev.johnoreilly.galwaybus
 import android.Manifest
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.Text
 import androidx.compose.material.*
 import androidx.compose.material.Icon
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
+import com.google.android.gms.location.LocationServices
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.BusInfoScreen
@@ -25,7 +26,7 @@ import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     private val galwayBusViewModel by viewModel<GalwayBusViewModel>()
 
     @ExperimentalMaterialApi
@@ -35,7 +36,8 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             GalwayBusTheme {
-                val fusedLocationWrapper = fusedLocationWrapper()
+                //val fusedLocationWrapper = fusedLocationWrapper()
+                val fusedLocationWrapper = FusedLocationWrapper(LocationServices.getFusedLocationProviderClient(this))
                 val fineLocation = checkSelfPermissionState(this,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 )

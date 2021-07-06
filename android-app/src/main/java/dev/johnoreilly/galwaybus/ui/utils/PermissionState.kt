@@ -1,6 +1,8 @@
 package dev.johnoreilly.galwaybus.ui.utils
 
+import android.app.Activity
 import android.content.pm.PackageManager
+import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -23,9 +25,9 @@ class PermissionState(
 
 @ExperimentalCoroutinesApi
 private class PermissionResultCall(
-        key: String,
-        private val activity: AppCompatActivity,
-        private val permission: String
+    key: String,
+    private val activity: ComponentActivity,
+    private val permission: String
 ) {
 
     // defer this to allow construction before onCreate
@@ -71,7 +73,7 @@ private class PermissionResultCall(
  */
 @ExperimentalComposeApi
 @Composable
-fun checkSelfPermissionState(activity: AppCompatActivity, permission: String): PermissionState {
+fun checkSelfPermissionState(activity: ComponentActivity, permission: String): PermissionState {
     val key = "1" //currentComposer.currentCompoundKeyHash.toString()
     val call = remember(activity, permission) {
         PermissionResultCall(key, activity, permission)
