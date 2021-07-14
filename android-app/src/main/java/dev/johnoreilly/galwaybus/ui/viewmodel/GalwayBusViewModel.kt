@@ -28,6 +28,9 @@ sealed class UiState<out T: Any> {
 }
 
 
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+
+
 @ExperimentalCoroutinesApi
 class GalwayBusViewModel(
         application: Application,
@@ -51,7 +54,6 @@ class GalwayBusViewModel(
 
     private val context = application
     private val FAVORITES_KEY = stringSetPreferencesKey("favorites")
-    val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
     val favorites: Flow<Set<String>> = context.dataStore.data.map { preferences ->
         preferences[FAVORITES_KEY] ?: emptySet()
     }
