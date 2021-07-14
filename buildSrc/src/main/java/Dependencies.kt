@@ -15,9 +15,9 @@ object Versions {
 
     const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
-    const val compose = "1.0.0-rc01"
+    const val compose = "1.0.0-rc02"
     const val navCompose = "2.4.0-alpha04"
-    const val accompanist = "0.13.0"
+    const val accompanist = "0.14.0"
 
     const val kermit = "0.1.8"
 
