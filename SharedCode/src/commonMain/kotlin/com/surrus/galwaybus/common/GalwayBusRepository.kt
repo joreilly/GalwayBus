@@ -13,7 +13,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
-import org.koin.core.component.inject
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -37,15 +36,7 @@ open class GalwayBusRepository : KoinComponent {
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
     private val coroutineScope: CoroutineScope = MainScope()
 
-    init {
-        coroutineScope.launch {
-            // TODO have "staleness check" here?
-            fetchAndStoreBusStops()
-        }
-    }
-
-
-    private suspend fun fetchAndStoreBusStops() {
+    suspend fun fetchAndStoreBusStops() {
         logger.i { "fetchAndStoreBusStops" }
         try {
             val busStops = galwayBusApi.fetchAllBusStops()
@@ -129,7 +120,7 @@ open class GalwayBusRepository : KoinComponent {
 
     fun getBusStops(success: (List<BusStop>) -> Unit) {
         coroutineScope.launch {
-            getBusStopsFlow()?.collect {
+            getBusStopsFlow().collect {
                 success(it)
             }
         }

@@ -63,6 +63,12 @@ class GalwayBusViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
 
+    fun fetchAndStoreBusStops() {
+        viewModelScope.launch {
+            galwayBusRepository.fetchAndStoreBusStops()
+        }
+    }
+
     fun setLocation(loc: Location) {
         location.value = loc
         getNearestStops(loc)

@@ -20,6 +20,7 @@ import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.BusInfoScreen
 import dev.johnoreilly.galwaybus.ui.screens.FavoritesScreen
+import dev.johnoreilly.galwaybus.ui.screens.LandingScreen
 import dev.johnoreilly.galwaybus.ui.screens.NearestBusStopsScreen
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
@@ -41,7 +42,14 @@ class MainActivity : ComponentActivity() {
                 val fineLocation = checkSelfPermissionState(this,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 )
-                MainLayout(fineLocation, fusedLocationWrapper, galwayBusViewModel)
+                var showLandingScreen by remember { mutableStateOf(true) }
+
+                if (showLandingScreen) {
+                    LandingScreen(galwayBusViewModel, onTimeout = { showLandingScreen = false })
+                } else {
+                    MainLayout(fineLocation, fusedLocationWrapper, galwayBusViewModel)
+                }
+
             }
         }
     }
