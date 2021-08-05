@@ -138,7 +138,6 @@ dependencies {
         implementation(foundationLayout)
         implementation(material)
         implementation(navigation)
-        implementation(accompanistCoil)
         implementation(accompanistPlaceholder)
     }
 

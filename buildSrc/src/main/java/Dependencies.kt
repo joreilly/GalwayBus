@@ -4,33 +4,25 @@ object Versions {
     const val androidCompileSdk = 30
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.5.10"
-    const val kotlinCoroutines = "1.5.0-native-mt"
-    const val ktor = "1.6.0"
-    const val kotlinxSerialization = "1.2.1"
+    const val kotlin = "1.5.21"
+    const val kotlinCoroutines = "1.5.1-native-mt"
+    const val ktor = "1.6.2"
+    const val kotlinxSerialization = "1.2.2"
     const val kotlinxDateTime = "0.2.1"
-    const val koin = "3.1.1"
+    const val koin = "3.1.2"
     const val sqlDelight = "1.5.0"
     const val multiplatformSettings = "0.7.6"
 
-    const val okHttp = "3.12.0"
     const val slf4j = "1.7.30"
-    const val compose = "1.0.0"
-    const val navCompose = "2.4.0-alpha05"
-    const val accompanist = "0.14.0"
+    const val compose = "1.0.1"
+    const val navCompose = "2.4.0-alpha06"
+    const val accompanist = "0.16.0"
 
     const val kermit = "0.1.8"
 
     const val junit = "4.12"
-    const val coreTesting = "2.0.0"
-    const val coroutinesTest = "1.1.0"
     const val mockito = "2.27.0"
-    const val mockitoKotlin = "2.1.0"
     const val robolectric = "3.6.1"
-    const val fragmentTest = "1.1.0-alpha09"
-    const val screengrab = "1.2.0"
-    const val mockWebServer = "3.11.0"
-
 }
 
 
@@ -80,7 +72,6 @@ object Deps {
         const val foundationLayout = "androidx.compose.foundation:foundation-layout:${Versions.compose}"
         const val material = "androidx.compose.material:material:${Versions.compose}"
         const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
-        const val accompanistCoil = "com.google.accompanist:accompanist-coil:${Versions.accompanist}"
         const val accompanistPlaceholder = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     }
 
