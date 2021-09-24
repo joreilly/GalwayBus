@@ -154,6 +154,18 @@ dependencies {
         implementation(location)
     }
 
+    // mlkit text recognition
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:18.0.1")
+
+
+    // CameraX
+    val camerax_version = "1.2.0-beta01"
+    implementation("androidx.camera:camera-core:$camerax_version")
+    implementation("androidx.camera:camera-camera2:$camerax_version")
+    implementation("androidx.camera:camera-lifecycle:$camerax_version")
+    implementation("androidx.camera:camera-view:${camerax_version}")
+
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")

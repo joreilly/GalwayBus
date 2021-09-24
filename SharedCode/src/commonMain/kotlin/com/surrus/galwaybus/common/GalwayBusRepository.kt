@@ -39,21 +39,38 @@ open class GalwayBusRepository : KoinComponent {
         Logger.i { "fetchAndStoreBusStops" }
         try {
             val busStops = galwayBusApi.fetchAllBusStops()
-            Logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
+            Logger.i { "JFOR, fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
 
             galwayBusQueries.deleteAll()
             val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
+            println(galwayBusStops)
             galwayBusStops.forEach {
                 if (it.latitude != null && it.longitude != null) {
                     galwayBusQueries.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
             }
-            Logger.d("fetchAndStoreBusStops, finished storing bus stops in db")
+            Logger.d("JFOR, fetchAndStoreBusStops, finished storing bus stops in db, busStops = $busStops")
+            busStops.forEach {
+                println("JFOR, ${it.stopRef} : ${it.stop_id}")
+            }
         } catch(e: Exception) {
             Logger.e { "fetchAndStoreBusStops, exception e = $e" }
             e.printStackTrace()
         }
     }
+
+//    @ExperimentalCoroutinesApi
+//    fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
+//            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
+//        })?.asFlow()?.mapToList() ?: flowOf(emptyList())
+//
+//
+    fun getBusStops(): List<BusStop> {
+        return galwayBusQueries.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude  ->
+            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
+        }).executeAsList()
+    }
+
 
     suspend fun fetchRouteStops(routeId: String): Result<List<List<BusStop>>> {
         try {

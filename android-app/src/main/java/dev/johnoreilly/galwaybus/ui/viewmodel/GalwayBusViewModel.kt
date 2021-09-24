@@ -62,6 +62,8 @@ class GalwayBusViewModel(
         }
     }
 
+    fun getBusStops() = repository.getBusStops()
+
     fun setLocation(loc: Location) {
         location.value = loc
         getNearestStops(loc)
