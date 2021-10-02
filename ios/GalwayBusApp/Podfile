@@ -1,7 +1,0 @@
-use_frameworks!
-
-platform :ios, '12.2'
-
-target 'GalwayBusApp' do
-    pod 'SharedCode', :path => '../../SharedCode'
-end

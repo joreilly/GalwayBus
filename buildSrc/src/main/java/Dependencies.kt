@@ -6,7 +6,7 @@ object Versions {
 
     const val kotlin = "1.5.30"
     const val kotlinCoroutines = "1.5.2-native-mt"
-    const val ktor = "1.6.3"
+    const val ktor = "1.6.4"
     const val kotlinxSerialization = "1.2.2"
     const val kotlinxDateTime = "0.2.1"
     const val koin = "3.1.2"
@@ -14,9 +14,9 @@ object Versions {
     const val multiplatformSettings = "0.7.6"
 
     const val slf4j = "1.7.30"
-    const val compose = "1.1.0-alpha04"
-    const val navCompose = "2.4.0-alpha08"
-    const val accompanist = "0.18.0"
+    const val compose = "1.0.3"
+    const val navCompose = "2.4.0-alpha10"
+    const val accompanist = "0.19.0"
 
     const val kermit = "0.1.8"
 
