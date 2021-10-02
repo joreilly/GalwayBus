@@ -27,6 +27,17 @@ other examples of use of Kotlin Multiplatform code.
 The project depends on `GOOGLE_API_KEY` environment variable to be defined for maps functionality to work.  Alternatively
 you can update where this is read in `build.gradle`
 
+### Screenshots 
+
+**iOS (SwiftUI)**
+
+<img width="400" alt="iOS SwiftUI" src="https://user-images.githubusercontent.com/6302/135715829-8e82b20b-d945-4151-98eb-6ecedc0e7c6f.png">
+
+**Android (Jetpack Compose)**
+
+<img width="400" alt="Android Jetpack Compose" src="https://user-images.githubusercontent.com/6302/135715754-55d08490-6055-4a9c-b9ae-4b49fa48eebf.png">
+
+
 ### Languages, libraries and tools used
 
 * [Kotlin](https://kotlinlang.org/)
