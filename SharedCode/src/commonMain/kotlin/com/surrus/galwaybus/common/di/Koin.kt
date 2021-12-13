@@ -1,8 +1,6 @@
 package com.surrus.galwaybus.common.di
 
-import co.touchlab.kermit.Kermit
 import com.surrus.galwaybus.common.GalwayBusRepository
-import com.surrus.galwaybus.common.getLogger
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import io.ktor.client.*
 import io.ktor.client.features.json.*
@@ -31,7 +29,6 @@ fun commonModule() = module {
     single { createHttpClient(get()) }
     single { GalwayBusRepository() }
     single { GalwayBusApi(get()) }
-    single { Kermit(getLogger()) }
 }
 
 fun createJson() = Json { isLenient = true; ignoreUnknownKeys = true }

@@ -1,6 +1,6 @@
 package com.surrus.galwaybus.common
 
-import co.touchlab.kermit.Kermit
+import co.touchlab.kermit.Logger
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
@@ -30,17 +30,16 @@ data class GalwayBusDeparture(
 @OptIn(ExperimentalTime::class)
 open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi = get()
-    private val logger: Kermit = get()
 
     private val galwayBusDb = createDb()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
     private val coroutineScope: CoroutineScope = MainScope()
 
     suspend fun fetchAndStoreBusStops() {
-        logger.i { "fetchAndStoreBusStops" }
+        Logger.i { "fetchAndStoreBusStops" }
         try {
             val busStops = galwayBusApi.fetchAllBusStops()
-            logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
+            Logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
 
             galwayBusQueries?.deleteAll()
             val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
@@ -49,9 +48,9 @@ open class GalwayBusRepository : KoinComponent {
                     galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
             }
-            logger.i { "fetchAndStoreBusStops, finished storing bus stops in db" }
+            Logger.d("fetchAndStoreBusStops, finished storing bus stops in db")
         } catch(e: Exception) {
-            logger.e { "fetchAndStoreBusStops, exception e = $e" }
+            Logger.e { "fetchAndStoreBusStops, exception e = $e" }
             e.printStackTrace()
         }
     }
@@ -133,7 +132,7 @@ open class GalwayBusRepository : KoinComponent {
     }
 
     fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
-        logger.d { "fetchBusRoutes" }
+        Logger.d { "fetchBusRoutes" }
         coroutineScope.launch {
             success(fetchBusRoutes())
         }

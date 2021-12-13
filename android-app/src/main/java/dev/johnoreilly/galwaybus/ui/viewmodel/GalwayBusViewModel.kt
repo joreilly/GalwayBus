@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.*
-import co.touchlab.kermit.Kermit
+import co.touchlab.kermit.Logger
 import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.Bus
@@ -34,8 +34,7 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "se
 @ExperimentalCoroutinesApi
 class GalwayBusViewModel(
         application: Application,
-        private val galwayBusRepository: GalwayBusRepository,
-        private val logger: Kermit
+        private val galwayBusRepository: GalwayBusRepository
 ) : AndroidViewModel(application) {
 
     val busStopListState = MutableStateFlow<UiState<List<BusStop>>>(UiState.Loading)
@@ -109,7 +108,7 @@ class GalwayBusViewModel(
         while (true) {
             val result = galwayBusRepository.fetchBusStopDepartures(stopRef)
             if (result is Result.Success) {
-                logger.d("GalwayBusViewModel") { result.data.toString() }
+                Logger.d { result.data.toString() }
                 emit(result.data)
             }
             delay(POLL_INTERVAL)
@@ -122,7 +121,7 @@ class GalwayBusViewModel(
             while (true) {
                 val result = galwayBusRepository.fetchBusListForRoute(routeId)
                 if (result is Result.Success) {
-                    logger.d("GalwayBusViewModel") { result.data.toString() }
+                    Logger.d { result.data.toString() }
                     emit(result.data)
                 }
                 delay(POLL_INTERVAL)

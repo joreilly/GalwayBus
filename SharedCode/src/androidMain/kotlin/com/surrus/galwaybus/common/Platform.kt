@@ -1,8 +1,6 @@
 package com.surrus.galwaybus.common
 
 import android.content.Context
-import co.touchlab.kermit.LogcatLogger
-import co.touchlab.kermit.Logger
 import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.surrus.galwaybus.db.MyDatabase
 
@@ -14,4 +12,3 @@ actual fun createDb(): MyDatabase? {
     return MyDatabase(driver)
 }
 
-actual fun getLogger(): Logger = LogcatLogger()

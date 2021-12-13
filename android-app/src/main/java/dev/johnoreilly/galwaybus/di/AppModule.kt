@@ -6,7 +6,7 @@ import org.koin.dsl.module
 
 
 val galwayBusAppModule = module {
-    viewModel { GalwayBusViewModel(get(), get(),get()) }
+    viewModel { GalwayBusViewModel(get(), get()) }
 }
 
 

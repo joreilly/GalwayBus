@@ -1,7 +1,7 @@
 package dev.johnoreilly.galwaybus
 
 import android.app.Application
-import co.touchlab.kermit.Kermit
+import co.touchlab.kermit.Logger
 import org.koin.android.ext.koin.androidContext
 
 import com.surrus.galwaybus.common.appContext
@@ -11,7 +11,6 @@ import org.koin.android.ext.android.inject
 
 
 class GalwayBusApplication : Application() {
-    private val logger: Kermit by inject()
 
     override fun onCreate() {
         super.onCreate()
@@ -22,6 +21,6 @@ class GalwayBusApplication : Application() {
             modules(appModule)
         }
 
-        logger.d { "GalwayBusApplication" }
+        Logger.d { "GalwayBusApplication" }
     }
 }
