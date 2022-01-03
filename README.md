@@ -3,23 +3,25 @@
 
 **Note**: if you are trying this project out and aren't in Galway then hit the home icon in title bar to center in Galway so you can see meaningful data!
 
-### Jetpack Compose
-
-The main Jetpack Compose based app module is contained in `android-app`...this is also the version that's now 
-published to Play Store.  The previous "legacy" version of app (based on fragments/layouts etc) is still contained in `app` module but will be removed in near future.
-
 
 ### Kotlin Multiplatform
 
-Currently this project is also being used as platform to explore some of the relatively new **Kotlin Multiplatform**
-capabilities.  There is a Kotlin Multiplatform `ShareCode` module for example along with sample iOS
-and macOS apps. Have also written a couple of posts about some of my experiences doing this so far with this project.  Also, 
-see [PeopleInSpace](https://github.com/joreilly/PeopleInSpace) and [BikeShare](https://github.com/joreilly/BikeShare) for 
-other examples of use of Kotlin Multiplatform code.
+This project also acted as initial platform I used when starting to explore w **Kotlin Multiplatform**
+capabilities. There's a Kotlin Multiplatform `ShareCode` module for example along with sample iOS
+and macOS apps. Also wrote a couple of posts about some of my experiences using **KMP** in the project.  
 
 * [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform/)
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
+
+Also have following Kotlin Multiplatform/Jetpack Compose/SwiftUI samples.
+
+* [PeopleInSpace](https://github.com/joreilly/PeopleInSpace)
+* [BikeShare](https://github.com/joreilly/BikeShare)
+* [MortyComposeKMM](https://github.com/joreilly/MortyComposeKMM)
+* [FantasyPremierLeague](https://github.com/joreilly/FantasyPremierLeague)
+* [StarWars](https://github.com/joreilly/StarWars)
+* [Chip-8](https://github.com/joreilly/chip-8)
 
 
 ### Google Maps SDK
