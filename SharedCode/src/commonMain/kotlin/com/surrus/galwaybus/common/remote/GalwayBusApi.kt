@@ -5,15 +5,11 @@ import com.surrus.galwaybus.common.model.BusRoute
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Departure
 import io.ktor.client.HttpClient
-import io.ktor.client.features.json.JsonFeature
-import io.ktor.client.features.json.serializer.KotlinxSerializer
-import io.ktor.client.features.logging.DEFAULT
-import io.ktor.client.features.logging.LogLevel
-import io.ktor.client.features.logging.Logger
-import io.ktor.client.features.logging.Logging
+import io.ktor.client.call.*
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.url
+import io.ktor.client.statement.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.MapSerializer
@@ -38,19 +34,19 @@ class GalwayBusApi(private val client: HttpClient, val baseUrl: String = "https:
 
 
     suspend fun fetchBusRoutes(): Map<String, BusRoute> {
-        return client.get("$baseUrl/routes.json")
+        return client.get("$baseUrl/routes.json").body()
     }
 
     suspend fun fetchAllBusStops(): List<BusStop> {
-        return client.get("$baseUrl/stops.json")
+        return client.get("$baseUrl/stops.json").body()
     }
 
     suspend fun fetchBusStop(stopRef: String): BusStopResponse {
-        return client.get("$baseUrl/stops/$stopRef.json")
+        return client.get("$baseUrl/stops/$stopRef.json").body()
     }
 
     suspend fun fetchSchedules(): Map<String, List<Map<String, String>>> {
-        val jsonString = client.get<String>("$baseUrl/schedules.json")
+        val jsonString = client.get("$baseUrl/schedules.json").bodyAsText()
         return nonStrictJson.decodeFromString(busScheduleMapSerializer, jsonString)
     }
 
@@ -59,14 +55,14 @@ class GalwayBusApi(private val client: HttpClient, val baseUrl: String = "https:
             url("$baseUrl/stops/nearby.json")
             parameter("latitude", latitude)
             parameter("longitude", longitude)
-        }
+        }.body()
     }
 
     suspend fun fetchRouteStops(routeId: String): List<List<BusStop>> {
-        return client.get<GetRouteStopsResponse>("$baseUrl/routes/$routeId.json").stops
+        return client.get("$baseUrl/routes/$routeId.json").body<GetRouteStopsResponse>().stops
     }
 
     suspend fun fetchBusListForRoute(routeId: String): List<Bus> {
-        return client.get<GetBusListForRouteResponse>("$baseUrl/bus/$routeId.json").bus
+        return client.get("$baseUrl/bus/$routeId.json").body<GetBusListForRouteResponse>().bus
     }
 }

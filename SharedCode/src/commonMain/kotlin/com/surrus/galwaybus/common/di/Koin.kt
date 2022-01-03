@@ -3,9 +3,10 @@ package com.surrus.galwaybus.common.di
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import io.ktor.client.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
-import io.ktor.client.features.logging.*
+import io.ktor.client.engine.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.logging.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
@@ -34,8 +35,8 @@ fun commonModule() = module {
 fun createJson() = Json { isLenient = true; ignoreUnknownKeys = true }
 
 fun createHttpClient(json: Json) = HttpClient {
-    install(JsonFeature) {
-        serializer = KotlinxSerializer(json)
+    install(ContentNegotiation) {
+        json(json)
     }
     install(Logging) {
         logger = Logger.DEFAULT

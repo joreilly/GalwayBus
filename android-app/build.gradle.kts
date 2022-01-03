@@ -79,7 +79,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.compose
+        kotlinCompilerExtensionVersion = Versions.composeCompiler
     }
 
 
@@ -122,11 +122,11 @@ tasks.withType<KotlinCompile> {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
 
-    implementation("com.google.android.material:material:1.3.0")
-    implementation("androidx.datastore:datastore-preferences:1.0.0-rc01")
+    implementation("com.google.android.material:material:1.4.0")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.3.0")
+    implementation("androidx.activity:activity-compose:1.4.0")
 
     implementation("com.google.android.libraries.maps:maps:3.1.0-beta")
     implementation("com.google.maps.android:maps-v3-ktx:3.0.1")
@@ -146,7 +146,7 @@ dependencies {
         implementation(accompanistPlaceholder)
     }
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0")
     implementation(PlayServices.location)
 
     testImplementation("junit:junit:4.13.2")

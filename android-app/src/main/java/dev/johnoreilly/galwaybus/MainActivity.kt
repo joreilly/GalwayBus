@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.google.android.gms.location.LocationServices
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.BusInfoScreen
@@ -24,21 +23,18 @@ import dev.johnoreilly.galwaybus.ui.screens.LandingScreen
 import dev.johnoreilly.galwaybus.ui.screens.NearestBusStopsScreen
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
-import kotlinx.coroutines.flow.collect
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
     private val galwayBusViewModel by viewModel<GalwayBusViewModel>()
 
-    @ExperimentalMaterialApi
-    @ExperimentalComposeApi
+    @OptIn(ExperimentalComposeApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
             GalwayBusTheme {
-                //val fusedLocationWrapper = fusedLocationWrapper()
-                val fusedLocationWrapper = FusedLocationWrapper(LocationServices.getFusedLocationProviderClient(this))
+                val fusedLocationWrapper = fusedLocationWrapper()
                 val fineLocation = checkSelfPermissionState(this,
                         Manifest.permission.ACCESS_FINE_LOCATION
                 )
@@ -62,7 +58,6 @@ sealed class Screens(val route: String, val label: String, val icon: ImageVector
     object BusInfoScreen : Screens("BusInfo", "BusInfo")
 }
 
-@ExperimentalMaterialApi
 @SuppressLint("MissingPermission")
 @Composable
 fun MainLayout(fineLocation: PermissionState,
@@ -76,12 +71,8 @@ fun MainLayout(fineLocation: PermissionState,
 
     if (hasLocationPermission) {
         LaunchedEffect(fusedLocationWrapper) {
-            fusedLocationWrapper.lastLocation().collect {
-                if (it != null) {
-                    val loc = Location(it.latitude, it.longitude)
-                    viewModel.setLocation(loc)
-                }
-            }
+            val location = fusedLocationWrapper.awaitLastLocation()
+            viewModel.setLocation(Location(location.latitude, location.longitude))
         }
 
         NavHost(navController, startDestination = Screens.NearbyScreen.route) {
