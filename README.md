@@ -6,7 +6,7 @@
 
 ### Kotlin Multiplatform
 
-This project also acted as initial platform I used when starting to explore w **Kotlin Multiplatform**
+This project also acted as initial platform I used when starting to explore **Kotlin Multiplatform**
 capabilities. There's a Kotlin Multiplatform `ShareCode` module for example along with sample iOS
 and macOS apps. Also wrote a couple of posts about some of my experiences using **KMP** in the project.  
 
