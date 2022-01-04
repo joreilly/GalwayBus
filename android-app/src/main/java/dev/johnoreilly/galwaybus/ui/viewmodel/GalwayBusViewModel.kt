@@ -62,6 +62,10 @@ class GalwayBusViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
 
+    init {
+        centerInEyreSquare()
+    }
+
     fun fetchAndStoreBusStops() {
         viewModelScope.launch {
             galwayBusRepository.fetchAndStoreBusStops()

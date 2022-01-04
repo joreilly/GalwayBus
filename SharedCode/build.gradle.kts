@@ -30,18 +30,6 @@ android {
     }
 }
 
-// workaround for https://youtrack.jetbrains.com/issue/KT-43944
-android {
-    configurations {
-        create("androidTestApi")
-        create("androidTestDebugApi")
-        create("androidTestReleaseApi")
-        create("testApi")
-        create("testDebugApi")
-        create("testReleaseApi")
-    }
-}
-
 
 kotlin {
     targets {
@@ -75,7 +63,8 @@ kotlin {
                     implementation(clientCore)
                     implementation(clientJson)
                     implementation(clientLogging)
-                    implementation(clientSerialization)
+                    implementation(contentNegotiation)
+                    implementation(json)
                 }
 
                 with(Deps.Kotlinx) {

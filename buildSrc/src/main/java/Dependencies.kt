@@ -4,19 +4,20 @@ object Versions {
     const val androidCompileSdk = 31
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.5.30"
-    const val kotlinCoroutines = "1.5.2-native-mt"
-    const val ktor = "1.6.5"
-    const val kotlinxSerialization = "1.3.0"
-    const val kotlinxDateTime = "0.3.0"
+    const val kotlin = "1.6.10"
+    const val kotlinCoroutines = "1.6.0"
+    const val ktor = "2.0.0-beta-1"
+    const val kotlinxSerialization = "1.3.2"
+    const val kotlinxDateTime = "0.3.1"
     const val koin = "3.1.4"
     const val sqlDelight = "1.5.3"
     const val multiplatformSettings = "0.8.1"
 
     const val slf4j = "1.7.30"
-    const val compose = "1.0.5"
-    const val navCompose = "2.4.0-beta02"
-    const val accompanist = "0.21.0-beta"
+    const val compose = "1.1.0-rc01"
+    const val composeCompiler = "1.1.0-rc02"
+    const val navCompose = "2.4.0-rc01"
+    const val accompanist = "0.22.0-rc"
 
     const val kermit = "1.0.0"
 
@@ -66,6 +67,7 @@ object Deps {
     }
 
     object Compose {
+        const val compiler = "androidx.compose.compiler:compiler:${Versions.composeCompiler}"
         const val ui = "androidx.compose.ui:ui:${Versions.compose}"
         const val uiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
@@ -85,18 +87,13 @@ object Deps {
 
     object Ktor {
         const val serverCore = "io.ktor:ktor-server-core:${Versions.ktor}"
-        const val serverNetty = "io.ktor:ktor-server-netty:${Versions.ktor}"
-        const val serialization = "io.ktor:ktor-serialization:${Versions.ktor}"
-        const val websockets = "io.ktor:ktor-websockets:${Versions.ktor}"
+        const val contentNegotiation = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
+        const val json = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
+
         const val clientCore = "io.ktor:ktor-client-core:${Versions.ktor}"
         const val clientJson = "io.ktor:ktor-client-json:${Versions.ktor}"
         const val clientLogging = "io.ktor:ktor-client-logging:${Versions.ktor}"
-        const val clientSerialization = "io.ktor:ktor-client-serialization:${Versions.ktor}"
-        const val clientAndroid = "io.ktor:ktor-client-android:${Versions.ktor}"
-        const val clientApache = "io.ktor:ktor-client-apache:${Versions.ktor}"
         const val clientIos = "io.ktor:ktor-client-ios:${Versions.ktor}"
-        const val clientCio = "io.ktor:ktor-client-cio:${Versions.ktor}"
-        const val clientJs = "io.ktor:ktor-client-js:${Versions.ktor}"
     }
 
     object SqlDelight {
