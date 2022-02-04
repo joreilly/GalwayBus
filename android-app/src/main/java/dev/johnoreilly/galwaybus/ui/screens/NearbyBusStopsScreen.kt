@@ -3,6 +3,7 @@ package dev.johnoreilly.galwaybus.ui.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -17,25 +18,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.navigation.NavHostController
-import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.BitmapDescriptor
-import com.google.android.libraries.maps.model.BitmapDescriptorFactory
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.android.gms.maps.GoogleMapOptions
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import com.google.maps.android.ktx.awaitMap
+import com.google.maps.android.compose.*
 import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.Location
@@ -43,7 +43,6 @@ import dev.johnoreilly.galwaybus.*
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.BusStopDeparture
 import dev.johnoreilly.galwaybus.ui.typography
-import dev.johnoreilly.galwaybus.ui.utils.rememberMapViewWithLifecycle
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 import kotlinx.coroutines.launch
@@ -52,7 +51,6 @@ import kotlinx.coroutines.launch
 @SuppressLint("MissingPermission")
 @Composable
 fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
-    val mapView = rememberMapViewWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -62,7 +60,6 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
     val favorites by viewModel.favorites.collectAsState(setOf())
 
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
-
 
     Scaffold(
         topBar = {
@@ -87,7 +84,7 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                 val uiState = busStopState.value
                 if (uiState is UiState.Success) {
                     Box(modifier = Modifier.weight(0.4f)) {
-                        MapViewContainer(viewModel, uiState.data, mapView)
+                        GoogleMapView(modifier = Modifier.fillMaxSize(), viewModel, uiState.data)
                     }
                 }
 
@@ -207,51 +204,109 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
 
 @SuppressLint("MissingPermission")
 @Composable
-fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>, mapView: MapView) {
-    val currentLocation = viewModel.location.collectAsState()
+fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>) { //, mapView: MapView) {
+    val currentLocation by viewModel.location.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
 
-    AndroidView({ mapView }) { mapView ->
-        coroutineScope.launch {
-            val map = mapView.awaitMap()
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties(maxZoomPreference = 10f, minZoomPreference = 5f)
+        )
+    }
+    val singapore = LatLng(1.35, 103.87)
+    GoogleMap(
+        modifier = Modifier.fillMaxSize(),
+        googleMapOptionsFactory = {
+            GoogleMapOptions().camera(CameraPosition.fromLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), 10f))
+        }
+    )
 
-            map.isMyLocationEnabled = true
-            map.uiSettings.isZoomControlsEnabled = true
+/*
+AndroidView({ mapView }) { mapView ->
+    coroutineScope.launch {
+        val map = mapView.awaitMap()
 
-            currentLocation.value?.let {
-                val position = LatLng(it.latitude, it.longitude)
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(position,  viewModel.getZoomLevel()))
-            }
+        map.isMyLocationEnabled = true
+        map.uiSettings.isZoomControlsEnabled = true
 
-            map.setOnCameraIdleListener{
-                val cameraPosition = map.cameraPosition
-                val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
-                viewModel.setLocation(location)
-                viewModel.setZoomLevel(cameraPosition.zoom)
-            }
+        currentLocation.value?.let {
+            val position = LatLng(it.latitude, it.longitude)
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(position,  viewModel.getZoomLevel()))
+        }
 
-            for (busStop in stops) {
-                busStop.latitude?.let { latitude ->
-                    busStop.longitude?.let { longitude ->
+        map.setOnCameraIdleListener{
+            val cameraPosition = map.cameraPosition
+            val location = Location(cameraPosition.target.latitude, cameraPosition.target.longitude)
+            viewModel.setLocation(location)
+            viewModel.setZoomLevel(cameraPosition.zoom)
+        }
 
-                        val busStopLocation = LatLng(latitude, longitude)
+        for (busStop in stops) {
+            busStop.latitude?.let { latitude ->
+                busStop.longitude?.let { longitude ->
 
-                        val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-                        val markerOptions = MarkerOptions()
-                                .title(busStop.shortName)
-                                .position(busStopLocation)
-                                .icon(icon)
+                    val busStopLocation = LatLng(latitude, longitude)
 
-                        val marker = map.addMarker(markerOptions)
-                        marker.tag = busStop
-                    }
+                    val icon = bitmapDescriptorFromVector(mapView.context, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                    val markerOptions = MarkerOptions()
+                            .title(busStop.shortName)
+                            .position(busStopLocation)
+                            .icon(icon)
+
+                    val marker = map.addMarker(markerOptions)
+                    marker.tag = busStop
                 }
             }
         }
     }
 }
 
+ */
+}
+
+@Composable
+private fun GoogleMapView(modifier: Modifier, viewModel: GalwayBusViewModel, stops: List<BusStop>) {
+    val context = LocalContext.current
+    val currentLocation by viewModel.location.collectAsState()
+
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), 15f)
+    }
+
+    LaunchedEffect(viewModel) {
+        snapshotFlow { currentLocation }
+            .collect {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(LatLng(currentLocation.latitude, currentLocation.longitude), 15f)
+            }
+    }
+
+    LaunchedEffect(viewModel) {
+        snapshotFlow { cameraPositionState.position }
+            .collect {
+                viewModel.setLocation(Location(it.target.latitude, it.target.longitude))
+            }
+    }
+
+    val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
+    val uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = cameraPositionState,
+        properties = mapProperties,
+        uiSettings = uiSettings
+    ) {
+        stops.forEach { stop ->
+            val latitude = stop.latitude
+            val longitude = stop.longitude
+            if (latitude != null && longitude != null) {
+                val busStopLocation = LatLng(latitude, longitude)
+                val icon = bitmapDescriptorFromVector(context, R.drawable.ic_stop, R.color.mapMarkerGreen)
+                Marker(position = busStopLocation, title = stop.shortName, icon = icon)
+            }
+        }
+    }
+}
 
 // TODO move this in to common code
 fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tintColor: Int? = null): BitmapDescriptor? {

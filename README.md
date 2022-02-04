@@ -13,6 +13,7 @@ and macOS apps. Also wrote a couple of posts about some of my experiences using 
 * [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform/)
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
+* [Using Google Maps in a Jetpack Compose app - Part 2!](https://johnoreilly.dev/posts/jetpack-compose-google-maps-part2/)
 
 Also have following Kotlin Multiplatform/Jetpack Compose/SwiftUI samples.
 
@@ -50,4 +51,5 @@ you can update where this is read in `build.gradle`
 * [Koin](https://github.com/InsertKoinIO/koin)
 * [Logger](https://github.com/orhanobut/logger)
 * [Jetpack Compose](https://developer.android.com/jetpack/compose)
+* [Maps Compose](https://github.com/googlemaps/android-maps-compose)
 * [SwiftUI](https://developer.apple.com/documentation/swiftui)
