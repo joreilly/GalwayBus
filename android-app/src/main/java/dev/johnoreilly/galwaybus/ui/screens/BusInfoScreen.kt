@@ -58,25 +58,26 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
 fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>) { //, map: MapView) {
     val context = LocalContext.current
 
-    val builder = LatLngBounds.Builder()
+    val cameraPositionState = rememberCameraPositionState()
 
-    stop.latitude?.let { latitude ->
-        stop.longitude?.let { longitude ->
-            val busStopLocation = LatLng(latitude, longitude)
-            builder.include(busStopLocation)
+    LaunchedEffect(stop) {
+        val builder = LatLngBounds.Builder()
+
+        stop.latitude?.let { latitude ->
+            stop.longitude?.let { longitude ->
+                val busStopLocation = LatLng(latitude, longitude)
+                builder.include(busStopLocation)
+            }
         }
+
+        busInfoList.forEach { bus ->
+            val busLocation = LatLng(bus.latitude, bus.longitude)
+            builder.include(busLocation)
+        }
+
+        cameraPositionState.move(CameraUpdateFactory.newLatLngBounds(builder.build(), 64))
     }
 
-    busInfoList.forEach { bus ->
-        val busLocation = LatLng(bus.latitude, bus.longitude)
-        builder.include(busLocation)
-    }
-
-    val cameraUpdate = CameraUpdateFactory.newLatLngBounds(builder.build(), 64)
-
-    val cameraPositionState = rememberCameraPositionState {
-        move(cameraUpdate)
-    }
 
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
     val uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
