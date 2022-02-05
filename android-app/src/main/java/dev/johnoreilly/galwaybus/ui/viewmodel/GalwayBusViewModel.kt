@@ -46,7 +46,8 @@ class GalwayBusViewModel(
     val routeId = MutableStateFlow<String>("")
     val busInfoList = routeId.flatMapLatest { pollBusInfoForRoute(it)  }
 
-    val location = MutableStateFlow<Location?>(null)
+    val eyreSquare = Location(53.2743394, -9.0514163)
+    val location = MutableStateFlow<Location>(eyreSquare)
 
     val cameraPosition = MutableStateFlow<Location?>(null)
     private val zoomLevel = MutableStateFlow<Float>(15.0f)
@@ -61,10 +62,6 @@ class GalwayBusViewModel(
         favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-
-    init {
-        centerInEyreSquare()
-    }
 
     fun fetchAndStoreBusStops() {
         viewModelScope.launch {
@@ -86,7 +83,9 @@ class GalwayBusViewModel(
     }
 
     fun setCameraPosition(loc: Location) {
-        cameraPosition.value = loc
+        if (loc != cameraPosition.value) {
+            cameraPosition.value = loc
+        }
     }
 
     fun setCurrentStop(busStop: BusStop) {
@@ -148,7 +147,7 @@ class GalwayBusViewModel(
     }
 
     fun centerInEyreSquare() {
-        setLocation(Location(53.2743394, -9.0514163))
+        setLocation(eyreSquare)
     }
 
     companion object {

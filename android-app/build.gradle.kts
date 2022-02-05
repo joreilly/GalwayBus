@@ -102,9 +102,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
     packagingOptions {
-        exclude("META-INF/*.kotlin_module")
+        resources {
+            excludes += setOf("META-INF/*.kotlin_module")
+        }
     }
 }
 
@@ -122,14 +123,14 @@ tasks.withType<KotlinCompile> {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
 
-    implementation("com.google.android.material:material:1.4.0")
+    implementation("com.google.android.material:material:1.5.0")
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("androidx.activity:activity-compose:1.4.0")
 
-    implementation("com.google.android.libraries.maps:maps:3.1.0-beta")
-    implementation("com.google.maps.android:maps-v3-ktx:3.0.1")
+    implementation("com.google.maps.android:maps-compose:1.0.0")
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
 
     with(Deps.Koin) {
         implementation(core)

@@ -58,7 +58,7 @@ struct NearbyView : View {
             region.center = CLLocationCoordinate2D(latitude: 53.2743394, longitude: -9.0514163)
 
             nearbyStopsViewModel.fetch()
-        })
+        }).listStyle(PlainListStyle())
     }
 }
 
@@ -85,13 +85,11 @@ struct RouteListView : View {
     
     var body: some View {
         
-        NavigationView {
-            List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
-                RouteRow(route: route)
-            }
-            .navigationBarTitle(Text("Routes"), displayMode: .large)
-            .onAppear(perform: busRouteViewModel.fetch)
+        List(busRouteViewModel.listRoutes, id: \.timetableId) { route in
+            RouteRow(route: route)
         }
+        .navigationBarTitle(Text("Routes"), displayMode: .large)
+        .onAppear(perform: busRouteViewModel.fetch)
     }
 }
 
