@@ -14,10 +14,10 @@ object Versions {
     const val multiplatformSettings = "0.8.1"
 
     const val slf4j = "1.7.30"
-    const val compose = "1.1.0-rc01"
-    const val composeCompiler = "1.1.0-rc02"
-    const val navCompose = "2.4.0-rc01"
-    const val accompanist = "0.22.0-rc"
+    const val compose = "1.1.0"
+    const val composeCompiler = "1.1.0"
+    const val navCompose = "2.4.1"
+    const val accompanist = "0.23.0"
 
     const val kermit = "1.0.0"
 
