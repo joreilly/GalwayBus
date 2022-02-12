@@ -58,6 +58,8 @@ class GalwayBusViewModel(
         preferences[FAVORITES_KEY] ?: emptySet()
     }
 
+    val allBusStops = galwayBusRepository.getBusStopsFlow()
+
     val favoriteBusStopList = galwayBusRepository.getBusStopsFlow().combine(favorites) { busStops, favorites ->
         favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
     }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())

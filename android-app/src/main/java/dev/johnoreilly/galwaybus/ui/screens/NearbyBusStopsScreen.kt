@@ -204,7 +204,7 @@ fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite:
 
 @SuppressLint("MissingPermission")
 @Composable
-fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>) { //, mapView: MapView) {
+fun MapViewContainer(viewModel: GalwayBusViewModel, stops: List<BusStop>) {
     val currentLocation by viewModel.location.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
@@ -302,7 +302,7 @@ private fun GoogleMapView(modifier: Modifier, viewModel: GalwayBusViewModel, sto
             if (latitude != null && longitude != null) {
                 val busStopLocation = LatLng(latitude, longitude)
                 val icon = bitmapDescriptorFromVector(context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-                Marker(position = busStopLocation, title = stop.shortName, icon = icon)
+                Marker(state = MarkerState(position = busStopLocation), title = stop.shortName, icon = icon)
             }
         }
     }

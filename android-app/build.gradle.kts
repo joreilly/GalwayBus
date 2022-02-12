@@ -129,7 +129,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("androidx.activity:activity-compose:1.4.0")
 
-    implementation("com.google.maps.android:maps-compose:1.0.0")
+    implementation("com.google.maps.android:maps-compose:2.1.0")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
 
     with(Deps.Koin) {
@@ -146,6 +146,8 @@ dependencies {
         implementation(navigation)
         implementation(accompanistPlaceholder)
     }
+
+    implementation("io.github.pushpalroy:jetlime:1.0.3")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.0")
     implementation(PlayServices.location)
