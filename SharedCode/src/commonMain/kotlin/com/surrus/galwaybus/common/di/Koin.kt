@@ -3,8 +3,8 @@ package com.surrus.galwaybus.common.di
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import io.ktor.client.*
-import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json

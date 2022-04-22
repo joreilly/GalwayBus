@@ -91,7 +91,7 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>) { //, map: Ma
                 val busStopLocation = LatLng(latitude, longitude)
                 val icon =
                     bitmapDescriptorFromVector(context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-                Marker(position = busStopLocation, title = stop.shortName, icon = icon, tag = stop)
+                Marker(state = MarkerState(position = busStopLocation), title = stop.shortName, icon = icon, tag = stop)
             }
         }
 
@@ -126,7 +126,7 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>) { //, map: Ma
 
             val icon = bitmapDescriptorFromVector(context, R.drawable.bus_side, tintColor)
             Marker(
-                position = busLocation, title = title,
+                state = MarkerState(position = busLocation), title = title,
                 snippet = snippet, icon = icon, tag = bus
             )
         }
