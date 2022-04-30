@@ -4,9 +4,9 @@ object Versions {
     const val androidCompileSdk = 31
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.6.10"
-    const val kotlinCoroutines = "1.6.0"
-    const val ktor = "2.0.0-beta-1"
+    const val kotlin = "1.6.20"
+    const val kotlinCoroutines = "1.6.1"
+    const val ktor = "2.0.0"
     const val kotlinxSerialization = "1.3.2"
     const val kotlinxDateTime = "0.3.1"
     const val koin = "3.1.4"
@@ -14,10 +14,10 @@ object Versions {
     const val multiplatformSettings = "0.8.1"
 
     const val slf4j = "1.7.30"
-    const val compose = "1.1.0-rc01"
-    const val composeCompiler = "1.1.0-rc02"
-    const val navCompose = "2.4.0-rc01"
-    const val accompanist = "0.22.0-rc"
+    const val compose = "1.2.0-alpha08"
+    const val composeCompiler = "1.2.0-alpha08"
+    const val navCompose = "2.4.2"
+    const val accompanist = "0.23.0"
 
     const val kermit = "1.0.0"
 

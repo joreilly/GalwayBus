@@ -85,6 +85,7 @@ class GalwayBusViewModel(
     fun setCameraPosition(loc: Location) {
         if (loc != cameraPosition.value) {
             cameraPosition.value = loc
+            getNearestStops(loc)
         }
     }
 
@@ -97,6 +98,7 @@ class GalwayBusViewModel(
     }
 
     private fun getNearestStops(location: Location) {
+        println("getNearestStops, location = $location")
         viewModelScope.launch {
             val result = galwayBusRepository.fetchNearestStops(location.latitude, location.longitude)
             busStopListState.value = when (result) {
