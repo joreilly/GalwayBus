@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -27,11 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.*
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -52,7 +48,6 @@ import kotlinx.coroutines.launch
 @SuppressLint("MissingPermission")
 @Composable
 fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
-    val mapView = rememberMapViewWithLifecycle()
     val coroutineScope = rememberCoroutineScope()
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -266,43 +261,3 @@ fun bitmapDescriptorFromVector(context: Context, vectorResId: Int, @ColorRes tin
     drawable.draw(canvas)
     return BitmapDescriptorFactory.fromBitmap(bm)
 }
-
-@Composable
-fun rememberMapViewWithLifecycle(): MapView {
-    val context = LocalContext.current
-    val mapView = remember {
-        MapView(context).apply {
-            id = R.id.map
-        }
-    }
-
-    // Makes MapView follow the lifecycle of this composable
-    val lifecycleObserver = rememberMapLifecycleObserver(mapView)
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle) {
-        lifecycle.addObserver(lifecycleObserver)
-        onDispose {
-            lifecycle.removeObserver(lifecycleObserver)
-        }
-    }
-
-    return mapView
-}
-
-@Composable
-fun rememberMapLifecycleObserver(mapView: MapView): LifecycleEventObserver =
-    remember(mapView) {
-        LifecycleEventObserver { _, event ->
-            when (event) {
-                Lifecycle.Event.ON_CREATE -> mapView.onCreate(Bundle())
-                Lifecycle.Event.ON_START -> mapView.onStart()
-                Lifecycle.Event.ON_RESUME -> mapView.onResume()
-                Lifecycle.Event.ON_PAUSE -> mapView.onPause()
-                Lifecycle.Event.ON_STOP -> mapView.onStop()
-                Lifecycle.Event.ON_DESTROY -> mapView.onDestroy()
-                else -> throw IllegalStateException()
-            }
-        }
-    }
-
-
