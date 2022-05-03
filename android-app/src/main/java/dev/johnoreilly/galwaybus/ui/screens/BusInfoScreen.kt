@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -17,12 +18,15 @@ import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
+fun BusInfoScreen(viewModel: GalwayBusViewModel,
+                  popBack: () -> Unit, onBusSelected: (String) -> Unit) {
     val busInfoList by viewModel.busInfoList.collectAsState(emptyList())
     val routeId = viewModel.routeId.value
     val currentBusStop = viewModel.currentBusStop.collectAsState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
         TopAppBar(
@@ -37,25 +41,25 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel, popBack: () -> Unit) {
 
         Column(Modifier.padding(paddingValues)) {
             currentBusStop.value?.let { stop ->
-                //viewModel.getBusStop(stopRef)?.let { stop ->
-                    if (busInfoList.isNotEmpty()) {
-                        BusInfoMapViewContainer(stop, busInfoList) //, mapView)
-                    } else {
-                        Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
-                            CircularProgressIndicator()
+                if (busInfoList.isNotEmpty()) {
+                    BusInfoMapViewContainer(stop, busInfoList) { busId ->
+                        coroutineScope.launch {
+                            onBusSelected(busId)
                         }
                     }
-                //}
-            }
+                } else {
+                    Box(modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)) {
+                        CircularProgressIndicator()
+                    }
+                } }
         }
-
     }
 }
 
 
 @SuppressLint("MissingPermission")
 @Composable
-fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>) { //, map: MapView) {
+fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, onBusSelected: (String) -> Unit) {
     val context = LocalContext.current
 
     val cameraPositionState = rememberCameraPositionState()
@@ -123,12 +127,19 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>) { //, map: Ma
                 ""
             }
 
-
             val icon = bitmapDescriptorFromVector(context, R.drawable.bus_side, tintColor)
-            Marker(
+            MarkerInfoWindowContent(
                 state = MarkerState(position = busLocation), title = title,
-                snippet = snippet, icon = icon, tag = bus
-            )
+                snippet = snippet, icon = icon, tag = bus,
+                onInfoWindowClick = {
+                    onBusSelected(bus.vehicle_id)
+                }
+            ) { marker ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(marker.title!!)
+                    Text(marker.snippet!!)
+                }
+            }
         }
     }
 }

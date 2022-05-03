@@ -146,6 +146,7 @@ dependencies {
         implementation(navigation)
         implementation(accompanistPlaceholder)
     }
+    implementation("io.github.pushpalroy:jetlime:1.0.3")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1")
     implementation(PlayServices.location)

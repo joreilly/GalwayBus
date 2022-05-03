@@ -17,10 +17,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.*
-import dev.johnoreilly.galwaybus.ui.screens.BusInfoScreen
-import dev.johnoreilly.galwaybus.ui.screens.FavoritesScreen
-import dev.johnoreilly.galwaybus.ui.screens.LandingScreen
-import dev.johnoreilly.galwaybus.ui.screens.NearestBusStopsScreen
+import dev.johnoreilly.galwaybus.ui.screens.*
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -56,9 +53,10 @@ sealed class Screens(val route: String, val label: String, val icon: ImageVector
     object NearbyScreen : Screens("Nearby", "Nearby", Icons.Default.LocationOn)
     object FavoritesScreen : Screens("Favorites", "Favorites", Icons.Default.Favorite)
     object BusInfoScreen : Screens("BusInfo", "BusInfo")
+    object BusRouteScreen : Screens("BusRoute", "BusRoute")
 }
 
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun MainLayout(fineLocation: PermissionState,
                fusedLocationWrapper: FusedLocationWrapper,
@@ -83,7 +81,14 @@ fun MainLayout(fineLocation: PermissionState,
                 FavoritesScreen(bottomBar, viewModel, navController)
             }
             composable(Screens.BusInfoScreen.route) {
-                BusInfoScreen(viewModel, popBack = { navController.popBackStack() })
+                BusInfoScreen(viewModel, popBack = { navController.popBackStack() }) { busId ->
+                    navController.navigate(Screens.BusRouteScreen.route + "/$busId")
+                }
+            }
+            composable(Screens.BusRouteScreen.route+ "/{busId}") { backStackEntry ->
+                BusRouteScreen(viewModel,
+                    backStackEntry.arguments?.get("busId") as String,
+                    popBack = { navController.popBackStack() })
             }
         }
     } else {

@@ -114,7 +114,7 @@ kotlin {
 
         val jvmMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-apache:${Versions.ktor}")
+                implementation(Deps.Ktor.clientJava)
                 //implementation(Ktor.slf4j)
                 //implementation("org.xerial:sqlite-jdbc:${Versions.sqliteJdbcDriver}")
                 implementation("com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}")
