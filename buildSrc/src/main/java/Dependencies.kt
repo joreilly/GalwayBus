@@ -94,6 +94,7 @@ object Deps {
         const val clientJson = "io.ktor:ktor-client-json:${Versions.ktor}"
         const val clientLogging = "io.ktor:ktor-client-logging:${Versions.ktor}"
         const val clientIos = "io.ktor:ktor-client-ios:${Versions.ktor}"
+        const val clientJava = "io.ktor:ktor-client-java:${Versions.ktor}"
     }
 
     object SqlDelight {
