@@ -49,7 +49,9 @@ you can update where this is read in `build.gradle`
 * [Ktor client library](https://github.com/ktorio/ktor)
 * [Android Architecture Components](https://developer.android.com/topic/libraries/architecture/index.html)
 * [Koin](https://github.com/InsertKoinIO/koin)
-* [Logger](https://github.com/orhanobut/logger)
 * [Jetpack Compose](https://developer.android.com/jetpack/compose)
 * [Maps Compose](https://github.com/googlemaps/android-maps-compose)
 * [SwiftUI](https://developer.apple.com/documentation/swiftui)
+* [KMP-NativeCoroutines](https://github.com/rickclephas/KMP-NativeCoroutines)
+* [Multiplatform Settings](https://github.com/russhwolf/multiplatform-settings)
+
