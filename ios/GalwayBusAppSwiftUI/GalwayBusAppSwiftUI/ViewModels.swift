@@ -27,19 +27,17 @@ class NearbyStopsViewModel: ObservableObject {
         }
     }
     
-    func fetch() {
-        repository.fetchNearestStops(latitude: 53.2743394, longitude: -9.0514163) { data, error in
-            if let result = data {
-                if (result is ResultSuccess<NSArray>) {
-                    let successResult = result as! ResultSuccess<NSArray>
-                    self.listStops = successResult.data as! [BusStop]
-                } else {
-                    print(result)
-                }
+    func fetch() async {
+        do {
+            let result = try await asyncFunction(for: repository.fetchNearestStopsNative(latitude: 53.2743394, longitude: -9.0514163))
+            if (result is ResultSuccess<NSArray>) {
+                let successResult = result as! ResultSuccess<NSArray>
+                self.listStops = successResult.data as! [BusStop]
+            } else {
+                print(result)
             }
-            if let errorReal = error {
-               print(errorReal)
-            }
+        } catch {
+            print("Failed with error: \(error)")
         }
     }
     
@@ -58,26 +56,15 @@ class BusRouteViewModel: ObservableObject {
         self.repository = repository
     }
     
-    func fetch() {
-        repository.fetchBusRoutes(success: { data in
-            self.listRoutes = data
-        })
+    func fetch() async {
+        do {
+            let busRoutes = try await asyncFunction(for: repository.fetchBusRoutesNative())
+            self.listRoutes = busRoutes
+        } catch {
+            print("Failed with error: \(error)")
+        }
     }
 }
 
     
-class BusStopViewModel: ObservableObject {
-    @Published var listStops = [BusStop]()
-    
-    private let repository: GalwayBusRepository
-    init(repository: GalwayBusRepository) {
-        self.repository = repository
-    }
-    
-    func fetch() {
-        repository.getBusStops(success: { data in
-            self.listStops = data
-        })
-    }
-}
 

@@ -6,36 +6,28 @@ import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.db.MyDatabase
-import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
 import kotlin.time.Duration
-import kotlin.time.ExperimentalTime
 
 
-data class GalwayBusDeparture(
-        val timetableId: String,
-        val displayName: String,
-        val departTimestamp: String,
-        val durationUntilDeparture: Duration)
-
-
-@OptIn(ExperimentalTime::class)
 open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi = get()
 
     private val appSettings: AppSettings by inject()
     private val galwayBusDb: MyDatabase by inject()
-    private val galwayBusQueries = galwayBusDb?.galwayBusQueries
-    private val coroutineScope: CoroutineScope = MainScope()
+    private val galwayBusQueries = galwayBusDb.galwayBusQueries
+
+    val busStops = galwayBusQueries.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
+        BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
+    }).asFlow().mapToList()
 
     val favorites = appSettings.favorites
-    val favoriteBusStopList = getBusStopsFlow().combine(favorites) { busStops, favorites ->
+    val favoriteBusStopList = busStops.combine(favorites) { busStops, favorites ->
         Logger.i { "getBusStopsFlow().combine, favorites = $favorites, busStops size = ${busStops.size}" }
         favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
     }
@@ -46,11 +38,11 @@ open class GalwayBusRepository : KoinComponent {
             val busStops = galwayBusApi.fetchAllBusStops()
             Logger.i { "fetchAndStoreBusStops, busStops, size = ${busStops.size}" }
 
-            galwayBusQueries?.deleteAll()
+            galwayBusQueries.deleteAll()
             val galwayBusStops = busStops.filter { it.distance != null && it.distance < 20000.0 }
             galwayBusStops.forEach {
                 if (it.latitude != null && it.longitude != null) {
-                    galwayBusQueries?.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
+                    galwayBusQueries.insertItem(it.stop_id, it.stopRef, it.shortName, it.longName, it.latitude, it.longitude)
                 }
             }
             Logger.d("fetchAndStoreBusStops, finished storing bus stops in db")
@@ -59,19 +51,6 @@ open class GalwayBusRepository : KoinComponent {
             e.printStackTrace()
         }
     }
-
-    //@ExperimentalCoroutinesApi
-    fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
-            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
-        })?.asFlow()?.mapToList() ?: flowOf(emptyList())
-
-
-    fun getBusStops(): List<BusStop> {
-        return galwayBusQueries?.selectAll(mapper = { stop_id, short_name, long_name, stop_ref, latitude, longitude  ->
-            BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
-        })?.executeAsList() ?: emptyList<BusStop>()
-    }
-
 
     suspend fun fetchRouteStops(routeId: String): Result<List<List<BusStop>>> {
         try {
@@ -114,33 +93,9 @@ open class GalwayBusRepository : KoinComponent {
         }
     }
 
-    fun fetchBusListForRoute(routeId: String, success: (List<Bus>) -> Unit) {
-        coroutineScope.launch {
-            val busList = galwayBusApi.fetchBusListForRoute(routeId)
-            success(busList)
-        }
-    }
-
-
-    fun getBusStops(success: (List<BusStop>) -> Unit) {
-        coroutineScope.launch {
-            getBusStopsFlow().collect {
-                success(it)
-            }
-        }
-    }
-
-
     suspend fun fetchBusRoutes(): List<BusRoute> {
         val busRoutes = galwayBusApi.fetchBusRoutes()
         return transformBusRouteMapToList(busRoutes)
-    }
-
-    fun fetchBusRoutes(success: (List<BusRoute>) -> Unit) {
-        Logger.d { "fetchBusRoutes" }
-        coroutineScope.launch {
-            success(fetchBusRoutes())
-        }
     }
 
     suspend fun fetchNearestStops(latitude: Double, longitude: Double): Result<List<BusStop>> {

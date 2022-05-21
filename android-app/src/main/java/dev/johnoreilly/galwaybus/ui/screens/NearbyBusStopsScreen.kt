@@ -33,8 +33,8 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import com.google.maps.android.compose.*
-import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.*
 import dev.johnoreilly.galwaybus.R

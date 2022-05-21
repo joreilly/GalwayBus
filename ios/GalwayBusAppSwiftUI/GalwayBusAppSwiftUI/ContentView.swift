@@ -4,7 +4,6 @@ import SharedCode
 
 struct ContentView : View {
     @ObservedObject var busRouteViewModel: BusRouteViewModel
-    @ObservedObject var busStopViewModel: BusStopViewModel
     @ObservedObject var nearbyStopsViewModel: NearbyStopsViewModel
     
     var body: some View {
@@ -54,11 +53,11 @@ struct NearbyView : View {
             
             
         }
-        .onAppear(perform: {
+        .task {
             region.center = CLLocationCoordinate2D(latitude: 53.2743394, longitude: -9.0514163)
-
-            nearbyStopsViewModel.fetch()
-        }).listStyle(PlainListStyle())
+            await nearbyStopsViewModel.fetch()
+        }
+        .listStyle(PlainListStyle())
     }
 }
 
@@ -99,7 +98,9 @@ struct RouteListView : View {
             RouteRow(route: route)
         }
         .navigationBarTitle(Text("Routes"), displayMode: .large)
-        .onAppear(perform: busRouteViewModel.fetch)
+        .task {
+            await busRouteViewModel.fetch()
+        }
     }
 }
 
@@ -116,35 +117,6 @@ struct RouteRow : View {
         }
     }
 }
-
-struct BusStopListView : View {
-    @ObservedObject var busStopViewModel: BusStopViewModel
-    
-    var body: some View {
-        
-        NavigationView {
-            List(busStopViewModel.listStops, id: \.stop_id) { busStop in
-                BusStopRow(busStop: busStop)
-            }
-            .navigationBarTitle(Text("Stops"), displayMode: .large)
-            .onAppear(perform: busStopViewModel.fetch)
-        }
-    }
-}
-
-
-struct BusStopRow : View {
-    var busStop: BusStop
-    
-    var body: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(busStop.longName).font(.headline)
-            }
-        }
-    }
-}
-
 
 
 

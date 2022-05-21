@@ -1,11 +1,3 @@
-//
-//  SceneDelegate.swift
-//  GalwayBusAppSwiftUI
-//
-//  Created by jooreill on 03/06/2019.
-//  Copyright © 2019 Surrus. All rights reserved.
-//
-
 import UIKit
 import SwiftUI
 import SharedCode
@@ -18,14 +10,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         let repository = GalwayBusRepository()  
         let busRouteViewModel = BusRouteViewModel(repository: repository)
-        let busStopViewModel = BusStopViewModel(repository: repository)
         let nearbyStopsViewModel = NearbyStopsViewModel(repository: repository)
 
         // Use a UIHostingController as window root view controller
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             window.rootViewController = UIHostingController(rootView:
-                                                                ContentView(busRouteViewModel: busRouteViewModel, busStopViewModel: busStopViewModel, nearbyStopsViewModel: nearbyStopsViewModel))
+                                                                ContentView(busRouteViewModel: busRouteViewModel, nearbyStopsViewModel: nearbyStopsViewModel))
             self.window = window
             window.makeKeyAndVisible()
         }

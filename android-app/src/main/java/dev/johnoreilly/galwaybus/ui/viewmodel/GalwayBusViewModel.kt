@@ -2,10 +2,10 @@ package dev.johnoreilly.galwaybus.ui.viewmodel
 
 import androidx.lifecycle.*
 import co.touchlab.kermit.Logger
-import com.surrus.galwaybus.common.GalwayBusDeparture
 import com.surrus.galwaybus.common.GalwayBusRepository
 import com.surrus.galwaybus.common.model.Bus
 import com.surrus.galwaybus.common.model.BusStop
+import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,8 +47,8 @@ class GalwayBusViewModel(
     val favoriteBusStopList = repository.favoriteBusStopList
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val allBusStops = repository.getBusStopsFlow()
-
+    val allBusStops = repository.busStops
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     fun fetchAndStoreBusStops() {
         viewModelScope.launch {
