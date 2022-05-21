@@ -49,7 +49,7 @@ struct NearbyView : View {
             
             
             List(nearbyStopsViewModel.listStops, id: \.stop_id) { busStop in
-                BusStopView(busStop: busStop)
+                BusStopView(busStop: busStop, nearbyStopsViewModel: nearbyStopsViewModel)
             }
             
             
@@ -65,6 +65,9 @@ struct NearbyView : View {
 
 struct BusStopView : View {
     var busStop: BusStop
+    @ObservedObject var nearbyStopsViewModel: NearbyStopsViewModel
+    
+    let maroonColor = Color(red: 107.0/255.0, green: 13.0/255.0, blue: 14.0/255.0)
     
     var body: some View {
         HStack {
@@ -74,7 +77,14 @@ struct BusStopView : View {
                 Text(busStop.stopRef).font(.subheadline)
             }
             Spacer()
-            Image(systemName: "heart")
+            
+            Button(action: {}, label: {
+                (nearbyStopsViewModel.favorites.contains(busStop.stopRef) ?
+                    Image(systemName: "heart.fill") :Image(systemName: "heart"))
+                    .imageScale(.large).foregroundColor(maroonColor)
+            }).onTapGesture {
+                nearbyStopsViewModel.toggleFavorite(stopRef: busStop.stopRef)
+            }
         }
     }
 }

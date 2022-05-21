@@ -4,35 +4,29 @@ object Versions {
     const val androidCompileSdk = 31
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.6.20"
+    const val kotlin = "1.6.21"
     const val kotlinCoroutines = "1.6.1"
-    const val ktor = "2.0.0"
-    const val kotlinxSerialization = "1.3.2"
-    const val kotlinxDateTime = "0.3.1"
-    const val koin = "3.1.4"
+    const val kotlinxSerialization = "1.3.3"
+    const val kotlinxDateTime = "0.3.2"
+    const val koin = "3.2.0"
     const val sqlDelight = "1.5.3"
-    const val multiplatformSettings = "0.8.1"
+    const val multiplatformSettings = "0.9"
+    const val kmpNativeCoroutines = "0.12.2-new-mm"
 
-    const val slf4j = "1.7.30"
-    const val compose = "1.2.0-alpha08"
-    const val composeCompiler = "1.2.0-alpha08"
+    const val compose = "1.2.0-beta01"
+    const val composeCompiler = "1.2.0-beta01"
     const val navCompose = "2.4.2"
     const val accompanist = "0.23.0"
 
     const val kermit = "1.0.0"
+    const val ktor = "2.0.0"
+    const val slf4j = "1.7.30"
 
     const val junit = "4.12"
     const val mockito = "2.27.0"
     const val robolectric = "3.6.1"
 }
 
-
-
-object AndroidSdk {
-    const val min = 21
-    const val compile = 30
-    const val target = compile
-}
 
 object Koin {
     val core = "io.insert-koin:koin-core:${Versions.koin}"
@@ -112,5 +106,6 @@ object Deps {
     }
 
     const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
+    const val multiplatformSettingsCoroutines = "com.russhwolf:multiplatform-settings-coroutines:${Versions.multiplatformSettings}"
 
 }

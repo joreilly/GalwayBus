@@ -5,21 +5,18 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.GalwayBusApi
-import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
+import org.koin.core.component.inject
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
 
-expect fun createDb() : MyDatabase?
-
-@OptIn(ExperimentalTime::class)
 data class GalwayBusDeparture(
         val timetableId: String,
         val displayName: String,
@@ -31,9 +28,16 @@ data class GalwayBusDeparture(
 open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi = get()
 
+    private val appSettings: AppSettings by inject()
     private val galwayBusDb = createDb()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
     private val coroutineScope: CoroutineScope = MainScope()
+
+    val favorites = appSettings.favorites
+    val favoriteBusStopList = getBusStopsFlow().combine(favorites) { busStops, favorites ->
+        Logger.i { "getBusStopsFlow().combine, favorites = $favorites, busStops size = ${busStops.size}" }
+        favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
+    }
 
     suspend fun fetchAndStoreBusStops() {
         Logger.i { "fetchAndStoreBusStops" }
@@ -156,4 +160,7 @@ open class GalwayBusRepository : KoinComponent {
         return busRouteList
     }
 
+    fun toggleFavorite(stopRef: String) {
+        appSettings.toggleFavorite(stopRef)
+    }
 }

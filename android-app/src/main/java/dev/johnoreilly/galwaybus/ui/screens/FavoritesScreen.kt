@@ -18,11 +18,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
-    val favorites by viewModel.favorites.collectAsState(setOf())
-
-    val busStopList by viewModel.favoriteBusStopList.collectAsState(emptyList())
+    val favorites by viewModel.favorites.collectAsState()
+    val busStopList by viewModel.favoriteBusStopList.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
+    println("JFOR, favorites = $favorites")
+    println("JFOR, busStopList = $busStopList")
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     Scaffold(
