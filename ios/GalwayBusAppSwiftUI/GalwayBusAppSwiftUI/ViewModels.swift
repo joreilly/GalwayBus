@@ -1,15 +1,30 @@
 import Combine
 import SharedCode
+import KMPNativeCoroutinesAsync
 
 
 
+@MainActor
 class NearbyStopsViewModel: ObservableObject {
     @Published private(set) var listStops: [BusStop] = []
+    @Published public var favorites: Set<String> = []
     
     
     private let repository: GalwayBusRepository
     init(repository: GalwayBusRepository) {
         self.repository = repository
+                
+        Task {
+            do {
+                let stream = asyncStream(for: repository.favoritesNative)
+                for try await data in stream {
+                    self.favorites = data
+                    print(data)
+                }
+            } catch {
+                print("Failed with error: \(error)")
+            }
+        }
     }
     
     func fetch() {
@@ -26,6 +41,10 @@ class NearbyStopsViewModel: ObservableObject {
                print(errorReal)
             }
         }
+    }
+    
+    func toggleFavorite(stopRef: String) {
+        repository.toggleFavorite(stopRef: stopRef)
     }
 }
 

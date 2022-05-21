@@ -5,6 +5,7 @@ plugins {
     id("com.android.library")
     id("org.jetbrains.kotlin.native.cocoapods")
     id("com.squareup.sqldelight")
+    id("com.rickclephas.kmp.nativecoroutines")
 }
 
 // CocoaPods requires the podspec to have a version.
@@ -20,11 +21,11 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
 
 
 android {
-    compileSdk = AndroidSdk.compile
+    compileSdk = Versions.androidCompileSdk
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdk = AndroidSdk.min
-        targetSdk = AndroidSdk.target
+        minSdk = Versions.androidMinSdk
+        targetSdk = Versions.androidTargetSdk
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,8 +56,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(Deps.Kotlinx.coroutinesCore) {
-                    isForce = true
+                with(Deps.Kotlinx) {
+                    implementation(Deps.Kotlinx.coroutinesCore)
+                    implementation(serializationCore)
+                    implementation(dateTime)
                 }
 
                 with(Deps.Ktor) {
@@ -65,11 +68,6 @@ kotlin {
                     implementation(clientLogging)
                     implementation(contentNegotiation)
                     implementation(json)
-                }
-
-                with(Deps.Kotlinx) {
-                    implementation(serializationCore)
-                    implementation(dateTime)
                 }
 
                 with(Deps.SqlDelight) {
@@ -87,6 +85,7 @@ kotlin {
                 }
 
                 api(Deps.multiplatformSettings)
+                api(Deps.multiplatformSettingsCoroutines)
             }
         }
 
@@ -116,11 +115,19 @@ kotlin {
             dependencies {
                 implementation(Deps.Ktor.clientJava)
                 //implementation(Ktor.slf4j)
-                //implementation("org.xerial:sqlite-jdbc:${Versions.sqliteJdbcDriver}")
                 implementation("com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}")
             }
         }
 
+    }
+}
+
+
+kotlin {
+    sourceSets.all {
+        languageSettings {
+            optIn("kotlin.RequiresOptIn")
+        }
     }
 }
 

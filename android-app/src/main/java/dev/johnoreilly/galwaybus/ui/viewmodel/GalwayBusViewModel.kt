@@ -1,12 +1,5 @@
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
-import android.app.Application
-import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringSetPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.*
 import co.touchlab.kermit.Logger
 import com.surrus.galwaybus.common.GalwayBusDeparture
@@ -21,30 +14,26 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 
-sealed class UiState<out T: Any> {
+sealed class UiState<out T : Any> {
     object Loading : UiState<Nothing>()
     data class Success<out T : Any>(val data: T) : UiState<T>()
     data class Error(val exception: Exception) : UiState<Nothing>()
 }
 
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
-
-
 @ExperimentalCoroutinesApi
 class GalwayBusViewModel(
-        application: Application,
-        private val galwayBusRepository: GalwayBusRepository
-) : AndroidViewModel(application) {
+    private val repository: GalwayBusRepository
+) : ViewModel() {
 
     val busStopListState = MutableStateFlow<UiState<List<BusStop>>>(UiState.Loading)
 
-    var currentBusStop =  MutableStateFlow<BusStop?>(null)
+    var currentBusStop = MutableStateFlow<BusStop?>(null)
 
     val busDepartureList = currentBusStop.filterNotNull().flatMapLatest { pollBusDepartures(it.stopRef) }
 
     val routeId = MutableStateFlow<String>("")
-    val busInfoList = routeId.flatMapLatest { pollBusInfoForRoute(it)  }
+    val busInfoList = routeId.flatMapLatest { pollBusInfoForRoute(it) }
 
     val eyreSquare = Location(53.2743394, -9.0514163)
     val location = MutableStateFlow<Location>(eyreSquare)
@@ -52,22 +41,18 @@ class GalwayBusViewModel(
     val cameraPosition = MutableStateFlow<Location?>(null)
     private val zoomLevel = MutableStateFlow<Float>(15.0f)
 
-    private val context = application
-    private val FAVORITES_KEY = stringSetPreferencesKey("favorites")
-    val favorites: Flow<Set<String>> = context.dataStore.data.map { preferences ->
-        preferences[FAVORITES_KEY] ?: emptySet()
-    }
+    val favorites = repository.favorites
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
-    val allBusStops = galwayBusRepository.getBusStopsFlow()
+    val favoriteBusStopList = repository.favoriteBusStopList
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    val favoriteBusStopList = galwayBusRepository.getBusStopsFlow().combine(favorites) { busStops, favorites ->
-        favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val allBusStops = repository.getBusStopsFlow()
 
 
     fun fetchAndStoreBusStops() {
         viewModelScope.launch {
-            galwayBusRepository.fetchAndStoreBusStops()
+            repository.fetchAndStoreBusStops()
         }
     }
 
@@ -102,7 +87,7 @@ class GalwayBusViewModel(
     private fun getNearestStops(location: Location) {
         println("getNearestStops, location = $location")
         viewModelScope.launch {
-            val result = galwayBusRepository.fetchNearestStops(location.latitude, location.longitude)
+            val result = repository.fetchNearestStops(location.latitude, location.longitude)
             busStopListState.value = when (result) {
                 is Result.Success -> UiState.Success(result.data)
                 is Result.Error -> UiState.Error(result.exception)
@@ -113,7 +98,7 @@ class GalwayBusViewModel(
     private fun pollBusDepartures(stopRef: String): Flow<List<GalwayBusDeparture>> = flow {
         emit(emptyList())
         while (true) {
-            val result = galwayBusRepository.fetchBusStopDepartures(stopRef)
+            val result = repository.fetchBusStopDepartures(stopRef)
             if (result is Result.Success) {
                 Logger.d { result.data.toString() }
                 emit(result.data)
@@ -126,7 +111,7 @@ class GalwayBusViewModel(
         if (routeId.isNotEmpty()) {
             emit(emptyList())
             while (true) {
-                val result = galwayBusRepository.fetchBusListForRoute(routeId)
+                val result = repository.fetchBusListForRoute(routeId)
                 if (result is Result.Success) {
                     Logger.d { result.data.toString() }
                     emit(result.data)
@@ -138,16 +123,7 @@ class GalwayBusViewModel(
 
 
     fun toggleFavorite(stopRef: String) {
-        viewModelScope.launch {
-            context.dataStore.edit { settings ->
-                val currentFavorites = settings[FAVORITES_KEY] ?: emptySet()
-                val newFavorites = currentFavorites.toMutableSet()
-                if (!newFavorites.add(stopRef)) {
-                    newFavorites.remove(stopRef)
-                }
-                settings[FAVORITES_KEY] = newFavorites
-            }
-        }
+        repository.toggleFavorite(stopRef)
     }
 
     fun centerInEyreSquare() {
@@ -155,6 +131,6 @@ class GalwayBusViewModel(
     }
 
     companion object {
-        private const val POLL_INTERVAL =  10000L
+        private const val POLL_INTERVAL = 10000L
     }
 }
