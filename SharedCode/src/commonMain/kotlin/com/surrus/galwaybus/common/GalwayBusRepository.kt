@@ -5,6 +5,7 @@ import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.GalwayBusApi
+import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
@@ -29,7 +30,7 @@ open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi = get()
 
     private val appSettings: AppSettings by inject()
-    private val galwayBusDb = createDb()
+    private val galwayBusDb: MyDatabase by inject()
     private val galwayBusQueries = galwayBusDb?.galwayBusQueries
     private val coroutineScope: CoroutineScope = MainScope()
 
@@ -59,7 +60,7 @@ open class GalwayBusRepository : KoinComponent {
         }
     }
 
-    @ExperimentalCoroutinesApi
+    //@ExperimentalCoroutinesApi
     fun getBusStopsFlow() = galwayBusQueries?.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
             BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
         })?.asFlow()?.mapToList() ?: flowOf(emptyList())
