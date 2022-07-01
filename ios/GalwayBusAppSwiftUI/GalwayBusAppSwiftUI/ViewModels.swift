@@ -8,6 +8,7 @@ import KMPNativeCoroutinesAsync
 class NearbyStopsViewModel: ObservableObject {
     @Published private(set) var listStops: [BusStop] = []
     @Published public var favorites: Set<String> = []
+    @Published private(set) var depatures: [GalwayBusDeparture] = []
     
     
     private let repository: GalwayBusRepository
@@ -38,6 +39,23 @@ class NearbyStopsViewModel: ObservableObject {
             }
         } catch {
             print("Failed with error: \(error)")
+        }
+    }
+    
+    func fetchDeparturees(stopRef: String) {
+        Task {
+            do {
+                let result = try await asyncFunction(for: repository.fetchBusStopDeparturesNative(stopRef: stopRef))
+                if (result is ResultSuccess<NSArray>) {
+                    let successResult = result as! ResultSuccess<NSArray>
+                    self.depatures = successResult.data as! [GalwayBusDeparture]
+                    print(self.depatures)
+                } else {
+                    print(result)
+                }
+            } catch {
+                print("Failed with error: \(error)")
+            }
         }
     }
     

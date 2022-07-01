@@ -80,8 +80,9 @@ open class GalwayBusRepository : KoinComponent {
                     departure.departTimestamp?.let {
                         val departureTime = Instant.parse(departure.departTimestamp)
                         val durationUntilDeparture: Duration = departureTime - now
+                        val minutesUntilDeparture = durationUntilDeparture.inWholeMinutes
                         GalwayBusDeparture(departure.timetableId, departure.displayName, departure.departTimestamp,
-                            durationUntilDeparture)
+                            durationUntilDeparture, minutesUntilDeparture)
                     }
                 }
                 .filterNotNull()

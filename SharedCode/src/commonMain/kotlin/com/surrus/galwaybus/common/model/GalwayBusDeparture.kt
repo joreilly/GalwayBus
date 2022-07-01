@@ -6,5 +6,6 @@ data class GalwayBusDeparture(
     val timetableId: String,
     val displayName: String,
     val departTimestamp: String,
-    val durationUntilDeparture: Duration
+    val durationUntilDeparture: Duration,
+    val minutesUntilDeparture: Long
 )

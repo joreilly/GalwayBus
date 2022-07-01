@@ -45,7 +45,7 @@ class GalwayBusViewModel(
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     val favoriteBusStopList = repository.favoriteBusStopList
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val allBusStops = repository.busStops
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())

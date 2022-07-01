@@ -34,7 +34,9 @@ struct NearbyView : View {
     @ObservedObject var nearbyStopsViewModel: NearbyStopsViewModel
     @State var region = MKCoordinateRegion(center: .init(latitude: 0, longitude: 0),
                                            latitudinalMeters: 500, longitudinalMeters: 500)
-
+    @State private var showSheet = false
+    @State private var stopRef = ""
+    
     var body: some View {
 
         VStack {
@@ -48,7 +50,15 @@ struct NearbyView : View {
             
             
             List(nearbyStopsViewModel.listStops, id: \.stop_id) { busStop in
-                BusStopView(busStop: busStop, nearbyStopsViewModel: nearbyStopsViewModel)
+                Button (action: {
+                    stopRef = busStop.stopRef
+                    nearbyStopsViewModel.fetchDeparturees(stopRef: busStop.stopRef)
+
+                    showSheet = true
+                }) {
+                    BusStopView(busStop: busStop, nearbyStopsViewModel: nearbyStopsViewModel)
+                }
+                
             }
             
             
@@ -58,6 +68,20 @@ struct NearbyView : View {
             await nearbyStopsViewModel.fetch()
         }
         .listStyle(PlainListStyle())
+        .sheet(isPresented: $showSheet) {
+            
+            List(nearbyStopsViewModel.depatures, id: \.departTimestamp) { departure in
+                HStack {
+                    Text(departure.timetableId)
+                    Spacer()
+                    Text(departure.displayName)
+                    Spacer()
+                    Text(String(departure.minutesUntilDeparture))
+                }
+            }
+            .presentationDetents([.medium, .fraction(0.3)])
+        }
+        
     }
 }
 
