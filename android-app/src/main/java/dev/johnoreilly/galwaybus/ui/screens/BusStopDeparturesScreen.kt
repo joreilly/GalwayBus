@@ -18,8 +18,10 @@ import androidx.compose.ui.unit.dp
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
+import kotlin.time.ExperimentalTime
 
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departure : GalwayBusDeparture) -> Unit) {
     ProvideTextStyle(typography.subtitle1) {
@@ -34,7 +36,7 @@ fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departu
                     modifier = Modifier.weight(1f).padding(start = 16.dp))
 
 
-            val minutesUntilDeparture = departure.durationUntilDeparture.inMinutes.toInt()
+            val minutesUntilDeparture = departure.durationUntilDeparture.inWholeMinutes.toInt()
             val departureText = if (minutesUntilDeparture <= 0)
                 stringResource(R.string.bus_time_due)
             else

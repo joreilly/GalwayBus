@@ -123,12 +123,12 @@ tasks.withType<KotlinCompile> {
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
 
-    implementation("com.google.android.material:material:1.6.0")
+    implementation("com.google.android.material:material:1.6.1")
     implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.4.0")
+    implementation("androidx.activity:activity-compose:1.5.0")
 
-    implementation("com.google.maps.android:maps-compose:2.1.0")
+    implementation("com.google.maps.android:maps-compose:2.5.0")
     implementation("com.google.android.gms:play-services-maps:18.0.2")
 
     with(Deps.Koin) {
@@ -147,7 +147,7 @@ dependencies {
     }
     implementation("io.github.pushpalroy:jetlime:1.0.3")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.3")
     implementation(PlayServices.location)
 
     testImplementation("junit:junit:4.13.2")

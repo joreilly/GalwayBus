@@ -1,22 +1,22 @@
 
 object Versions {
     const val androidMinSdk = 21
-    const val androidCompileSdk = 31
+    const val androidCompileSdk = 32
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.6.21"
-    const val kotlinCoroutines = "1.6.1"
+    const val kotlin = "1.7.0"
+    const val kotlinCoroutines = "1.6.3"
     const val kotlinxSerialization = "1.3.3"
-    const val kotlinxDateTime = "0.3.2"
+    const val kotlinxDateTime = "0.4.0"
     const val koin = "3.2.0"
     const val sqlDelight = "1.5.3"
     const val multiplatformSettings = "0.9"
-    const val kmpNativeCoroutines = "0.12.2-new-mm"
+    const val kmpNativeCoroutines = "0.12.5-new-mm"
 
-    const val compose = "1.2.0-beta01"
-    const val composeCompiler = "1.2.0-beta01"
+    const val compose = "1.2.0-rc03"
+    const val composeCompiler = "1.2.0"
     const val navCompose = "2.4.2"
-    const val accompanist = "0.23.0"
+    const val accompanist = "0.24.13-rc"
 
     const val kermit = "1.0.0"
     const val ktor = "2.0.0"

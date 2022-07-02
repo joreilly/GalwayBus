@@ -43,6 +43,7 @@ import dev.johnoreilly.galwaybus.ui.typography
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
 
 @OptIn(ExperimentalMaterialApi::class)
 @SuppressLint("MissingPermission")
