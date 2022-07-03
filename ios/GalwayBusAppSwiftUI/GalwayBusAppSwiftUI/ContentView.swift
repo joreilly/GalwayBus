@@ -78,6 +78,7 @@ struct NearbyView : View {
                     Spacer()
                     Text(String(departure.minutesUntilDeparture))
                 }
+                .fontWeight(.thin)
             }
             .presentationDetents([.medium, .fraction(0.3)])
         }
