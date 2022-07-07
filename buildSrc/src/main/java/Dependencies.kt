@@ -17,6 +17,7 @@ object Versions {
     const val composeCompiler = "1.2.0"
     const val navCompose = "2.4.2"
     const val accompanist = "0.24.13-rc"
+    const val mapsCompose = "2.5.0"
 
     const val kermit = "1.0.0"
     const val ktor = "2.0.0"
@@ -40,10 +41,6 @@ object Firebase {
     val performance = "com.google.firebase:firebase-perf:16.2.3"
 }
 
-object PlayServices {
-    val location = "com.google.android.gms:play-services-location:16.0.0"
-    val maps = "com.google.android.gms:play-services-maps:16.1.0"
-}
 
 
 object Deps {
@@ -69,6 +66,12 @@ object Deps {
         const val material = "androidx.compose.material:material:${Versions.compose}"
         const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
         const val accompanistPlaceholder = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
+        const val mapsCompose = "com.google.maps.android:maps-compose:${Versions.mapsCompose}"
+    }
+
+    object PlayServices {
+        val location = "com.google.android.gms:play-services-location:16.0.0"
+        val maps = "com.google.android.gms:play-services-maps:18.0.2"
     }
 
     object Koin {

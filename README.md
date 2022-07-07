@@ -22,6 +22,7 @@ Also have following Kotlin Multiplatform/Jetpack Compose/SwiftUI samples.
 * [MortyComposeKMM](https://github.com/joreilly/MortyComposeKMM)
 * [FantasyPremierLeague](https://github.com/joreilly/FantasyPremierLeague)
 * [StarWars](https://github.com/joreilly/StarWars)
+* [Confetti](https://github.com/joreilly/Confetti)
 * [Chip-8](https://github.com/joreilly/chip-8)
 
 
