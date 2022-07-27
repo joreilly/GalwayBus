@@ -4,8 +4,8 @@ object Versions {
     const val androidCompileSdk = 32
     const val androidTargetSdk = androidCompileSdk
 
-    const val kotlin = "1.7.0"
-    const val kotlinCoroutines = "1.6.3"
+    const val kotlin = "1.7.10"
+    const val kotlinCoroutines = "1.6.4"
     const val kotlinxSerialization = "1.3.3"
     const val kotlinxDateTime = "0.4.0"
     const val koin = "3.2.0"
@@ -13,8 +13,8 @@ object Versions {
     const val multiplatformSettings = "0.9"
     const val kmpNativeCoroutines = "0.12.5-new-mm"
 
-    const val compose = "1.2.0-rc03"
-    const val composeCompiler = "1.2.0"
+    const val compose = "1.2.0"
+    const val composeCompiler = "1.3.0-rc01"
     const val navCompose = "2.4.2"
     const val accompanist = "0.24.13-rc"
     const val mapsCompose = "2.5.0"
