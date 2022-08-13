@@ -10,7 +10,7 @@ object Versions {
     const val kotlinxDateTime = "0.4.0"
     const val koin = "3.2.0"
     const val sqlDelight = "1.5.3"
-    const val multiplatformSettings = "0.9"
+    const val multiplatformSettings = "1.0.0-alpha01"
     const val kmpNativeCoroutines = "0.12.6-new-mm"
 
     const val compose = "1.2.1"
