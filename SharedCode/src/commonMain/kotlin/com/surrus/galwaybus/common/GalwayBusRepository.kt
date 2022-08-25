@@ -4,7 +4,9 @@ import co.touchlab.kermit.Logger
 import com.squareup.sqldelight.runtime.coroutines.asFlow
 import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
+import com.surrus.galwaybus.common.remote.CityBikesApi
 import com.surrus.galwaybus.common.remote.GalwayBusApi
+import com.surrus.galwaybus.common.remote.Station
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.flow.combine
 import kotlinx.datetime.Clock
@@ -17,6 +19,7 @@ import kotlin.time.Duration
 
 open class GalwayBusRepository : KoinComponent {
     private val galwayBusApi: GalwayBusApi = get()
+    private val cityBikesApi: CityBikesApi by inject()
 
     private val appSettings: AppSettings by inject()
     private val galwayBusDb: MyDatabase by inject()
@@ -120,4 +123,11 @@ open class GalwayBusRepository : KoinComponent {
     fun toggleFavorite(stopRef: String) {
         appSettings.toggleFavorite(stopRef)
     }
+
+
+    suspend fun fetchBikeShareInfo(network: String) : List<Station> {
+        val result = cityBikesApi.fetchBikeShareInfo(network)
+        return result.network.stations
+    }
+
 }

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package dev.johnoreilly.galwaybus
 
 import android.Manifest
@@ -10,6 +12,7 @@ import androidx.compose.material.*
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.BikeScooter
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -20,6 +23,7 @@ import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.*
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {
@@ -52,6 +56,7 @@ class MainActivity : ComponentActivity() {
 sealed class Screens(val route: String, val label: String, val icon: ImageVector? = null) {
     object NearbyScreen : Screens("Nearby", "Nearby", Icons.Default.LocationOn)
     object FavoritesScreen : Screens("Favorites", "Favorites", Icons.Default.Favorite)
+    object BikeShareScreen : Screens("BikeShare", "Bikes", Icons.Default.DirectionsBike)
     object BusInfoScreen : Screens("BusInfo", "BusInfo")
     object BusRouteScreen : Screens("BusRoute", "BusRoute")
 }
@@ -63,7 +68,7 @@ fun MainLayout(fineLocation: PermissionState,
                viewModel: GalwayBusViewModel
 ) {
     val navController = rememberNavController()
-    val bottomNavigationItems = listOf(Screens.NearbyScreen, Screens.FavoritesScreen)
+    val bottomNavigationItems = listOf(Screens.NearbyScreen, Screens.BikeShareScreen, Screens.FavoritesScreen)
     val hasLocationPermission by fineLocation.hasPermission.collectAsState()
     val bottomBar: @Composable () -> Unit = { GalwayBusBottomNavigation(navController, bottomNavigationItems) }
 
@@ -89,6 +94,9 @@ fun MainLayout(fineLocation: PermissionState,
                 BusRouteScreen(viewModel,
                     backStackEntry.arguments?.get("busId") as String,
                     popBack = { navController.popBackStack() })
+            }
+            composable(Screens.BikeShareScreen.route) {
+                BikeShareScreen(bottomBar, viewModel)
             }
         }
     } else {

@@ -64,8 +64,10 @@ object Deps {
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
         const val foundationLayout = "androidx.compose.foundation:foundation-layout:${Versions.compose}"
         const val material = "androidx.compose.material:material:${Versions.compose}"
+        const val materialIconsExtended = "androidx.compose.material:material-icons-extended:${Versions.compose}"
         const val navigation = "androidx.navigation:navigation-compose:${Versions.navCompose}"
         const val accompanistPlaceholder = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
+        const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.accompanist}"
         const val mapsCompose = "com.google.maps.android:maps-compose:${Versions.mapsCompose}"
     }
 
