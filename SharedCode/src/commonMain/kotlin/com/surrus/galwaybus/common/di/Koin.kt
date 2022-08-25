@@ -2,6 +2,7 @@ package com.surrus.galwaybus.common.di
 
 import com.surrus.galwaybus.common.AppSettings
 import com.surrus.galwaybus.common.GalwayBusRepository
+import com.surrus.galwaybus.common.remote.CityBikesApi
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import io.ktor.client.*
 import io.ktor.client.plugins.*
@@ -35,6 +36,7 @@ fun commonModule() = module {
     single { createHttpClient(get()) }
     single { GalwayBusRepository() }
     single { GalwayBusApi(get()) }
+    single { CityBikesApi(get()) }
     single { AppSettings(get()) }
 }
 

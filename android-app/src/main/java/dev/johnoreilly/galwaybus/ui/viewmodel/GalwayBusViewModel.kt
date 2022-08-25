@@ -8,6 +8,7 @@ import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.Location
 import com.surrus.galwaybus.common.model.Result
+import com.surrus.galwaybus.common.remote.Station
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -49,6 +50,11 @@ class GalwayBusViewModel(
 
     val allBusStops = repository.busStops
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+
+    val stations = MutableStateFlow<List<Station>>(emptyList())
+    val isRefreshing = MutableStateFlow(false)
+
 
     fun fetchAndStoreBusStops() {
         viewModelScope.launch {
@@ -121,6 +127,12 @@ class GalwayBusViewModel(
         }
     }
 
+
+    fun fetchStations() {
+        viewModelScope.launch {
+            stations.value = repository.fetchBikeShareInfo("galway").sortedBy { it.name }
+        }
+    }
 
     fun toggleFavorite(stopRef: String) {
         repository.toggleFavorite(stopRef)

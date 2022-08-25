@@ -126,7 +126,7 @@ dependencies {
     implementation("com.google.android.material:material:1.6.1")
     implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.5.0")
+    implementation("androidx.activity:activity-compose:1.5.1")
 
 
     with(Deps.Koin) {
@@ -140,12 +140,14 @@ dependencies {
         implementation(uiTooling)
         implementation(foundationLayout)
         implementation(material)
+        implementation(materialIconsExtended)
         implementation(navigation)
         implementation(accompanistPlaceholder)
+        implementation(accompanistSwipeRefresh)
         implementation(mapsCompose)
     }
     implementation("io.github.pushpalroy:jetlime:1.0.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
     with(Deps.PlayServices) {
         implementation(maps)
