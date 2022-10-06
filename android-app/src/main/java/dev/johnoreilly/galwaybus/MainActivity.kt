@@ -74,6 +74,9 @@ fun MainLayout(fineLocation: PermissionState,
 
     if (hasLocationPermission) {
         LaunchedEffect(fusedLocationWrapper) {
+            // default to center of Galway until we get location
+            viewModel.centerInEyreSquare()
+
             val location = fusedLocationWrapper.awaitLastLocation()
             viewModel.setLocation(Location(location.latitude, location.longitude))
         }
