@@ -65,6 +65,7 @@ class NearbyStopsViewModel: ObservableObject {
 }
 
 
+@MainActor
 class BusRouteViewModel: ObservableObject {
     @Published private(set) var listRoutes: [BusRoute] = []
     

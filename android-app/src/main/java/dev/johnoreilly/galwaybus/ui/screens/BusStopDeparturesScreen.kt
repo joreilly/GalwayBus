@@ -1,13 +1,14 @@
 package dev.johnoreilly.galwaybus.ui
 
 import androidx.compose.foundation.clickable
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.Divider
-import androidx.compose.material.ProvideTextStyle
+import androidx.compose.material3.Divider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,7 +25,7 @@ import kotlin.time.ExperimentalTime
 @OptIn(ExperimentalTime::class)
 @Composable
 fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departure : GalwayBusDeparture) -> Unit) {
-    ProvideTextStyle(typography.subtitle1) {
+    ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
         Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable(onClick = { departureSelected(departure) })
                     .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {

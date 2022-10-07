@@ -1,29 +1,31 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.os.Bundle
 import androidx.annotation.ColorRes
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.navigation.NavHostController
@@ -39,36 +41,40 @@ import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.*
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.BusStopDeparture
-import dev.johnoreilly.galwaybus.ui.typography
+import dev.johnoreilly.galwaybus.ui.theme.typography
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import dev.johnoreilly.galwaybus.ui.viewmodel.UiState
 import kotlinx.coroutines.launch
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalMaterialApi::class)
+
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("MissingPermission")
 @Composable
 fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
-
     val snackbarHostState = remember { SnackbarHostState() }
-
     val busStopState = viewModel.busStopListState.collectAsState(UiState.Loading)
-
     val favorites by viewModel.favorites.collectAsState(setOf())
-
     val sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Galway Bus") },
+            CenterAlignedTopAppBar(
+                title = { Text(text = stringResource(id = R.string.app_name)) },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                ),
                 actions = {
                     IconButton(onClick = { viewModel.centerInEyreSquare() }) {
                         Icon(Icons.Filled.Home, contentDescription = "Center in Eyre Square")
                     }
                 }
+
             )
         },
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = bottomBar)
     {
 
@@ -139,7 +145,7 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
 
     Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
 
-        Text(text = busStop?.longName ?: "", style = typography.h6,
+        Text(text = busStop?.longName ?: "", style = typography.headlineSmall,
                 modifier = Modifier.padding(16.dp).fillMaxWidth(),
                 textAlign = TextAlign.Center
         )
@@ -162,11 +168,11 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
 
 @Composable
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
-                    favorites: Set<String>, itemClick : (stop : BusStop) -> Unit) {
+                    favorites: Set<String>, stopSelected : (stop : BusStop) -> Unit) {
     LazyColumn {
         items(busStopList) { stop ->
             BusStopView(stop = stop,
-                    itemClick = itemClick,
+                    stopSelected = stopSelected,
                     isFavorite = favorites.contains(stop.stopRef),
                     onToggleFavorite = {
                         viewModel.toggleFavorite(stop.stopRef)
@@ -177,26 +183,15 @@ fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
 }
 
 @Composable
-fun BusStopView(stop: BusStop, itemClick : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
-    Row(
-            modifier = Modifier.clickable(onClick = { itemClick(stop) })
-                    .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-    ) {
-
-        Image(painterResource(R.drawable.ic_bus), modifier = Modifier.size(32.dp), contentDescription = "Bus")
-
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Column(modifier = Modifier.weight(1f)) {
-            Text(text = stop.longName, style = TextStyle(fontSize = 18.sp))
-            Text(text = stop.stopRef, style = TextStyle(color = Color.DarkGray, fontSize = 12.sp))
+fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
+    ListItem(
+        modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
+        headlineText = { Text(stop.longName) },
+        supportingText = { Text(stop.stopRef)},
+        trailingContent = {
+            FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
         }
-        FavoritesButton(
-            isFavorite = isFavorite,
-            onClick = onToggleFavorite
-        )
-    }
+    )
 }
 
 
