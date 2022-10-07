@@ -18,6 +18,7 @@ object Versions {
     const val navCompose = "2.5.2"
     const val accompanist = "0.26.5-rc"
     const val mapsCompose = "2.5.3"
+    const val composeMaterial3 = "1.0.0-rc01"
 
     const val kermit = "1.0.0"
     const val ktor = "2.0.0"
@@ -69,6 +70,9 @@ object Deps {
         const val accompanistPlaceholder = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
         const val accompanistSwipeRefresh = "com.google.accompanist:accompanist-swiperefresh:${Versions.accompanist}"
         const val mapsCompose = "com.google.maps.android:maps-compose:${Versions.mapsCompose}"
+
+        const val material3 = "androidx.compose.material3:material3:${Versions.composeMaterial3}"
+        const val material3WindowSizeClass = "androidx.compose.material3:material3-window-size-class:${Versions.composeMaterial3}"
     }
 
     object PlayServices {

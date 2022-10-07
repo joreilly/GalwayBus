@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package dev.johnoreilly.galwaybus.ui.viewmodel
 
 import androidx.lifecycle.*
@@ -22,7 +24,6 @@ sealed class UiState<out T : Any> {
 }
 
 
-@ExperimentalCoroutinesApi
 class GalwayBusViewModel(
     private val repository: GalwayBusRepository
 ) : ViewModel() {

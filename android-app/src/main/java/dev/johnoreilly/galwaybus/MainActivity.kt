@@ -4,23 +4,38 @@ package dev.johnoreilly.galwaybus
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.Text
-import androidx.compose.material.*
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.Text
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.BikeScooter
+import androidx.compose.material.icons.outlined.DirectionsBike
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material3.IconToggleButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
-import dev.johnoreilly.galwaybus.ui.*
 import dev.johnoreilly.galwaybus.ui.screens.*
+import dev.johnoreilly.galwaybus.ui.theme.GalwayBusTheme
+import dev.johnoreilly.galwaybus.ui.theme.maroon500
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -33,30 +48,40 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Turn off the decor fitting system windows, which allows us to handle insets,
+        // including IME animations
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             GalwayBusTheme {
-                val fusedLocationWrapper = fusedLocationWrapper()
-                val fineLocation = checkSelfPermissionState(this,
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val fusedLocationWrapper = fusedLocationWrapper()
+                    val fineLocation = checkSelfPermissionState(
+                        this,
                         Manifest.permission.ACCESS_FINE_LOCATION
-                )
-                var showLandingScreen by remember { mutableStateOf(true) }
+                    )
+                    var showLandingScreen by remember { mutableStateOf(true) }
 
-                if (showLandingScreen) {
-                    LandingScreen(galwayBusViewModel, onTimeout = { showLandingScreen = false })
-                } else {
-                    MainLayout(fineLocation, fusedLocationWrapper, galwayBusViewModel)
+                    if (showLandingScreen) {
+                        LandingScreen(galwayBusViewModel, onTimeout = { showLandingScreen = false })
+                    } else {
+                        MainLayout(fineLocation, fusedLocationWrapper, galwayBusViewModel)
+                    }
+
                 }
-
             }
         }
     }
 }
 
 
-sealed class Screens(val route: String, val label: String, val icon: ImageVector? = null) {
-    object NearbyScreen : Screens("Nearby", "Nearby", Icons.Default.LocationOn)
-    object FavoritesScreen : Screens("Favorites", "Favorites", Icons.Default.Favorite)
-    object BikeShareScreen : Screens("BikeShare", "Bikes", Icons.Default.DirectionsBike)
+sealed class Screens(val route: String, val label: String, val selectedIcon: ImageVector? = null, val unSelectedIcon: ImageVector? = null) {
+    object NearbyScreen : Screens("Nearby", "Nearby", Icons.Filled.LocationOn, Icons.Outlined.LocationOn)
+    object FavoritesScreen : Screens("Favorites", "Favorites", Icons.Filled.Favorite, Icons.Outlined.Favorite)
+    object BikeShareScreen : Screens("BikeShare", "Bikes", Icons.Filled.DirectionsBike, Icons.Outlined.DirectionsBike)
     object BusInfoScreen : Screens("BusInfo", "BusInfo")
     object BusRouteScreen : Screens("BusRoute", "BusRoute")
 }
@@ -111,14 +136,23 @@ fun MainLayout(fineLocation: PermissionState,
 @Composable
 private fun GalwayBusBottomNavigation(navController: NavHostController, items: List<Screens>) {
 
-    BottomNavigation {
+    NavigationBar(
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
-
         items.forEach { screen ->
-            BottomNavigationItem(
-                icon = { screen.icon?.let { Icon(it, contentDescription = screen.label) } },
+            NavigationBarItem(
+                icon = {
+                    val icon = if (currentRoute == screen.route) {
+                        screen.selectedIcon
+                    } else {
+                        screen.unSelectedIcon
+                    }
+                    icon?.let {
+                        Icon(icon, contentDescription = screen.label)
+                    }
+                },
                 label = { Text(screen.label) },
                 selected = currentRoute == screen.route,
                 alwaysShowLabel = false, // This hides the title for the unselected items
