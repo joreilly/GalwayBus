@@ -1,20 +1,19 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.johnoreilly.galwaybus.ui.screens
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.pushpal.jetlime.data.JetLimeItemsModel
 import com.pushpal.jetlime.data.config.*
 import com.pushpal.jetlime.ui.JetLimeView
-import dev.johnoreilly.galwaybus.Screens
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.launch
 
@@ -24,15 +23,16 @@ fun BusRouteScreen(viewModel: GalwayBusViewModel, busId: String, popBack: () -> 
     val routeId = viewModel.routeId.value
 
     Scaffold(topBar = {
-        TopAppBar(
-            title = { Text(busId ?: "") },
-            navigationIcon = {
-                IconButton(onClick = { popBack() }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+            CenterAlignedTopAppBar(
+                title = { Text(busId ?: "") },
+                navigationIcon = {
+                    IconButton(onClick = { popBack() }) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    }
                 }
-            }
-        )
-    }) { paddingValues ->
+            )
+        }
+    ) { paddingValues ->
 
         Column(Modifier.padding(paddingValues)) {
             RouteTimelineView(viewModel, busId)

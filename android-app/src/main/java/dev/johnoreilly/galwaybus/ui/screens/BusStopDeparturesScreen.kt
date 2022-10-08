@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
@@ -19,10 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
-import kotlin.time.ExperimentalTime
 
 
-@OptIn(ExperimentalTime::class)
 @Composable
 fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departure : GalwayBusDeparture) -> Unit) {
     ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
@@ -44,6 +41,5 @@ fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departu
                 "$minutesUntilDeparture ${quantityStringResource(R.plurals.mins, minutesUntilDeparture)}"
             Text(departureText, modifier = Modifier.padding(start = 16.dp))
         }
-        Divider()
     }
 }

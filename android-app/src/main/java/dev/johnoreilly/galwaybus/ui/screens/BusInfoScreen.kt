@@ -1,15 +1,16 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package dev.johnoreilly.galwaybus.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -29,7 +30,7 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel,
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(topBar = {
-        TopAppBar(
+        CenterAlignedTopAppBar(
             title = { Text(routeId ?: "") },
             navigationIcon = {
                 IconButton(onClick = { popBack() }) {

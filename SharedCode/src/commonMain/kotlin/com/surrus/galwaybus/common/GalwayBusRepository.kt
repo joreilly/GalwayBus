@@ -126,8 +126,13 @@ open class GalwayBusRepository : KoinComponent {
 
 
     suspend fun fetchBikeShareInfo(network: String) : List<Station> {
-        val result = cityBikesApi.fetchBikeShareInfo(network)
-        return result.network.stations
+        try {
+            val result = cityBikesApi.fetchBikeShareInfo(network)
+            return result.network.stations
+        } catch (e: Exception) {
+            // TODO add error handling
+            return emptyList<Station>()
+        }
     }
 
 }
