@@ -36,7 +36,8 @@ you can update where this is read in `build.gradle`
 
 **Android (Jetpack Compose)**
 
-<img width="1063" alt="Screenshot 2022-10-08 at 10 40 13" src="https://user-images.githubusercontent.com/6302/194701042-23d8f26d-d6aa-49f6-94e6-4f718436658d.png">
+<img width="1081" alt="Screenshot 2022-10-08 at 12 04 27" src="https://user-images.githubusercontent.com/6302/194704565-eedc89c1-751a-455b-a0b2-8855b5be7bbb.png">
+
 
 
 **iOS (SwiftUI)**
