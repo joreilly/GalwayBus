@@ -33,13 +33,15 @@ you can update where this is read in `build.gradle`
 
 ### Screenshots 
 
-**iOS (SwiftUI)**
-
-<img width="400" alt="iOS SwiftUI" src="https://user-images.githubusercontent.com/6302/135715829-8e82b20b-d945-4151-98eb-6ecedc0e7c6f.png">
 
 **Android (Jetpack Compose)**
 
-<img width="400" alt="Android Jetpack Compose" src="https://user-images.githubusercontent.com/6302/135715754-55d08490-6055-4a9c-b9ae-4b49fa48eebf.png">
+<img width="1063" alt="Screenshot 2022-10-08 at 10 40 13" src="https://user-images.githubusercontent.com/6302/194701042-23d8f26d-d6aa-49f6-94e6-4f718436658d.png">
+
+
+**iOS (SwiftUI)**
+
+<img width="673" alt="Screenshot 2022-10-08 at 10 44 05" src="https://user-images.githubusercontent.com/6302/194701185-a797d31c-e6d3-48f2-bc04-e05b1e891a75.png">
 
 
 ### Languages, libraries and tools used
