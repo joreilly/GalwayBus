@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package dev.johnoreilly.galwaybus.ui.screens
 
@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -184,10 +185,13 @@ fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
 
 @Composable
 fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavorite: Boolean, onToggleFavorite: () -> Unit) {
+    val headlineText = "${stop.longName} (${stop.stopRef})"
+    val supportingText = stop.routes.joinToString()
+
     ListItem(
         modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
-        headlineText = { Text(stop.longName) },
-        supportingText = { Text(stop.stopRef)},
+        headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
+        supportingText = { Text(supportingText)},
         trailingContent = {
             FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
         }
