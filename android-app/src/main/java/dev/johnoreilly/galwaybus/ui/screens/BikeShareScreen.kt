@@ -24,8 +24,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -52,7 +54,7 @@ fun BikeShareScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Galway Bus - Favourites") }
+                title = { Text("Galway Bike Share") }
             )
         },
         bottomBar = bottomBar) { paddingValues ->
@@ -74,38 +76,36 @@ fun BikeShareScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
 @Composable
 fun StationView(station: Station) {
 
-    Row(modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+    Row(modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically) {
 
-        Image(
-            painterResource(R.drawable.ic_bike),
-            colorFilter = ColorFilter.tint(if (station.freeBikes() < 5) lowAvailabilityColor else highAvailabilityColor),
-            modifier = Modifier.size(32.dp), contentDescription = station.freeBikes().toString())
+        Column(modifier = Modifier.weight(1.0f)) {
+            Text(text = station.name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
 
-        Spacer(modifier = Modifier.size(16.dp))
+            ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
+                Row(modifier = Modifier.padding(top = 4.dp)) {
+                    Column(modifier = Modifier.width(100.dp)) {
+                        Text("Bikes")
+                        Text(station.freeBikes().toString(),
+                            color = if (station.freeBikes() < 5) lowAvailabilityColor else highAvailabilityColor)
+                    }
 
-        Column {
-            Text(text = station.name, style = MaterialTheme.typography.bodyLarge)
-
-            ProvideTextStyle(MaterialTheme.typography.bodySmall) {
-                Row {
-                    Text("Bikes:", modifier = Modifier.width(128.dp))
-                    Text(
-                        text = station.freeBikes().toString(),
-                        modifier = Modifier.width(32.dp),
-                        textAlign = TextAlign.End
-                    )
-                }
-                Row {
-                    Text("Stands:", modifier = Modifier.width(128.dp))
-                    Text(
-                        text = station.empty_slots.toString(),
-                        modifier = Modifier.width(32.dp),
-                        textAlign = TextAlign.End
-                    )
+                    Column {
+                        Text("Stands")
+                        Text(station.empty_slots.toString(),
+                            color = if (station.freeBikes() < 5) lowAvailabilityColor else highAvailabilityColor)
+                    }
                 }
             }
         }
+
+        Column {
+            Image(
+                painterResource(R.drawable.ic_bike),
+                colorFilter = ColorFilter.tint(if (station.freeBikes() < 5) lowAvailabilityColor else highAvailabilityColor),
+                modifier = Modifier.size(32.dp), contentDescription = station.freeBikes().toString())
+        }
+
     }
 }
 
