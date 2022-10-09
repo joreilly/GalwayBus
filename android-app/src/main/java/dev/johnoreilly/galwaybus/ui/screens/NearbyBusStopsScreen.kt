@@ -188,14 +188,24 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
     val headlineText = "${stop.longName} (${stop.stopRef})"
     val supportingText = stop.routes.joinToString()
 
-    ListItem(
-        modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
-        headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
-        supportingText = { Text(supportingText)},
-        trailingContent = {
-            FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
-        }
-    )
+    if (supportingText.isNotEmpty()) {
+        ListItem(
+            modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
+            headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
+            supportingText = { Text(supportingText) },
+            trailingContent = {
+                FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
+            }
+        )
+    } else {
+        ListItem(
+            modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
+            headlineText = { Text(headlineText) },
+            trailingContent = {
+                FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
+            }
+        )
+    }
 }
 
 
