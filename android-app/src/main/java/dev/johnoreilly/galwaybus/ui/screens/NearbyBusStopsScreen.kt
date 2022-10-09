@@ -52,7 +52,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
 @SuppressLint("MissingPermission")
 @Composable
-fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
+fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val busStopState = viewModel.busStopListState.collectAsState(UiState.Loading)
@@ -71,13 +71,11 @@ fun NearestBusStopsScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBu
                         Icon(Icons.Filled.Home, contentDescription = "Center in Eyre Square")
                     }
                 }
-
             )
         },
         containerColor = Color.Transparent,
-        contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        bottomBar = bottomBar)
-    {
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) {
 
         ModalBottomSheetLayout(modifier = Modifier.padding(it), sheetState = sheetState, sheetContent = {
             DeparturesSheetContent(viewModel) {

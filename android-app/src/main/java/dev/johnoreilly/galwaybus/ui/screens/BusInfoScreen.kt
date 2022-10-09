@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
@@ -37,8 +38,10 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel,
                     Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
-        )
-    }) { paddingValues ->
+        )},
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { paddingValues ->
 
         Column(Modifier.padding(paddingValues)) {
             currentBusStop.value?.let { stop ->

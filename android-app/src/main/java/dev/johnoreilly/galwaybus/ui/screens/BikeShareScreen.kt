@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -43,7 +44,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @Composable
-fun BikeShareScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel) {
+fun BikeShareScreen(viewModel: GalwayBusViewModel) {
     val stationsState by viewModel.stations.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
 
@@ -57,7 +58,9 @@ fun BikeShareScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
                 title = { Text("Galway Bike Share") }
             )
         },
-        bottomBar = bottomBar) { paddingValues ->
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { paddingValues ->
 
         SwipeRefresh(
             state = rememberSwipeRefreshState(isRefreshing),
