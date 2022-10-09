@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.pushpal.jetlime.data.JetLimeItemsModel
 import com.pushpal.jetlime.data.config.*
@@ -31,7 +32,9 @@ fun BusRouteScreen(viewModel: GalwayBusViewModel, busId: String, popBack: () -> 
                     }
                 }
             )
-        }
+        },
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
 
         Column(Modifier.padding(paddingValues)) {

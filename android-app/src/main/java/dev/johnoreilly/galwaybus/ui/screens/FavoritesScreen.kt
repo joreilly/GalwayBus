@@ -2,6 +2,7 @@
 
 package dev.johnoreilly.galwaybus.ui.screens
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -30,7 +31,7 @@ import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewModel, navController: NavHostController) {
+fun FavoritesScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
     val favorites by viewModel.favorites.collectAsState()
     val busStopList by viewModel.favoriteBusStopList.collectAsState()
     val coroutineScope = rememberCoroutineScope()
@@ -43,7 +44,8 @@ fun FavoritesScreen(bottomBar: @Composable () -> Unit, viewModel: GalwayBusViewM
                 title = { androidx.compose.material3.Text("Galway Bus - Favourites") }
             )
         },
-        bottomBar = bottomBar
+        containerColor = Color.Transparent,
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) {
 
 
