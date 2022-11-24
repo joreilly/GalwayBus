@@ -52,7 +52,7 @@ android {
         }
 
         create("release") {
-            storeFile = file("/Users/joreilly/dev/keystore/galwaybus_android.jks")
+            storeFile = file("/Users/johnoreilly/dev/keystore/galwaybus_android.jks")
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
             storePassword = keystoreProperties["storePassword"] as String?

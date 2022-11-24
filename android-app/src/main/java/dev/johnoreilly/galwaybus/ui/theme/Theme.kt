@@ -1,10 +1,17 @@
 package dev.johnoreilly.galwaybus.ui.theme
 
+import android.os.Build
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 
 private val LightColors = lightColorScheme(
@@ -68,19 +75,56 @@ private val DarkColors = darkColorScheme(
     surfaceTint = md_theme_dark_surfaceTint,
 )
 
+
+/**
+ * Light Android background theme
+ */
+internal val DarkGreenGray95 = Color(0xFFF0F1EC)
+val LightAndroidBackgroundTheme = BackgroundTheme(color = DarkGreenGray95)
+
+/**
+ * Dark Android background theme
+ */
+val DarkAndroidBackgroundTheme = BackgroundTheme(color = Color.Black)
+
+
 @Composable
 fun GalwayBusTheme(
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    androidTheme: Boolean = false,
+    disableDynamicTheming: Boolean = false,
     content: @Composable() () -> Unit
 ) {
-    val colors = if (!useDarkTheme) {
-        LightColors
+
+    val colorScheme = if (androidTheme) {
+        if (darkTheme) DarkColors else LightColors
+    } else if (!disableDynamicTheming && supportsDynamicTheming()) {
+        val context = LocalContext.current
+        if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
     } else {
-        DarkColors
+        if (darkTheme) DarkColors else LightColors
     }
 
-    MaterialTheme(
-        colorScheme = colors,
-        content = content
+    val defaultBackgroundTheme = BackgroundTheme(
+        color = colorScheme.surface,
+        tonalElevation = 2.dp
     )
+    val backgroundTheme = if (androidTheme) {
+        if (darkTheme) DarkAndroidBackgroundTheme else LightAndroidBackgroundTheme
+    } else {
+        defaultBackgroundTheme
+    }
+
+    CompositionLocalProvider(
+        LocalBackgroundTheme provides backgroundTheme
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = typography,
+            content = content
+        )
+    }
 }
+
+@ChecksSdkIntAtLeast(api = Build.VERSION_CODES.S)
+private fun supportsDynamicTheming() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S

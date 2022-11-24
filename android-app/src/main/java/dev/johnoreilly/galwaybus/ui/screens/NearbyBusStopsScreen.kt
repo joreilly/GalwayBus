@@ -62,7 +62,9 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostC
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
+                title = {
+                    Text(text = stringResource(id = R.string.app_name))
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
                 ),
@@ -93,7 +95,7 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostC
 
 
                 Box(modifier = Modifier.weight(0.6f)) {
-                    when (val uiState = busStopState.value) {
+                    when (uiState) {
                         is UiState.Success -> {
                             BusStopListView(viewModel, uiState.data, favorites) {
 
@@ -116,7 +118,9 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostC
                         }
                         is UiState.Loading -> {
                             Box(
-                                    modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .wrapContentSize(Alignment.Center)
                             ) {
                                 CircularProgressIndicator()
                             }
@@ -131,6 +135,7 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostC
                     }
                 }
             }
+
         }
     }
 }
@@ -145,7 +150,9 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
     Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
 
         Text(text = busStop?.longName ?: "", style = typography.headlineSmall,
-                modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
                 textAlign = TextAlign.Center
         )
 
@@ -188,6 +195,7 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
 
     if (supportingText.isNotEmpty()) {
         ListItem(
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
             headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
             supportingText = { Text(supportingText) },
@@ -197,6 +205,7 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
         )
     } else {
         ListItem(
+            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
             headlineText = { Text(headlineText) },
             trailingContent = {
