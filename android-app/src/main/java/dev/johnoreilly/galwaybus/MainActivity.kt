@@ -54,7 +54,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.surrus.galwaybus.common.model.Location
 import dev.johnoreilly.galwaybus.ui.screens.*
+import dev.johnoreilly.galwaybus.ui.theme.GalwayBusBackground
 import dev.johnoreilly.galwaybus.ui.theme.GalwayBusTheme
+import dev.johnoreilly.galwaybus.ui.theme.LocalBackgroundTheme
 import dev.johnoreilly.galwaybus.ui.theme.maroon500
 import dev.johnoreilly.galwaybus.ui.utils.*
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
@@ -74,10 +76,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             GalwayBusTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
+                GalwayBusBackground {
                     val fusedLocationWrapper = fusedLocationWrapper()
                     val fineLocation = checkSelfPermissionState(
                         this,
@@ -183,7 +182,10 @@ fun MainLayout(windowSizeClass: WindowSizeClass,
 @Composable
 private fun GalwayBusBottomNavigation(navController: NavHostController, items: List<Screens>) {
 
-    NavigationBar {
+    NavigationBar(
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        tonalElevation = 0.dp,
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 

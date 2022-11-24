@@ -13,12 +13,12 @@ object Versions {
     const val multiplatformSettings = "1.0.0-alpha01"
     const val kmpNativeCoroutines = "0.13.1"
 
-    const val compose = "1.3.0-rc01"
+    const val compose = "1.3.1"
     const val composeCompiler = "1.3.2"
     const val navCompose = "2.5.2"
     const val accompanist = "0.26.5-rc"
     const val mapsCompose = "2.5.3"
-    const val composeMaterial3 = "1.0.0-rc01"
+    const val composeMaterial3 = "1.0.0"
 
     const val kermit = "1.0.0"
     const val ktor = "2.0.0"

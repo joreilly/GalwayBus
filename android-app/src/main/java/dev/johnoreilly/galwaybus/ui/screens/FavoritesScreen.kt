@@ -41,7 +41,10 @@ fun FavoritesScreen(viewModel: GalwayBusViewModel, navController: NavHostControl
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { androidx.compose.material3.Text("Galway Bus - Favourites") }
+                title = { androidx.compose.material3.Text("Galway Bus - Favourites") },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent
+                )
             )
         },
         containerColor = Color.Transparent,
