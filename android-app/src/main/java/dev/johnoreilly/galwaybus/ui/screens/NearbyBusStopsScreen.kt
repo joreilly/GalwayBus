@@ -63,7 +63,9 @@ fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostC
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = stringResource(id = R.string.app_name))
+                    Text(text = stringResource(id = R.string.app_name),
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold)
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent
@@ -198,7 +200,7 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
             headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
-            supportingText = { Text(supportingText) },
+            supportingText = { Text(supportingText, color = MaterialTheme.colorScheme.primary) },
             trailingContent = {
                 FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
             }

@@ -28,6 +28,7 @@ fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departu
                     .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
 
             Text(departure.timetableId, fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.width(36.dp))
 
             Text(departure.displayName, maxLines = 1, overflow = TextOverflow.Ellipsis,
