@@ -17,7 +17,7 @@ class NearbyStopsViewModel: ObservableObject {
                 
         Task {
             do {
-                let stream = asyncStream(for: repository.favoritesNative)
+                let stream = asyncSequence(for: repository.favorites)
                 for try await data in stream {
                     self.favorites = data
                     print(data)
@@ -30,7 +30,7 @@ class NearbyStopsViewModel: ObservableObject {
     
     func fetch() async {
         do {
-            let result = try await asyncFunction(for: repository.fetchNearestStopsNative(latitude: 53.2743394, longitude: -9.0514163))
+            let result = try await asyncFunction(for: repository.fetchNearestStops(latitude: 53.2743394, longitude: -9.0514163))
             if (result is ResultSuccess<NSArray>) {
                 let successResult = result as! ResultSuccess<NSArray>
                 self.listStops = successResult.data as! [BusStop]
@@ -45,7 +45,7 @@ class NearbyStopsViewModel: ObservableObject {
     func fetchDeparturees(stopRef: String) {
         Task {
             do {
-                let result = try await asyncFunction(for: repository.fetchBusStopDeparturesNative(stopRef: stopRef))
+                let result = try await asyncFunction(for: repository.fetchBusStopDepartures(stopRef: stopRef))
                 if (result is ResultSuccess<NSArray>) {
                     let successResult = result as! ResultSuccess<NSArray>
                     self.depatures = successResult.data as! [GalwayBusDeparture]
@@ -77,7 +77,7 @@ class BusRouteViewModel: ObservableObject {
     
     func fetch() async {
         do {
-            let busRoutes = try await asyncFunction(for: repository.fetchBusRoutesNative())
+            let busRoutes = try await asyncFunction(for: repository.fetchBusRoutes())
             self.listRoutes = busRoutes
         } catch {
             print("Failed with error: \(error)")

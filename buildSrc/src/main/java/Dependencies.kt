@@ -1,29 +1,26 @@
 
 object Versions {
-    const val androidMinSdk = 21
-    const val androidCompileSdk = 33
-    const val androidTargetSdk = androidCompileSdk
-
-    const val kotlin = "1.7.20"
+    const val kotlin = "1.8.0"
     const val kotlinCoroutines = "1.6.4"
-    const val kotlinxSerialization = "1.3.3"
+    const val kotlinxSerialization = "1.4.1"
+    const val ktor = "2.2.2"
     const val kotlinxDateTime = "0.4.0"
-    const val koinCore = "3.3.0"
-    const val koinAndroid = "3.3.1"
-    const val koinAndroidCompose = "3.4.0"
-    const val sqlDelight = "1.5.4"
-    const val multiplatformSettings = "1.0.0-alpha01"
-    const val kmpNativeCoroutines = "0.13.1"
+    const val koinCore = "3.3.2"
+    const val koinAndroid = "3.3.2"
+    const val koinAndroidCompose = "3.4.1"
+    const val sqlDelight = "1.5.5"
+    const val multiplatformSettings = "1.0.0"
+
+    const val kmpNativeCoroutines = "1.0.0-ALPHA-4"
 
     const val compose = "1.4.0-alpha03"
-    const val composeCompiler = "1.3.2"
+    const val composeCompiler = "1.4.0"
     const val navCompose = "2.5.2"
-    const val accompanist = "0.26.5-rc"
-    const val mapsCompose = "2.5.3"
+    const val accompanist = "0.29.0-alpha"
+    const val mapsCompose = "2.8.1"
     const val composeMaterial3 = "1.0.0"
 
     const val kermit = "1.0.0"
-    const val ktor = "2.0.0"
     const val slf4j = "1.7.30"
 
     const val junit = "4.12"
@@ -32,11 +29,16 @@ object Versions {
 }
 
 
+object AndroidSdk {
+    const val min = 21
+    const val compile = 33
+    const val target = compile
+}
+
 object Firebase {
     val core = "com.google.firebase:firebase-core:16.0.9"
     val performance = "com.google.firebase:firebase-perf:16.2.3"
 }
-
 
 
 object Deps {

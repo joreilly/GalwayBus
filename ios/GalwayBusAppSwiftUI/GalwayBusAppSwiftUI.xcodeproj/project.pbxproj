@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1A1D520028393F0600F2BB1A /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 1A1D51FF28393F0600F2BB1A /* KMPNativeCoroutinesAsync */; };
-		1A1D520228393F0600F2BB1A /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1A1D520128393F0600F2BB1A /* KMPNativeCoroutinesCore */; };
 		1A9038C62337992F00E57AC4 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9038C52337992F00E57AC4 /* MapView.swift */; };
+		1AD11A39297BF584001540C5 /* KMPNativeCoroutinesAsync in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD11A38297BF584001540C5 /* KMPNativeCoroutinesAsync */; };
+		1AD11A3B297BF584001540C5 /* KMPNativeCoroutinesCore in Frameworks */ = {isa = PBXBuildFile; productRef = 1AD11A3A297BF584001540C5 /* KMPNativeCoroutinesCore */; };
 		B214E8E922BAD6DD0041C7C8 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = B214E8E822BAD6DD0041C7C8 /* libsqlite3.tbd */; };
 		B22B4EC422A5BF1D0026DB68 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B4EC322A5BF1D0026DB68 /* AppDelegate.swift */; };
 		B22B4EC622A5BF1D0026DB68 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B22B4EC522A5BF1D0026DB68 /* SceneDelegate.swift */; };
@@ -45,8 +45,8 @@
 			files = (
 				B214E8E922BAD6DD0041C7C8 /* libsqlite3.tbd in Frameworks */,
 				E4D277E57E09FA972A967A9D /* Pods_GalwayBusAppSwiftUI.framework in Frameworks */,
-				1A1D520228393F0600F2BB1A /* KMPNativeCoroutinesCore in Frameworks */,
-				1A1D520028393F0600F2BB1A /* KMPNativeCoroutinesAsync in Frameworks */,
+				1AD11A3B297BF584001540C5 /* KMPNativeCoroutinesCore in Frameworks */,
+				1AD11A39297BF584001540C5 /* KMPNativeCoroutinesAsync in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,6 +124,7 @@
 				B22B4EBC22A5BF1D0026DB68 /* Sources */,
 				B22B4EBD22A5BF1D0026DB68 /* Frameworks */,
 				B22B4EBE22A5BF1D0026DB68 /* Resources */,
+				A289C8BAA3E3183943457E5B /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -131,8 +132,8 @@
 			);
 			name = GalwayBusAppSwiftUI;
 			packageProductDependencies = (
-				1A1D51FF28393F0600F2BB1A /* KMPNativeCoroutinesAsync */,
-				1A1D520128393F0600F2BB1A /* KMPNativeCoroutinesCore */,
+				1AD11A38297BF584001540C5 /* KMPNativeCoroutinesAsync */,
+				1AD11A3A297BF584001540C5 /* KMPNativeCoroutinesCore */,
 			);
 			productName = GalwayBusAppSwiftUI;
 			productReference = B22B4EC022A5BF1D0026DB68 /* GalwayBusAppSwiftUI.app */;
@@ -163,7 +164,7 @@
 			);
 			mainGroup = B22B4EB722A5BF1D0026DB68;
 			packageReferences = (
-				1A1D51FE28393F0600F2BB1A /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */,
+				1AD11A37297BF584001540C5 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines.git" */,
 			);
 			productRefGroup = B22B4EC122A5BF1D0026DB68 /* Products */;
 			projectDirPath = "";
@@ -208,6 +209,23 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		A289C8BAA3E3183943457E5B /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GalwayBusAppSwiftUI/Pods-GalwayBusAppSwiftUI-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -421,25 +439,25 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1A1D51FE28393F0600F2BB1A /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */ = {
+		1AD11A37297BF584001540C5 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/rickclephas/KMP-NativeCoroutines.git";
 			requirement = {
 				kind = exactVersion;
-				version = 0.12.2;
+				version = "1.0.0-ALPHA-4";
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1A1D51FF28393F0600F2BB1A /* KMPNativeCoroutinesAsync */ = {
+		1AD11A38297BF584001540C5 /* KMPNativeCoroutinesAsync */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1A1D51FE28393F0600F2BB1A /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			package = 1AD11A37297BF584001540C5 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines.git" */;
 			productName = KMPNativeCoroutinesAsync;
 		};
-		1A1D520128393F0600F2BB1A /* KMPNativeCoroutinesCore */ = {
+		1AD11A3A297BF584001540C5 /* KMPNativeCoroutinesCore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1A1D51FE28393F0600F2BB1A /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines" */;
+			package = 1AD11A37297BF584001540C5 /* XCRemoteSwiftPackageReference "KMP-NativeCoroutines.git" */;
 			productName = KMPNativeCoroutinesCore;
 		};
 /* End XCSwiftPackageProductDependency section */

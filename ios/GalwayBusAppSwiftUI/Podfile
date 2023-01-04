@@ -1,7 +1,5 @@
 use_frameworks!
 
-platform :ios, '12.2'
-
 target 'GalwayBusAppSwiftUI' do
     pod 'SharedCode', :path => '../../SharedCode'
 end
