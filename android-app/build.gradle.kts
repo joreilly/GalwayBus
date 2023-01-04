@@ -148,7 +148,9 @@ dependencies {
         implementation(material3)
         implementation(material3WindowSizeClass)
     }
-    implementation("io.github.pushpalroy:jetlime:1.0.3")
+
+    implementation(Deps.balloonCompose)
+    implementation(Deps.jetLime)
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
 
     with(Deps.PlayServices) {
@@ -157,8 +159,8 @@ dependencies {
     }
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation(project(":SharedCode"))
 }

@@ -9,23 +9,36 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.skydoves.balloon.compose.BalloonWindow
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.utils.quantityStringResource
 
 
 @Composable
-fun BusStopDeparture(departure: GalwayBusDeparture, departureSelected : (departure : GalwayBusDeparture) -> Unit) {
+fun BusStopDeparture(
+    departure: GalwayBusDeparture,
+    balloonWindow: BalloonWindow,
+    departureList: List<GalwayBusDeparture>,
+    departureSelected: (departure: GalwayBusDeparture) -> Unit
+) {
     ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
         Row(verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.clickable(onClick = { departureSelected(departure) })
-                    .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()) {
+                    .padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth()
+        ) {
+
+            LaunchedEffect(key1 = departureList) {
+                balloonWindow.showAlignBottom()
+            }
+
 
             Text(departure.timetableId, fontWeight = FontWeight.Bold,
                     modifier = Modifier.width(36.dp))

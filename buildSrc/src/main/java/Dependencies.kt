@@ -22,6 +22,9 @@ object Versions {
     const val mapsCompose = "2.5.3"
     const val composeMaterial3 = "1.0.0"
 
+    const val balloonCompose = "1.5.2"
+    const val jetLime = "1.0.3"
+
     const val kermit = "1.0.0"
     const val ktor = "2.0.0"
     const val slf4j = "1.7.30"
@@ -108,6 +111,9 @@ object Deps {
         const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
         const val kermit = "co.touchlab:kermit:${Versions.kermit}"
     }
+
+    const val balloonCompose =  "com.github.skydoves:balloon-compose:${Versions.balloonCompose}"
+    const val jetLime = "io.github.pushpalroy:jetlime:${Versions.jetLime}"
 
     const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
     const val multiplatformSettingsCoroutines = "com.russhwolf:multiplatform-settings-coroutines:${Versions.multiplatformSettings}"

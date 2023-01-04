@@ -36,6 +36,11 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import com.google.maps.android.compose.*
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.Location
@@ -147,25 +152,57 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
     val departureList by viewModel.busDepartureList.collectAsState(emptyList())
     val busStop by viewModel.currentBusStop.collectAsState()
 
+    val builder = rememberBalloonBuilder {
+        setArrowSize(18)
+        setWidthRatio(1.0f)
+        setHeight(200)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_BALLOON)
+        setArrowPosition(0.5f)
+        setPadding(12)
+        setMarginRight(12)
+        setMarginLeft(12)
+        setTextSize(15f)
+        setCornerRadius(8f)
+        setBackgroundColorResource(R.color.skyBlue)
+        setTextColorResource(R.color.white)
+        setBalloonAnimation(BalloonAnimation.ELASTIC)
+        setIsVisibleOverlay(true)
+        setDismissWhenClicked(true)
+        setPreferenceName("MyBalloon")
+    }
+
     Column(Modifier.defaultMinSize(minHeight = 200.dp)) {
 
-        Text(text = busStop?.longName ?: "", style = typography.headlineSmall,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                textAlign = TextAlign.Center
+        Text(
+            text = busStop?.longName ?: "", style = typography.headlineSmall,
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth(),
+            textAlign = TextAlign.Center
         )
 
         LazyColumn {
             items(departureList) { departure ->
-                BusStopDeparture(departure) { departure ->
 
-                    val firebaseAnalytics = Firebase.analytics
-                    firebaseAnalytics.logEvent("select_route_bus_positions") {
-                        param("route", departure.timetableId)
+                Balloon(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    builder = builder,
+                    balloonContent = {
+                        Text(text = "Click on departure to see realtime bus info",
+                            color = MaterialTheme.colorScheme.onPrimary)
                     }
+                ) { balloonWindow ->
 
-                    departureSelected(departure)
+                    BusStopDeparture(departure, balloonWindow, departureList) { departure ->
+
+//                        val firebaseAnalytics = Firebase.analytics
+//                        firebaseAnalytics.logEvent("select_route_bus_positions") {
+//                            param("route", departure.timetableId)
+//                        }
+//
+                        departureSelected(departure)
+                        //balloonWindow.showAlignBottom()
+                    }
                 }
             }
         }
@@ -175,15 +212,62 @@ fun DeparturesSheetContent(viewModel: GalwayBusViewModel, departureSelected: (de
 @Composable
 fun BusStopListView(viewModel: GalwayBusViewModel, busStopList: List<BusStop>,
                     favorites: Set<String>, stopSelected : (stop : BusStop) -> Unit) {
+
+
+//    val builder = rememberBalloonBuilder {
+//        setArrowSize(10)
+//        setWidthRatio(1.0f)
+//        setHeight(BalloonSizeSpec.WRAP)
+//        setArrowOrientation(ArrowOrientation.BOTTOM)
+//        setArrowOrientationRules(ArrowOrientationRules.ALIGN_ANCHOR)
+//        setArrowPosition(0.5f)
+//        setPadding(12)
+//        setMarginHorizontal(12)
+//        setTextSize(15f)
+//        setCornerRadius(8f)
+//        setTextColorResource(R.color.white)
+//        setBackgroundColorResource(R.color.black)
+//        setBalloonAnimation(BalloonAnimation.ELASTIC)
+//    }
+
+
+
+    val builder = rememberBalloonBuilder {
+        setArrowSize(48)
+        setWidthRatio(1.0f)
+        setHeight(BalloonSizeSpec.WRAP)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+        setArrowPosition(0.5f)
+        setPadding(12)
+        setMarginRight(12)
+        setMarginLeft(12)
+        setTextSize(15f)
+        setCornerRadius(8f)
+        setBackgroundColorResource(R.color.teal_200)
+        setIsVisibleOverlay(true)
+        setDismissWhenClicked(true)
+    }
+
     LazyColumn {
         items(busStopList) { stop ->
-            BusStopView(stop = stop,
-                    stopSelected = stopSelected,
-                    isFavorite = favorites.contains(stop.stopRef),
-                    onToggleFavorite = {
-                        viewModel.toggleFavorite(stop.stopRef)
+            Column {
+                Balloon(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    builder = builder,
+                    balloonContent = {
+                        Text(text = "Now you can edit your profile!")
                     }
-            )
+                ) { balloonWindow ->
+
+                    BusStopView(stop = stop,
+                        stopSelected = stopSelected,
+                        isFavorite = favorites.contains(stop.stopRef),
+                        onToggleFavorite = {
+                            viewModel.toggleFavorite(stop.stopRef)
+                        }
+                    )
+                }
+            }
         }
     }
 }

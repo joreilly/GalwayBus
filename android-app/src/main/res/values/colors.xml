@@ -9,6 +9,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="mapMarkerGreen">#43952A</color>
+    <color name="skyBlue">#57A8D8</color>
 
     <color name="direction1">#800000</color>
     <color name="direction2">#3F51B5</color>
