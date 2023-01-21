@@ -7,11 +7,12 @@ buildscript {
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:7.2.1")
+        classpath("com.android.tools.build:gradle:7.4.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${Versions.kotlin}")
         classpath("com.squareup.sqldelight:gradle-plugin:${Versions.sqlDelight}")
-        classpath("com.google.gms:google-services:4.3.13")
+        classpath("com.google.gms:google-services:4.3.15")
+        classpath("com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin:1.8.0-1.0.8")
         classpath("com.rickclephas.kmp:kmp-nativecoroutines-gradle-plugin:${Versions.kmpNativeCoroutines}")
     }
 }
@@ -20,6 +21,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven("https://androidx.dev/storage/compose-compiler/repository")
     }
 }
 

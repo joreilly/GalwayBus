@@ -40,7 +40,7 @@ fun versionName(): String {
 
 
 android {
-    compileSdk = Versions.androidCompileSdk
+    compileSdk = AndroidSdk.compile
 
     signingConfigs {
 
@@ -62,8 +62,8 @@ android {
 
     defaultConfig {
         applicationId = "dev.johnoreilly.galwaybus"
-        minSdk = Versions.androidMinSdk
-        targetSdk = Versions.androidTargetSdk
+        minSdk = AndroidSdk.min
+        targetSdk = AndroidSdk.target
 
         this.versionCode = versionCode()
         this.versionName = versionName()
@@ -101,7 +101,12 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
+        freeCompilerArgs += listOf(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        )
     }
+
     packagingOptions {
         resources {
             excludes += setOf("META-INF/*.kotlin_module")
