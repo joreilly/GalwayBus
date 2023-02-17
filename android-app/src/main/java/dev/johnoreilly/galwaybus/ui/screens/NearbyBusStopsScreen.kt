@@ -6,10 +6,12 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import androidx.annotation.ColorRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
@@ -27,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.navigation.NavHostController
@@ -36,6 +39,8 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import com.google.maps.android.compose.*
+import com.google.maps.android.compose.clustering.Clustering
+import com.google.maps.android.clustering.ClusterItem
 import com.surrus.galwaybus.common.model.BusStop
 import com.surrus.galwaybus.common.model.GalwayBusDeparture
 import com.surrus.galwaybus.common.model.Location
@@ -50,7 +55,7 @@ import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterialApi::class)
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "CoroutineCreationDuringComposition")
 @Composable
 fun NearestBusStopsScreen(viewModel: GalwayBusViewModel, navController: NavHostController) {
     val coroutineScope = rememberCoroutineScope()
@@ -216,6 +221,16 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
 }
 
 
+data class BusStopPositionClusterItem(
+    val itemPosition: LatLng,
+    val itemTitle: String,
+    val itemSnippet: String,
+) : ClusterItem {
+    override fun getPosition(): LatLng = itemPosition
+    override fun getTitle(): String = itemTitle
+    override fun getSnippet(): String = itemSnippet
+}
+
 @Composable
 private fun GoogleMapView(modifier: Modifier, viewModel: GalwayBusViewModel, stops: List<BusStop>) {
     val context = LocalContext.current
@@ -249,15 +264,33 @@ private fun GoogleMapView(modifier: Modifier, viewModel: GalwayBusViewModel, sto
         properties = mapProperties,
         uiSettings = uiSettings
     ) {
-        stops.forEach { stop ->
-            val latitude = stop.latitude
-            val longitude = stop.longitude
-            if (latitude != null && longitude != null) {
-                val busStopLocation = LatLng(latitude, longitude)
-                val icon = bitmapDescriptorFromVector(context, R.drawable.ic_stop, R.color.mapMarkerGreen)
-                Marker(state = MarkerState(position = busStopLocation), title = stop.shortName, icon = icon)
+
+        Clustering(
+            items = stops.map { stop ->
+                val latitude = stop.latitude
+                val longitude = stop.longitude
+                val busStopLocation = LatLng(latitude!!, longitude!!)
+                BusStopPositionClusterItem(busStopLocation, stop.shortName, "Snippet")
+            },
+            clusterContent = { cluster ->
+                Surface(
+                    Modifier.size(40.dp),
+                    shape = CircleShape,
+                    color = Color.Blue,
+                    contentColor = Color.White,
+                    border = BorderStroke(1.dp, Color.White)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            "%,d".format(cluster.size),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Black,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
             }
-        }
+        )
     }
 }
 
