@@ -149,12 +149,14 @@ dependencies {
         implementation(accompanistPlaceholder)
         implementation(accompanistSwipeRefresh)
         implementation(mapsCompose)
+        implementation(mapsComposeUtils)
 
         implementation(material3)
         implementation(material3WindowSizeClass)
     }
     implementation("io.github.pushpalroy:jetlime:1.0.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+    implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
     with(Deps.PlayServices) {
         implementation(maps)
