@@ -52,11 +52,11 @@ android {
         }
 
         create("release") {
-            storeFile = file("/Users/johnoreilly/dev/keystore/galwaybus_android.jks")
+            storeFile = file("/Users/joreilly/dev/keystore/galwaybus_android.jks")
             keyAlias = keystoreProperties["keyAlias"] as String?
             keyPassword = keystoreProperties["keyPassword"] as String?
             storePassword = keystoreProperties["storePassword"] as String?
-            isV2SigningEnabled = true
+            enableV2Signing = true
         }
     }
 
@@ -112,6 +112,8 @@ android {
             excludes += setOf("META-INF/*.kotlin_module")
         }
     }
+
+    namespace = "dev.johnoreilly.galwaybus"
 }
 
 tasks.withType<KotlinCompile> {

@@ -1,22 +1,23 @@
 
 object Versions {
-    const val kotlin = "1.8.20"
-    const val kotlinCoroutines = "1.6.4"
-    const val kotlinxSerialization = "1.4.1"
-    const val ktor = "2.2.4"
+    const val kotlin = "1.9.0-Beta"
+    const val kspPlugin = "1.9.0-Beta-1.0.11"
+    const val kotlinCoroutines = "1.7.1"
+    const val kotlinxSerialization = "1.5.1"
+    const val ktor = "2.3.0"
     const val koinCore = "3.4.0"
     const val koinAndroid = "3.4.0"
-    const val koinAndroidCompose = "3.4.3"
+    const val koinAndroidCompose = "3.4.4"
 
     const val sqlDelight = "1.5.5"
     const val kotlinxDateTime = "0.4.0"
     const val multiplatformSettings = "1.0.0"
 
-    const val kmpNativeCoroutines = "1.0.0-ALPHA-4"
+    const val kmpNativeCoroutines = "1.0.0-ALPHA-10-kotlin-1.9.0-Beta"
 
-    const val compose = "1.4.0"
-    const val composeCompiler = "1.4.5"
-    const val navCompose = "2.5.2"
+    const val compose = "1.4.3"
+    const val composeCompiler = "1.4.7-dev-k1.9.0-Beta-bb7dc8b44eb"
+    const val navCompose = "2.5.3"
     const val accompanist = "0.29.0-alpha"
     const val mapsCompose = "2.11.0"
     const val composeMaterial3 = "1.0.0"

@@ -76,4 +76,4 @@
 -dontwarn kotlin.**
 -dontwarn org.jetbrains.annotations.NotNull
 
-
+-dontwarn org.slf4j.impl.StaticLoggerBinder
