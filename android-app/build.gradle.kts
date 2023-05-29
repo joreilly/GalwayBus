@@ -99,15 +99,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += listOf(
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
-        )
-    }
-
-    packagingOptions {
+    packaging {
         resources {
             excludes += setOf("META-INF/*.kotlin_module")
         }
@@ -128,11 +120,11 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.1.5")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 
     implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.6.0")
+    implementation("androidx.activity:activity-compose:1.7.1")
 
 
     with(Deps.Koin) {
@@ -157,7 +149,7 @@ dependencies {
         implementation(material3WindowSizeClass)
     }
     implementation("io.github.pushpalroy:jetlime:1.0.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
     with(Deps.PlayServices) {
@@ -166,8 +158,8 @@ dependencies {
     }
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.3")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
     implementation(project(":SharedCode"))
 }
