@@ -30,6 +30,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    namespace = "com.surrus.galwaybus.lib"
 }
 
 
@@ -43,7 +44,7 @@ kotlin {
         iosTarget("iOS") {}
 
         macosX64("macOS")
-        android()
+        androidTarget()
         jvm()
     }
 
@@ -121,6 +122,7 @@ kotlin {
         }
 
     }
+
 }
 
 
