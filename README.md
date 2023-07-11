@@ -8,8 +8,8 @@
 ### Kotlin Multiplatform
 
 This project also acted as initial platform I used when starting to explore **Kotlin Multiplatform**
-capabilities. There's a Kotlin Multiplatform `ShareCode` module for example along with sample iOS
-and macOS apps. Also wrote a couple of posts about some of my experiences using **KMP** in the project.  
+capabilities. There's a Kotlin Multiplatform `ShareCode` module for example along with sample Android, iOS
+and macOS apps. Also wrote a number of posts about some of my experiences using **KMP** in the project.  
 
 * [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform/)
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
