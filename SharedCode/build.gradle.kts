@@ -3,7 +3,6 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("com.android.library")
-    id("org.jetbrains.kotlin.native.cocoapods")
     id("com.squareup.sqldelight")
     id("com.google.devtools.ksp")
     id("com.rickclephas.kmp.nativecoroutines")
@@ -13,12 +12,12 @@ plugins {
 version = "1.0"
 
 
-tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.time.ExperimentalTime", "-Xobjc-generics")
-    }
-}
+//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+//    kotlinOptions {
+//        jvmTarget = "1.8"
+//        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.time.ExperimentalTime", "-Xobjc-generics")
+//    }
+//}
 
 
 android {
@@ -29,6 +28,10 @@ android {
         targetSdk = AndroidSdk.target
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     namespace = "com.surrus.galwaybus.lib"
 }
@@ -41,19 +44,22 @@ kotlin {
             System.getenv("NATIVE_ARCH")?.startsWith("arm") == true -> ::iosSimulatorArm64 // available to KT 1.5.30
             else -> ::iosX64
         }
-        iosTarget("iOS") {}
+        iosTarget("iOS") {
+            binaries.framework {
+                baseName = "SharedCode"
+
+                // re. https://youtrack.jetbrains.com/issue/KT-60230/Native-unknown-options-iossimulatorversionmin-sdkversion-with-Xcode-15-beta-3
+                // due to be fixed in Kotlin 1.9.10
+                if (System.getenv("XCODE_VERSION_MAJOR") == "1500") {
+                    linkerOpts += "-ld64"
+                }
+            }
+        }
 
         macosX64("macOS")
         androidTarget()
         jvm()
     }
-
-    cocoapods {
-        // Configure fields required by CocoaPods.
-        summary = "Some description for a Kotlin/Native module"
-        homepage = "Link to a Kotlin/Native module homepage"
-    }
-
 
     sourceSets {
         val commonMain by getting {
@@ -143,5 +149,9 @@ sqldelight {
 
 kotlin.sourceSets.all {
     languageSettings.optIn("kotlin.experimental.ExperimentalObjCName")
+}
+
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "17"
 }
 

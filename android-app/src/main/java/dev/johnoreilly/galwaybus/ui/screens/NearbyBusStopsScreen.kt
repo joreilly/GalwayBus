@@ -202,8 +202,8 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
         ListItem(
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
-            headlineText = { Text(headlineText, fontWeight = FontWeight.Bold) },
-            supportingText = { Text(supportingText) },
+            headlineContent = { Text(headlineText, fontWeight = FontWeight.Bold) },
+            supportingContent = { Text(supportingText) },
             trailingContent = {
                 FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
             }
@@ -212,7 +212,7 @@ fun BusStopView(stop: BusStop, stopSelected : (stop : BusStop) -> Unit, isFavori
         ListItem(
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             modifier = Modifier.clickable(onClick = { stopSelected(stop) }),
-            headlineText = { Text(headlineText) },
+            headlineContent = { Text(headlineText) },
             trailingContent = {
                 FavoritesButton(isFavorite = isFavorite, onClick = onToggleFavorite)
             }
