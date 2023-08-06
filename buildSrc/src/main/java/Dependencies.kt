@@ -1,7 +1,7 @@
 
 object Versions {
     const val kotlin = "1.9.0"
-    const val kspPlugin = "1.9.0-1.0.12"
+    const val kspPlugin = "1.9.0-1.0.13"
     const val kotlinCoroutines = "1.7.3"
     const val kotlinxSerialization = "1.5.1"
     const val ktor = "2.3.2"
@@ -9,7 +9,7 @@ object Versions {
     const val koinAndroid = "3.4.3"
     const val koinAndroidCompose = "3.4.6"
 
-    const val sqlDelight = "1.5.5"
+    const val sqlDelight = "2.0.0"
     const val kotlinxDateTime = "0.4.0"
     const val multiplatformSettings = "1.0.0"
 
@@ -101,12 +101,12 @@ object Deps {
     }
 
     object SqlDelight {
-        const val runtime = "com.squareup.sqldelight:runtime:${Versions.sqlDelight}"
-        const val coroutineExtensions = "com.squareup.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
-        const val androidDriver = "com.squareup.sqldelight:android-driver:${Versions.sqlDelight}"
-        const val nativeDriver = "com.squareup.sqldelight:native-driver:${Versions.sqlDelight}"
-        const val nativeDriverMacos = "com.squareup.sqldelight:native-driver-macosx64:${Versions.sqlDelight}"
-        const val sqliteDriver = "com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}"
+        const val runtime = "app.cash.sqldelight:runtime:${Versions.sqlDelight}"
+        const val coroutineExtensions = "app.cash.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
+        const val androidDriver = "app.cash.sqldelight:android-driver:${Versions.sqlDelight}"
+        const val nativeDriver = "app.cash.sqldelight:native-driver:${Versions.sqlDelight}"
+        const val nativeDriverMacos = "app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}"
+        const val sqliteDriver = "app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}"
     }
 
     object Log {

@@ -1,8 +1,8 @@
 package com.surrus.galwaybus.common.di
 
+import app.cash.sqldelight.driver.native.NativeSqliteDriver
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.ObservableSettings
-import com.squareup.sqldelight.drivers.native.NativeSqliteDriver
 import com.surrus.galwaybus.db.MyDatabase
 import org.koin.dsl.module
 import platform.Foundation.NSUserDefaults

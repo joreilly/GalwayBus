@@ -3,7 +3,7 @@ plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
     id("com.android.library")
-    id("com.squareup.sqldelight")
+    id("app.cash.sqldelight")
     id("com.google.devtools.ksp")
     id("com.rickclephas.kmp.nativecoroutines")
 }
@@ -100,21 +100,21 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-android:${Versions.ktor}")
-                implementation("com.squareup.sqldelight:android-driver:${Versions.sqlDelight}")
+                implementation("app.cash.sqldelight:android-driver:${Versions.sqlDelight}")
             }
         }
 
         val iOSMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
-                implementation("com.squareup.sqldelight:native-driver:${Versions.sqlDelight}")
+                implementation("app.cash.sqldelight:native-driver:${Versions.sqlDelight}")
             }
         }
 
         val macOSMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
-                implementation("com.squareup.sqldelight:native-driver-macosx64:${Versions.sqlDelight}")
+                implementation("app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}")
                 }
         }
 
@@ -123,7 +123,7 @@ kotlin {
             dependencies {
                 implementation(Deps.Ktor.clientJava)
                 //implementation(Ktor.slf4j)
-                implementation("com.squareup.sqldelight:sqlite-driver:${Versions.sqlDelight}")
+                implementation("app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}")
             }
         }
 
@@ -141,9 +141,11 @@ kotlin {
 }
 
 sqldelight {
-    database("MyDatabase") {
-        packageName = "com.surrus.galwaybus.db"
-        sourceFolders = listOf("sqldelight")
+    databases {
+        create("MyDatabase") {
+            packageName.set("com.surrus.galwaybus.db")
+            //sourceFolders = listOf("sqldelight")
+        }
     }
 }
 

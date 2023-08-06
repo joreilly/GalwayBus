@@ -1,9 +1,9 @@
 package com.surrus.galwaybus.common.di
 
 import android.content.Context
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.SharedPreferencesSettings
-import com.squareup.sqldelight.android.AndroidSqliteDriver
 import com.surrus.galwaybus.db.MyDatabase
 import org.koin.dsl.module
 

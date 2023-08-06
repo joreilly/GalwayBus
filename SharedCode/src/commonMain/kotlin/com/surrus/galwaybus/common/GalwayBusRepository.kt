@@ -1,16 +1,17 @@
 package com.surrus.galwaybus.common
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import co.touchlab.kermit.Logger
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutineScope
 import com.rickclephas.kmp.nativecoroutines.NativeCoroutines
-import com.squareup.sqldelight.runtime.coroutines.asFlow
-import com.squareup.sqldelight.runtime.coroutines.mapToList
 import com.surrus.galwaybus.common.model.*
 import com.surrus.galwaybus.common.remote.CityBikesApi
 import com.surrus.galwaybus.common.remote.GalwayBusApi
 import com.surrus.galwaybus.common.remote.Station
 import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.combine
 import kotlinx.datetime.Clock
@@ -34,7 +35,7 @@ open class GalwayBusRepository : KoinComponent {
 
     val busStops = galwayBusQueries.selectAll(mapper = { stop_id, stop_ref, short_name, long_name, latitude, longitude ->
         BusStop(stop_id, short_name, long_name, stop_ref, latitude = latitude, longitude = longitude)
-    }).asFlow().mapToList()
+    }).asFlow().mapToList(Dispatchers.Default)
 
     @NativeCoroutines
     val favorites = appSettings.favorites
