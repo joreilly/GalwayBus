@@ -12,14 +12,6 @@ plugins {
 version = "1.0"
 
 
-//tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-//    kotlinOptions {
-//        jvmTarget = "1.8"
-//        freeCompilerArgs = listOf("-Xuse-experimental=kotlin.time.ExperimentalTime", "-Xobjc-generics")
-//    }
-//}
-
-
 android {
     compileSdk = AndroidSdk.compile
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
@@ -47,12 +39,6 @@ kotlin {
         iosTarget("iOS") {
             binaries.framework {
                 baseName = "SharedCode"
-
-                // re. https://youtrack.jetbrains.com/issue/KT-60230/Native-unknown-options-iossimulatorversionmin-sdkversion-with-Xcode-15-beta-3
-                // due to be fixed in Kotlin 1.9.10
-                if (System.getenv("XCODE_VERSION_MAJOR") == "1500") {
-                    linkerOpts += "-ld64"
-                }
             }
         }
 

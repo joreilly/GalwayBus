@@ -1,7 +1,7 @@
 
 object Versions {
-    const val kotlin = "1.9.0"
-    const val kspPlugin = "1.9.0-1.0.13"
+    const val kotlin = "1.9.10"
+    const val kspPlugin = "1.9.10-1.0.13"
     const val kotlinCoroutines = "1.7.3"
     const val kotlinxSerialization = "1.5.1"
     const val ktor = "2.3.2"
@@ -16,8 +16,8 @@ object Versions {
     const val kmpNativeCoroutines = "1.0.0-ALPHA-13"
 
     const val compose = "1.4.3"
-    const val composeCompiler = "1.5.1"
-    const val navCompose = "2.5.3"
+    const val composeCompiler = "1.5.3-dev-k1.9.10-593b4c95fce"
+    const val navCompose = "2.7.1"
     const val accompanist = "0.29.0-alpha"
     const val mapsCompose = "2.11.0"
     const val composeMaterial3 = "1.1.1"
