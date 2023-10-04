@@ -1,4 +1,6 @@
 
+@file:Suppress("OPT_IN_USAGE")
+
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
@@ -30,25 +32,24 @@ android {
 
 
 kotlin {
-    targets {
-        val iosTarget: (String, org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget.() -> Unit) -> org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget = when {
-            System.getenv("SDK_NAME")?.startsWith("iphoneos") == true -> ::iosArm64
-            System.getenv("NATIVE_ARCH")?.startsWith("arm") == true -> ::iosSimulatorArm64 // available to KT 1.5.30
-            else -> ::iosX64
-        }
-        iosTarget("iOS") {
-            binaries.framework {
-                baseName = "SharedCode"
-            }
-        }
+    targetHierarchy.default()
 
-        macosX64("macOS")
-        androidTarget()
-        jvm()
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
+            baseName = "SharedCode"
+        }
     }
 
+    macosX64("macOS")
+    androidTarget()
+    jvm()
+
     sourceSets {
-        val commonMain by getting {
+        commonMain {
             dependencies {
                 with(Deps.Kotlinx) {
                     implementation(Deps.Kotlinx.coroutinesCore)
@@ -90,14 +91,14 @@ kotlin {
             }
         }
 
-        val iOSMain by getting {
+        val iosMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
                 implementation("app.cash.sqldelight:native-driver:${Versions.sqlDelight}")
             }
         }
 
-        val macOSMain by getting {
+        val macosMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
                 implementation("app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}")
