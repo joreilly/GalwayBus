@@ -1,3 +1,2 @@
-rootProject.name = "galway-bus-android"
-
-include(":android-app", ":SharedCode")
+include(":android-app")
+include(":SharedCode")

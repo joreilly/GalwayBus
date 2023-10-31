@@ -19,7 +19,6 @@ android {
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = AndroidSdk.min
-        targetSdk = AndroidSdk.target
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -32,7 +31,7 @@ android {
 
 
 kotlin {
-    targetHierarchy.default()
+    applyDefaultHierarchyTemplate()
 
     listOf(
         iosX64(),
@@ -44,7 +43,7 @@ kotlin {
         }
     }
 
-    macosX64("macOS")
+    macosX64("macos")
     androidTarget()
     jvm()
 
@@ -84,38 +83,35 @@ kotlin {
             }
         }
 
-        val androidMain by getting {
+        androidMain {
             dependencies {
                 implementation("io.ktor:ktor-client-android:${Versions.ktor}")
                 implementation("app.cash.sqldelight:android-driver:${Versions.sqlDelight}")
             }
         }
 
-        val iosMain by getting {
+        iosMain {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
                 implementation("app.cash.sqldelight:native-driver:${Versions.sqlDelight}")
             }
         }
 
-        val macosMain by getting {
+        macosMain {
             dependencies {
                 implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
                 implementation("app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}")
                 }
         }
 
-
-        val jvmMain by getting {
+        jvmMain {
             dependencies {
                 implementation(Deps.Ktor.clientJava)
                 //implementation(Ktor.slf4j)
                 implementation("app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}")
             }
         }
-
     }
-
 }
 
 
@@ -131,7 +127,6 @@ sqldelight {
     databases {
         create("MyDatabase") {
             packageName.set("com.surrus.galwaybus.db")
-            //sourceFolders = listOf("sqldelight")
         }
     }
 }
