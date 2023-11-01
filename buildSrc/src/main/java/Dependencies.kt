@@ -13,7 +13,7 @@ object Versions {
     const val kotlinxDateTime = "0.4.0"
     const val multiplatformSettings = "1.0.0"
 
-    const val kmpNativeCoroutines = "1.0.0-ALPHA-13"
+    const val kmpNativeCoroutines = "1.0.0-ALPHA-19"
 
     const val compose = "1.4.3"
     const val composeCompiler = "1.5.4-dev-k1.9.20-50f08dfa4b4"
