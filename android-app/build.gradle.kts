@@ -139,7 +139,11 @@ dependencies {
         implementation(material3)
         implementation(material3WindowSizeClass)
     }
-    implementation("io.github.pushpalroy:jetlime:1.0.3")
+    implementation("io.github.pushpalroy:jetlime:2.0.1")
+
+    // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
+    // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4157
+    implementation("androidx.compose.material3:material3-android:1.2.0-beta02")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
