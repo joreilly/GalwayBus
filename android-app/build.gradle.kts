@@ -3,9 +3,9 @@ import java.io.FileInputStream
 import java.util.*
 
 plugins {
-    id("com.android.application")
+    alias(libs.plugins.android.application)
     kotlin("android")
-    id("com.google.gms.google-services")
+    alias(libs.plugins.googleServices)
 }
 
 
@@ -40,7 +40,7 @@ fun versionName(): String {
 
 
 android {
-    compileSdk = AndroidSdk.compile
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     signingConfigs {
 
@@ -62,8 +62,8 @@ android {
 
     defaultConfig {
         applicationId = "dev.johnoreilly.galwaybus"
-        minSdk = AndroidSdk.min
-        targetSdk = AndroidSdk.target
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
 
         this.versionCode = versionCode()
         this.versionName = versionName()
@@ -79,7 +79,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = Versions.composeCompiler
+        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
     }
 
 
@@ -117,28 +117,29 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("androidx.activity:activity-compose:1.7.2")
 
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.foundation.layout)
+    implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.runtime)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.iconsExtended)
+    implementation(libs.androidx.compose.material3.windowSizeClass)
 
-    with(Deps.Koin) {
-        implementation(core)
-        implementation(android)
-    }
+    implementation("com.google.maps.android:maps-compose:2.11.0")
+    implementation("com.google.maps.android:maps-compose-utils:2.11.0")
 
-    with(Deps.Compose) {
-        implementation(ui)
-        implementation(uiGraphics)
-        implementation(uiTooling)
-        implementation(foundationLayout)
-        implementation(material)
-        implementation(materialIconsExtended)
-        implementation(navigation)
-        implementation(accompanistPlaceholder)
-        implementation(accompanistSwipeRefresh)
-        implementation(mapsCompose)
-        implementation(mapsComposeUtils)
+    implementation(libs.accompanist.swiperefresh)
 
-        implementation(material3)
-        implementation(material3WindowSizeClass)
-    }
+
+
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+
     implementation("io.github.pushpalroy:jetlime:2.0.1")
 
     // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
@@ -147,10 +148,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
-    with(Deps.PlayServices) {
-        implementation(maps)
-        implementation(location)
-    }
+    implementation("com.google.android.gms:play-services-location:16.0.0")
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

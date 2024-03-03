@@ -15,10 +15,10 @@ version = "1.0"
 
 
 android {
-    compileSdk = AndroidSdk.compile
+    compileSdk = libs.versions.compileSdk.get().toInt()
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdk = AndroidSdk.min
+        minSdk = libs.versions.minSdk.get().toInt()
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -50,65 +50,48 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                with(Deps.Kotlinx) {
-                    implementation(Deps.Kotlinx.coroutinesCore)
-                    implementation(serializationCore)
-                    implementation(dateTime)
-                }
+                implementation(libs.bundles.ktor.common)
+                implementation(libs.kotlinx.coroutines)
+                implementation(libs.kotlinx.serialization)
+                implementation(libs.kotlinx.datetime)
 
-                with(Deps.Ktor) {
-                    implementation(clientCore)
-                    implementation(clientJson)
-                    implementation(clientLogging)
-                    implementation(contentNegotiation)
-                    implementation(json)
-                }
+                implementation(libs.sqldelight.runtime)
+                implementation(libs.sqldelight.coroutines.extensions)
 
-                with(Deps.SqlDelight) {
-                    implementation(runtime)
-                    implementation(coroutineExtensions)
-                }
+                api(libs.koin.core)
+                implementation(libs.koin.test)
 
-                with(Deps.Koin) {
-                    api(core)
-                    api(test)
-                }
-
-                with(Deps.Log) {
-                    api(kermit)
-                }
-
-                api(Deps.multiplatformSettings)
-                api(Deps.multiplatformSettingsCoroutines)
+                api(libs.kermit)
+                api(libs.bundles.multiplatformSettings)
             }
         }
 
         androidMain {
             dependencies {
-                implementation("io.ktor:ktor-client-android:${Versions.ktor}")
-                implementation("app.cash.sqldelight:android-driver:${Versions.sqlDelight}")
+                implementation(libs.ktor.client.android)
+                implementation(libs.sqldelight.android.driver)
             }
         }
 
         iosMain {
             dependencies {
-                implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
-                implementation("app.cash.sqldelight:native-driver:${Versions.sqlDelight}")
+                implementation(libs.ktor.client.darwin)
+                implementation(libs.sqldelight.native.driver)
             }
         }
 
         macosMain {
             dependencies {
-                implementation("io.ktor:ktor-client-ios:${Versions.ktor}")
-                implementation("app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}")
-                }
+                implementation(libs.ktor.client.darwin)
+                implementation(libs.sqldelight.native.driver)
+            }
         }
 
         jvmMain {
             dependencies {
-                implementation(Deps.Ktor.clientJava)
-                //implementation(Ktor.slf4j)
-                implementation("app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}")
+                implementation(libs.ktor.client.java)
+                implementation(libs.sqldelight.sqlite.driver)
+                implementation(libs.slf4j)
             }
         }
     }

@@ -6,7 +6,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +22,7 @@ import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusInfoScreen(viewModel: GalwayBusViewModel,
                   popBack: () -> Unit, onBusSelected: (String) -> Unit) {
@@ -35,7 +36,7 @@ fun BusInfoScreen(viewModel: GalwayBusViewModel,
             title = { Text(routeId ?: "") },
             navigationIcon = {
                 IconButton(onClick = { popBack() }) {
-                    Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         )},

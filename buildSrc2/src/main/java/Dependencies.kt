@@ -1,41 +1,38 @@
 
 object Versions {
-    const val kotlin = "1.9.21"
-    const val kspPlugin = "1.9.21-1.0.15"
-    const val kotlinCoroutines = "1.8.0-RC"
-    const val kotlinxSerialization = "1.5.1"
-    const val ktor = "2.3.6"
+    //const val kotlinCoroutines = "1.8.0-RC"
+    //const val kotlinxSerialization = "1.5.1"
+    //const val ktor = "2.3.6"
     const val koinCore = "3.5.0"
     const val koinAndroid = "3.5.0"
     const val koinAndroidCompose = "3.5.0"
 
-    const val sqlDelight = "2.0.0"
-    const val kotlinxDateTime = "0.5.0"
+    //const val sqlDelight = "2.0.0"
+    //const val kotlinxDateTime = "0.5.0"
     const val multiplatformSettings = "1.1.1"
 
     const val kmpNativeCoroutines = "1.0.0-ALPHA-21"
 
     const val compose = "1.5.3"
-    const val composeCompiler = "1.5.5-dev-k1.9.21-163bb051fe5"
     const val navCompose = "2.7.1"
     const val accompanist = "0.29.0-alpha"
     const val mapsCompose = "2.11.0"
     const val composeMaterial3 = "1.1.1"
 
-    const val kermit = "1.0.0"
-    const val slf4j = "1.7.30"
+    //const val kermit = "1.0.0"
+    //const val slf4j = "1.7.30"
 
-    const val junit = "4.12"
-    const val mockito = "2.27.0"
-    const val robolectric = "3.6.1"
+//    const val junit = "4.12"
+//    const val mockito = "2.27.0"
+//    const val robolectric = "3.6.1"
 }
 
 
-object AndroidSdk {
-    const val min = 21
-    const val compile = 34
-    const val target = compile
-}
+//object AndroidSdk {
+//    const val min = 21
+//    const val compile = 34
+//    const val target = compile
+//}
 
 object Firebase {
     val core = "com.google.firebase:firebase-core:16.0.9"
@@ -45,20 +42,19 @@ object Firebase {
 
 object Deps {
 
-    object Kotlinx {
-        const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
-        const val serializationCore = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.kotlinxSerialization}"
-        const val dateTime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}"
-    }
+//    object Kotlinx {
+//        const val coroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.kotlinCoroutines}"
+//        const val serializationCore = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.kotlinxSerialization}"
+//        const val dateTime = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.kotlinxDateTime}"
+//    }
 
-    object Test {
-        const val junit = "junit:junit:${Versions.junit}"
-        const val mockito = "org.mockito:mockito-inline:${Versions.mockito}"
-        const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
-    }
+//    object Test {
+//        const val junit = "junit:junit:${Versions.junit}"
+//        const val mockito = "org.mockito:mockito-inline:${Versions.mockito}"
+//        const val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
+//    }
 
     object Compose {
-        const val compiler = "androidx.compose.compiler:compiler:${Versions.composeCompiler}"
         const val ui = "androidx.compose.ui:ui:${Versions.compose}"
         const val uiGraphics = "androidx.compose.ui:ui-graphics:${Versions.compose}"
         const val uiTooling = "androidx.compose.ui:ui-tooling:${Versions.compose}"
@@ -88,30 +84,30 @@ object Deps {
         const val compose = "io.insert-koin:koin-androidx-compose:${Versions.koinAndroidCompose}"
     }
 
-    object Ktor {
-        const val serverCore = "io.ktor:ktor-server-core:${Versions.ktor}"
-        const val contentNegotiation = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
-        const val json = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
+//    object Ktor {
+//        const val serverCore = "io.ktor:ktor-server-core:${Versions.ktor}"
+//        const val contentNegotiation = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
+//        const val json = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
+//
+//        const val clientCore = "io.ktor:ktor-client-core:${Versions.ktor}"
+//        const val clientJson = "io.ktor:ktor-client-json:${Versions.ktor}"
+//        const val clientLogging = "io.ktor:ktor-client-logging:${Versions.ktor}"
+//        const val clientIos = "io.ktor:ktor-client-ios:${Versions.ktor}"
+//        const val clientJava = "io.ktor:ktor-client-java:${Versions.ktor}"
+//    }
 
-        const val clientCore = "io.ktor:ktor-client-core:${Versions.ktor}"
-        const val clientJson = "io.ktor:ktor-client-json:${Versions.ktor}"
-        const val clientLogging = "io.ktor:ktor-client-logging:${Versions.ktor}"
-        const val clientIos = "io.ktor:ktor-client-ios:${Versions.ktor}"
-        const val clientJava = "io.ktor:ktor-client-java:${Versions.ktor}"
-    }
-
-    object SqlDelight {
-        const val runtime = "app.cash.sqldelight:runtime:${Versions.sqlDelight}"
-        const val coroutineExtensions = "app.cash.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
-        const val androidDriver = "app.cash.sqldelight:android-driver:${Versions.sqlDelight}"
-        const val nativeDriver = "app.cash.sqldelight:native-driver:${Versions.sqlDelight}"
-        const val nativeDriverMacos = "app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}"
-        const val sqliteDriver = "app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}"
-    }
+//    object SqlDelight {
+//        const val runtime = "app.cash.sqldelight:runtime:${Versions.sqlDelight}"
+//        const val coroutineExtensions = "app.cash.sqldelight:coroutines-extensions:${Versions.sqlDelight}"
+//        const val androidDriver = "app.cash.sqldelight:android-driver:${Versions.sqlDelight}"
+//        const val nativeDriver = "app.cash.sqldelight:native-driver:${Versions.sqlDelight}"
+//        const val nativeDriverMacos = "app.cash.sqldelight:native-driver-macosx64:${Versions.sqlDelight}"
+//        const val sqliteDriver = "app.cash.sqldelight:sqlite-driver:${Versions.sqlDelight}"
+//    }
 
     object Log {
-        const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
-        const val kermit = "co.touchlab:kermit:${Versions.kermit}"
+        //const val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+        //const val kermit = "co.touchlab:kermit:${Versions.kermit}"
     }
 
     const val multiplatformSettings = "com.russhwolf:multiplatform-settings:${Versions.multiplatformSettings}"
