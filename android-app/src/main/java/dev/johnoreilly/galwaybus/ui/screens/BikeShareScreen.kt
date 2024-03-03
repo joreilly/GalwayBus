@@ -1,11 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package dev.johnoreilly.galwaybus.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -34,10 +30,9 @@ import dev.johnoreilly.galwaybus.R
 import dev.johnoreilly.galwaybus.ui.theme.highAvailabilityColor
 import dev.johnoreilly.galwaybus.ui.theme.lowAvailabilityColor
 import dev.johnoreilly.galwaybus.ui.viewmodel.GalwayBusViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BikeShareScreen(viewModel: GalwayBusViewModel) {
     val stationsState by viewModel.stations.collectAsState()
