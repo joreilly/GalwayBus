@@ -111,11 +111,11 @@ android {
 
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
-    implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.8.2")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
@@ -129,8 +129,8 @@ dependencies {
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.compose.material3.windowSizeClass)
 
-    implementation("com.google.maps.android:maps-compose:2.11.0")
-    implementation("com.google.maps.android:maps-compose-utils:2.11.0")
+    implementation("com.google.maps.android:maps-compose:4.3.3")
+    implementation("com.google.maps.android:maps-compose-utils:4.3.3")
 
     implementation(libs.accompanist.swiperefresh)
 
@@ -140,16 +140,16 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    implementation("io.github.pushpalroy:jetlime:2.0.1")
+    implementation("io.github.pushpalroy:jetlime:2.1.1")
 
     // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
     // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4157
-    implementation("androidx.compose.material3:material3-android:1.2.0-beta02")
+    implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
-    implementation("com.google.maps.android:android-maps-utils:2.3.0")
+    implementation("com.google.maps.android:android-maps-utils:3.8.2")
 
-    implementation("com.google.android.gms:play-services-location:16.0.0")
-    implementation("com.google.android.gms:play-services-maps:18.0.2")
+    implementation("com.google.android.gms:play-services-location:21.2.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
