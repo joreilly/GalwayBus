@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.android.application)
     kotlin("android")
     alias(libs.plugins.googleServices)
+    alias(libs.plugins.compose.compiler)
 }
 
 
@@ -78,11 +79,6 @@ android {
         compose = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.androidxComposeCompiler.get()
-    }
-
-
     buildTypes {
         getByName("release") {
             isShrinkResources = true
@@ -144,7 +140,7 @@ dependencies {
 
     // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
     // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4157
-    implementation("androidx.compose.material3:material3-android:1.2.0-beta02")
+    implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
