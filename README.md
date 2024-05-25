@@ -1,6 +1,6 @@
 ### Galway Bus Kotlin Multiplatform project using Jetpack Compose and SwiftUI
 
-![kotlin-version](https://img.shields.io/badge/kotlin-1.9.20-blue)
+![kotlin-version](https://img.shields.io/badge/kotlin-2.0.0-blue?logo=kotlin)
 
 **Note**: if you are trying this project out and aren't in Galway then hit the home icon in title bar to center in Galway so you can see meaningful data!
 
@@ -15,16 +15,6 @@ and macOS apps. Also wrote a number of posts about some of my experiences using 
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
 * [Using Google Maps in a Jetpack Compose app - Part 2!](https://johnoreilly.dev/posts/jetpack-compose-google-maps-part2/)
-
-Also have following Kotlin Multiplatform/Jetpack Compose/SwiftUI samples.
-
-* [PeopleInSpace](https://github.com/joreilly/PeopleInSpace)
-* [BikeShare](https://github.com/joreilly/BikeShare)
-* [MortyComposeKMM](https://github.com/joreilly/MortyComposeKMM)
-* [FantasyPremierLeague](https://github.com/joreilly/FantasyPremierLeague)
-* [StarWars](https://github.com/joreilly/StarWars)
-* [Confetti](https://github.com/joreilly/Confetti)
-* [Chip-8](https://github.com/joreilly/chip-8)
 
 
 ### Google Maps SDK
@@ -60,3 +50,17 @@ you can update where this is read in `build.gradle`
 * [KMP-NativeCoroutines](https://github.com/rickclephas/KMP-NativeCoroutines)
 * [Multiplatform Settings](https://github.com/russhwolf/multiplatform-settings)
 
+
+## Full set of Kotlin Multiplatform/Compose/SwiftUI samples
+
+*  PeopleInSpace (https://github.com/joreilly/PeopleInSpace)
+*  GalwayBus (https://github.com/joreilly/GalwayBus)
+*  Confetti (https://github.com/joreilly/Confetti)
+*  BikeShare (https://github.com/joreilly/BikeShare)
+*  FantasyPremierLeague (https://github.com/joreilly/FantasyPremierLeague)
+*  ClimateTrace (https://github.com/joreilly/ClimateTraceKMP)
+*  GeminiKMP (https://github.com/joreilly/GeminiKMP)
+*  MortyComposeKMM (https://github.com/joreilly/MortyComposeKMM)
+*  StarWars (https://github.com/joreilly/StarWars)
+*  WordMasterKMP (https://github.com/joreilly/WordMasterKMP)
+*  Chip-8 (https://github.com/joreilly/chip-8)
