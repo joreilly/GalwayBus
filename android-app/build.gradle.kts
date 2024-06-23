@@ -154,3 +154,8 @@ dependencies {
     implementation(project(":SharedCode"))
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}

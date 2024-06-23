@@ -41,8 +41,8 @@ open class GalwayBusRepository : KoinComponent {
     val favorites = appSettings.favorites
 
     val favoriteBusStopList = busStops.combine(favorites) { busStops, favorites ->
-        Logger.i { "getBusStopsFlow().combine, favorites = $favorites, busStops size = ${busStops.size}" }
-        favorites.map { favorite -> busStops.firstOrNull { it.stop_id == favorite } }.filterNotNull()
+        Logger.i { "favoriteBusStopList, favorites = $favorites, busStops size = ${busStops.size}" }
+        favorites.map { favorite -> busStops.firstOrNull { it.stopRef == favorite } }.filterNotNull()
     }
 
     suspend fun fetchAndStoreBusStops() {
