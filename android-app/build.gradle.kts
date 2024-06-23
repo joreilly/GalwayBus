@@ -125,8 +125,8 @@ dependencies {
     implementation(libs.androidx.compose.material.iconsExtended)
     implementation(libs.androidx.compose.material3.windowSizeClass)
 
-    implementation("com.google.maps.android:maps-compose:2.11.0")
-    implementation("com.google.maps.android:maps-compose-utils:2.11.0")
+    implementation(libs.googleMapsCompose)
+    implementation(libs.googleMapsComposeUtils)
 
     implementation(libs.accompanist.swiperefresh)
 
