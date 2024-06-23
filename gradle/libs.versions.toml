@@ -23,10 +23,10 @@ jbComposeCompiler = "1.5.4"
 androidxComposeBom = "2024.06.00"
 androidxNavigationCompose = "2.7.7"
 uiToolingPreview = "1.6.8"
-wearCompose = "1.3.1"
 androidxLifecycle = "2.8.2"
 imageLoader = "1.7.8"
 osmdroidAndroid = "6.1.18"
+googleMapsCompose = "5.0.3"
 
 composeMultiplatform = "1.6.11"
 accompanist = "0.32.0"
@@ -44,9 +44,7 @@ multiplatformSettings = "1.1.1"
 kermit = "2.0.3"
 
 minSdk = "24"
-minWearSdk = "26"
 targetSdk = "34"
-targetWearSdk = "33"
 compileSdk = "34"
 coreKtx = "1.13.1"
 espressoCore = "3.5.1"
@@ -66,7 +64,6 @@ kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-seria
 
 androidx-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "uiToolingPreview" }
 androidx-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
-wear-ui-tooling = { module = "androidx.wear.compose:compose-ui-tooling", version.ref = "composeUiTooling" }
 
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidxActivity" }
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "androidxComposeBom" }
@@ -79,7 +76,7 @@ androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
-androidx-compose-material3-WindowSizeClass = { group = "androidx.compose.material3", name = "material3-window-size-class" }
+androidx-compose-material3-windowSizeClass = { group = "androidx.compose.material3", name = "material3-window-size-class" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "androidxNavigationCompose" }
 androidx-lifecycle-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycle" }
@@ -91,10 +88,8 @@ metrics = "androidx.metrics:metrics-performance:1.0.0-beta01"
 
 imageLoader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoader" }
 osmdroidAndroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
-
-wear-compose-founndation = { module = "androidx.wear.compose:compose-foundation", version.ref = "wearCompose" }
-wear-compose-material = { module = "androidx.wear.compose:compose-material", version.ref = "wearCompose" }
-wear-compose-navigation = { module = "androidx.wear.compose:compose-navigation", version.ref = "wearCompose" }
+googleMapsCompose = { module = "com.google.maps.android:maps-compose", version.ref = "googleMapsCompose" }
+googleMapsComposeUtils = { module = "com.google.maps.android:maps-compose-utils", version.ref = "googleMapsCompose" }
 
 coilCompose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coilCompose" }
 accompanist-swiperefresh = { group = "com.google.accompanist", name = "accompanist-swiperefresh", version.ref = "accompanist" }

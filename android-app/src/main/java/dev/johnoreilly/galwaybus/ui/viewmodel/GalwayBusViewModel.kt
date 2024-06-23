@@ -114,14 +114,14 @@ class GalwayBusViewModel(
         }
     }
 
-    fun pollBusInfoForRoute(routeId: String): Flow<List<Bus>> = flow {
+    private fun pollBusInfoForRoute(routeId: String): Flow<List<Bus>> = flow {
         if (routeId.isNotEmpty()) {
             emit(emptyList())
             while (true) {
                 val result = repository.fetchBusListForRoute(routeId)
                 if (result is Result.Success) {
                     Logger.d { result.data.toString() }
-                    emit(result.data)
+                    emit(result.data.sortedBy { it.vehicle_id })
                 }
                 delay(POLL_INTERVAL)
             }

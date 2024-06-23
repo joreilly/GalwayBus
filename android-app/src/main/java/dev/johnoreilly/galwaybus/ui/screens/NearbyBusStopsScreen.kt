@@ -229,6 +229,9 @@ data class BusStopPositionClusterItem(
     override fun getPosition(): LatLng = itemPosition
     override fun getTitle(): String = itemTitle
     override fun getSnippet(): String = itemSnippet
+    override fun getZIndex(): Float? {
+        return null
+    }
 }
 
 @Composable

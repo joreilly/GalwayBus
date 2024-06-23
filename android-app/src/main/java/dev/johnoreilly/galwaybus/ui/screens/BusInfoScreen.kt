@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
 fun BusInfoScreen(viewModel: GalwayBusViewModel,
                   popBack: () -> Unit, onBusSelected: (String) -> Unit) {
     val busInfoList by viewModel.busInfoList.collectAsState(emptyList())
-    val routeId = viewModel.routeId.value
+    val routeId by viewModel.routeId.collectAsState()
     val currentBusStop = viewModel.currentBusStop.collectAsState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -88,6 +88,10 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, onBusSelected
     }
 
 
+    LaunchedEffect(busInfoList) {
+        println(busInfoList.map { it.vehicle_id })
+    }
+
     val mapProperties by remember { mutableStateOf(MapProperties(isMyLocationEnabled = true)) }
     val uiSettings by remember { mutableStateOf(MapUiSettings(myLocationButtonEnabled = true)) }
     GoogleMap(
@@ -127,14 +131,15 @@ fun BusInfoMapViewContainer(stop: BusStop, busInfoList: List<Bus>, onBusSelected
                         R.plurals.mins,
                         delayMins
                     )
-                }"
+                }, (${bus.vehicle_id})"
             } else {
                 ""
             }
 
             val icon = bitmapDescriptorFromVector(context, R.drawable.bus_side, tintColor)
             MarkerInfoWindowContent(
-                state = MarkerState(position = busLocation), title = title,
+                state = MarkerState(position = busLocation),
+                title = title,
                 snippet = snippet, icon = icon, tag = bus,
                 onInfoWindowClick = {
                     onBusSelected(bus.vehicle_id)
