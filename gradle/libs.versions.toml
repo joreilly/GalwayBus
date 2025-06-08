@@ -49,6 +49,9 @@ lifecycleLivedataKtx = "2.9.1"
 navigationFragmentKtx = "2.9.0"
 navigationUiKtx = "2.9.0"
 
+mcp = "0.5.0"
+shadowPlugin = "8.1.1"
+
 
 [libraries]
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -145,6 +148,7 @@ androidx-navigation-fragment-ktx = { group = "androidx.navigation", name = "navi
 androidx-navigation-ui-ktx = { group = "androidx.navigation", name = "navigation-ui-ktx", version.ref = "navigationUiKtx" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 
+mcp-kotlin = { group = "io.modelcontextprotocol", name = "kotlin-sdk", version.ref = "mcp" }
 
 [bundles]
 multiplatformSettings = ["multiplatform-settings", "multiplatform-settings-coroutines"]
@@ -155,8 +159,10 @@ ktor-common = ["ktor-client-core", "ktor-client-json", "ktor-client-logging", "k
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kmpNativeCoroutines = { id = "com.rickclephas.kmp.nativecoroutines", version.ref = "kmpNativeCoroutines" }
 sqlDelight = { id = "app.cash.sqldelight", version.ref = "sqlDelight" }
 googleServices = { id = "com.google.gms.google-services", version.ref = "googleServices" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm" }
+shadowPlugin = { id = "com.github.johnrengelman.shadow", version.ref = "shadowPlugin" }
