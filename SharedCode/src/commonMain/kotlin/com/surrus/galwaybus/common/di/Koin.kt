@@ -19,7 +19,6 @@ import kotlin.time.ExperimentalTime
 
 expect fun platformModule(): Module
 
-@ExperimentalTime
 fun initKoin(enableNetworkLogs: Boolean = false, appDeclaration: KoinAppDeclaration = {}) =
     startKoin {
         appDeclaration()
@@ -27,10 +26,8 @@ fun initKoin(enableNetworkLogs: Boolean = false, appDeclaration: KoinAppDeclarat
     }
 
 // called by iOS etc
-@ExperimentalTime
 fun initKoin() = initKoin() {}
 
-@ExperimentalTime
 fun commonModule() = module {
     single { createJson() }
     single { createHttpClient(get()) }

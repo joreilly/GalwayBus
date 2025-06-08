@@ -19,5 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":android-app")
 include(":SharedCode")
+include(":mcp-server")
