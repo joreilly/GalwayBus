@@ -77,8 +77,7 @@ class BusRouteViewModel: ObservableObject {
     
     func fetch() async {
         do {
-            let busRoutes = try await asyncFunction(for: repository.fetchBusRoutes())
-            self.listRoutes = busRoutes
+            self.listRoutes = try await asyncFunction(for: repository.fetchBusRoutes())
         } catch {
             print("Failed with error: \(error)")
         }
