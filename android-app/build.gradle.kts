@@ -141,7 +141,7 @@ dependencies {
     // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
     // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4157
     implementation("androidx.compose.material3:material3-android:1.2.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.10.2")
     implementation("com.google.maps.android:android-maps-utils:2.3.0")
 
     implementation("com.google.android.gms:play-services-location:16.0.0")
