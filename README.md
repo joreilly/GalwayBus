@@ -1,6 +1,6 @@
 ### Galway Bus Kotlin Multiplatform project using Jetpack Compose and SwiftUI
 
-![kotlin-version](https://img.shields.io/badge/kotlin-2.1.21-blue?logo=kotlin)
+![kotlin-version](https://img.shields.io/badge/kotlin-2.2.0-blue?logo=kotlin)
 
 **Note**: if you are trying this project out and aren't in Galway then hit the home icon in title bar to center in Galway so you can see meaningful data!
 
