@@ -13,13 +13,15 @@ import com.surrus.galwaybus.db.MyDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.core.component.inject
+import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 
 open class GalwayBusRepository : KoinComponent {
@@ -38,11 +40,11 @@ open class GalwayBusRepository : KoinComponent {
     }).asFlow().mapToList(Dispatchers.Default)
 
     @NativeCoroutines
-    val favorites = appSettings.favorites
+    val favorites: Flow<Set<String>> = appSettings.favorites
 
     val favoriteBusStopList = busStops.combine(favorites) { busStops, favorites ->
         Logger.i { "favoriteBusStopList, favorites = $favorites, busStops size = ${busStops.size}" }
-        favorites.map { favorite -> busStops.firstOrNull { it.stopRef == favorite } }.filterNotNull()
+        favorites.mapNotNull { favorite -> busStops.firstOrNull { it.stopRef == favorite } }
     }
 
     suspend fun fetchAndStoreBusStops() {
@@ -84,6 +86,7 @@ open class GalwayBusRepository : KoinComponent {
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     @NativeCoroutines
     suspend fun fetchBusStopDepartures(stopRef: String): Result<List<GalwayBusDeparture>> {
         try {
