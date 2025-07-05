@@ -1,6 +1,9 @@
 
 @file:Suppress("OPT_IN_USAGE")
 
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
+
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
@@ -119,6 +122,6 @@ kotlin.sourceSets.all {
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "17"
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_17)
 }
 
