@@ -107,11 +107,11 @@ android {
 
 
 dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 
-    implementation(platform("com.google.firebase:firebase-bom:26.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.1.0"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("androidx.activity:activity-compose:1.7.2")
+    implementation("androidx.activity:activity-compose:1.10.1")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)
@@ -136,20 +136,20 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
-    implementation("io.github.pushpalroy:jetlime:2.0.1")
+    implementation("io.github.pushpalroy:jetlime:4.0.0")
 
     // TODO: Added this as a temporary fix for a crash in ProgressIndicator, can be removed later.
     // Issue: https://github.com/JetBrains/compose-multiplatform/issues/4157
-    implementation("androidx.compose.material3:material3-android:1.2.1")
+    implementation("androidx.compose.material3:material3-android:1.3.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.1")
-    implementation("com.google.maps.android:android-maps-utils:2.3.0")
+    implementation("com.google.maps.android:android-maps-utils:3.14.0")
 
-    implementation("com.google.android.gms:play-services-location:16.0.0")
-    implementation("com.google.android.gms:play-services-maps:18.0.2")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-maps:19.2.0")
 
     testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.7.0")
 
     implementation(project(":SharedCode"))
 }
