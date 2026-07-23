@@ -1,22 +1,44 @@
 package dev.johnoreilly.galwaybus
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DirectionsBus
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.pushpal.jetlime.EventPointType
+import com.pushpal.jetlime.ItemsList
+import com.pushpal.jetlime.JetLimeColumn
+import com.pushpal.jetlime.JetLimeDefaults
+import com.pushpal.jetlime.JetLimeEvent
+import com.pushpal.jetlime.JetLimeEventDefaults
 import dev.johnoreilly.galwaybus.map.BusMapView
 import androidx.compose.ui.graphics.Color
 import dev.johnoreilly.galwaybus.model.BusLocation
@@ -31,7 +53,7 @@ fun App() {
     val repository = remember { GalwayBusRepository() }
     val viewModel = viewModel { GalwayBusViewModel(repository) }
     val colorScheme = lightColorScheme(
-        primary = Color(0xFFA80050),
+        primary = Color(0xFF4f0000),
         onPrimary = Color.White,
         primaryContainer = Color(0xFFFFD9E2),
         onPrimaryContainer = Color(0xFF3E001D),
@@ -55,12 +77,18 @@ fun App() {
     }
 }
 
+// Delay-status accents (colorScheme has no green slot). Late reuses colorScheme.error.
+private val OnTimeGreen = Color(0xFF2E7D32)
+private val EarlyGreen = Color(0xFF2E7D32)
+
 private enum class ViewMode(val label: String) {
     LIST("Buses"), STOPS("Stops"), MAP("Map")
 }
 
-private enum class TopTab(val label: String, val glyph: String) {
-    FAVOURITES("My stops", "★"), BUSES("Buses", "🚌"), ROUTES("Routes", "☰")
+private enum class TopTab(val label: String, val icon: ImageVector) {
+    FAVOURITES("My stops", Icons.Filled.Star),
+    BUSES("Buses", Icons.Filled.DirectionsBus),
+    ROUTES("Routes", Icons.AutoMirrored.Filled.List)
 }
 
 private enum class Screen {
@@ -125,6 +153,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
         if (currentScreen == Screen.TRACKING) {
             BusTrackingView(
                 viewModel = viewModel,
+                nowMs = nowMs,
                 onBack = { currentScreen = Screen.MAIN }
             )
         } else {
@@ -144,19 +173,19 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                     navigationIcon = {
                         if (topTab == TopTab.ROUTES && compact && selectedRouteNum != null) {
                             IconButton(onClick = { viewModel.clearRoute() }) {
-                                Text("←", fontSize = 20.sp)
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to routes")
                             }
                         }
                     },
                     actions = {
                         if (topTab == TopTab.FAVOURITES && favourites.isNotEmpty()) {
                             IconButton(onClick = { viewModel.refreshFavouriteDepartures() }) {
-                                Text("↻", fontSize = 22.sp)
+                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh departures")
                             }
                         }
                         if (topTab == TopTab.BUSES) {
                             IconButton(onClick = { viewModel.refreshAllBusPositions() }) {
-                                Text("↻", fontSize = 22.sp)
+                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh bus positions")
                             }
                         }
                         if (topTab == TopTab.ROUTES && !compact && selectedRouteNum != null) {
@@ -184,7 +213,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 topTab = tab
                                 if (tab == TopTab.FAVOURITES) viewModel.refreshFavouriteDepartures()
                             },
-                            icon = { Text(tab.glyph, fontSize = 18.sp) },
+                            icon = { Icon(tab.icon, contentDescription = tab.label) },
                             label = { Text(tab.label) }
                         )
                     }
@@ -266,19 +295,25 @@ private fun AllBusesPanel(
 @Composable
 private fun BusTrackingView(
     viewModel: GalwayBusViewModel,
+    nowMs: Long,
     onBack: () -> Unit
 ) {
     val busPositions by viewModel.busPositions.collectAsStateWithLifecycle()
     val routeStops by viewModel.routeStops.collectAsStateWithLifecycle()
     val trackedTripId = viewModel.trackedTripId
     val trackedStopRef = viewModel.trackedStopRef
+    val trackedDeparture = viewModel.trackedDeparture
 
-    // Filter to show only the tracked bus and the targeted stop
-    // If we can't find the specific bus (e.g. ID mismatch or live-only departure),
-    // show all buses on this route so the user still sees something.
-    val busesForRoute = busPositions
-    val trackedBus = busesForRoute.filter { it.trip_duid == trackedTripId }
-    val displayPositions = if (trackedBus.isNotEmpty()) trackedBus else busesForRoute
+    // Show only the bus for the departure the user tapped, plus the targeted stop.
+    // The departure's tripId isn't always the matched vehicle's trip_duid (the repo may
+    // match a vehicle by headsign), so prefer matching on the reliable vehicleId.
+    // If we can't match at all, the map shows just the stop with no bus marker.
+    val trackedVehicleId = trackedDeparture?.vehicleId
+    val displayPositions = busPositions.filter {
+        (trackedVehicleId != null && it.vehicle_id == trackedVehicleId) || it.trip_duid == trackedTripId
+    }
+    // Centering/highlighting keys off trip_duid, so use the matched bus's own trip id.
+    val trackedBusTripId = displayPositions.firstOrNull()?.trip_duid ?: trackedTripId
 
     val trackedStop = routeStops.flatten().filter { it.stop_ref == trackedStopRef }.distinctBy { it.stop_ref }
 
@@ -286,10 +321,44 @@ private fun BusTrackingView(
         topBar = {
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
-                title = { Text("Track Bus") },
+                title = {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Track Bus")
+                            trackedDeparture?.timetable_id?.let { routeNum ->
+                                Spacer(Modifier.width(8.dp))
+                                Box(
+                                    Modifier
+                                        .background(
+                                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                                        .defaultMinSize(minWidth = 28.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = routeNum,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                        }
+                        trackedDeparture?.display_name?.let { destination ->
+                            Text(
+                                text = destination,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Text("←", fontSize = 20.sp)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -300,14 +369,252 @@ private fun BusTrackingView(
             )
         }
     ) { padding ->
-        Box(Modifier.padding(padding).fillMaxSize()) {
-            BusMapView(
-                positions = displayPositions,
-                stops = trackedStop,
-                trackedTripId = trackedTripId,
-                trackedStopRef = trackedStopRef,
-                modifier = Modifier.fillMaxSize()
+        // Stops for the direction the tracked stop belongs to (fall back to the first direction).
+        val timelineStops = routeStops.firstOrNull { dir -> dir.any { it.stop_ref == trackedStopRef } }
+            ?: routeStops.firstOrNull().orEmpty()
+
+        val mapArea: @Composable (Modifier) -> Unit = { m ->
+            Box(m) {
+                BusMapView(
+                    positions = displayPositions,
+                    stops = trackedStop,
+                    trackedTripId = trackedBusTripId,
+                    trackedStopRef = trackedStopRef,
+                    modifier = Modifier.fillMaxSize()
+                )
+                TrackingInfoCard(
+                    departure = trackedDeparture,
+                    trackedBus = displayPositions.firstOrNull(),
+                    stopName = trackedStop.firstOrNull()?.long_name,
+                    nowMs = nowMs,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                )
+            }
+        }
+        val timeline: @Composable (Modifier) -> Unit = { m ->
+            RouteTimeline(
+                stops = timelineStops,
+                targetStopRef = trackedStopRef,
+                trackedBus = displayPositions.firstOrNull(),
+                nowMs = nowMs,
+                modifier = m
             )
+        }
+
+        BoxWithConstraints(Modifier.padding(padding).fillMaxSize()) {
+            // Too narrow for a side panel → stack the stop list under the map (bottom third).
+            if (maxWidth < 600.dp) {
+                Column(Modifier.fillMaxSize()) {
+                    mapArea(Modifier.fillMaxWidth().weight(2f))
+                    if (timelineStops.isNotEmpty()) {
+                        HorizontalDivider()
+                        timeline(Modifier.fillMaxWidth().weight(1f))
+                    }
+                }
+            } else {
+                Row(Modifier.fillMaxSize()) {
+                    mapArea(Modifier.fillMaxHeight().weight(1f))
+                    if (timelineStops.isNotEmpty()) {
+                        Box(Modifier.fillMaxHeight().width(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        timeline(Modifier.fillMaxHeight().width(220.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Vertical journey timeline (JetLime) of the route's stops. Stops the bus has already
+ * passed are checked, the stop it's currently nearest gets an animated node, and the
+ * user's target stop is highlighted.
+ */
+@Composable
+private fun RouteTimeline(
+    stops: List<Stop>,
+    targetStopRef: String?,
+    trackedBus: BusLocation?,
+    nowMs: Long,
+    modifier: Modifier = Modifier
+) {
+    // The bus's next stop, preferring the real-time value from the backend (GTFS-RT) and
+    // falling back to the nearest stop to the live position when no prediction is available.
+    val busIndex = remember(stops, trackedBus) {
+        if (trackedBus == null) return@remember -1
+        val rtIndex = trackedBus.next_stop_ref
+            ?.let { ref -> stops.indexOfFirst { it.stop_ref == ref } }
+            ?.takeIf { it >= 0 }
+        rtIndex ?: stops.indices.minByOrNull { i ->
+            val dLat = stops[i].latitude - trackedBus.latitude
+            val dLon = stops[i].longitude - trackedBus.longitude
+            dLat * dLat + dLon * dLon
+        } ?: -1
+    }
+    // Predicted departure time per stop (ISO timestamp) from the live next_stops payload.
+    val etaByStopRef = remember(trackedBus) {
+        trackedBus?.next_stops
+            ?.mapNotNull { p -> (p.departure_timestamp ?: p.arrival_timestamp)?.let { p.stop_ref to it } }
+            ?.toMap()
+            ?: emptyMap()
+    }
+    val targetIndex = remember(stops, targetStopRef) {
+        stops.indexOfFirst { it.stop_ref == targetStopRef }
+    }
+
+    val checkPainter = rememberVectorPainter(Icons.Filled.Check)
+    val targetPainter = rememberVectorPainter(Icons.Filled.Place)
+    val primary = MaterialTheme.colorScheme.primary
+    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+    val passedColor = MaterialTheme.colorScheme.secondary
+
+    val listState = rememberLazyListState()
+    // Keep the bus's current position (or the target) in view.
+    LaunchedEffect(busIndex, targetIndex, stops.size) {
+        val focus = if (busIndex >= 0) busIndex else targetIndex
+        if (focus >= 0) listState.animateScrollToItem(focus)
+    }
+
+    JetLimeColumn(
+        itemsList = ItemsList(stops),
+        listState = listState,
+        modifier = modifier.padding(start = 20.dp, top = 12.dp, end = 12.dp),
+        key = { _, stop -> stop.stop_ref },
+        style = JetLimeDefaults.columnStyle(lineBrush = JetLimeDefaults.lineSolidBrush(primary))
+    ) { index, stop, position ->
+        val hasPassed = busIndex >= 0 && index < busIndex
+        val isCurrent = busIndex >= 0 && index == busIndex
+        val isTarget = stop.stop_ref == targetStopRef
+
+        JetLimeEvent(
+            style = JetLimeEventDefaults.eventStyle(
+                position = position,
+                pointType = when {
+                    isTarget -> EventPointType.custom(icon = targetPainter, tint = MaterialTheme.colorScheme.onPrimary)
+                    hasPassed -> EventPointType.custom(icon = checkPainter, tint = MaterialTheme.colorScheme.onPrimary)
+                    isCurrent -> EventPointType.filled()
+                    else -> EventPointType.EMPTY
+                },
+                pointFillColor = when {
+                    isTarget -> primary
+                    isCurrent -> primary
+                    hasPassed -> passedColor
+                    else -> MaterialTheme.colorScheme.surface
+                },
+                pointColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
+                pointStrokeColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
+                pointAnimation = if (isCurrent) JetLimeEventDefaults.pointAnimation() else null
+            )
+        ) {
+            Column(Modifier.padding(bottom = 4.dp)) {
+                Text(
+                    stop.long_name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (hasPassed) onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
+                    fontWeight = if (isTarget || isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
+                    val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
+                    when {
+                        mins <= 0 -> "Due"
+                        mins < 60 -> "$mins min"
+                        else -> "${mins / 60}h ${mins % 60}min"
+                    }
+                }
+                val subtitle = when {
+                    isTarget -> etaText?.let { "Your stop · $it" } ?: "Your stop"
+                    isCurrent -> etaText?.let { "Next stop · $it" } ?: "Next stop"
+                    hasPassed -> stop.stop_id
+                    etaText != null -> etaText
+                    else -> stop.stop_id
+                }
+                Text(
+                    subtitle,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isTarget || isCurrent) primary else onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+/** Floating summary over the tracking map: ETA to the stop, live delay status, and position freshness. */
+@Composable
+private fun TrackingInfoCard(
+    departure: DepartureTime?,
+    trackedBus: BusLocation?,
+    stopName: String?,
+    nowMs: Long,
+    modifier: Modifier = Modifier
+) {
+    departure ?: return
+
+    val delaySeconds = departure.delaySeconds
+    val statusText = when {
+        delaySeconds == null -> null
+        delaySeconds > 30 -> "${(delaySeconds + 30) / 60} min late"
+        delaySeconds < -30 -> "${(-delaySeconds + 30) / 60} min early"
+        else -> "On time"
+    }
+    val statusColor = when {
+        delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
+        delaySeconds != null && delaySeconds < -30 -> EarlyGreen
+        else -> OnTimeGreen
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Filled.DirectionsBus,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = stopName?.let { "Arriving at $it" } ?: "Arriving",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = departure.formatWithLive(nowMs),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (statusText != null) {
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = statusText,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = statusColor
+                        )
+                    }
+                }
+                val freshness = trackedBus?.let { formatTimeAgoIso(it.modified_timestamp, nowMs) }
+                Text(
+                    text = when {
+                        trackedBus == null -> "Bus not reporting live position"
+                        freshness.isNullOrEmpty() -> "Live position"
+                        else -> "Position updated $freshness"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
@@ -327,84 +634,285 @@ private fun FavouritesPanel(
 
     if (favourites.isEmpty()) {
         Column(
-            modifier,
+            modifier.padding(horizontal = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            Icon(
+                Icons.Filled.Star,
+                contentDescription = null,
+                modifier = Modifier.size(56.dp),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+            )
+            Spacer(Modifier.height(16.dp))
             Text(
-                "No favourite stops yet",
+                "No saved stops yet",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary
             )
             Spacer(Modifier.height(8.dp))
             Text(
-                "Open a route, tap a stop, then tap ☆\nto pin it here for quick departures",
+                "Open a route, tap a stop, then tap its star to pin it here for quick departures",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
             Button(onClick = onBrowseRoutes) { Text("Browse routes") }
         }
         return
     }
 
-    LazyColumn(modifier) {
+    LazyColumn(
+        modifier,
+        contentPadding = PaddingValues(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        item {
+            Text(
+                "${favourites.size} saved stop${if (favourites.size == 1) "" else "s"}",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 4.dp)
+            )
+        }
         items(favourites, key = { it.stopRef }) { fav ->
             FavouriteStopCard(
                 name = fav.name,
                 stopId = fav.stopId,
                 departures = departuresByStop[fav.stopRef],
                 nowMs = nowMs,
+                updatedMs = viewModel.favouritesUpdatedMs,
+                isRefreshing = viewModel.isLoadingFavourites,
                 onRemove = { viewModel.removeFavourite(fav.stopRef) },
                 onDepartureClick = { onDepartureClick(it, fav.stopRef) }
             )
-            HorizontalDivider()
         }
     }
 }
 
+private val FAVOURITE_DEPARTURES_INDENT = 64.dp
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FavouriteStopCard(
     name: String,
     stopId: String,
     departures: List<DepartureTime>?,
     nowMs: Long,
+    updatedMs: Long?,
+    isRefreshing: Boolean,
     onRemove: () -> Unit,
     onDepartureClick: (DepartureTime) -> Unit
 ) {
-    Column(Modifier.fillMaxWidth().padding(top = 4.dp)) {
-        Row(
-            Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 6.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(name, style = MaterialTheme.typography.titleSmall)
-                Text(
-                    stopId,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            IconButton(onClick = onRemove) {
-                Text("★", fontSize = 20.sp, color = MaterialTheme.colorScheme.primary)
-            }
-        }
-        if (departures == null) {
+    // Routes serving this stop, derived from its upcoming departures.
+    val routes = departures?.map { it.timetable_id }?.distinct()?.sorted().orEmpty()
+
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
             Row(
-                Modifier.fillMaxWidth().padding(start = 44.dp, end = 16.dp, bottom = 12.dp),
+                Modifier.fillMaxWidth().padding(start = 12.dp, end = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "Loading departures…",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Box(Modifier.size(40.dp), contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Filled.Place,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(26.dp)
+                    )
+                }
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        "Stop $stopId",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (routes.isNotEmpty()) {
+                        FlowRow(
+                            modifier = Modifier.padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            routes.forEach { RouteChip(it) }
+                        }
+                    }
+                }
+                IconButton(onClick = onRemove) {
+                    Icon(
+                        Icons.Filled.Star,
+                        contentDescription = "Remove favourite",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
-        } else {
-            StopDeparturesSection(departures, isLoading = false, nowMs = nowMs, onDepartureClick = onDepartureClick)
+            Spacer(Modifier.height(6.dp))
+            when {
+                departures == null -> Row(
+                    Modifier.fillMaxWidth().padding(start = FAVOURITE_DEPARTURES_INDENT, end = 16.dp, top = 2.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "Loading departures…",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                departures.isEmpty() -> Text(
+                    "No more departures today",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                )
+                else -> FavouriteDepartures(departures, nowMs, onDepartureClick)
+            }
+
+            // Freshness footer
+            if (updatedMs != null) {
+                Row(
+                    Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isRefreshing) {
+                        CircularProgressIndicator(Modifier.size(10.dp), strokeWidth = 1.5.dp)
+                        Spacer(Modifier.width(6.dp))
+                    }
+                    Text(
+                        if (isRefreshing) "Updating…" else "Updated ${formatTimeAgo(updatedMs, nowMs)}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** A small outlined pill listing a route that serves the stop (metadata, not a live departure). */
+@Composable
+private fun RouteChip(route: String) {
+    Box(
+        Modifier
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+            .defaultMinSize(minWidth = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            route,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+/**
+ * Route number badge against a departure. The `large` (next-bus) badge is filled with the
+ * brand maroon to anchor the card; smaller "later" badges use the light container tint.
+ */
+@Composable
+private fun RouteBadge(route: String, large: Boolean) {
+    val bg = if (large) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
+    val fg = if (large) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
+    Box(
+        Modifier
+            .background(bg, RoundedCornerShape(if (large) 6.dp else 4.dp))
+            .padding(horizontal = if (large) 8.dp else 5.dp, vertical = if (large) 4.dp else 2.dp)
+            .defaultMinSize(minWidth = if (large) 34.dp else 26.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            route,
+            style = if (large) MaterialTheme.typography.titleSmall else MaterialTheme.typography.labelSmall,
+            color = fg
+        )
+    }
+}
+
+@Composable
+private fun departureCountdownColor(delaySeconds: Int?): Color = when {
+    delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
+    delaySeconds != null && delaySeconds < -30 -> EarlyGreen
+    else -> MaterialTheme.colorScheme.primary
+}
+
+/** Next departure as a prominent hero, then up to 3 more compact rows. */
+@Composable
+private fun FavouriteDepartures(
+    departures: List<DepartureTime>,
+    nowMs: Long,
+    onDepartureClick: (DepartureTime) -> Unit
+) {
+    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp)) {
+        val next = departures.first()
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = next.tripId != null) { onDepartureClick(next) }
+                .padding(vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            RouteBadge(next.timetable_id, large = true)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    next.display_name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (next.vehicleId != null) {
+                    Text(
+                        "🚌 #${next.vehicleId}",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+            Text(
+                next.formatWithLive(nowMs),
+                style = MaterialTheme.typography.titleLarge,
+                color = departureCountdownColor(next.delaySeconds)
+            )
+        }
+
+        val later = departures.drop(1).take(3)
+        if (later.isNotEmpty()) {
+            HorizontalDivider(Modifier.padding(vertical = 2.dp))
+            later.forEach { dep ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = dep.tripId != null) { onDepartureClick(dep) }
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RouteBadge(dep.timetable_id, large = false)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        dep.display_name,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        dep.formatWithLive(nowMs),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = departureCountdownColor(dep.delaySeconds)
+                    )
+                }
+            }
         }
     }
 }
@@ -475,7 +983,7 @@ private fun DetailPane(
             SmallFloatingActionButton(
                 onClick = { viewModel.refreshPositions() },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-            ) { Text("↻") }
+            ) { Icon(Icons.Filled.Refresh, contentDescription = "Refresh positions") }
         }
         ViewMode.LIST -> BusPositionPanel(
             routeNum = selectedRouteNum,
@@ -778,17 +1286,17 @@ private fun RouteStopsPanel(
                         }
                         val isFavourite = stop.stop_ref in favouriteRefs
                         IconButton(onClick = { onToggleFavourite(stop) }) {
-                            Text(
-                                if (isFavourite) "★" else "☆",
-                                fontSize = 18.sp,
-                                color = if (isFavourite) MaterialTheme.colorScheme.primary
-                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                            Icon(
+                                if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                                contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                                tint = if (isFavourite) MaterialTheme.colorScheme.primary
+                                       else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Text(
-                            if (expanded) "⌃" else "⌄",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        Icon(
+                            if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                            contentDescription = if (expanded) "Collapse" else "Expand",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     if (expanded) {
@@ -811,9 +1319,10 @@ private fun StopDeparturesSection(
     departures: List<DepartureTime>,
     isLoading: Boolean,
     nowMs: Long,
-    onDepartureClick: ((DepartureTime) -> Unit)? = null
+    onDepartureClick: ((DepartureTime) -> Unit)? = null,
+    startPadding: Dp = 44.dp
 ) {
-    Column(Modifier.fillMaxWidth().padding(start = 44.dp, end = 16.dp, bottom = 12.dp)) {
+    Column(Modifier.fillMaxWidth().padding(start = startPadding, end = 16.dp, bottom = 12.dp)) {
         when {
             isLoading -> {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -876,20 +1385,12 @@ private fun StopDeparturesSection(
                                 )
                             }
                         }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                dep.formatWithLive(nowMs),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary
-                             )
-                            if (dep.delaySeconds != null) {
-                                Spacer(Modifier.width(4.dp))
-                                Text(
-                                    text = if (dep.delaySeconds > 0) "🟥" else "🟢",
-                                    style = MaterialTheme.typography.bodySmall
-                                )
-                            }
-                         }
+                        // Colour the countdown by live delay; the text itself already reads "(late)"/"(early)".
+                        Text(
+                            dep.formatWithLive(nowMs),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = departureCountdownColor(dep.delaySeconds)
+                        )
                     }
                 }
             }

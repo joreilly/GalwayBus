@@ -48,7 +48,18 @@ data class BusLocation(
     val trip_duid: String,
     val vehicle_id: String? = null,
     val timetable_id: String? = null,
-    val headsign: String? = null
+    val headsign: String? = null,
+    val next_stop_ref: String? = null,
+    val next_stops: List<StopPrediction>? = null
+)
+
+@Serializable
+data class StopPrediction(
+    val stop_ref: String,
+    val stop_sequence: Int,
+    val arrival_timestamp: String? = null,
+    val departure_timestamp: String? = null,
+    val delay: Int? = null
 )
 
 // --- Backend response wrapper ---
