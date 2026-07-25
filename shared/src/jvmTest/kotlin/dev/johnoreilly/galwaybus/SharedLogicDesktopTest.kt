@@ -74,6 +74,30 @@ class SharedLogicDesktopTest {
     }
 
     @Test
+    fun directionHeadsignsAlignWithStopLists() = kotlinx.coroutines.runBlocking {
+        // Route 401 runs Pearse Stadium (Salthill / Dr. Mannix Road) <-> Parkmore (An Phairc Mhor).
+        // The snapshot's routeStops order does not follow GTFS direction index, so the label for
+        // each stop list must be derived from the trips serving it, not from the list index.
+        val stopLists = repository.getStopsForRoute("401")
+        val headsigns = repository.getDirectionHeadsigns("401")
+        assertEquals(2, stopLists.size)
+        assertEquals(stopLists.size, headsigns.size, "One headsign per direction, aligned by index")
+
+        // The label must describe where that direction is heading (its last stop), not where it starts.
+        stopLists.forEachIndexed { i, stops ->
+            val destination = stops.last().long_name
+            val label = headsigns[i]
+            // Stop list ending at Pearse Stadium is the Salthill-bound "Dr. Mannix Road" direction;
+            // the one ending at the tech park is the Parkmore-bound "An Phairc Mhor" direction.
+            if (destination.contains("Pearse", ignoreCase = true)) {
+                assertEquals("Dr. Mannix Road", label, "Salthill-bound list mislabelled")
+            } else {
+                assertEquals("An Phairc Mhor", label, "Parkmore-bound list mislabelled")
+            }
+        }
+    }
+
+    @Test
     fun viewModelMigratesExistingFavourites() = kotlinx.coroutines.runBlocking {
         // Prepare old-style favourite without stopId (or "0" after type change)
         val oldFavourite = FavouriteStop(stopRef = "8460B522331", name = "Eyre Square", stopId = "0")

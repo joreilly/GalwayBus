@@ -72,10 +72,17 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     var isLoadingFavourites by mutableStateOf(false)
         private set
 
+    /** When the favourite departures were last refreshed (for per-card "updated Xs ago"). */
+    var favouritesUpdatedMs by mutableStateOf<Long?>(null)
+        private set
+
     var trackedTripId by mutableStateOf<String?>(null)
         private set
 
     var trackedStopRef by mutableStateOf<String?>(null)
+        private set
+
+    var trackedDeparture by mutableStateOf<DepartureTime?>(null)
         private set
 
     private val _allBusPositions = MutableStateFlow<List<BusLocation>>(emptyList())
@@ -196,6 +203,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             }
         }
         
+        favouritesUpdatedMs = nowEpochMilliseconds()
         if (showLoading) isLoadingFavourites = false
     }
 
@@ -212,12 +220,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun setTrackedDeparture(departure: DepartureTime, stopRef: String) {
         trackedTripId = departure.tripId
         trackedStopRef = stopRef
+        trackedDeparture = departure
         selectRouteInternal(departure.timetable_id)
     }
 
     fun clearTrackedDeparture() {
         trackedTripId = null
         trackedStopRef = null
+        trackedDeparture = null
     }
 
     fun selectRoute(routeNum: String) {

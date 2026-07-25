@@ -8,9 +8,9 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
@@ -258,18 +258,37 @@ class GalwayBusRepository(
         return a.isNotEmpty() && a == b
     }
 
-    /** Representative headsign per direction for a route (sorted by direction index). */
+    /**
+     * Destination headsign for each direction, aligned index-for-index with [getStopsForRoute].
+     *
+     * The snapshot's per-direction stop lists ([GalwayGtfsSnapshot.routeStops]) are not ordered by
+     * GTFS direction index, so we can't just label list N with the headsign of `dir == N` — that
+     * puts the labels on the wrong stop lists. Instead we infer each list's direction from the trips
+     * actually serving its stops (dominant `dir` across the list) and label it with that direction's
+     * headsign, which is the destination the riders on those stops are heading to.
+     */
     suspend fun getDirectionHeadsigns(routeNum: String): List<String> {
         val s = snapshot()
         val routeId = s.routes[routeNum]?.id ?: return emptyList()
-        val byDir = mutableMapOf<Int, MutableList<GtfsSnapshotTrip>>()
+
+        // Representative (first non-blank) headsign per GTFS direction.
+        val headsignByDir = mutableMapOf<Int, String>()
         for (trip in s.trips.values) {
-            if (trip.rId == routeId) byDir.getOrPut(trip.dir) { mutableListOf() }.add(trip)
+            if (trip.rId == routeId && trip.headsign.isNotBlank())
+                headsignByDir.getOrPut(trip.dir) { trip.headsign }
         }
-        return byDir.keys.sorted().map { dir ->
-            val trips: List<GtfsSnapshotTrip> = byDir[dir] ?: emptyList()
-            trips.firstOrNull { t: GtfsSnapshotTrip -> t.headsign.isNotBlank() }?.headsign
-                ?: "Direction ${dir + 1}"
+
+        val stopLists = s.routeStops[routeNum] ?: return emptyList()
+        return stopLists.mapIndexed { i, stopIds ->
+            val dirVotes = mutableMapOf<Int, Int>()
+            for (stopId in stopIds) {
+                for (dep in s.stopDepartures[stopId] ?: emptyList()) {
+                    val trip = s.trips[dep.tId] ?: continue
+                    if (trip.rId == routeId) dirVotes[trip.dir] = (dirVotes[trip.dir] ?: 0) + 1
+                }
+            }
+            dirVotes.maxByOrNull { it.value }?.key?.let { headsignByDir[it] }
+                ?: "Direction ${i + 1}"
         }
     }
 

@@ -17,3 +17,12 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+
+# Fastlane / Play Store publishing
+keystore.properties
+fastlane/report.xml
+fastlane/screenshots
+fastlane/Preview.html
+fastlane/test_output
+fastlane/metadata/android/screenshots.html
+api-*.json

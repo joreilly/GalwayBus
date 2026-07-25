@@ -1,0 +1,1 @@
+Galway Bus Schedule/Route information.  App for https://github.com/joreilly/galway-bus-android

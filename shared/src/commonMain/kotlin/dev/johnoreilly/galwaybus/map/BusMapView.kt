@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -117,14 +118,19 @@ fun BusMapView(
         Color(0xFF6D4C41), Color(0xFF546E7A)
     )
 
+    // Colour encodes the route only; direction is shown by the marker's shape.
     val busColors = remember(positions) {
-        positions.map { (it.timetable_id ?: "") to (it.headsign ?: "") }
+        positions.map { it.timetable_id ?: "" }
             .distinct()
-            .sortedBy { it.first + it.second }
-            .associateWith { (route, headsign) ->
-                val hash = (route + headsign).hashCode()
-                palette[abs(hash) % palette.size]
-            }
+            .sorted()
+            .associateWith { route -> palette[abs(route.hashCode()) % palette.size] }
+    }
+
+    // Each route's distinct headsigns, sorted → a stable direction index per bus.
+    // Direction 0 is drawn as a circle, direction 1 as a rounded square.
+    val routeHeadsigns = remember(positions) {
+        positions.groupBy { it.timetable_id ?: "" }
+            .mapValues { (_, buses) -> buses.mapNotNull { it.headsign }.distinct().sorted() }
     }
 
     val busIcon = remember {
@@ -341,7 +347,7 @@ fun BusMapView(
                         val sy = ((latToTileYf(stop.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                         if (sx in -16f..size.width + 16f && sy in -16f..size.height + 16f) {
                             val radius = if (isTracked) 12f else 8f
-                            val color = if (isTracked) Color(0xFFA80050) else Color.White
+                            val color = if (isTracked) Color(0xFF4f0000) else Color.White
                             drawCircle(color, radius = radius, center = Offset(sx, sy))
                             drawCircle(
                                 Color(0xFF555555), radius = radius,
@@ -355,19 +361,34 @@ fun BusMapView(
                     val bx = ((lonToTileXf(bus.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
                     val by = ((latToTileYf(bus.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                     val isTracked = bus.trip_duid == trackedTripId
-                    val markerColor = busColors[(bus.timetable_id ?: "") to (bus.headsign ?: "")] ?: palette[0]
-                    
-                    if (isTracked) {
-                        drawCircle(Color(0xFFA80050).copy(alpha = 0.3f), radius = 30f, center = Offset(bx, by))
-                    }
-                    
-                    drawCircle(Color(0x99000000), radius = 22f, center = Offset(bx + 2f, by + 2f))
-                    drawCircle(markerColor, radius = 20f, center = Offset(bx, by))
+                    val markerColor = busColors[bus.timetable_id ?: ""] ?: palette[0]
+                    // Direction index within the route (by sorted headsign); shapes the marker.
+                    val dirIndex = routeHeadsigns[bus.timetable_id ?: ""]?.indexOf(bus.headsign) ?: -1
 
+                    if (isTracked) {
+                        drawCircle(Color(0xFF4f0000).copy(alpha = 0.3f), radius = 30f, center = Offset(bx, by))
+                    }
+
+                    val r = 20f
+                    if (dirIndex == 1) {
+                        // Second direction: rounded square
+                        val side = Size(r * 2, r * 2)
+                        val corner = CornerRadius(6f, 6f)
+                        drawRoundRect(Color(0x99000000), topLeft = Offset(bx - r + 2f, by - r + 2f), size = side, cornerRadius = corner)
+                        drawRoundRect(markerColor, topLeft = Offset(bx - r, by - r), size = side, cornerRadius = corner)
+                    } else {
+                        // First direction (or unknown headsign): circle
+                        drawCircle(Color(0x99000000), radius = r + 2f, center = Offset(bx + 2f, by + 2f))
+                        drawCircle(markerColor, radius = r, center = Offset(bx, by))
+                    }
+
+                    // Tint the bus glyph for contrast: dark on light markers (e.g. the
+                    // yellow of route 401), white on dark ones. The tracked ring signals tracking.
+                    val iconTint = if (markerColor.luminance() > 0.5f) Color(0xFF1A1A1A) else Color.White
                     val iconSize = 24f
                     translate(bx - iconSize / 2, by - iconSize / 2) {
                         with(busPainter) {
-                            draw(size = Size(iconSize, iconSize), colorFilter = ColorFilter.tint(if (isTracked) Color.Yellow else Color.White))
+                            draw(size = Size(iconSize, iconSize), colorFilter = ColorFilter.tint(iconTint))
                         }
                     }
                 }
@@ -404,14 +425,16 @@ fun BusMapView(
             }
         }
 
-        // Route/Direction legend – only shown when there are 2+ distinct combinations
-        if (busColors.size >= 2) {
+        // Route legend – one row per route, shown only when there are 2+ routes.
+        // Skip buses that report no route (their entry would be a blank labelled dot).
+        val legendEntries = busColors.filterKeys { it.isNotEmpty() }
+        if (legendEntries.size >= 2) {
             Column(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
-                    .widthIn(max = 180.dp)
-                    .heightIn(max = 240.dp)
+                    .widthIn(max = 220.dp)
+                    .heightIn(max = 480.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
                         shape = MaterialTheme.shapes.small
@@ -420,8 +443,7 @@ fun BusMapView(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                busColors.forEach { (pair, color) ->
-                    val (route, headsign) = pair
+                legendEntries.forEach { (route, color) ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             Modifier
@@ -430,7 +452,7 @@ fun BusMapView(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = if (route.isNotEmpty()) "$route: $headsign" else headsign,
+                            text = "Route $route",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
