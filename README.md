@@ -26,11 +26,13 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
     <td><img src="screenshots/ios-mystops.png" width="200" height="435" alt="Saved stops with live departures"/></td>
     <td><img src="screenshots/ios-nearby.png" width="200" height="435" alt="Bus stops near you"/></td>
     <td><img src="screenshots/ios-tracking.png" width="200" height="435" alt="Live bus tracking"/></td>
+    <td><img src="screenshots/ios-search.png" width="200" height="435" alt="Stop search"/></td>
   </tr>
   <tr>
     <td align="center">Saved stops</td>
     <td align="center">Near me</td>
     <td align="center">Live tracking</td>
+    <td align="center">Stop search</td>
   </tr>
 </table>
 
