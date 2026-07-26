@@ -5,6 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.johnoreilly.galwaybus.location.LocationProvider
+import dev.johnoreilly.galwaybus.location.LocationResult
+import dev.johnoreilly.galwaybus.location.NearbyStop
+import dev.johnoreilly.galwaybus.location.UserLocation
+import dev.johnoreilly.galwaybus.location.nearestTo
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.FavouriteStop
@@ -17,6 +22,18 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+
+/** State of the "stops near me" screen. */
+sealed interface NearbyState {
+    data object Idle : NearbyState
+    data object Loading : NearbyState
+    /** A device fix was obtained; [nearbyStops] are ordered around [location]. */
+    data class Located(val location: UserLocation) : NearbyState
+    /** Location permission was refused. */
+    data object PermissionDenied : NearbyState
+    /** No device fix (e.g. desktop); [nearbyStops] fall back to Galway city centre. */
+    data object Unavailable : NearbyState
+}
 
 class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewModel() {
 
@@ -105,6 +122,15 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     var isLoadingMapStop by mutableStateOf(false)
         private set
 
+    // ── Nearby stops (device location) ─────────────────────────────────────
+    private val locationProvider = LocationProvider()
+
+    var nearbyState by mutableStateOf<NearbyState>(NearbyState.Idle)
+        private set
+
+    private val _nearbyStops = MutableStateFlow<List<NearbyStop>>(emptyList())
+    val nearbyStops: StateFlow<List<NearbyStop>> = _nearbyStops.asStateFlow()
+
     private var autoRefreshJob: Job? = null
     private var allBusesJob: Job? = null
     private var favouritesJob: Job? = null
@@ -181,6 +207,32 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun clearMapStop() {
         mapStop = null
         _mapStopDepartures.value = emptyList()
+    }
+
+    /**
+     * Requests the device location (prompting for permission if needed) and lists the nearest
+     * stops. With no fix available (permission refused, or desktop) it falls back to showing the
+     * stops around Galway city centre so the screen is never empty.
+     */
+    fun loadNearby() {
+        viewModelScope.launch {
+            nearbyState = NearbyState.Loading
+            // The snapshot is loaded once in init; make sure it's ready before we rank stops.
+            val stops = _allStops.value.ifEmpty {
+                repository.getStops().also { _allStops.value = it }
+            }
+            when (val result = locationProvider.currentLocation()) {
+                is LocationResult.Available -> {
+                    _nearbyStops.value = stops.nearestTo(result.location, NEARBY_STOP_LIMIT)
+                    nearbyState = NearbyState.Located(result.location)
+                }
+                LocationResult.PermissionDenied -> nearbyState = NearbyState.PermissionDenied
+                LocationResult.Unavailable -> {
+                    _nearbyStops.value = stops.nearestTo(GALWAY_CENTRE, NEARBY_STOP_LIMIT)
+                    nearbyState = NearbyState.Unavailable
+                }
+            }
+        }
     }
 
     fun isFavourite(stopRef: String): Boolean =
@@ -390,5 +442,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             }
         }
         isRefreshing = false
+    }
+
+    private companion object {
+        const val NEARBY_STOP_LIMIT = 20
+        val GALWAY_CENTRE = UserLocation(53.2743, -9.0488)
     }
 }

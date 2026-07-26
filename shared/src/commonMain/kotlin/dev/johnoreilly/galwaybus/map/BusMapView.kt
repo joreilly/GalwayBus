@@ -41,6 +41,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
 import io.ktor.client.*
@@ -98,7 +99,8 @@ fun BusMapView(
     stops: List<Stop> = emptyList(),
     trackedTripId: String? = null,
     trackedStopRef: String? = null,
-    onStopClick: ((Stop) -> Unit)? = null
+    onStopClick: ((Stop) -> Unit)? = null,
+    userLocation: UserLocation? = null
 ) {
     val tileClient = remember { HttpClient() }
     val tileImages = remember { mutableStateMapOf<TileId, ImageBitmap>() }
@@ -136,7 +138,7 @@ fun BusMapView(
         }
     }
 
-    LaunchedEffect(positions, trackedTripId, trackedStopRef) {
+    LaunchedEffect(positions, trackedTripId, trackedStopRef, userLocation) {
         if (trackedTripId != null) {
             positions.find { it.trip_duid == trackedTripId }?.let { bus ->
                 centerLat = bus.latitude
@@ -144,6 +146,11 @@ fun BusMapView(
                 zoom = MAX_ZOOM - 1
                 hasCentered = true
             }
+        } else if (userLocation != null && !hasCentered) {
+            centerLat = userLocation.lat
+            centerLon = userLocation.lon
+            zoom = STOP_MARKER_MIN_ZOOM + 2
+            hasCentered = true
         } else if (trackedStopRef != null && !hasCentered) {
             stops.find { it.stop_ref == trackedStopRef }?.let { stop ->
                 centerLat = stop.latitude
@@ -482,6 +489,18 @@ fun BusMapView(
                                 draw(size = Size(iconSize, iconSize), colorFilter = ColorFilter.tint(iconTint))
                             }
                         }
+                    }
+                }
+
+                // "You are here" marker: a translucent halo behind a white-ringed blue dot.
+                userLocation?.let { loc ->
+                    val ux = ((lonToTileXf(loc.lon, zoom) - originTileXf) * TILE_PX).toFloat()
+                    val uy = ((latToTileYf(loc.lat, zoom) - originTileYf) * TILE_PX).toFloat()
+                    if (ux in -20f..size.width + 20f && uy in -20f..size.height + 20f) {
+                        val accent = Color(0xFF1E88E5)
+                        drawCircle(accent.copy(alpha = 0.18f), radius = 26f, center = Offset(ux, uy))
+                        drawCircle(Color.White, radius = 10f, center = Offset(ux, uy))
+                        drawCircle(accent, radius = 7f, center = Offset(ux, uy))
                     }
                 }
             }

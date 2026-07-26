@@ -19,6 +19,9 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
@@ -46,6 +49,8 @@ import com.pushpal.jetlime.JetLimeColumn
 import com.pushpal.jetlime.JetLimeDefaults
 import com.pushpal.jetlime.JetLimeEvent
 import com.pushpal.jetlime.JetLimeEventDefaults
+import dev.johnoreilly.galwaybus.location.NearbyStop
+import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.map.BusMapView
 import androidx.compose.ui.graphics.Color
 import dev.johnoreilly.galwaybus.model.BusLocation
@@ -54,6 +59,7 @@ import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlin.math.roundToInt
 import kotlin.time.Instant
 
 private val GalwayLightColors = lightColorScheme(
@@ -137,11 +143,12 @@ private fun galwayAppBarColors(): TopAppBarColors =
     }
 
 private enum class ViewMode(val label: String) {
-    LIST("Buses"), STOPS("Stops"), MAP("Map")
+    STOPS("Stops"), MAP("Map")
 }
 
 private enum class TopTab(val label: String, val icon: ImageVector) {
     FAVOURITES("My stops", Icons.Filled.Star),
+    NEARBY("Near me", Icons.Filled.NearMe),
     BUSES("Buses", Icons.Filled.DirectionsBus),
     ROUTES("Routes", Icons.AutoMirrored.Filled.List)
 }
@@ -181,9 +188,10 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val routes by viewModel.routes.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
-    var viewMode by remember { mutableStateOf(ViewMode.LIST) }
+    var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
+    var showAbout by remember { mutableStateOf(false) }
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -197,6 +205,10 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val onDepartureClick: (DepartureTime, String) -> Unit = { dep, stopRef ->
         viewModel.setTrackedDeparture(dep, stopRef)
         currentScreen = Screen.TRACKING
+    }
+
+    if (showAbout) {
+        AboutDialog(onDismiss = { showAbout = false })
     }
 
     BoxWithConstraints {
@@ -249,6 +261,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                         Text(
                             when (topTab) {
                                 TopTab.FAVOURITES -> "My stops"
+                                TopTab.NEARBY -> "Near me"
                                 TopTab.BUSES -> "All Buses"
                                 TopTab.ROUTES ->
                                     if (selectedRouteNum != null) "Route $selectedRouteNum" else "Galway Bus"
@@ -268,6 +281,11 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 Icon(Icons.Filled.Refresh, contentDescription = "Refresh departures")
                             }
                         }
+                        if (topTab == TopTab.NEARBY) {
+                            IconButton(onClick = { viewModel.loadNearby() }) {
+                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh nearby stops")
+                            }
+                        }
                         if (topTab == TopTab.BUSES) {
                             IconButton(onClick = { viewModel.refreshAllBusPositions() }) {
                                 Icon(Icons.Filled.Refresh, contentDescription = "Refresh bus positions")
@@ -280,6 +298,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                         }
+                        AppBarOverflowMenu(onAbout = { showAbout = true })
                     },
                     colors = galwayAppBarColors()
                 )
@@ -292,6 +311,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             onClick = {
                                 topTab = tab
                                 if (tab == TopTab.FAVOURITES) viewModel.refreshFavouriteDepartures()
+                                if (tab == TopTab.NEARBY) viewModel.loadNearby()
                             },
                             icon = { Icon(tab.icon, contentDescription = tab.label) },
                             label = { Text(tab.label) }
@@ -308,6 +328,10 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                     onDepartureClick = onDepartureClick,
                     modifier = Modifier.padding(padding).fillMaxSize()
                 )
+                TopTab.NEARBY -> NearbyPanel(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(padding).fillMaxSize()
+                )
                 TopTab.BUSES -> AllBusesPanel(
                     viewModel = viewModel,
                     modifier = Modifier.padding(padding).fillMaxSize()
@@ -319,7 +343,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             selectedRouteNum = null,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.LIST
+                                viewMode = ViewMode.STOPS
                             },
                             modifier = Modifier.padding(padding).fillMaxSize()
                         )
@@ -341,7 +365,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             selectedRouteNum = selectedRouteNum,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.LIST
+                                viewMode = ViewMode.STOPS
                             },
                             modifier = Modifier.width(200.dp).fillMaxHeight()
                         )
@@ -399,6 +423,198 @@ private fun AllBusesPanel(
             }
         }
     }
+}
+
+/**
+ * "Stops near me" tab: a map centred on the user's location with the nearest stops as markers,
+ * over a distance-ordered list. Tapping a stop opens the shared map-stop departures sheet.
+ * With no device fix (permission refused, or desktop) it degrades to Galway city centre.
+ */
+@Composable
+private fun NearbyPanel(
+    viewModel: GalwayBusViewModel,
+    modifier: Modifier = Modifier
+) {
+    val nearby by viewModel.nearbyStops.collectAsStateWithLifecycle()
+    val favourites by viewModel.favourites.collectAsStateWithLifecycle()
+    val state = viewModel.nearbyState
+
+    LaunchedEffect(Unit) {
+        if (state is NearbyState.Idle) viewModel.loadNearby()
+    }
+
+    when {
+        state is NearbyState.PermissionDenied -> NearbyMessage(
+            icon = Icons.Filled.LocationOff,
+            title = "Location permission needed",
+            body = "Allow location access to see the bus stops closest to you.",
+            actionLabel = "Enable location",
+            onAction = { viewModel.loadNearby() },
+            modifier = modifier
+        )
+        nearby.isEmpty() && (state is NearbyState.Idle || state is NearbyState.Loading) ->
+            Column(
+                modifier,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                CircularProgressIndicator()
+                Spacer(Modifier.height(12.dp))
+                Text(
+                    "Finding stops near you…",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        else -> {
+            val userLocation = (state as? NearbyState.Located)?.location
+            val list: @Composable (Modifier) -> Unit = { m ->
+                NearbyList(
+                    nearby = nearby,
+                    favouriteRefs = favourites.map { it.stopRef }.toSet(),
+                    isFallback = state is NearbyState.Unavailable,
+                    onStopClick = { viewModel.selectMapStop(it) },
+                    onToggleFavourite = { viewModel.toggleFavourite(it) },
+                    modifier = m
+                )
+            }
+            val map: @Composable (Modifier) -> Unit = { m ->
+                BusMapView(
+                    positions = emptyList(),
+                    stops = nearby.map { it.stop },
+                    userLocation = userLocation,
+                    onStopClick = { viewModel.selectMapStop(it) },
+                    modifier = m
+                )
+            }
+
+            BoxWithConstraints(modifier) {
+                if (maxWidth < 600.dp) {
+                    Column(Modifier.fillMaxSize()) {
+                        map(Modifier.fillMaxWidth().weight(1f))
+                        HorizontalDivider()
+                        list(Modifier.fillMaxWidth().weight(1f))
+                    }
+                } else {
+                    Row(Modifier.fillMaxSize()) {
+                        map(Modifier.fillMaxHeight().weight(1f))
+                        Box(Modifier.fillMaxHeight().width(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
+                        list(Modifier.fillMaxHeight().width(320.dp))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Distance-ordered list of nearby stops, each tappable and favouritable. */
+@Composable
+private fun NearbyList(
+    nearby: List<NearbyStop>,
+    favouriteRefs: Set<String>,
+    isFallback: Boolean,
+    onStopClick: (Stop) -> Unit,
+    onToggleFavourite: (Stop) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(modifier) {
+        item {
+            Text(
+                if (isFallback) "Showing stops near Galway city centre"
+                else "${nearby.size} stop${if (nearby.size == 1) "" else "s"} near you",
+                style = MaterialTheme.typography.labelMedium,
+                color = if (isFallback) MaterialTheme.colorScheme.error
+                        else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+        items(nearby, key = { it.stop.stop_ref }) { entry ->
+            val stop = entry.stop
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onStopClick(stop) }
+                    .padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.Place,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stop.long_name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
+                        ?.joinToString(" · ")?.let { " · $it" } ?: ""
+                    Text(
+                        "${formatDistance(entry.distanceMeters)} · Stop ${stop.stop_id}$routesLabel",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                val isFavourite = stop.stop_ref in favouriteRefs
+                IconButton(onClick = { onToggleFavourite(stop) }) {
+                    Icon(
+                        if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                        contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                        tint = if (isFavourite) MaterialTheme.colorScheme.primary
+                               else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            HorizontalDivider()
+        }
+    }
+}
+
+/** Centered icon + message + action, used for the nearby permission/empty states. */
+@Composable
+private fun NearbyMessage(
+    icon: ImageVector,
+    title: String,
+    body: String,
+    actionLabel: String,
+    onAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier.padding(horizontal = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            modifier = Modifier.size(56.dp),
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+        )
+        Spacer(Modifier.height(16.dp))
+        Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.height(8.dp))
+        Text(
+            body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center
+        )
+        Spacer(Modifier.height(20.dp))
+        Button(onClick = onAction) { Text(actionLabel) }
+    }
+}
+
+/** Human-readable distance: metres under 1 km, otherwise one decimal of a km. */
+private fun formatDistance(meters: Double): String = when {
+    meters < 1000 -> "${meters.roundToInt()} m"
+    else -> "${(meters / 100).roundToInt() / 10.0} km"
 }
 
 /** Contents of the bottom sheet shown when a stop marker is tapped on a map. */
@@ -595,19 +811,10 @@ private fun RouteTimeline(
     nowMs: Long,
     modifier: Modifier = Modifier
 ) {
-    // The bus's next stop, preferring the real-time value from the backend (GTFS-RT) and
-    // falling back to the nearest stop to the live position when no prediction is available.
-    val busIndex = remember(stops, trackedBus) {
-        if (trackedBus == null) return@remember -1
-        val rtIndex = trackedBus.next_stop_ref
-            ?.let { ref -> stops.indexOfFirst { it.stop_ref == ref } }
-            ?.takeIf { it >= 0 }
-        rtIndex ?: stops.indices.minByOrNull { i ->
-            val dLat = stops[i].latitude - trackedBus.latitude
-            val dLon = stops[i].longitude - trackedBus.longitude
-            dLat * dLat + dLon * dLon
-        } ?: -1
-    }
+    // Where the bus is along the route, for the passed/next markers. Prefers the real-time
+    // next_stop_ref but ignores it when it contradicts the vehicle's GPS position (see
+    // resolveBusIndex).
+    val busIndex = remember(stops, trackedBus) { resolveBusIndex(stops, trackedBus) }
     // Predicted departure time per stop (ISO timestamp) from the live next_stops payload.
     val etaByStopRef = remember(trackedBus) {
         trackedBus?.next_stops
@@ -1297,18 +1504,54 @@ private fun DetailPane(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             ) { Icon(Icons.Filled.Refresh, contentDescription = "Refresh positions") }
         }
-        ViewMode.LIST -> BusPositionPanel(
-            routeNum = selectedRouteNum,
-            positions = busPositions,
-            isLoading = viewModel.isLoadingPositions,
-            isRefreshing = viewModel.isRefreshing,
-            lastUpdatedMs = viewModel.lastUpdatedEpochMs,
-            nowMs = nowMs,
-            errorMessage = viewModel.errorMessage,
-            onRefresh = { viewModel.refreshPositions() },
-            modifier = modifier
+    }
+}
+
+/** Three-dot app-bar menu; currently just an "About" entry that opens the version dialog. */
+@Composable
+private fun AppBarOverflowMenu(onAbout: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { expanded = true }) {
+        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(
+            text = { Text("About") },
+            onClick = {
+                expanded = false
+                onAbout()
+            }
         )
     }
+}
+
+/** Small about/version dialog, sourcing the version from the platform's installed package. */
+@Composable
+private fun AboutDialog(onDismiss: () -> Unit) {
+    val platform = remember { getPlatform() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Filled.DirectionsBus,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = { Text("Galway Bus") },
+        text = {
+            Column {
+                Text("Version ${platform.appVersion}", style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    platform.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+    )
 }
 
 @Composable
@@ -1402,145 +1645,6 @@ private fun RouteListItem(route: Route, selected: Boolean, onClick: () -> Unit) 
             )
         }
         HorizontalDivider()
-    }
-}
-
-@Composable
-private fun BusPositionPanel(
-    routeNum: String,
-    positions: List<BusLocation>,
-    isLoading: Boolean,
-    isRefreshing: Boolean,
-    lastUpdatedMs: Long?,
-    nowMs: Long,
-    errorMessage: String?,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(modifier, contentAlignment = Alignment.TopStart) {
-        when {
-            isLoading && positions.isEmpty() -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-            errorMessage != null && positions.isEmpty() -> {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "Could not load buses",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        errorMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 24.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = onRefresh) { Text("Retry") }
-                }
-            }
-            positions.isEmpty() -> {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "No buses on route $routeNum",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Service may not be running right now",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    lastUpdatedMs?.let {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "Checked ${formatTimeAgo(it, nowMs)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedButton(onClick = onRefresh) { Text("Refresh") }
-                }
-            }
-            else -> {
-                @OptIn(ExperimentalMaterial3Api::class)
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    onRefresh = onRefresh,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LazyColumn(Modifier.fillMaxSize()) {
-                        // The auto-refresh cycle is 30s; anything much older means it's silently failing.
-                        if (lastUpdatedMs != null && nowMs - lastUpdatedMs > STALE_AFTER_MS) {
-                            item {
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.errorContainer)
-                                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        "Positions may be out of date — last updated ${formatTimeAgo(lastUpdatedMs, nowMs)}, retrying",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
-                            }
-                        }
-                        item {
-                            Row(
-                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column {
-                                    Text(
-                                        "${positions.size} bus${if (positions.size == 1) "" else "es"} on route $routeNum",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    lastUpdatedMs?.let {
-                                        Text(
-                                            "Updated ${formatTimeAgo(it, nowMs)} · auto-refreshes",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                                if (isRefreshing) {
-                                    CircularProgressIndicator(
-                                        Modifier.size(18.dp).padding(2.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    TextButton(onClick = onRefresh) { Text("Refresh") }
-                                }
-                            }
-                            HorizontalDivider()
-                        }
-                        items(positions, key = { it.vehicle_id ?: it.trip_duid }) { bus ->
-                            BusCard(bus, nowMs)
-                            HorizontalDivider()
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -1735,37 +1839,6 @@ private fun StopDeparturesSection(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun BusCard(bus: BusLocation, nowMs: Long) {
-    val timeAgo = formatTimeAgoIso(bus.modified_timestamp, nowMs)
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = bus.headsign ?: bus.timetable_id ?: "Bus",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (bus.vehicle_id != null) {
-                Text(
-                    text = bus.vehicle_id,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        if (timeAgo.isNotEmpty()) {
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = "Updated $timeAgo",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
