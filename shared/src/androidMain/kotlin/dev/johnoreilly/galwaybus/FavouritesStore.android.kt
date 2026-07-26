@@ -3,7 +3,7 @@ package dev.johnoreilly.galwaybus
 import android.content.Context
 
 /**
- * Holder for the application [Context] used to back favourites persistence with
+ * Holder for the application [Context] used to back preference persistence with
  * SharedPreferences. Set this once from the Android entry point
  * (e.g. `GalwayBusPrefs.appContext = applicationContext`).
  *
@@ -14,27 +14,25 @@ object GalwayBusPrefs {
     @Volatile
     var appContext: Context? = null
 
-    @Volatile
-    internal var fallback: String? = null
+    internal val fallback = mutableMapOf<String, String>()
 }
 
 private const val PREFS_NAME = "galwaybus_prefs"
-private const val KEY_FAVOURITES = "favourite_stops"
 
-internal actual fun readFavouritesJson(): String? {
-    val ctx = GalwayBusPrefs.appContext ?: return GalwayBusPrefs.fallback
+internal actual fun readPref(key: String): String? {
+    val ctx = GalwayBusPrefs.appContext ?: return GalwayBusPrefs.fallback[key]
     return ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        .getString(KEY_FAVOURITES, null)
+        .getString(key, null)
 }
 
-internal actual fun writeFavouritesJson(value: String) {
+internal actual fun writePref(key: String, value: String) {
     val ctx = GalwayBusPrefs.appContext
     if (ctx == null) {
-        GalwayBusPrefs.fallback = value
+        GalwayBusPrefs.fallback[key] = value
         return
     }
     ctx.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         .edit()
-        .putString(KEY_FAVOURITES, value)
+        .putString(key, value)
         .apply()
 }

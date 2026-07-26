@@ -3,6 +3,7 @@ package dev.johnoreilly.galwaybus
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,19 +12,25 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -46,40 +53,88 @@ import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlin.time.Instant
+
+private val GalwayLightColors = lightColorScheme(
+    primary = Color(0xFF4f0000),
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFFFFD9E2),
+    onPrimaryContainer = Color(0xFF3E001D),
+    secondary = Color(0xFF77565C),
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFFFFD9E2),
+    onSecondaryContainer = Color(0xFF2C151A),
+    error = Color(0xFFBA1A1A),
+    onError = Color.White,
+    errorContainer = Color(0xFFFFDAD6),
+    onErrorContainer = Color(0xFF410002),
+    surface = Color(0xFFFFFBFB),
+    onSurface = Color(0xFF201A1B),
+    surfaceVariant = Color(0xFFF4DDDD),
+    onSurfaceVariant = Color(0xFF524343),
+    outline = Color(0xFF857373),
+    outlineVariant = Color(0xFFD8C2C2)
+)
+
+private val GalwayDarkColors = darkColorScheme(
+    primary = Color(0xFFFFB3B4),
+    onPrimary = Color(0xFF561D1E),
+    primaryContainer = Color(0xFF733333),
+    onPrimaryContainer = Color(0xFFFFDAD9),
+    secondary = Color(0xFFE6BDC3),
+    onSecondary = Color(0xFF44292E),
+    secondaryContainer = Color(0xFF5D3F44),
+    onSecondaryContainer = Color(0xFFFFD9E2),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
+    surface = Color(0xFF181213),
+    onSurface = Color(0xFFECDFE0),
+    surfaceVariant = Color(0xFF524343),
+    onSurfaceVariant = Color(0xFFD8C2C2),
+    outline = Color(0xFFA08C8C),
+    outlineVariant = Color(0xFF524343)
+)
 
 @Composable
 fun App() {
     val repository = remember { GalwayBusRepository() }
     val viewModel = viewModel { GalwayBusViewModel(repository) }
-    val colorScheme = lightColorScheme(
-        primary = Color(0xFF4f0000),
-        onPrimary = Color.White,
-        primaryContainer = Color(0xFFFFD9E2),
-        onPrimaryContainer = Color(0xFF3E001D),
-        secondary = Color(0xFF77565C),
-        onSecondary = Color.White,
-        secondaryContainer = Color(0xFFFFD9E2),
-        onSecondaryContainer = Color(0xFF2C151A),
-        error = Color(0xFFBA1A1A),
-        onError = Color.White,
-        errorContainer = Color(0xFFFFDAD6),
-        onErrorContainer = Color(0xFF410002),
-        surface = Color(0xFFFFFBFB),
-        onSurface = Color(0xFF201A1B),
-        surfaceVariant = Color(0xFFF4DDDD),
-        onSurfaceVariant = Color(0xFF524343),
-        outline = Color(0xFF857373),
-        outlineVariant = Color(0xFFD8C2C2)
-    )
+    val colorScheme = if (isSystemInDarkTheme()) GalwayDarkColors else GalwayLightColors
     MaterialTheme(colorScheme = colorScheme) {
         GalwayBusApp(viewModel)
     }
 }
 
 // Delay-status accents (colorScheme has no green slot). Late reuses colorScheme.error.
-private val OnTimeGreen = Color(0xFF2E7D32)
-private val EarlyGreen = Color(0xFF2E7D32)
+@Composable
+private fun onTimeGreen(): Color =
+    if (isSystemInDarkTheme()) Color(0xFF81C784) else Color(0xFF2E7D32)
+
+/**
+ * In light mode the app bar carries the brand maroon; in dark mode a maroon-light-pink
+ * bar would glare, so it falls back to a tonal surface like most dark UIs.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun galwayAppBarColors(): TopAppBarColors =
+    if (isSystemInDarkTheme()) {
+        TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            titleContentColor = MaterialTheme.colorScheme.onSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.onSurface
+        )
+    } else {
+        TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.onPrimary,
+            actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
+            navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    }
 
 private enum class ViewMode(val label: String) {
     LIST("Buses"), STOPS("Stops"), MAP("Map")
@@ -120,7 +175,7 @@ fun DepartureTime.formatWithLive(nowMs: Long): String {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val routes by viewModel.routes.collectAsStateWithLifecycle()
@@ -128,10 +183,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val selectedRouteNum = viewModel.selectedRouteNum
     var viewMode by remember { mutableStateOf(ViewMode.LIST) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
-    // Land on "My stops" when the user already has favourites, otherwise on Routes.
-    var topTab by remember {
-        mutableStateOf(if (viewModel.favourites.value.isNotEmpty()) TopTab.FAVOURITES else TopTab.ROUTES)
-    }
+    var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -149,7 +201,40 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
 
     BoxWithConstraints {
         val compact = maxWidth < 600.dp
-        
+
+        // System back (Android) pops in-app navigation instead of exiting:
+        // tracking screen first, then route detail in the compact layout.
+        BackHandler(
+            enabled = currentScreen == Screen.TRACKING ||
+                (compact && topTab == TopTab.ROUTES && selectedRouteNum != null)
+        ) {
+            if (currentScreen == Screen.TRACKING) {
+                currentScreen = Screen.MAIN
+            } else {
+                viewModel.clearRoute()
+            }
+        }
+
+        // Departures sheet for a stop tapped on any map.
+        viewModel.mapStop?.let { stop ->
+            val sheetDepartures by viewModel.mapStopDepartures.collectAsStateWithLifecycle()
+            ModalBottomSheet(onDismissRequest = { viewModel.clearMapStop() }) {
+                MapStopSheetContent(
+                    stop = stop,
+                    departures = sheetDepartures,
+                    isLoading = viewModel.isLoadingMapStop,
+                    isFavourite = favourites.any { it.stopRef == stop.stop_ref },
+                    nowMs = nowMs,
+                    onToggleFavourite = { viewModel.toggleFavourite(stop) },
+                    onDepartureClick = { dep ->
+                        viewModel.setTrackedDeparture(dep, stop.stop_ref)
+                        viewModel.clearMapStop()
+                        currentScreen = Screen.TRACKING
+                    }
+                )
+            }
+        }
+
         if (currentScreen == Screen.TRACKING) {
             BusTrackingView(
                 viewModel = viewModel,
@@ -196,12 +281,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                    )
+                    colors = galwayAppBarColors()
                 )
             },
             bottomBar = {
@@ -287,7 +367,85 @@ private fun AllBusesPanel(
         BusMapView(
             positions = busPositions,
             stops = allStops,
+            onStopClick = { viewModel.selectMapStop(it) },
             modifier = Modifier.fillMaxSize()
+        )
+        // Late at night the feed is legitimately empty; say so rather than
+        // leaving a silently bus-less map.
+        if (busPositions.isEmpty()) {
+            Card(
+                modifier = Modifier.align(Alignment.Center).padding(32.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Row(
+                    Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (!viewModel.hasLoadedAllBuses) {
+                        CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                        Spacer(Modifier.width(12.dp))
+                        Text("Loading live buses…", style = MaterialTheme.typography.bodyMedium)
+                    } else {
+                        Column {
+                            Text("No buses reporting right now", style = MaterialTheme.typography.titleSmall)
+                            Text(
+                                "Service may not be running",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Contents of the bottom sheet shown when a stop marker is tapped on a map. */
+@Composable
+private fun MapStopSheetContent(
+    stop: Stop,
+    departures: List<DepartureTime>,
+    isLoading: Boolean,
+    isFavourite: Boolean,
+    nowMs: Long,
+    onToggleFavourite: () -> Unit,
+    onDepartureClick: (DepartureTime) -> Unit
+) {
+    Column(Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
+        Row(
+            Modifier.fillMaxWidth().padding(start = 20.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stop.long_name,
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    "Stop ${stop.stop_id}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            IconButton(onClick = onToggleFavourite) {
+                Icon(
+                    if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                    contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                    tint = if (isFavourite) MaterialTheme.colorScheme.primary
+                           else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+        StopDeparturesSection(
+            departures = departures,
+            isLoading = isLoading,
+            nowMs = nowMs,
+            onDepartureClick = onDepartureClick,
+            startPadding = 20.dp
         )
     }
 }
@@ -322,6 +480,8 @@ private fun BusTrackingView(
             @OptIn(ExperimentalMaterial3Api::class)
             TopAppBar(
                 title = {
+                    // Follows the bar's content colour so it adapts to light/dark bar styles.
+                    val barContentColor = LocalContentColor.current
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Track Bus")
@@ -330,7 +490,7 @@ private fun BusTrackingView(
                                 Box(
                                     Modifier
                                         .background(
-                                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f),
+                                            color = barContentColor.copy(alpha = 0.2f),
                                             shape = RoundedCornerShape(4.dp)
                                         )
                                         .padding(horizontal = 6.dp, vertical = 2.dp)
@@ -340,7 +500,7 @@ private fun BusTrackingView(
                                     Text(
                                         text = routeNum,
                                         style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onPrimary
+                                        color = barContentColor
                                     )
                                 }
                             }
@@ -349,7 +509,7 @@ private fun BusTrackingView(
                             Text(
                                 text = destination,
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                                color = barContentColor.copy(alpha = 0.85f),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis
                             )
@@ -361,11 +521,7 @@ private fun BusTrackingView(
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                colors = galwayAppBarColors()
             )
         }
     ) { padding ->
@@ -470,10 +626,16 @@ private fun RouteTimeline(
     val passedColor = MaterialTheme.colorScheme.secondary
 
     val listState = rememberLazyListState()
-    // Keep the bus's current position (or the target) in view.
+    // Keep the bus's current position (or the target) centred in the viewport, so
+    // the stops just passed and the stops coming up are both visible around it.
     LaunchedEffect(busIndex, targetIndex, stops.size) {
         val focus = if (busIndex >= 0) busIndex else targetIndex
-        if (focus >= 0) listState.animateScrollToItem(focus)
+        if (focus < 0) return@LaunchedEffect
+        // Wait for the first layout pass so the viewport height is known.
+        snapshotFlow { listState.layoutInfo.viewportSize.height }.first { it > 0 }
+        val viewport = listState.layoutInfo.viewportSize.height
+        val itemHeight = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size ?: 0
+        listState.animateScrollToItem(focus, -(viewport - itemHeight) / 2)
     }
 
     JetLimeColumn(
@@ -561,8 +723,7 @@ private fun TrackingInfoCard(
     }
     val statusColor = when {
         delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
-        delaySeconds != null && delaySeconds < -30 -> EarlyGreen
-        else -> OnTimeGreen
+        else -> onTimeGreen()
     }
 
     Card(
@@ -619,6 +780,7 @@ private fun TrackingInfoCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun FavouritesPanel(
     viewModel: GalwayBusViewModel,
@@ -629,69 +791,194 @@ private fun FavouritesPanel(
 ) {
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val departuresByStop by viewModel.favouriteDepartures.collectAsStateWithLifecycle()
+    val allStops by viewModel.allStops.collectAsStateWithLifecycle()
+
+    var query by remember { mutableStateOf("") }
+    val searching = query.trim().length >= 2
+    // Match by name or stop code, prefix matches first so short queries stay useful.
+    val searchResults = remember(allStops, query) {
+        val q = query.trim()
+        if (q.length < 2) emptyList()
+        else allStops
+            .filter { it.long_name.contains(q, ignoreCase = true) || it.stop_id.contains(q, ignoreCase = true) }
+            .sortedWith(
+                compareBy(
+                    { !it.long_name.startsWith(q, ignoreCase = true) && !it.stop_id.startsWith(q, ignoreCase = true) },
+                    { it.long_name }
+                )
+            )
+            .take(30)
+    }
 
     LaunchedEffect(Unit) { viewModel.refreshFavouriteDepartures() }
 
-    if (favourites.isEmpty()) {
-        Column(
-            modifier.padding(horizontal = 32.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                Icons.Filled.Star,
-                contentDescription = null,
-                modifier = Modifier.size(56.dp),
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+    Column(modifier) {
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+            placeholder = { Text("Search all stops", style = MaterialTheme.typography.bodyMedium) },
+            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            trailingIcon = {
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { query = "" }) {
+                        Icon(Icons.Filled.Close, contentDescription = "Clear search")
+                    }
+                }
+            },
+            singleLine = true,
+            textStyle = MaterialTheme.typography.bodyMedium,
+            shape = RoundedCornerShape(24.dp)
+        )
+
+        when {
+            searching -> StopSearchResults(
+                results = searchResults,
+                favouriteRefs = favourites.map { it.stopRef }.toSet(),
+                onToggleFavourite = { viewModel.toggleFavourite(it) },
+                modifier = Modifier.weight(1f).fillMaxWidth()
             )
-            Spacer(Modifier.height(16.dp))
+            favourites.isEmpty() -> Column(
+                Modifier.weight(1f).fillMaxWidth().padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Filled.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(56.dp),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "No saved stops yet",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Search for a stop above and tap its star, or browse a route to find stops on the way",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(Modifier.height(20.dp))
+                Button(onClick = onBrowseRoutes) { Text("Browse routes") }
+            }
+            else -> PullToRefreshBox(
+                isRefreshing = viewModel.isLoadingFavourites,
+                onRefresh = { viewModel.refreshFavouriteDepartures() },
+                modifier = Modifier.weight(1f).fillMaxWidth()
+            ) {
+                LazyColumn(
+                    Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    item {
+                        Text(
+                            "${favourites.size} saved stop${if (favourites.size == 1) "" else "s"}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(start = 4.dp)
+                        )
+                    }
+                    items(favourites, key = { it.stopRef }) { fav ->
+                        FavouriteStopCard(
+                            name = fav.name,
+                            stopId = fav.stopId,
+                            departures = departuresByStop[fav.stopRef],
+                            nowMs = nowMs,
+                            updatedMs = viewModel.favouritesUpdatedMs,
+                            isRefreshing = viewModel.isLoadingFavourites,
+                            onRemove = { viewModel.removeFavourite(fav.stopRef) },
+                            onDepartureClick = { onDepartureClick(it, fav.stopRef) }
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Search hits across every stop in the network, each with a star to favourite it directly. */
+@Composable
+private fun StopSearchResults(
+    results: List<Stop>,
+    favouriteRefs: Set<String>,
+    onToggleFavourite: (Stop) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (results.isEmpty()) {
+        Box(modifier.padding(24.dp), contentAlignment = Alignment.TopCenter) {
             Text(
-                "No saved stops yet",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Open a route, tap a stop, then tap its star to pin it here for quick departures",
+                "No stops match",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(20.dp))
-            Button(onClick = onBrowseRoutes) { Text("Browse routes") }
         }
         return
     }
-
-    LazyColumn(
-        modifier,
-        contentPadding = PaddingValues(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        item {
-            Text(
-                "${favourites.size} saved stop${if (favourites.size == 1) "" else "s"}",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
-        items(favourites, key = { it.stopRef }) { fav ->
-            FavouriteStopCard(
-                name = fav.name,
-                stopId = fav.stopId,
-                departures = departuresByStop[fav.stopRef],
-                nowMs = nowMs,
-                updatedMs = viewModel.favouritesUpdatedMs,
-                isRefreshing = viewModel.isLoadingFavourites,
-                onRemove = { viewModel.removeFavourite(fav.stopRef) },
-                onDepartureClick = { onDepartureClick(it, fav.stopRef) }
-            )
+    LazyColumn(modifier) {
+        items(results, key = { it.stop_ref }) { stop ->
+            Row(
+                Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.Place,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(22.dp)
+                )
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        stop.long_name,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
+                        ?.joinToString(" · ")?.let { " · $it" } ?: ""
+                    Text(
+                        "Stop ${stop.stop_id}$routesLabel",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                val isFavourite = stop.stop_ref in favouriteRefs
+                IconButton(onClick = { onToggleFavourite(stop) }) {
+                    Icon(
+                        if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
+                        contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                        tint = if (isFavourite) MaterialTheme.colorScheme.primary
+                               else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            HorizontalDivider()
         }
     }
 }
 
 private val FAVOURITE_DEPARTURES_INDENT = 64.dp
+
+/** Age at which auto-refreshed live data is flagged as stale (refresh cycle is 30s). */
+private const val STALE_AFTER_MS = 120_000L
+
+/** Trailing chevron marking a departure row as tappable (opens bus tracking). */
+@Composable
+private fun TrackChevron() {
+    Icon(
+        Icons.AutoMirrored.Filled.KeyboardArrowRight,
+        contentDescription = "Track this bus",
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.size(18.dp)
+    )
+}
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -776,8 +1063,9 @@ private fun FavouriteStopCard(
                 else -> FavouriteDepartures(departures, nowMs, onDepartureClick)
             }
 
-            // Freshness footer
+            // Freshness footer; goes loud once the data is old enough to mislead.
             if (updatedMs != null) {
+                val stale = !isRefreshing && nowMs - updatedMs > STALE_AFTER_MS
                 Row(
                     Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -787,9 +1075,14 @@ private fun FavouriteStopCard(
                         Spacer(Modifier.width(6.dp))
                     }
                     Text(
-                        if (isRefreshing) "Updating…" else "Updated ${formatTimeAgo(updatedMs, nowMs)}",
+                        when {
+                            isRefreshing -> "Updating…"
+                            stale -> "Last updated ${formatTimeAgo(updatedMs, nowMs)} — retrying"
+                            else -> "Updated ${formatTimeAgo(updatedMs, nowMs)}"
+                        },
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (stale) MaterialTheme.colorScheme.error
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -841,7 +1134,7 @@ private fun RouteBadge(route: String, large: Boolean) {
 @Composable
 private fun departureCountdownColor(delaySeconds: Int?): Color = when {
     delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
-    delaySeconds != null && delaySeconds < -30 -> EarlyGreen
+    delaySeconds != null && delaySeconds < -30 -> onTimeGreen()
     else -> MaterialTheme.colorScheme.primary
 }
 
@@ -883,6 +1176,10 @@ private fun FavouriteDepartures(
                 style = MaterialTheme.typography.titleLarge,
                 color = departureCountdownColor(next.delaySeconds)
             )
+            if (next.tripId != null) {
+                Spacer(Modifier.width(4.dp))
+                TrackChevron()
+            }
         }
 
         val later = departures.drop(1).take(3)
@@ -911,6 +1208,10 @@ private fun FavouriteDepartures(
                         style = MaterialTheme.typography.labelMedium,
                         color = departureCountdownColor(dep.delaySeconds)
                     )
+                    if (dep.tripId != null) {
+                        Spacer(Modifier.width(4.dp))
+                        TrackChevron()
+                    }
                 }
             }
         }
@@ -923,12 +1224,22 @@ private fun ModeSwitcher(
     onSelect: (ViewMode) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Rendered both on the maroon app bar and on plain surface; follow the ambient
+    // content colour so unselected labels stay readable in both places.
+    val contentColor = LocalContentColor.current
+    val colors = SegmentedButtonDefaults.colors(
+        inactiveContainerColor = Color.Transparent,
+        inactiveContentColor = contentColor,
+        activeBorderColor = contentColor.copy(alpha = 0.6f),
+        inactiveBorderColor = contentColor.copy(alpha = 0.6f)
+    )
     SingleChoiceSegmentedButtonRow(modifier) {
         ViewMode.entries.forEachIndexed { index, mode ->
             SegmentedButton(
                 selected = viewMode == mode,
                 onClick = { onSelect(mode) },
-                shape = SegmentedButtonDefaults.itemShape(index, ViewMode.entries.size)
+                shape = SegmentedButtonDefaults.itemShape(index, ViewMode.entries.size),
+                colors = colors
             ) { Text(mode.label) }
         }
     }
@@ -977,6 +1288,7 @@ private fun DetailPane(
                     stops = routeStops.flatten().distinctBy { it.stop_ref },
                     trackedTripId = viewModel.trackedTripId,
                     trackedStopRef = viewModel.trackedStopRef,
+                    onStopClick = { viewModel.selectMapStop(it) },
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -1165,41 +1477,66 @@ private fun BusPositionPanel(
                 }
             }
             else -> {
-                LazyColumn(Modifier.fillMaxSize()) {
-                    item {
-                        Row(
-                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    "${positions.size} bus${if (positions.size == 1) "" else "es"} on route $routeNum",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                lastUpdatedMs?.let {
+                @OptIn(ExperimentalMaterial3Api::class)
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        // The auto-refresh cycle is 30s; anything much older means it's silently failing.
+                        if (lastUpdatedMs != null && nowMs - lastUpdatedMs > STALE_AFTER_MS) {
+                            item {
+                                Row(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colorScheme.errorContainer)
+                                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Text(
-                                        "Updated ${formatTimeAgo(it, nowMs)} · auto-refreshes",
+                                        "Positions may be out of date — last updated ${formatTimeAgo(lastUpdatedMs, nowMs)}, retrying",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        color = MaterialTheme.colorScheme.onErrorContainer
                                     )
                                 }
                             }
-                            if (isRefreshing) {
-                                CircularProgressIndicator(
-                                    Modifier.size(18.dp).padding(2.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                TextButton(onClick = onRefresh) { Text("Refresh") }
-                            }
                         }
-                        HorizontalDivider()
-                    }
-                    items(positions, key = { it.vehicle_id ?: it.trip_duid }) { bus ->
-                        BusCard(bus, nowMs)
-                        HorizontalDivider()
+                        item {
+                            Row(
+                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column {
+                                    Text(
+                                        "${positions.size} bus${if (positions.size == 1) "" else "es"} on route $routeNum",
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    lastUpdatedMs?.let {
+                                        Text(
+                                            "Updated ${formatTimeAgo(it, nowMs)} · auto-refreshes",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                if (isRefreshing) {
+                                    CircularProgressIndicator(
+                                        Modifier.size(18.dp).padding(2.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    TextButton(onClick = onRefresh) { Text("Refresh") }
+                                }
+                            }
+                            HorizontalDivider()
+                        }
+                        items(positions, key = { it.vehicle_id ?: it.trip_duid }) { bus ->
+                            BusCard(bus, nowMs)
+                            HorizontalDivider()
+                        }
                     }
                 }
             }
@@ -1391,6 +1728,10 @@ private fun StopDeparturesSection(
                             style = MaterialTheme.typography.labelMedium,
                             color = departureCountdownColor(dep.delaySeconds)
                         )
+                        if (onDepartureClick != null && dep.tripId != null) {
+                            Spacer(Modifier.width(4.dp))
+                            TrackChevron()
+                        }
                     }
                 }
             }

@@ -104,7 +104,7 @@ class GalwayBusRepository(
 
     /** Currently persisted favourite stops (empty if none / unreadable). */
     fun getFavouriteStops(): List<FavouriteStop> {
-        val raw = readFavouritesJson() ?: return emptyList()
+        val raw = readPref(PREF_FAVOURITES) ?: return emptyList()
         return try {
             json.decodeFromString<List<FavouriteStop>>(raw)
         } catch (_: Exception) {
@@ -114,8 +114,14 @@ class GalwayBusRepository(
 
     /** Persists the given favourite stops, replacing any previous value. */
     fun saveFavouriteStops(favourites: List<FavouriteStop>) {
-        writeFavouritesJson(json.encodeToString(favourites))
+        writePref(PREF_FAVOURITES, json.encodeToString(favourites))
     }
+
+    // ── Last-viewed UI state (restored on next launch) ────────────────────────
+
+    fun getLastViewedRoute(): String? = readPref(PREF_LAST_ROUTE)?.takeIf { it.isNotEmpty() }
+
+    fun saveLastViewedRoute(routeNum: String?) = writePref(PREF_LAST_ROUTE, routeNum ?: "")
 
     /** All Galway bus positions keyed by route number. */
     suspend fun getBusPositions(): Map<String, List<BusLocation>> = fetchVehicles()
@@ -363,4 +369,9 @@ class GalwayBusRepository(
 
     private fun LocalDate.toGtfsDate(): String =
         "${year}${month.number.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}"
+
+    private companion object {
+        const val PREF_FAVOURITES = "favourite_stops"
+        const val PREF_LAST_ROUTE = "last_route"
+    }
 }

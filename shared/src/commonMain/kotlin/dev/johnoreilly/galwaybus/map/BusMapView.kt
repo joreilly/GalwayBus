@@ -1,8 +1,12 @@
 package dev.johnoreilly.galwaybus.map
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +33,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,6 +58,22 @@ private const val GALWAY_LAT = 53.2743
 private const val GALWAY_LON = -9.0488
 
 private data class TileId(val z: Int, val x: Int, val y: Int)
+
+private data class LatLon(val lat: Double, val lon: Double)
+
+// invert + hue-rotate(180°): tiles go dark while land/water/road hues stay roughly true
+private val DarkTileFilter = ColorFilter.colorMatrix(
+    ColorMatrix(
+        floatArrayOf(
+            0.574f, -1.430f, -0.144f, 0f, 255f,
+            -0.426f, -0.430f, -0.144f, 0f, 255f,
+            -0.426f, -1.430f, 0.856f, 0f, 255f,
+            0f, 0f, 0f, 1f, 0f
+        )
+    )
+)
+
+private val BusLocation.markerKey: String get() = vehicle_id ?: trip_duid
 
 private fun lonToTileXf(lon: Double, zoom: Int): Double =
     (lon + 180.0) / 360.0 * (1 shl zoom)
@@ -72,7 +97,8 @@ fun BusMapView(
     modifier: Modifier = Modifier,
     stops: List<Stop> = emptyList(),
     trackedTripId: String? = null,
-    trackedStopRef: String? = null
+    trackedStopRef: String? = null,
+    onStopClick: ((Stop) -> Unit)? = null
 ) {
     val tileClient = remember { HttpClient() }
     val tileImages = remember { mutableStateMapOf<TileId, ImageBitmap>() }
@@ -87,6 +113,28 @@ fun BusMapView(
     var hoveredBus by remember { mutableStateOf<BusLocation?>(null) }
     var hoveredStop by remember { mutableStateOf<Stop?>(null) }
     var hoverPos by remember { mutableStateOf(Offset.Zero) }
+
+    // Positions arrive in ~30s polls; glide each marker to its new fix instead of jumping.
+    val animatedPositions = remember { mutableStateMapOf<String, LatLon>() }
+    LaunchedEffect(positions) {
+        val targets = positions.associateBy { it.markerKey }
+        animatedPositions.keys.retainAll(targets.keys)
+        targets.forEach { (id, bus) ->
+            val from = animatedPositions[id]
+            val to = LatLon(bus.latitude, bus.longitude)
+            when {
+                from == null -> animatedPositions[id] = to
+                from != to -> launch {
+                    animate(0f, 1f, animationSpec = tween(1500, easing = LinearEasing)) { t, _ ->
+                        animatedPositions[id] = LatLon(
+                            from.lat + (to.lat - from.lat) * t,
+                            from.lon + (to.lon - from.lon) * t
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     LaunchedEffect(positions, trackedTripId, trackedStopRef) {
         if (trackedTripId != null) {
@@ -181,6 +229,18 @@ fun BusMapView(
         }.build()
     }
     val busPainter = rememberVectorPainter(busIcon)
+    val tileColorFilter = if (isSystemInDarkTheme()) DarkTileFilter else null
+
+    // Route number drawn inside each marker (falls back to the bus glyph when unknown).
+    // Marker geometry is in raw px, so the label font is derived from px, not sp.
+    val textMeasurer = rememberTextMeasurer()
+    val labelStyle = with(LocalDensity.current) {
+        TextStyle(fontSize = 15f.toSp(), fontWeight = FontWeight.Bold)
+    }
+    val routeLabelLayouts = remember(positions, textMeasurer, labelStyle) {
+        positions.mapNotNull { it.timetable_id }.filter { it.isNotEmpty() }.distinct()
+            .associateWith { route -> textMeasurer.measure(AnnotatedString(route), labelStyle) }
+    }
 
     Box(modifier.clipToBounds()) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -260,8 +320,28 @@ fun BusMapView(
                             }
                         }
                     }
-                    .pointerInput(Unit) {
-                        detectTapGestures(onDoubleTap = { pos -> zoomAt(pos, zoom + 1) })
+                    .pointerInput(positions, stops, trackedStopRef, onStopClick, widthPx, heightPx) {
+                        detectTapGestures(
+                            onDoubleTap = { pos -> zoomAt(pos, zoom + 1) },
+                            onTap = tap@{ pos ->
+                                if (onStopClick == null) return@tap
+                                val originXf = lonToTileXf(centerLon, zoom) - (widthPx / 2.0 / TILE_PX)
+                                val originYf = latToTileYf(centerLat, zoom) - (heightPx / 2.0 / TILE_PX)
+                                // Nearest stop marker within touch range (generous slop for fingers)
+                                val hit = stops
+                                    .filter { zoom >= STOP_MARKER_MIN_ZOOM || it.stop_ref == trackedStopRef }
+                                    .map { stop ->
+                                        val sx = ((lonToTileXf(stop.longitude, zoom) - originXf) * TILE_PX).toFloat()
+                                        val sy = ((latToTileYf(stop.latitude, zoom) - originYf) * TILE_PX).toFloat()
+                                        val dx = pos.x - sx
+                                        val dy = pos.y - sy
+                                        stop to (dx * dx + dy * dy)
+                                    }
+                                    .filter { (_, d2) -> d2 < 24f * 24f }
+                                    .minByOrNull { (_, d2) -> d2 }
+                                hit?.let { (stop, _) -> onStopClick(stop) }
+                            }
+                        )
                     }
                     .pointerInput(Unit) {
                         // Mouse scroll-wheel zoom (desktop)
@@ -294,8 +374,10 @@ fun BusMapView(
 
                                     var busFound: BusLocation? = null
                                     for (bus in positions) {
-                                        val bx = ((lonToTileXf(bus.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
-                                        val by = ((latToTileYf(bus.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
+                                        // Hit-test where the marker is drawn (mid-animation), not its final fix
+                                        val busPos = animatedPositions[bus.markerKey] ?: LatLon(bus.latitude, bus.longitude)
+                                        val bx = ((lonToTileXf(busPos.lon, zoom) - originTileXf) * TILE_PX).toFloat()
+                                        val by = ((latToTileYf(busPos.lat, zoom) - originTileYf) * TILE_PX).toFloat()
                                         val dx = position.x - bx
                                         val dy = position.y - by
                                         if (dx * dx + dy * dy < 30 * 30) {
@@ -337,7 +419,7 @@ fun BusMapView(
                     val bitmap = tileImages[TileId(zoom, tx, ty)] ?: continue
                     val px = ((tx - originTileXf) * TILE_PX).toFloat()
                     val py = ((ty - originTileYf) * TILE_PX).toFloat()
-                    drawImage(bitmap, topLeft = Offset(px, py))
+                    drawImage(bitmap, topLeft = Offset(px, py), colorFilter = tileColorFilter)
                 }
 
                 stops.forEach { stop ->
@@ -358,8 +440,9 @@ fun BusMapView(
                 }
 
                 positions.forEach { bus ->
-                    val bx = ((lonToTileXf(bus.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
-                    val by = ((latToTileYf(bus.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
+                    val drawPos = animatedPositions[bus.markerKey] ?: LatLon(bus.latitude, bus.longitude)
+                    val bx = ((lonToTileXf(drawPos.lon, zoom) - originTileXf) * TILE_PX).toFloat()
+                    val by = ((latToTileYf(drawPos.lat, zoom) - originTileYf) * TILE_PX).toFloat()
                     val isTracked = bus.trip_duid == trackedTripId
                     val markerColor = busColors[bus.timetable_id ?: ""] ?: palette[0]
                     // Direction index within the route (by sorted headsign); shapes the marker.
@@ -382,13 +465,22 @@ fun BusMapView(
                         drawCircle(markerColor, radius = r, center = Offset(bx, by))
                     }
 
-                    // Tint the bus glyph for contrast: dark on light markers (e.g. the
+                    // Tint the marker content for contrast: dark on light markers (e.g. the
                     // yellow of route 401), white on dark ones. The tracked ring signals tracking.
                     val iconTint = if (markerColor.luminance() > 0.5f) Color(0xFF1A1A1A) else Color.White
-                    val iconSize = 24f
-                    translate(bx - iconSize / 2, by - iconSize / 2) {
-                        with(busPainter) {
-                            draw(size = Size(iconSize, iconSize), colorFilter = ColorFilter.tint(iconTint))
+                    val label = routeLabelLayouts[bus.timetable_id]
+                    if (label != null) {
+                        drawText(
+                            label,
+                            color = iconTint,
+                            topLeft = Offset(bx - label.size.width / 2f, by - label.size.height / 2f)
+                        )
+                    } else {
+                        val iconSize = 24f
+                        translate(bx - iconSize / 2, by - iconSize / 2) {
+                            with(busPainter) {
+                                draw(size = Size(iconSize, iconSize), colorFilter = ColorFilter.tint(iconTint))
+                            }
                         }
                     }
                 }

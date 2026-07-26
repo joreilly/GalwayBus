@@ -88,8 +88,22 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     private val _allBusPositions = MutableStateFlow<List<BusLocation>>(emptyList())
     val allBusPositions: StateFlow<List<BusLocation>> = _allBusPositions.asStateFlow()
 
+    /** True once the first all-buses fetch attempt has finished (success or not). */
+    var hasLoadedAllBuses by mutableStateOf(false)
+        private set
+
     private val _allStops = MutableStateFlow<List<Stop>>(emptyList())
     val allStops: StateFlow<List<Stop>> = _allStops.asStateFlow()
+
+    // ── Stop selected on the map (departures bottom sheet) ─────────────────
+    var mapStop by mutableStateOf<Stop?>(null)
+        private set
+
+    private val _mapStopDepartures = MutableStateFlow<List<DepartureTime>>(emptyList())
+    val mapStopDepartures: StateFlow<List<DepartureTime>> = _mapStopDepartures.asStateFlow()
+
+    var isLoadingMapStop by mutableStateOf(false)
+        private set
 
     private var autoRefreshJob: Job? = null
     private var allBusesJob: Job? = null
@@ -123,6 +137,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         refreshFavouriteDepartures()
         startFavouritesPolling()
         startAllBusesPolling()
+        // Restore the route the user was viewing last session.
+        repository.getLastViewedRoute()?.let { selectRouteInternal(it) }
     }
 
     private fun startAllBusesPolling() {
@@ -140,8 +156,31 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             try {
                 val allBuses = repository.getBusPositions()
                 _allBusPositions.value = allBuses.values.flatten()
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            } finally {
+                hasLoadedAllBuses = true
+            }
         }
+    }
+
+    /** Shows the departures sheet for a stop tapped on the map. */
+    fun selectMapStop(stop: Stop) {
+        mapStop = stop
+        _mapStopDepartures.value = emptyList()
+        viewModelScope.launch {
+            isLoadingMapStop = true
+            try {
+                val (departures, _) = repository.getStopDeparturesWithLive(stop.stop_ref)
+                if (mapStop?.stop_ref == stop.stop_ref) _mapStopDepartures.value = departures
+            } catch (_: Exception) {
+            }
+            isLoadingMapStop = false
+        }
+    }
+
+    fun clearMapStop() {
+        mapStop = null
+        _mapStopDepartures.value = emptyList()
     }
 
     fun isFavourite(stopRef: String): Boolean =
@@ -236,6 +275,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     private fun selectRouteInternal(routeNum: String) {
+        repository.saveLastViewedRoute(routeNum)
         selectedRouteNum = routeNum
         selectedDirection = 0
         errorMessage = null
@@ -259,6 +299,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     fun clearRoute() {
+        repository.saveLastViewedRoute(null)
         autoRefreshJob?.cancel()
         stopDeparturesJob?.cancel()
         clearTrackedDeparture()
