@@ -1,0 +1,2 @@
+- Route screen now opens on the stops list
+- Removed the less useful per-route buses list
