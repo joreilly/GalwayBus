@@ -1,5 +1,41 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
+## Screenshots
+
+**Android (Jetpack Compose)**
+
+<table>
+  <tr>
+    <td><img src="screenshots/android-mystops.png" width="200" height="444" alt="Saved stops with live departures"/></td>
+    <td><img src="screenshots/android-nearby.png" width="200" height="444" alt="Bus stops near you"/></td>
+    <td><img src="screenshots/android-tracking.png" width="200" height="444" alt="Live bus tracking"/></td>
+    <td><img src="screenshots/android-search.png" width="200" height="444" alt="Stop search"/></td>
+  </tr>
+  <tr>
+    <td align="center">Saved stops</td>
+    <td align="center">Near me</td>
+    <td align="center">Live tracking</td>
+    <td align="center">Stop search</td>
+  </tr>
+</table>
+
+**iOS (Compose Multiplatform)**
+
+<table>
+  <tr>
+    <td><img src="screenshots/ios-mystops.png" width="200" height="435" alt="Saved stops with live departures"/></td>
+    <td><img src="screenshots/ios-nearby.png" width="200" height="435" alt="Bus stops near you"/></td>
+    <td><img src="screenshots/ios-tracking.png" width="200" height="435" alt="Live bus tracking"/></td>
+  </tr>
+  <tr>
+    <td align="center">Saved stops</td>
+    <td align="center">Near me</td>
+    <td align="center">Live tracking</td>
+  </tr>
+</table>
+
+The same Compose Multiplatform UI also runs on **Desktop (JVM)**.
+
 * [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform, you
   need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
@@ -31,6 +67,19 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 - Desktop tests: `./gradlew :shared:jvmTest`
 - iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
 
----
+## Full set of Kotlin Multiplatform / Compose / SwiftUI samples
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+*  PeopleInSpace (https://github.com/joreilly/PeopleInSpace)
+*  GalwayBus (https://github.com/joreilly/GalwayBus)
+*  Confetti (https://github.com/joreilly/Confetti)
+*  BikeShare (https://github.com/joreilly/BikeShare)
+*  FantasyPremierLeague (https://github.com/joreilly/FantasyPremierLeague)
+*  ClimateTraceKMP (https://github.com/joreilly/ClimateTraceKMP)
+*  GeminiKMP (https://github.com/joreilly/GeminiKMP)
+*  MortyComposeKMM (https://github.com/joreilly/MortyComposeKMM)
+*  StarWars (https://github.com/joreilly/StarWars)
+*  WordMasterKMP (https://github.com/joreilly/WordMasterKMP)
+*  Chip-8 (https://github.com/joreilly/chip-8)
+*  FirebaseAILogicKMPSample (https://github.com/joreilly/FirebaseAILogicKMPSample)
+*  OnDeviceAI (https://github.com/joreilly/OnDeviceAI)
+
