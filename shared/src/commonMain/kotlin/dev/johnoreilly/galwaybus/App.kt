@@ -551,6 +551,15 @@ private fun NearbyList(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    stop.direction?.let { dir ->
+                        Text(
+                            "Towards $dir",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
                         ?.joinToString(" · ")?.let { " · $it" } ?: ""
                     Text(
@@ -1146,6 +1155,16 @@ private fun StopSearchResults(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
+                    // The destination distinguishes opposite-direction stops that share a name.
+                    stop.direction?.let { dir ->
+                        Text(
+                            "Towards $dir",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
                         ?.joinToString(" · ")?.let { " · $it" } ?: ""
                     Text(

@@ -19,7 +19,10 @@ data class Stop(
     val short_name: String,
     val latitude: Double,
     val longitude: Double,
-    val routes: List<String>? = null
+    val routes: List<String>? = null,
+    /** Destination this stop's buses head towards (dominant departure headsign), to tell apart
+     *  opposite-direction stops that share a name/route. Null when unknown. */
+    val direction: String? = null
 )
 
 @Serializable

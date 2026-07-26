@@ -60,6 +60,7 @@ class GalwayBusRepository(
 
     suspend fun getStops(): List<Stop> {
         val s = snapshot()
+        val directions = stopDirections(s)
         return s.stops.map { (stopId, stop) ->
             Stop(
                 stop_ref = stopId,
@@ -68,9 +69,28 @@ class GalwayBusRepository(
                 short_name = stop.name,
                 latitude = stop.lat,
                 longitude = stop.lon,
-                routes = s.stopRoutes[stopId]
+                routes = s.stopRoutes[stopId],
+                direction = directions[stopId]
             )
         }
+    }
+
+    // stop_ref -> destination its buses most often head towards (dominant departure headsign).
+    // Lets the UI distinguish opposite-direction stops that share a name and route.
+    private var stopDirectionsCache: Map<String, String>? = null
+
+    private fun stopDirections(s: GalwayGtfsSnapshot): Map<String, String> {
+        stopDirectionsCache?.let { return it }
+        val result = HashMap<String, String>()
+        for ((stopRef, departures) in s.stopDepartures) {
+            val counts = HashMap<String, Int>()
+            for (dep in departures) {
+                val head = s.trips[dep.tId]?.headsign
+                if (!head.isNullOrBlank()) counts[head] = (counts[head] ?: 0) + 1
+            }
+            counts.maxByOrNull { it.value }?.let { result[stopRef] = it.key }
+        }
+        return result.also { stopDirectionsCache = it }
     }
 
     suspend fun getStopDepartures(stopId: String, lookbackMinutes: Int = 0): List<DepartureTime> {
