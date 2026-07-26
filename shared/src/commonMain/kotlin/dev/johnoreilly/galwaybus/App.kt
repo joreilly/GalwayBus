@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOff
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Refresh
@@ -190,6 +191,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     var viewMode by remember { mutableStateOf(ViewMode.LIST) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
+    var showAbout by remember { mutableStateOf(false) }
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -203,6 +205,10 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val onDepartureClick: (DepartureTime, String) -> Unit = { dep, stopRef ->
         viewModel.setTrackedDeparture(dep, stopRef)
         currentScreen = Screen.TRACKING
+    }
+
+    if (showAbout) {
+        AboutDialog(onDismiss = { showAbout = false })
     }
 
     BoxWithConstraints {
@@ -292,6 +298,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                         }
+                        AppBarOverflowMenu(onAbout = { showAbout = true })
                     },
                     colors = galwayAppBarColors()
                 )
@@ -1518,6 +1525,53 @@ private fun DetailPane(
             modifier = modifier
         )
     }
+}
+
+/** Three-dot app-bar menu; currently just an "About" entry that opens the version dialog. */
+@Composable
+private fun AppBarOverflowMenu(onAbout: () -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    IconButton(onClick = { expanded = true }) {
+        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+    }
+    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(
+            text = { Text("About") },
+            onClick = {
+                expanded = false
+                onAbout()
+            }
+        )
+    }
+}
+
+/** Small about/version dialog, sourcing the version from the platform's installed package. */
+@Composable
+private fun AboutDialog(onDismiss: () -> Unit) {
+    val platform = remember { getPlatform() }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Filled.DirectionsBus,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = { Text("Galway Bus") },
+        text = {
+            Column {
+                Text("Version ${platform.appVersion}", style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    platform.name,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+    )
 }
 
 @Composable
