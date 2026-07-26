@@ -1,0 +1,1 @@
+- Fixed bus tracking timeline sometimes showing the wrong current stop
