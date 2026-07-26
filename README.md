@@ -1,4 +1,14 @@
-This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
+# GalwayBus
+
+![kotlin-version](https://img.shields.io/badge/kotlin-2.4.0-blue?logo=kotlin)
+
+GalwayBus shows live bus times for Galway city: real-time departures for your saved stops,
+stops near you, live on-map bus tracking with a journey timeline, and network-wide stop search.
+A single Compose Multiplatform UI is shared across Android, iOS and Desktop (JVM), backed by a
+Ktor service that serves GTFS schedule and GTFS-Realtime data.
+
+**Note**: if you are trying this project out and aren't in Galway, use the "Near me" tab's
+fallback (or browse a route) to see meaningful data centred on Galway.
 
 ## Screenshots
 
@@ -37,6 +47,18 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 </table>
 
 The same Compose Multiplatform UI also runs on **Desktop (JVM)**.
+
+## Kotlin Multiplatform
+
+This project also acted as an initial platform I used when starting to explore **Kotlin Multiplatform**
+capabilities. There's a Kotlin Multiplatform `shared` module along with Android, iOS and Desktop apps,
+now sharing their UI with **Compose Multiplatform**. I also wrote a number of posts about some of my
+experiences using **KMP** in the project.
+
+* [SwiftUI meets Kotlin Multiplatform!](https://johnoreilly.dev/2019/06/08/swiftui-meetings-kotlin-multiplatform/)
+* [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
+* [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
+* [Using Google Maps in a Jetpack Compose app - Part 2!](https://johnoreilly.dev/posts/jetpack-compose-google-maps-part2/)
 
 * [/iosApp](./iosApp/iosApp) contains an iOS application. Even if you’re sharing your UI with Compose Multiplatform, you
   need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
