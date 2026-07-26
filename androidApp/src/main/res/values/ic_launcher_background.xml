@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Maroon sampled from the original GalwayBus launcher icon -->
+    <color name="ic_launcher_background">#580E31</color>
+</resources>
