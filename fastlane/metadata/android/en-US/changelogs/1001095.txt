@@ -1,0 +1,1 @@
+- Stop search now shows each stop's direction to tell apart opposite-direction stops
