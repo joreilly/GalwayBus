@@ -1,0 +1,2 @@
+- New "Near me" tab showing bus stops closest to your location
+- About dialog showing the app version
