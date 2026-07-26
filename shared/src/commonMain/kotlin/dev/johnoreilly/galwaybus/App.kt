@@ -143,7 +143,7 @@ private fun galwayAppBarColors(): TopAppBarColors =
     }
 
 private enum class ViewMode(val label: String) {
-    LIST("Buses"), STOPS("Stops"), MAP("Map")
+    STOPS("Stops"), MAP("Map")
 }
 
 private enum class TopTab(val label: String, val icon: ImageVector) {
@@ -188,7 +188,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val routes by viewModel.routes.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
-    var viewMode by remember { mutableStateOf(ViewMode.LIST) }
+    var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
     var showAbout by remember { mutableStateOf(false) }
@@ -343,7 +343,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             selectedRouteNum = null,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.LIST
+                                viewMode = ViewMode.STOPS
                             },
                             modifier = Modifier.padding(padding).fillMaxSize()
                         )
@@ -365,7 +365,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             selectedRouteNum = selectedRouteNum,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.LIST
+                                viewMode = ViewMode.STOPS
                             },
                             modifier = Modifier.width(200.dp).fillMaxHeight()
                         )
@@ -1513,17 +1513,6 @@ private fun DetailPane(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             ) { Icon(Icons.Filled.Refresh, contentDescription = "Refresh positions") }
         }
-        ViewMode.LIST -> BusPositionPanel(
-            routeNum = selectedRouteNum,
-            positions = busPositions,
-            isLoading = viewModel.isLoadingPositions,
-            isRefreshing = viewModel.isRefreshing,
-            lastUpdatedMs = viewModel.lastUpdatedEpochMs,
-            nowMs = nowMs,
-            errorMessage = viewModel.errorMessage,
-            onRefresh = { viewModel.refreshPositions() },
-            modifier = modifier
-        )
     }
 }
 
@@ -1665,145 +1654,6 @@ private fun RouteListItem(route: Route, selected: Boolean, onClick: () -> Unit) 
             )
         }
         HorizontalDivider()
-    }
-}
-
-@Composable
-private fun BusPositionPanel(
-    routeNum: String,
-    positions: List<BusLocation>,
-    isLoading: Boolean,
-    isRefreshing: Boolean,
-    lastUpdatedMs: Long?,
-    nowMs: Long,
-    errorMessage: String?,
-    onRefresh: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(modifier, contentAlignment = Alignment.TopStart) {
-        when {
-            isLoading && positions.isEmpty() -> {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
-            errorMessage != null && positions.isEmpty() -> {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "Could not load buses",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        errorMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 24.dp)
-                    )
-                    Spacer(Modifier.height(16.dp))
-                    Button(onClick = onRefresh) { Text("Retry") }
-                }
-            }
-            positions.isEmpty() -> {
-                Column(
-                    Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        "No buses on route $routeNum",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Service may not be running right now",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    lastUpdatedMs?.let {
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            "Checked ${formatTimeAgo(it, nowMs)}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Spacer(Modifier.height(16.dp))
-                    OutlinedButton(onClick = onRefresh) { Text("Refresh") }
-                }
-            }
-            else -> {
-                @OptIn(ExperimentalMaterial3Api::class)
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    onRefresh = onRefresh,
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    LazyColumn(Modifier.fillMaxSize()) {
-                        // The auto-refresh cycle is 30s; anything much older means it's silently failing.
-                        if (lastUpdatedMs != null && nowMs - lastUpdatedMs > STALE_AFTER_MS) {
-                            item {
-                                Row(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.errorContainer)
-                                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        "Positions may be out of date — last updated ${formatTimeAgo(lastUpdatedMs, nowMs)}, retrying",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onErrorContainer
-                                    )
-                                }
-                            }
-                        }
-                        item {
-                            Row(
-                                Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Column {
-                                    Text(
-                                        "${positions.size} bus${if (positions.size == 1) "" else "es"} on route $routeNum",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                    lastUpdatedMs?.let {
-                                        Text(
-                                            "Updated ${formatTimeAgo(it, nowMs)} · auto-refreshes",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-                                if (isRefreshing) {
-                                    CircularProgressIndicator(
-                                        Modifier.size(18.dp).padding(2.dp),
-                                        strokeWidth = 2.dp
-                                    )
-                                } else {
-                                    TextButton(onClick = onRefresh) { Text("Refresh") }
-                                }
-                            }
-                            HorizontalDivider()
-                        }
-                        items(positions, key = { it.vehicle_id ?: it.trip_duid }) { bus ->
-                            BusCard(bus, nowMs)
-                            HorizontalDivider()
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -1998,37 +1848,6 @@ private fun StopDeparturesSection(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun BusCard(bus: BusLocation, nowMs: Long) {
-    val timeAgo = formatTimeAgoIso(bus.modified_timestamp, nowMs)
-    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = bus.headsign ?: bus.timetable_id ?: "Bus",
-                style = MaterialTheme.typography.titleSmall,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            if (bus.vehicle_id != null) {
-                Text(
-                    text = bus.vehicle_id,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-        if (timeAgo.isNotEmpty()) {
-            Spacer(Modifier.height(2.dp))
-            Text(
-                text = "Updated $timeAgo",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
         }
     }
 }
