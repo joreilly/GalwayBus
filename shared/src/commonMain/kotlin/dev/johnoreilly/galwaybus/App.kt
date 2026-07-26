@@ -811,19 +811,10 @@ private fun RouteTimeline(
     nowMs: Long,
     modifier: Modifier = Modifier
 ) {
-    // The bus's next stop, preferring the real-time value from the backend (GTFS-RT) and
-    // falling back to the nearest stop to the live position when no prediction is available.
-    val busIndex = remember(stops, trackedBus) {
-        if (trackedBus == null) return@remember -1
-        val rtIndex = trackedBus.next_stop_ref
-            ?.let { ref -> stops.indexOfFirst { it.stop_ref == ref } }
-            ?.takeIf { it >= 0 }
-        rtIndex ?: stops.indices.minByOrNull { i ->
-            val dLat = stops[i].latitude - trackedBus.latitude
-            val dLon = stops[i].longitude - trackedBus.longitude
-            dLat * dLat + dLon * dLon
-        } ?: -1
-    }
+    // Where the bus is along the route, for the passed/next markers. Prefers the real-time
+    // next_stop_ref but ignores it when it contradicts the vehicle's GPS position (see
+    // resolveBusIndex).
+    val busIndex = remember(stops, trackedBus) { resolveBusIndex(stops, trackedBus) }
     // Predicted departure time per stop (ISO timestamp) from the live next_stops payload.
     val etaByStopRef = remember(trackedBus) {
         trackedBus?.next_stops
