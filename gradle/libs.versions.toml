@@ -1,17 +1,17 @@
 [versions]
-kotlin = "2.2.0"
-ksp = "2.2.0-2.0.2"
-kotlinx-coroutines = "1.10.2"
-kotlinx-serialization = "1.9.0"
+kotlin = "2.4.10"
+ksp = "2.3.10"
+kotlinx-coroutines = "1.11.0"
+kotlinx-serialization = "1.11.0"
 kotlinx-dateTime = "0.7.1"
 
 
-androidGradlePlugin = "8.12.0"
-koin = "4.1.0"
-ktor = "3.2.3"
+androidGradlePlugin = "9.1.1"
+koin = "4.2.2"
+ktor = "3.5.1"
 slf4j = "2.0.17"
 sqlDelight = "2.1.0"
-kmpNativeCoroutines = "1.0.0-ALPHA-45"
+kmpNativeCoroutines = "1.0.5"
 googleServices = "4.4.3"
 
 androidxActivity = "1.10.1"
@@ -157,6 +157,7 @@ ktor-common = ["ktor-client-core", "ktor-client-json", "ktor-client-logging", "k
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "androidGradlePlugin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

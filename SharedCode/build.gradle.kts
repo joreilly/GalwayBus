@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     kotlin("multiplatform")
     id("kotlinx-serialization")
-    id("com.android.library")
+    id("com.android.kotlin.multiplatform.library")
     id("app.cash.sqldelight")
     id("com.google.devtools.ksp")
     id("com.rickclephas.kmp.nativecoroutines")
@@ -17,23 +17,8 @@ plugins {
 version = "1.0"
 
 
-android {
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    namespace = "com.surrus.galwaybus.lib"
-}
-
-
 kotlin {
+    jvmToolchain(17)
     applyDefaultHierarchyTemplate()
 
     listOf(
@@ -47,7 +32,12 @@ kotlin {
     }
 
     macosX64("macos")
-    androidTarget()
+
+    android {
+        namespace = "com.surrus.galwaybus.lib"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
+    }
     jvm()
 
     sourceSets {

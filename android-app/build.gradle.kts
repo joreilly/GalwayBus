@@ -4,7 +4,6 @@ import java.util.*
 
 plugins {
     alias(libs.plugins.android.application)
-    kotlin("android")
     alias(libs.plugins.googleServices)
     alias(libs.plugins.compose.compiler)
 }
@@ -77,13 +76,14 @@ android {
 
     buildFeatures {
         compose = true
+        resValues = true
     }
 
     buildTypes {
         getByName("release") {
             isShrinkResources = true
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
         }
     }
