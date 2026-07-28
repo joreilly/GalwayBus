@@ -10,7 +10,7 @@ androidGradlePlugin = "9.1.1"
 koin = "4.2.2"
 ktor = "3.5.1"
 slf4j = "2.0.17"
-sqlDelight = "2.1.0"
+sqlDelight = "2.3.2"
 kmpNativeCoroutines = "1.0.5"
 googleServices = "4.4.3"
 
