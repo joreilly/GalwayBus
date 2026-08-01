@@ -39,6 +39,12 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private val autoRefreshIntervalMs = 30_000L
 
+    // The /bus.json feed flaps empty for tens of seconds at a time even during active service
+    // (returns HTTP 200 with an empty `bus` map), which would otherwise blank the map every few
+    // polls. Keep showing the last known buses for this long before treating empty as "no service".
+    private val busPositionsGraceMs = 120_000L
+    private var lastNonEmptyBusesMs = 0L
+
     private val _routes = MutableStateFlow<List<Route>>(emptyList())
     val routes: StateFlow<List<Route>> = _routes.asStateFlow()
 
@@ -180,9 +186,17 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun refreshAllBusPositions() {
         viewModelScope.launch {
             try {
-                val allBuses = repository.getBusPositions()
-                _allBusPositions.value = allBuses.values.flatten()
+                val fetched = repository.getBusPositions().values.flatten()
+                val now = nowEpochMilliseconds()
+                _allBusPositions.value = busPositionsForDisplay(
+                    fetched = fetched,
+                    current = _allBusPositions.value,
+                    msSinceLastNonEmpty = now - lastNonEmptyBusesMs,
+                    graceMs = busPositionsGraceMs
+                )
+                if (fetched.isNotEmpty()) lastNonEmptyBusesMs = now
             } catch (_: Exception) {
+                // Network/parse failure: keep whatever we last showed rather than blanking.
             } finally {
                 hasLoadedAllBuses = true
             }
