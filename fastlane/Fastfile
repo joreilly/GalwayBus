@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    versionNum = 97
+    versionNum = 98
 
     before_all do
     end
