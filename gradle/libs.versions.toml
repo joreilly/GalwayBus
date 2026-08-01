@@ -6,51 +6,51 @@ kotlinx-serialization = "1.11.0"
 kotlinx-dateTime = "0.7.1"
 
 
-androidGradlePlugin = "9.1.1"
+androidGradlePlugin = "9.3.1"
 koin = "4.2.2"
-ktor = "3.5.1"
-slf4j = "2.0.17"
+ktor = "3.5.2"
+slf4j = "2.0.18"
 sqlDelight = "2.3.2"
 kmpNativeCoroutines = "1.0.5"
-googleServices = "4.4.3"
+googleServices = "4.5.0"
 
-androidxActivity = "1.10.1"
-androidxComposeBom = "2025.07.00"
-androidxNavigationCompose = "2.9.3"
-uiToolingPreview = "1.8.3"
-androidxLifecycle = "2.9.2"
+androidxActivity = "1.13.0"
+androidxComposeBom = "2026.06.01"
+androidxNavigationCompose = "2.9.8"
+uiToolingPreview = "1.11.4"
+androidxLifecycle = "2.11.0"
 imageLoader = "1.10.0"
 osmdroidAndroid = "6.1.20"
-googleMapsCompose = "6.7.0"
+googleMapsCompose = "8.4.0"
 
 accompanist = "0.36.0"
 coilCompose = "2.7.0"
-horologist = "0.6.23"
-okhttp = "5.1.0"
+horologist = "0.7.15"
+okhttp = "5.4.0"
 
 junit = "4.13.2"
 androidxTestJUnit = "1.3.0"
-robolectric = "4.15.1"
+robolectric = "4.16.1"
 androidxTestCore = "1.7.0"
 mockito = "5.2.0"
 
 multiplatformSettings = "1.3.0"
-kermit = "2.0.6"
+kermit = "2.1.0"
 
 minSdk = "24"
 targetSdk = "36"
 compileSdk = "36"
-coreKtx = "1.16.0"
+coreKtx = "1.19.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
-material = "1.12.0"
-constraintlayout = "2.2.1"
-lifecycleLivedataKtx = "2.9.2"
-navigationFragmentKtx = "2.9.3"
-navigationUiKtx = "2.9.3"
+material = "1.14.0"
+constraintlayout = "2.2.2"
+lifecycleLivedataKtx = "2.11.0"
+navigationFragmentKtx = "2.9.8"
+navigationUiKtx = "2.9.8"
 
-mcp = "0.6.0"
-shadowPlugin = "9.0.0-rc3"
+mcp = "0.15.0"
+shadowPlugin = "9.6.1"
 
 
 [libraries]
@@ -80,8 +80,8 @@ androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtim
 androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "androidxLifecycle" }
 androidx-tracing = "androidx.tracing:tracing:1.3.0"
 
-splash-screen = "androidx.core:core-splashscreen:1.0.1"
-metrics = "androidx.metrics:metrics-performance:1.0.0-beta02"
+splash-screen = "androidx.core:core-splashscreen:1.2.0"
+metrics = "androidx.metrics:metrics-performance:1.0.0"
 
 imageLoader = { module = "io.github.qdsfdhvh:image-loader", version.ref = "imageLoader" }
 osmdroidAndroid = { module = "org.osmdroid:osmdroid-android", version.ref = "osmdroidAndroid" }
