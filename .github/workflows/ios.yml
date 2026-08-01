@@ -1,0 +1,26 @@
+name: iOS CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+    - name: Build iOS app
+      run: >
+        xcodebuild
+        -project iosApp/iosApp.xcodeproj
+        -scheme iosApp
+        -configuration Debug
+        -sdk iphonesimulator
+        -destination 'generic/platform=iOS Simulator'
+        build
+        CODE_SIGNING_ALLOWED=NO

@@ -92,8 +92,13 @@ private fun tileYfToLat(tileYf: Double, zoom: Int): Double {
     return 180.0 / PI * atan(sinh(n))
 }
 
+/**
+ * Self-contained OpenStreetMap tile renderer drawn on a Compose [Canvas]. This is the
+ * cross-platform fallback used on Desktop (JVM), where there is no native map SDK. On
+ * Android and iOS the [BusMapView] `expect` resolves to a native map (Google / Apple) instead.
+ */
 @Composable
-fun BusMapView(
+internal fun OsmBusMapView(
     positions: List<BusLocation>,
     modifier: Modifier = Modifier,
     stops: List<Stop> = emptyList(),
