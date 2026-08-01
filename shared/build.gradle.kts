@@ -42,6 +42,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.ktor.client.okhttp)
             implementation(libs.play.services.location)
+            implementation(libs.maps.compose)
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)
