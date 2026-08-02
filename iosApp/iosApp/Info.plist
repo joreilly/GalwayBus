@@ -6,5 +6,7 @@
         <true/>
         <key>NSLocationWhenInUseUsageDescription</key>
         <string>Your location is used to show bus stops near you.</string>
+        <key>NSCameraUsageDescription</key>
+        <string>The camera is used to scan a bus stop's number and show its departures.</string>
     </dict>
 </plist>

@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import dev.johnoreilly.galwaybus.location.LocationController
+import dev.johnoreilly.galwaybus.scan.CameraController
 import kotlinx.coroutines.CompletableDeferred
 
 class MainActivity : ComponentActivity() {
@@ -20,6 +21,14 @@ class MainActivity : ComponentActivity() {
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
             pendingPermission?.complete(result.values.any { it })
             pendingPermission = null
+        }
+
+    // Same bridge for the CAMERA permission requested by the shared stop scanner.
+    private var pendingCameraPermission: CompletableDeferred<Boolean>? = null
+    private val cameraPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            pendingCameraPermission?.complete(granted)
+            pendingCameraPermission = null
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +46,13 @@ class MainActivity : ComponentActivity() {
                     Manifest.permission.ACCESS_COARSE_LOCATION
                 )
             )
+            deferred.await()
+        }
+
+        CameraController.permissionRequester = {
+            val deferred = CompletableDeferred<Boolean>()
+            pendingCameraPermission = deferred
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             deferred.await()
         }
 

@@ -15,6 +15,7 @@ import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.FavouriteStop
 import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
+import dev.johnoreilly.galwaybus.scan.StopMatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -218,6 +219,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             }
         }
     }
+
+    /**
+     * Resolves OCR text scanned off a stop plate to a known stop (by its printed stop code),
+     * or null if the text holds no recognisable stop code. The scan screen opens the departures
+     * sheet for a match via [selectMapStop].
+     */
+    fun matchScannedStop(recognizedText: String): Stop? =
+        StopMatcher.match(recognizedText, _allStops.value)
 
     /** Shows the departures sheet for a stop tapped on the map. */
     fun selectMapStop(stop: Stop) {
