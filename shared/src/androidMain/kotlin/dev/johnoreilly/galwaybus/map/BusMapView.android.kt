@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,8 +30,10 @@ import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
@@ -89,7 +92,9 @@ actual fun BusMapView(
     }
 
     // Centre/zoom logic mirrors the OSM renderer: follow a tracked bus; otherwise centre once
-    // on the user, the tracked stop, or the spread of buses.
+    // on the user or the tracked stop. With no more specific target (e.g. the "All buses" map),
+    // fit every stop into view instead of a fixed zoom — a fixed zoom level covers wildly
+    // different geographic spans depending on the device's screen size/aspect ratio.
     var hasCentered by remember { mutableStateOf(false) }
     LaunchedEffect(positions, trackedTripId, trackedStopRef, userLocation) {
         val target: Pair<LatLng, Float>? = when {
@@ -101,8 +106,6 @@ actual fun BusMapView(
             trackedStopRef != null && !hasCentered ->
                 stops.find { it.stop_ref == trackedStopRef }
                     ?.let { LatLng(it.latitude, it.longitude) to 16f }
-            positions.isNotEmpty() && !hasCentered ->
-                LatLng(positions.map { it.latitude }.average(), positions.map { it.longitude }.average()) to 14f
             else -> null
         }
         target?.let { (latLng, zoom) ->
@@ -110,6 +113,8 @@ actual fun BusMapView(
             cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
         }
     }
+
+    val boundsPaddingPx = with(LocalDensity.current) { 48.dp.toPx().toInt() }
 
     GoogleMap(
         modifier = modifier,
@@ -119,6 +124,23 @@ actual fun BusMapView(
         ),
         uiSettings = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = false)
     ) {
+        MapEffect(stops, trackedTripId, trackedStopRef, userLocation) { map ->
+            if (!hasCentered && trackedTripId == null && trackedStopRef == null &&
+                userLocation == null && stops.isNotEmpty()
+            ) {
+                val bounds = LatLngBounds.Builder().apply {
+                    stops.forEach { include(LatLng(it.latitude, it.longitude)) }
+                }.build()
+                hasCentered = true
+                try {
+                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, boundsPaddingPx))
+                } catch (_: IllegalStateException) {
+                    // Map not laid out yet (size 0) — fall back to a plain centre/zoom.
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.center, 14f))
+                }
+            }
+        }
+
         val currentZoom = cameraPositionState.position.zoom
         // Show stops once zoomed in (or when the set is small, e.g. nearby/tracking); the
         // tracked stop is always drawn.

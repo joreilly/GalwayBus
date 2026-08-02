@@ -334,6 +334,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                 )
                 TopTab.BUSES -> AllBusesPanel(
                     viewModel = viewModel,
+                    nowMs = nowMs,
                     modifier = Modifier.padding(padding).fillMaxSize()
                 )
                 TopTab.ROUTES -> if (compact) {
@@ -382,6 +383,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
 @Composable
 private fun AllBusesPanel(
     viewModel: GalwayBusViewModel,
+    nowMs: Long,
     modifier: Modifier = Modifier
 ) {
     val busPositions by viewModel.allBusPositions.collectAsStateWithLifecycle()
@@ -394,6 +396,22 @@ private fun AllBusesPanel(
             onStopClick = { viewModel.selectMapStop(it) },
             modifier = Modifier.fillMaxSize()
         )
+        viewModel.allBusesUpdatedMs?.let { updatedMs ->
+            Card(
+                modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Text(
+                    "Updated ${formatTimeAgo(updatedMs, nowMs)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                )
+            }
+        }
         // Late at night the feed is legitimately empty; say so rather than
         // leaving a silently bus-less map.
         if (busPositions.isEmpty()) {
@@ -1559,15 +1577,12 @@ private fun AboutDialog(onDismiss: () -> Unit) {
         },
         title = { Text("Galway Bus") },
         text = {
-            Column {
-                Text("Version ${platform.appVersion}", style = MaterialTheme.typography.bodyMedium)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    platform.name,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+            Text(
+                "Version ${platform.appVersion}",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
     )

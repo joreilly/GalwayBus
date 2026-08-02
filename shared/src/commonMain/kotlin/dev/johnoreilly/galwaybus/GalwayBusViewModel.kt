@@ -116,6 +116,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     var hasLoadedAllBuses by mutableStateOf(false)
         private set
 
+    /** When we last actually received bus positions (not just polled) — null until the first one. */
+    var allBusesUpdatedMs by mutableStateOf<Long?>(null)
+        private set
+
     private val _allStops = MutableStateFlow<List<Stop>>(emptyList())
     val allStops: StateFlow<List<Stop>> = _allStops.asStateFlow()
 
@@ -202,7 +206,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                         "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
                 )
                 _allBusPositions.value = displayed
-                if (fetched.isNotEmpty()) lastNonEmptyBusesMs = now
+                if (fetched.isNotEmpty()) {
+                    lastNonEmptyBusesMs = now
+                    allBusesUpdatedMs = now
+                }
             } catch (e: Exception) {
                 // Network/parse failure: keep whatever we last showed rather than blanking.
                 println("BusFeed: allBuses fetch FAILED ${e::class.simpleName}: ${e.message}")
