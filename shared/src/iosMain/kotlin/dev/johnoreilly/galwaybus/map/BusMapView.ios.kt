@@ -9,6 +9,9 @@ import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.readValue
+import platform.CoreGraphics.CGAffineTransformIdentity
+import platform.CoreGraphics.CGAffineTransformMakeScale
 import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.MapKit.MKAnnotationView
 import platform.MapKit.MKCoordinateRegionMakeWithDistance
@@ -90,7 +93,7 @@ private class StopAnnotation(val stop: Stop, val tracked: Boolean) : MKPointAnno
 private fun Color.toUIColor(): UIColor =
     UIColor(red = red.toDouble(), green = green.toDouble(), blue = blue.toDouble(), alpha = 1.0)
 
-private val STOP_COLOR = UIColor(white = 0.6, alpha = 1.0)
+private val STOP_COLOR = UIColor(red = 0.216, green = 0.278, blue = 0.310, alpha = 1.0) // #37474F
 private val TRACKED_STOP_COLOR = UIColor(red = 0.31, green = 0.0, blue = 0.0, alpha = 1.0)
 
 /**
@@ -121,11 +124,14 @@ private class BusMapController {
                     view.markerTintColor = viewForAnnotation.color
                     view.glyphText = viewForAnnotation.glyph
                     view.displayPriority = MKFeatureDisplayPriorityRequired
+                    view.transform = CGAffineTransformIdentity.readValue()
                 }
                 is StopAnnotation -> {
                     view.markerTintColor = if (viewForAnnotation.tracked) TRACKED_STOP_COLOR else STOP_COLOR
                     view.glyphText = null
                     view.displayPriority = MKFeatureDisplayPriorityDefaultLow
+                    val scale = if (viewForAnnotation.tracked) 1.5 else 1.35
+                    view.transform = CGAffineTransformMakeScale(scale, scale)
                 }
             }
             return view

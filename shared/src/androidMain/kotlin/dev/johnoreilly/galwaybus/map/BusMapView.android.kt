@@ -123,8 +123,8 @@ actual fun BusMapView(
         // Show stops once zoomed in (or when the set is small, e.g. nearby/tracking); the
         // tracked stop is always drawn.
         val showStops = stops.size <= 80 || currentZoom >= STOP_MARKER_MIN_ZOOM
-        val stopDot = remember { dotDescriptor(20, 0xFFFFFFFF.toInt(), 0xFF555555.toInt()) }
-        val trackedDot = remember { dotDescriptor(28, 0xFF4F0000.toInt(), 0xFF555555.toInt()) }
+        val stopDot = remember { dotDescriptor(30, 0xFF37474F.toInt(), 0xFFFFFFFF.toInt()) }
+        val trackedDot = remember { dotDescriptor(40, 0xFF4F0000.toInt(), 0xFFFFFFFF.toInt()) }
 
         stops.forEach { stop ->
             val isTracked = stop.stop_ref == trackedStopRef

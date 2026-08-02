@@ -44,6 +44,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     // polls. Keep showing the last known buses for this long before treating empty as "no service".
     private val busPositionsGraceMs = 120_000L
     private var lastNonEmptyBusesMs = 0L
+    private var lastNonEmptyRouteBusesMs = 0L
 
     private val _routes = MutableStateFlow<List<Route>>(emptyList())
     val routes: StateFlow<List<Route>> = _routes.asStateFlow()
@@ -188,15 +189,23 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             try {
                 val fetched = repository.getBusPositions().values.flatten()
                 val now = nowEpochMilliseconds()
-                _allBusPositions.value = busPositionsForDisplay(
+                val previous = _allBusPositions.value
+                val msSinceLastNonEmpty = now - lastNonEmptyBusesMs
+                val displayed = busPositionsForDisplay(
                     fetched = fetched,
-                    current = _allBusPositions.value,
-                    msSinceLastNonEmpty = now - lastNonEmptyBusesMs,
+                    current = previous,
+                    msSinceLastNonEmpty = msSinceLastNonEmpty,
                     graceMs = busPositionsGraceMs
                 )
+                println(
+                    "BusFeed: allBuses fetched=${fetched.size} previous=${previous.size} " +
+                        "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
+                )
+                _allBusPositions.value = displayed
                 if (fetched.isNotEmpty()) lastNonEmptyBusesMs = now
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 // Network/parse failure: keep whatever we last showed rather than blanking.
+                println("BusFeed: allBuses fetch FAILED ${e::class.simpleName}: ${e.message}")
             } finally {
                 hasLoadedAllBuses = true
             }
@@ -348,12 +357,15 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         selectedStopRef = null
         _stopDepartures.value = emptyList()
         _busPositions.value = emptyList()
+        lastNonEmptyRouteBusesMs = 0L
         viewModelScope.launch {
             isLoadingPositions = true
             try {
                 _routeStops.value = repository.getStopsForRoute(routeNum)
                 _directionHeadsigns.value = repository.getDirectionHeadsigns(routeNum)
-                _busPositions.value = repository.getBusPositions(routeNum)
+                val fetched = repository.getBusPositions(routeNum)
+                _busPositions.value = fetched
+                if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = nowEpochMilliseconds()
                 lastUpdatedEpochMs = nowEpochMilliseconds()
             } catch (e: Exception) {
                 errorMessage = e.message ?: e::class.simpleName
@@ -373,6 +385,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         selectedStopRef = null
         _stopDepartures.value = emptyList()
         _busPositions.value = emptyList()
+        lastNonEmptyRouteBusesMs = 0L
         errorMessage = null
         lastUpdatedEpochMs = null
     }
@@ -446,11 +459,27 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         if (isLoadingPositions || isRefreshing) return
         isRefreshing = true
         try {
-            _busPositions.value = repository.getBusPositions(routeNum, forceRefresh = force)
-            lastUpdatedEpochMs = nowEpochMilliseconds()
+            val fetched = repository.getBusPositions(routeNum, forceRefresh = force)
+            val now = nowEpochMilliseconds()
+            val previous = _busPositions.value
+            val msSinceLastNonEmpty = now - lastNonEmptyRouteBusesMs
+            val displayed = busPositionsForDisplay(
+                fetched = fetched,
+                current = previous,
+                msSinceLastNonEmpty = msSinceLastNonEmpty,
+                graceMs = busPositionsGraceMs
+            )
+            println(
+                "BusFeed: route=$routeNum force=$force fetched=${fetched.size} previous=${previous.size} " +
+                    "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
+            )
+            _busPositions.value = displayed
+            if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = now
+            lastUpdatedEpochMs = now
             errorMessage = null
         } catch (e: Exception) {
             // Keep showing the stale list; only surface the error if there's nothing on screen
+            println("BusFeed: route=$routeNum fetch FAILED ${e::class.simpleName}: ${e.message}")
             if (_busPositions.value.isEmpty()) {
                 errorMessage = e.message ?: e::class.simpleName
             }

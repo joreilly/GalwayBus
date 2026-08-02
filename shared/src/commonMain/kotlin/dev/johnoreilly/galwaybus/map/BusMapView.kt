@@ -349,7 +349,7 @@ internal fun OsmBusMapView(
                                         val dy = pos.y - sy
                                         stop to (dx * dx + dy * dy)
                                     }
-                                    .filter { (_, d2) -> d2 < 24f * 24f }
+                                    .filter { (_, d2) -> d2 < 28f * 28f }
                                     .minByOrNull { (_, d2) -> d2 }
                                 hit?.let { (stop, _) -> onStopClick(stop) }
                             }
@@ -408,7 +408,7 @@ internal fun OsmBusMapView(
                                                 val sy = ((latToTileYf(stop.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                                                 val dx = position.x - sx
                                                 val dy = position.y - sy
-                                                val radius = if (isTracked) 12f else 8f
+                                                val radius = if (isTracked) 16f else 11f
                                                 if (dx * dx + dy * dy < (radius + 8) * (radius + 8)) {
                                                     stopFound = stop
                                                     break
@@ -440,12 +440,12 @@ internal fun OsmBusMapView(
                         val sx = ((lonToTileXf(stop.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
                         val sy = ((latToTileYf(stop.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                         if (sx in -16f..size.width + 16f && sy in -16f..size.height + 16f) {
-                            val radius = if (isTracked) 12f else 8f
-                            val color = if (isTracked) Color(0xFF4f0000) else Color.White
+                            val radius = if (isTracked) 16f else 11f
+                            val color = if (isTracked) Color(0xFF4f0000) else Color(0xFF37474F)
                             drawCircle(color, radius = radius, center = Offset(sx, sy))
                             drawCircle(
-                                Color(0xFF555555), radius = radius,
-                                center = Offset(sx, sy), style = Stroke(width = 2f)
+                                Color.White, radius = radius,
+                                center = Offset(sx, sy), style = Stroke(width = 2.5f)
                             )
                         }
                     }

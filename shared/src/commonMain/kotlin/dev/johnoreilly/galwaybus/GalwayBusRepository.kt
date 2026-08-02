@@ -377,12 +377,16 @@ class GalwayBusRepository(
 
     private suspend fun fetchVehicles(force: Boolean = false): Map<String, List<BusLocation>> = vehiclesMutex.withLock {
         if (!force) vehiclesCache?.let { (t, data) ->
-            if (nowEpochMilliseconds() - t < cacheTtlMs) return@withLock data
+            if (nowEpochMilliseconds() - t < cacheTtlMs) {
+                println("BusFeed: cache hit age=${nowEpochMilliseconds() - t}ms routes=${data.size} buses=${data.values.sumOf { it.size }}")
+                return@withLock data
+            }
         }
         val response = httpClient.get("$backendUrl/bus.json").body<BusApiResponse>()
         val result = response.bus.mapValues { (routeId, buses) ->
             buses.map { it.copy(timetable_id = it.timetable_id ?: routeId) }
         }
+        println("BusFeed: network fetch force=$force routes=${result.size} buses=${result.values.sumOf { it.size }}")
         vehiclesCache = nowEpochMilliseconds() to result
         result
     }
