@@ -1,0 +1,2 @@
+- Bigger, clearer stop markers on the map
+- Track Bus view now also rides out brief gaps in the live feed instead of losing the bus (previously only the main map did)
