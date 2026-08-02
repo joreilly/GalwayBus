@@ -31,6 +31,17 @@
 # Belt-and-braces: keep the app's own serializable model classes intact.
 -keep @kotlinx.serialization.Serializable class dev.johnoreilly.galwaybus.** { *; }
 
+# ── ML Kit text recognition (camera "Scan" tab) ──────────────────────────────
+# TextRecognition.getClient() resolves its internal components reflectively via
+# GMS/Firebase ComponentRegistrar discovery. Under R8 fullMode (default on AGP 8+)
+# those internal classes get stripped/renamed, leaving a null field that crashes
+# with an NPE inside com.google.mlkit.vision.text.internal.zzo. Keep the ML Kit
+# public API and its GMS-internal vision-text implementation packages.
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_text_common.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_text.** { *; }
+-dontwarn com.google.mlkit.**
+
 # ── Ktor / OkHttp optional transitive deps (compile-only, not shipped) ────────
 -dontwarn org.slf4j.**
 -dontwarn okhttp3.**
