@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalWasmDsl::class)
+
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -20,6 +23,10 @@ kotlin {
     }
 
     jvm()
+
+    wasmJs {
+        browser()
+    }
 
     androidLibrary {
         namespace = "dev.johnoreilly.galwaybus.shared"
@@ -75,6 +82,14 @@ kotlin {
         }
         jvmMain.dependencies {
             implementation(libs.ktor.client.cio)
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation(libs.kotlinx.browser)
+            // kotlinx-datetime ships no IANA tz database on Wasm/JS by default; this npm package
+            // supplies it. Must actually be referenced (see JsJodaTimeZone.wasmJs.kt) or webpack
+            // tree-shakes the import and TimeZone.of("Europe/Dublin") throws IllegalTimeZoneException.
+            implementation(npm("@js-joda/timezone", "2.25.2"))
         }
     }
 }
