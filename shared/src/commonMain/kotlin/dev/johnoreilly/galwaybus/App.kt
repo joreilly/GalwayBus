@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.LocationOff
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -57,6 +58,8 @@ import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
+import dev.johnoreilly.galwaybus.scan.CameraTextScanner
+import dev.johnoreilly.galwaybus.scan.isStopScanSupported
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlin.math.roundToInt
@@ -149,9 +152,14 @@ private enum class ViewMode(val label: String) {
 private enum class TopTab(val label: String, val icon: ImageVector) {
     FAVOURITES("My stops", Icons.Filled.Star),
     NEARBY("Near me", Icons.Filled.NearMe),
+    SCAN("Scan", Icons.Filled.QrCodeScanner),
     BUSES("Buses", Icons.Filled.DirectionsBus),
     ROUTES("Routes", Icons.AutoMirrored.Filled.List)
 }
+
+/** Tabs shown in the bottom bar — the camera "Scan" tab only where the platform supports it. */
+private val visibleTopTabs: List<TopTab> =
+    TopTab.entries.filter { it != TopTab.SCAN || isStopScanSupported }
 
 private enum class Screen {
     MAIN, TRACKING
@@ -262,6 +270,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                             when (topTab) {
                                 TopTab.FAVOURITES -> "My stops"
                                 TopTab.NEARBY -> "Near me"
+                                TopTab.SCAN -> "Scan a stop"
                                 TopTab.BUSES -> "All Buses"
                                 TopTab.ROUTES ->
                                     if (selectedRouteNum != null) "Route $selectedRouteNum" else "Galway Bus"
@@ -305,7 +314,7 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
             },
             bottomBar = {
                 NavigationBar {
-                    TopTab.entries.forEach { tab ->
+                    visibleTopTabs.forEach { tab ->
                         NavigationBarItem(
                             selected = topTab == tab,
                             onClick = {
@@ -329,6 +338,10 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                     modifier = Modifier.padding(padding).fillMaxSize()
                 )
                 TopTab.NEARBY -> NearbyPanel(
+                    viewModel = viewModel,
+                    modifier = Modifier.padding(padding).fillMaxSize()
+                )
+                TopTab.SCAN -> ScanStopPanel(
                     viewModel = viewModel,
                     modifier = Modifier.padding(padding).fillMaxSize()
                 )
@@ -438,6 +451,68 @@ private fun AllBusesPanel(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+/**
+ * "Scan a stop" tab (mobile only): a live camera preview that reads the 6-digit code printed on a
+ * Galway bus-stop plate and opens that stop's departures. Recognised text is matched to a stop via
+ * [GalwayBusViewModel.matchScannedStop]; a hit opens the shared map-stop departures sheet — the same
+ * sheet used from the maps — so a scan lands in the identical departures/tracking flow.
+ */
+@Composable
+private fun ScanStopPanel(
+    viewModel: GalwayBusViewModel,
+    modifier: Modifier = Modifier
+) {
+    // The stop we last opened the sheet for, so a stop that stays in frame doesn't re-trigger it.
+    // Cleared once the sheet is dismissed (mapStop == null) so the same stop can be scanned again.
+    var handledStopRef by remember { mutableStateOf<String?>(null) }
+    val sheetOpen = viewModel.mapStop != null
+    LaunchedEffect(sheetOpen) {
+        if (!sheetOpen) handledStopRef = null
+    }
+
+    Box(modifier) {
+        CameraTextScanner(
+            onText = { text ->
+                // Ignore frames while the departures sheet is up; resume once it's dismissed.
+                if (viewModel.mapStop == null) {
+                    val stop = viewModel.matchScannedStop(text)
+                    if (stop != null && stop.stop_ref != handledStopRef) {
+                        handledStopRef = stop.stop_ref
+                        viewModel.selectMapStop(stop)
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxSize()
+        )
+
+        Card(
+            modifier = Modifier.align(Alignment.TopCenter).padding(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Row(
+                Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Filled.QrCodeScanner,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(Modifier.width(10.dp))
+                Text(
+                    "Point your camera at the stop's number",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
         }
     }
