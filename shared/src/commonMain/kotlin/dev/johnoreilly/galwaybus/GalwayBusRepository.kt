@@ -161,8 +161,6 @@ class GalwayBusRepository(
             StopDeparturesResponse(times = emptyList())
         }
 
-        val s = snapshot()
-        val stopLocation = s.stops[stopId]
         val nowMs = nowEpochMilliseconds()
         val liveTimes = liveResponse.times.filter { it.depart_timestamp != null }.sortedBy { it.depart_timestamp }
         val result = mutableListOf<DepartureTime>()
@@ -200,13 +198,10 @@ class GalwayBusRepository(
                 val staticInstant = Instant.parse(scheduled.depart_timestamp!!)
                 val delay = (liveInstant - staticInstant).inWholeSeconds.toInt()
 
-                // Find vehicle ID if possible
+                // Attach a live vehicle only via a trustworthy link (exact trip, or the bus's own
+                // next-stop prediction for this stop). No headsign guessing — see matchVehicle.
                 val busesOnRoute = livePositions[scheduled.timetable_id] ?: emptyList()
-                val vehicle = busesOnRoute
-                    .find { it.trip_duid == scheduled.tripId && (it.vehicle_id == null || it.vehicle_id !in usedVehicleIds) }
-                    ?: busesOnRoute.find { 
-                        it.vehicle_id != null && it.vehicle_id !in usedVehicleIds && headsignMatches(it.headsign, scheduled.display_name) 
-                    }
+                val vehicle = matchVehicle(busesOnRoute, scheduled.tripId, stopId, usedVehicleIds)
 
                 val vehicleId = vehicle?.vehicle_id ?: live.vehicleId
                 if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
@@ -218,20 +213,11 @@ class GalwayBusRepository(
                     vehicleId = vehicleId
                 ))
             } else {
-                // Second pass: try to match live-only departure to a vehicle from bus.json
+                // Live-only departure (no schedule match): with no trip id, the only trustworthy
+                // link is a bus whose own next-stop prediction includes this stop.
                 val busesOnRoute = livePositions[live.timetable_id] ?: emptyList()
-                val bestBus = if (stopLocation != null) {
-                    busesOnRoute
-                        .filter { it.vehicle_id !in usedVehicleIds && headsignMatches(it.headsign, live.display_name) }
-                        .minByOrNull { bus: BusLocation ->
-                        val dx = bus.longitude - stopLocation.lon
-                        val dy = bus.latitude - stopLocation.lat
-                        dx * dx + dy * dy
-                    }
-                } else {
-                    busesOnRoute.firstOrNull { it.vehicle_id !in usedVehicleIds && headsignMatches(it.headsign, live.display_name) }
-                }
-                
+                val bestBus = matchVehicle(busesOnRoute, tripId = null, stopId = stopId, usedVehicleIds = usedVehicleIds)
+
                 val finalVehicleId = bestBus?.vehicle_id ?: live.vehicleId
                 if (!finalVehicleId.isNullOrBlank()) usedVehicleIds.add(finalVehicleId)
 
@@ -247,7 +233,7 @@ class GalwayBusRepository(
                 val staticInstant = Instant.parse(scheduled.depart_timestamp!!)
                 if (staticInstant.toEpochMilliseconds() >= nowMs) {
                     val busesOnRoute = livePositions[scheduled.timetable_id] ?: emptyList()
-                    val vehicle = busesOnRoute.find { it.trip_duid == scheduled.tripId && (it.vehicle_id == null || it.vehicle_id !in usedVehicleIds) }
+                    val vehicle = matchVehicle(busesOnRoute, scheduled.tripId, stopId, usedVehicleIds)
                     val vehicleId = vehicle?.vehicle_id
                     if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
                     
@@ -260,28 +246,32 @@ class GalwayBusRepository(
         return result.sortedBy { it.depart_timestamp } to livePositions
     }
 
-    private fun normalizeHeadsignForMatch(headsign: String?): String {
-        if (headsign.isNullOrBlank()) return ""
+    /**
+     * Picks the live vehicle serving a departure, using only trustworthy links:
+     *  1. exact trip match (the bus is running the departure's trip), or
+     *  2. the bus's own next-stop prediction includes this stop.
+     *
+     * We deliberately do NOT guess by route+headsign: frequent routes (e.g. 401) run several
+     * buses in the same direction at once, so a headsign match attaches an arbitrary bus to the
+     * "next due" departure and shows the wrong vehicle id. No id is better than a wrong id.
+     */
+    private fun matchVehicle(
+        busesOnRoute: List<BusLocation>,
+        tripId: String?,
+        stopId: String,
+        usedVehicleIds: Set<String>
+    ): BusLocation? {
+        fun available(bus: BusLocation): Boolean {
+            val vid = bus.vehicle_id
+            return !vid.isNullOrBlank() && vid !in usedVehicleIds
+        }
 
-        var normalized = headsign
-            .trim()
-            .replace(Regex("\\s+"), " ")
-            .lowercase()
-
-        normalized = normalized.removePrefix("towards ")
-            .removePrefix("to ")
-
-        // Strip common suffixes like "X (via ...)".
-        normalized = normalized.substringBefore(" (")
-        normalized = normalized.substringBefore(" via ")
-
-        return normalized.trim()
-    }
-
-    private fun headsignMatches(busHeadsign: String?, departureHeadsign: String?): Boolean {
-        val a = normalizeHeadsignForMatch(busHeadsign)
-        val b = normalizeHeadsignForMatch(departureHeadsign)
-        return a.isNotEmpty() && a == b
+        if (tripId != null) {
+            busesOnRoute.firstOrNull { it.trip_duid == tripId && available(it) }?.let { return it }
+        }
+        return busesOnRoute.firstOrNull { bus ->
+            available(bus) && bus.next_stops?.any { it.stop_ref == stopId } == true
+        }
     }
 
     /**
