@@ -159,13 +159,14 @@ private fun Double.toRadians(): Double = this * kotlin.math.PI / 180.0
 
 /**
  * Runs an MCP server over standard input/output — the transport used when a desktop MCP client
- * (e.g. Claude Desktop) launches this jar directly.
+ * (e.g. Claude Desktop) launches this jar directly. [protocolOut] is the real stdout captured
+ * before System.out was redirected to stderr, so only JSON-RPC reaches the client.
  */
-fun runMcpServerUsingStdio() {
+fun runMcpServerUsingStdio(protocolOut: java.io.OutputStream) {
     val server = configureServer()
     val transport = StdioServerTransport(
         input = System.`in`.asSource().buffered(),
-        output = System.out.asSink().buffered()
+        output = protocolOut.asSink().buffered()
     ) {}
 
     runBlocking {

@@ -14,7 +14,15 @@ fun main(args: Array<String>) {
     val port = args.getOrNull(1)?.toIntOrNull() ?: 3001
     when (command) {
         "--sse-server" -> runSseMcpServer(port)
-        "--stdio" -> runMcpServerUsingStdio()
+        "--stdio" -> {
+            // In stdio mode stdout carries the JSON-RPC protocol stream and must contain nothing
+            // else. Capture the real stdout for the transport, then point System.out at stderr so
+            // stray output (e.g. kotlin-logging's init banner, pulled in transitively by the MCP
+            // SDK) can't corrupt the protocol. This must happen before any logger initialises.
+            val protocolOut = System.out
+            System.setOut(System.err)
+            runMcpServerUsingStdio(protocolOut)
+        }
         else -> System.err.println("Unknown command: $command")
     }
 }
