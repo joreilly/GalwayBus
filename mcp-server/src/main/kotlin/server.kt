@@ -127,16 +127,22 @@ fun configureServer(): Server {
     ) { request ->
         val routeId = request.arguments?.get("routeId")?.jsonPrimitive?.content
             ?: return@addTool CallToolResult(content = listOf(TextContent("The 'routeId' parameter is required.")))
-        runCatching { galwayBusRepository.getStopsForRoute(routeId) }.fold(
-            onSuccess = { directions ->
-                val stops = directions.flatten().distinctBy { it.stop_id }
-                CallToolResult(
-                    content = if (stops.isEmpty()) {
-                        listOf(TextContent("No stops found for route $routeId."))
-                    } else {
-                        stops.map { TextContent("${it.short_name} (stop ${it.stop_id})") }
+        runCatching {
+            // Fetch the per-direction stop lists and a headsign to label each direction.
+            galwayBusRepository.getStopsForRoute(routeId) to galwayBusRepository.getDirectionHeadsigns(routeId)
+        }.fold(
+            onSuccess = { (directions, headsigns) ->
+                val content = buildList {
+                    directions.forEachIndexed { i, stops ->
+                        if (stops.isEmpty()) return@forEachIndexed
+                        val headsign = headsigns.getOrNull(i) ?: "Direction ${i + 1}"
+                        add(TextContent("── Towards $headsign (${stops.size} stops) ──"))
+                        stops.forEach { s ->
+                            add(TextContent("  ${s.short_name} (stop ${s.stop_id}) @ (${fmtCoord(s.latitude)}, ${fmtCoord(s.longitude)})"))
+                        }
                     }
-                )
+                }
+                CallToolResult(content = content.ifEmpty { listOf(TextContent("No stops found for route $routeId.")) })
             },
             onFailure = { CallToolResult(content = listOf(TextContent("Error getting route stops: ${it.message}"))) }
         )
@@ -248,6 +254,9 @@ fun configureServer(): Server {
 
     return server
 }
+
+/** Formats a coordinate to 5 decimal places (~1 m), always with a dot decimal separator. */
+private fun fmtCoord(coord: Double): String = String.format(java.util.Locale.US, "%.5f", coord)
 
 /** Great-circle distance in metres between two lat/lon points. */
 private fun haversineMeters(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
