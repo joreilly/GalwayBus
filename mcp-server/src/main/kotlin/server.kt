@@ -68,12 +68,13 @@ fun configureServer(): Server {
 
     server.addTool(
         "get-bus-departures",
-        "List upcoming departures for a bus stop, given its stop id",
+        "List upcoming departures for a bus stop, given its stop id (the number shown in stop listings, e.g. 522211)",
         schema("stopId" to "string", required = listOf("stopId"))
     ) { request ->
         val stopId = request.arg("stopId") ?: return@addTool missing("stopId")
         toolResult("getting bus departures") {
-            val departures = repository.getStopDepartures(stopId)
+            val stopRef = resolveStopRef(stopId) ?: return@toolResult listOf("No stop found with id \"$stopId\".")
+            val departures = repository.getStopDepartures(stopRef)
             if (departures.isEmpty()) listOf("No upcoming departures for stop $stopId.")
             else departures.map { "${it.timetable_id} → ${it.display_name} at ${it.depart_timestamp ?: "scheduled"}" }
         }
@@ -139,12 +140,13 @@ fun configureServer(): Server {
 
     server.addTool(
         "get-departures-with-live",
-        "Upcoming departures for a stop, merged with live tracking (marks live buses and delays)",
+        "Upcoming departures for a stop (number shown in listings, e.g. 522211), merged with live tracking (marks live buses and delays)",
         schema("stopId" to "string", required = listOf("stopId"))
     ) { request ->
         val stopId = request.arg("stopId") ?: return@addTool missing("stopId")
         toolResult("getting live departures") {
-            val departures = repository.getStopDeparturesWithLive(stopId).first
+            val stopRef = resolveStopRef(stopId) ?: return@toolResult listOf("No stop found with id \"$stopId\".")
+            val departures = repository.getStopDeparturesWithLive(stopRef).first
             if (departures.isEmpty()) listOf("No upcoming departures for stop $stopId.")
             else departures.map {
                 val live = if (it.vehicleId != null) " [live]" else ""
@@ -169,6 +171,17 @@ private fun missing(param: String): CallToolResult = textResult("The '$param' pa
 
 /** Reads a string argument from the request, or null if absent. */
 private fun CallToolRequest.arg(name: String): String? = arguments?.get(name)?.jsonPrimitive?.content
+
+/**
+ * Resolves a user-supplied stop identifier to the backend `stop_ref` the departures APIs require.
+ * Users (and the other tools' output) work with the numeric `stop_id` printed on the stop plate
+ * (e.g. 522211), but departures are keyed by `stop_ref` (e.g. 8460B5222101). Accepts either form.
+ */
+private suspend fun resolveStopRef(input: String): String? {
+    val stops = repository.getStops()
+    return stops.firstOrNull { it.stop_ref == input }?.stop_ref
+        ?: stops.firstOrNull { it.stop_id == input }?.stop_ref
+}
 
 /** Builds a tool input schema from (name -> JSON-schema type) pairs. */
 private fun schema(vararg props: Pair<String, String>, required: List<String> = emptyList()): ToolSchema =
