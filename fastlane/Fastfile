@@ -128,6 +128,22 @@ platform :android do
     end
 
 
+    desc "Upload the staged store screenshots (fastlane/metadata/.../phoneScreenshots) to Play"
+    lane :uploadScreenshots do |options|
+
+        # Uploads listing images/screenshots only — no app binary, listing text or changelogs.
+        supply(
+            package_name: "dev.johnoreilly.galwaybus",
+            skip_upload_apk: true,
+            skip_upload_aab: true,
+            skip_upload_metadata: true,
+            skip_upload_changelogs: true,
+            skip_upload_images: false,
+            skip_upload_screenshots: false
+        )
+    end
+
+
 
 
 
