@@ -142,6 +142,110 @@ fun configureServer(): Server {
         )
     }
 
+    server.addTool(
+        name = "get-live-buses",
+        description = "List live bus positions, optionally filtered to a single route id (e.g. 401)",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                putJsonObject("routeId") { put("type", "string") }
+            }
+        )
+    ) { request ->
+        val routeId = request.arguments?.get("routeId")?.jsonPrimitive?.content
+        runCatching {
+            if (routeId != null) {
+                galwayBusRepository.getBusPositions(routeId).map { routeId to it }
+            } else {
+                galwayBusRepository.getBusPositions().flatMap { (route, buses) -> buses.map { route to it } }
+            }
+        }.fold(
+            onSuccess = { buses ->
+                CallToolResult(
+                    content = if (buses.isEmpty()) {
+                        listOf(TextContent(if (routeId != null) "No live buses for route $routeId." else "No live buses right now."))
+                    } else {
+                        buses.map { (route, bl) ->
+                            val veh = bl.vehicle_id?.let { " veh $it" } ?: ""
+                            TextContent(
+                                "$route → ${bl.headsign ?: "?"} @ (${bl.latitude}, ${bl.longitude})$veh " +
+                                    "(updated ${bl.modified_timestamp})"
+                            )
+                        }
+                    }
+                )
+            },
+            onFailure = { CallToolResult(content = listOf(TextContent("Error getting live buses: ${it.message}"))) }
+        )
+    }
+
+    server.addTool(
+        name = "search-stops",
+        description = "Find bus stops whose name contains the given text (e.g. 'Eyre Square')",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                putJsonObject("query") { put("type", "string") }
+            },
+            required = listOf("query")
+        )
+    ) { request ->
+        val query = request.arguments?.get("query")?.jsonPrimitive?.content?.trim()
+        if (query.isNullOrEmpty()) {
+            return@addTool CallToolResult(content = listOf(TextContent("The 'query' parameter is required.")))
+        }
+        runCatching { galwayBusRepository.getStops() }.fold(
+            onSuccess = { stops ->
+                val matches = stops.filter {
+                    it.long_name.contains(query, ignoreCase = true) || it.short_name.contains(query, ignoreCase = true)
+                }.take(20)
+                CallToolResult(
+                    content = if (matches.isEmpty()) {
+                        listOf(TextContent("No stops matching \"$query\"."))
+                    } else {
+                        matches.map { TextContent("${it.short_name} (stop ${it.stop_id}) — ${it.long_name}") }
+                    }
+                )
+            },
+            onFailure = { CallToolResult(content = listOf(TextContent("Error searching stops: ${it.message}"))) }
+        )
+    }
+
+    server.addTool(
+        name = "get-departures-with-live",
+        description = "Upcoming departures for a stop, merged with live tracking (marks live buses and delays)",
+        inputSchema = ToolSchema(
+            properties = buildJsonObject {
+                putJsonObject("stopId") { put("type", "string") }
+            },
+            required = listOf("stopId")
+        )
+    ) { request ->
+        val stopId = request.arguments?.get("stopId")?.jsonPrimitive?.content
+            ?: return@addTool CallToolResult(content = listOf(TextContent("The 'stopId' parameter is required.")))
+        runCatching { galwayBusRepository.getStopDeparturesWithLive(stopId).first }.fold(
+            onSuccess = { departures ->
+                CallToolResult(
+                    content = if (departures.isEmpty()) {
+                        listOf(TextContent("No upcoming departures for stop $stopId."))
+                    } else {
+                        departures.map { d ->
+                            val time = d.depart_timestamp ?: "scheduled"
+                            val live = if (d.vehicleId != null) " [live]" else ""
+                            val delay = d.delaySeconds?.let { s ->
+                                when {
+                                    s > 60 -> " (${s / 60}m late)"
+                                    s < -60 -> " (${-s / 60}m early)"
+                                    else -> " (on time)"
+                                }
+                            } ?: ""
+                            TextContent("${d.timetable_id} → ${d.display_name} at $time$live$delay")
+                        }
+                    }
+                )
+            },
+            onFailure = { CallToolResult(content = listOf(TextContent("Error getting live departures: ${it.message}"))) }
+        )
+    }
+
     return server
 }
 
