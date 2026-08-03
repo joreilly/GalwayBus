@@ -71,6 +71,14 @@ Promote app from alpha to production in Play Store
 
 Generate app screenshots that will be uploaded to play store
 
+### android uploadScreenshots
+
+```sh
+[bundle exec] fastlane android uploadScreenshots
+```
+
+Upload the staged store screenshots (fastlane/metadata/.../phoneScreenshots) to Play
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
