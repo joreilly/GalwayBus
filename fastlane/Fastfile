@@ -131,14 +131,17 @@ platform :android do
     desc "Upload the staged store screenshots (fastlane/metadata/.../phoneScreenshots) to Play"
     lane :uploadScreenshots do |options|
 
-        # Uploads listing images/screenshots only — no app binary, listing text or changelogs.
+        # Uploads phone screenshots only — no app binary, listing text, changelogs, or
+        # icon/featureGraphic. The store listing locale is en-GB (not en-US), so screenshots
+        # live under metadata/android/en-GB; skip_upload_images avoids touching the live
+        # icon/featureGraphic (and the stale en-US images that have no listing title).
         supply(
             package_name: "dev.johnoreilly.galwaybus",
             skip_upload_apk: true,
             skip_upload_aab: true,
             skip_upload_metadata: true,
             skip_upload_changelogs: true,
-            skip_upload_images: false,
+            skip_upload_images: true,
             skip_upload_screenshots: false
         )
     end
