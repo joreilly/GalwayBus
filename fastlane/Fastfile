@@ -94,9 +94,12 @@ platform :android do
     end
 
 
-    desc "Promote app from alpha to production in Play Store"
+    desc "Promote the current internal-track release to production in Play Store"
     lane :promoteAppToProd do |options|
 
+        # No version_code: supply promotes whichever single 'completed' release is in the
+        # internal track. If internal ever has more than one release, supply errors and asks
+        # for :version_code rather than guessing.
         supply(
             package_name: "dev.johnoreilly.galwaybus",
             track: "internal",
@@ -104,8 +107,7 @@ platform :android do
             skip_upload_apk: true,
             skip_upload_metadata: true,
             skip_upload_images: true,
-            skip_upload_screenshots: true,
-            version_code: 1001086
+            skip_upload_screenshots: true
         )
     end
 
@@ -124,6 +126,25 @@ platform :android do
             use_tests_in_packages: ['dev.johnoreilly.galwaybus.screenshots'],
             app_apk_path: "androidApp/build/outputs/apk/debug/androidApp-debug.apk",
             tests_apk_path: "androidApp/build/outputs/apk/androidTest/debug/androidApp-debug-androidTest.apk"
+        )
+    end
+
+
+    desc "Upload the staged store screenshots (fastlane/metadata/.../phoneScreenshots) to Play"
+    lane :uploadScreenshots do |options|
+
+        # Uploads phone screenshots only — no app binary, listing text, changelogs, or
+        # icon/featureGraphic. The store listing locale is en-GB (not en-US), so screenshots
+        # live under metadata/android/en-GB; skip_upload_images avoids touching the live
+        # icon/featureGraphic (and the stale en-US images that have no listing title).
+        supply(
+            package_name: "dev.johnoreilly.galwaybus",
+            skip_upload_apk: true,
+            skip_upload_aab: true,
+            skip_upload_metadata: true,
+            skip_upload_changelogs: true,
+            skip_upload_images: true,
+            skip_upload_screenshots: false
         )
     end
 
