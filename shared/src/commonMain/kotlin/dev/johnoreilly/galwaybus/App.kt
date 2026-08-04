@@ -1176,6 +1176,9 @@ private fun FavouritesPanel(
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val departuresByStop by viewModel.favouriteDepartures.collectAsStateWithLifecycle()
     val allStops by viewModel.allStops.collectAsStateWithLifecycle()
+    // Favourites persist the name captured when starred (English); look the live stop up so the
+    // card can show the Irish name in Irish mode.
+    val stopsByRef = remember(allStops) { allStops.associateBy { it.stop_ref } }
 
     var query by remember { mutableStateOf("") }
     val searching = query.trim().length >= 2
@@ -1269,7 +1272,7 @@ private fun FavouritesPanel(
                     }
                     items(favourites, key = { it.stopRef }) { fav ->
                         FavouriteStopCard(
-                            name = fav.name,
+                            name = stopsByRef[fav.stopRef]?.displayName() ?: fav.name,
                             stopId = fav.stopId,
                             departures = departuresByStop[fav.stopRef],
                             nowMs = nowMs,
