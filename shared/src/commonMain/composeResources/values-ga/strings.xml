@@ -1,9 +1,4 @@
-<!--
-  Irish (Gaeilge) translations — DRAFT.
-  Machine/assistant-drafted; should be reviewed by a fluent speaker before release.
-  Compose Resources falls back to values/strings.xml (English) for any missing key,
-  and to the `other` plural item for any missing plural category.
--->
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App / titles -->
     <string name="app_name">Bus na Gaillimhe</string>
@@ -12,7 +7,7 @@
     <string name="title_route">Bealach %1$s</string>
 
     <!-- Bottom tabs -->
-    <string name="tab_favourites">Mo stadanna</string>
+    <string name="tab_favourites">Stadanna</string>
     <string name="tab_nearby">Gar dom</string>
     <string name="tab_scan">Scan</string>
     <string name="tab_buses">Busanna</string>
@@ -41,7 +36,7 @@
     <string name="service_may_not_be_running">Seans nach bhfuil an tseirbhís ag rith</string>
 
     <!-- Scan -->
-    <string name="scan_point_camera">Dírigh do cheamara ar uimhir an stad</string>
+    <string name="scan_point_camera">Dírigh do cheamara ar uimhir an stada</string>
 
     <!-- Nearby -->
     <string name="location_permission_needed">Cead suímh de dhíth</string>
@@ -52,6 +47,9 @@
     <string name="towards">I dtreo %1$s</string>
     <plurals name="stops_near_you">
         <item quantity="one">%1$d stad in aice leat</item>
+        <item quantity="two">%1$d stada in aice leat</item>
+        <item quantity="few">%1$d stada in aice leat</item>
+        <item quantity="many">%1$d stada in aice leat</item>
         <item quantity="other">%1$d stad in aice leat</item>
     </plurals>
 
@@ -78,7 +76,7 @@
     <!-- Tracking -->
     <string name="track_bus">Lorg Bus</string>
     <string name="next_stop">An chéad stad eile</string>
-    <string name="your_stop">Do stadsa</string>
+    <string name="your_stop">Do stad-sa</string>
     <string name="arriving_at">Ag teacht go %1$s</string>
     <string name="arriving">Ag teacht</string>
     <string name="bus_not_reporting">Níl an bus ag tuairisciú a shuímh bheo</string>
@@ -88,11 +86,14 @@
     <!-- Favourites -->
     <string name="search_all_stops">Cuardaigh gach stad</string>
     <string name="no_saved_stops">Níl aon stad sábháilte fós</string>
-    <string name="no_saved_stops_body">Cuardaigh stad thuas agus tapáil a réalta, nó brabhsáil bealach chun stadanna ar an mbealach a aimsiú</string>
+    <string name="no_saved_stops_body">Cuardaigh stad thuas agus tapáil an réalta, nó brabhsáil bealach chun stadanna a aimsiú</string>
     <string name="browse_routes">Brabhsáil bealaí</string>
-    <string name="no_stops_match">Níl aon stad ag teacht leis</string>
+    <string name="no_stops_match">Níl aon stad ag teacht leis seo</string>
     <plurals name="saved_stops">
         <item quantity="one">%1$d stad sábháilte</item>
+        <item quantity="two">%1$d stada shábháilte</item>
+        <item quantity="few">%1$d stada shábháilte</item>
+        <item quantity="many">%1$d stada shábháilte</item>
         <item quantity="other">%1$d stad sábháilte</item>
     </plurals>
 
@@ -110,26 +111,29 @@
     <string name="no_more_departures">Níl aon imeacht eile inniu</string>
     <string name="select_route">Roghnaigh bealach ón liosta chun\nbusanna beo, stadanna agus léarscáil a fheiceáil</string>
     <plurals name="route_stops_hint">
-        <item quantity="one">%1$d stad · tapáil stad le haghaidh na chéad imeachtaí</item>
-        <item quantity="other">%1$d stad · tapáil stad le haghaidh na chéad imeachtaí</item>
+        <item quantity="one">%1$d stad · tapáil stad le haghaidh na chéad imeachtaí eile</item>
+        <item quantity="two">%1$d stada · tapáil stad le haghaidh na chéad imeachtaí eile</item>
+        <item quantity="few">%1$d stada · tapáil stad le haghaidh na chéad imeachtaí eile</item>
+        <item quantity="many">%1$d stada · tapáil stad le haghaidh na chéad imeachtaí eile</item>
+        <item quantity="other">%1$d stad · tapáil stad le haghaidh na chéad imeachtaí eile</item>
     </plurals>
 
     <!-- About -->
-    <string name="about">Maidir le</string>
+    <string name="about">Maidir leis an aip</string>
     <string name="close">Dún</string>
     <string name="version">Leagan %1$s</string>
 
     <!-- Settings -->
     <string name="settings">Socruithe</string>
     <string name="theme">Téama</string>
-    <string name="theme_system">Córas</string>
+    <string name="theme_system">Default an chórais</string>
     <string name="theme_light">Geal</string>
     <string name="theme_dark">Dorcha</string>
     <string name="language">Teanga</string>
-    <string name="language_system">Réamhshocrú an chórais</string>
+    <string name="language_system">Default an chórais</string>
     <string name="language_english">English</string>
     <string name="language_irish">Gaeilge</string>
-    <string name="restart_to_apply_title">Atosaigh chun cur i bhfeidhm</string>
+    <string name="restart_to_apply_title">Atosaigh le cur i bhfeidhm</string>
     <string name="restart_to_apply_body">Atosaigh an aip chun an teanga a athrú.</string>
-    <string name="ok">OK</string>
+    <string name="ok">Tugtha</string>
 </resources>
