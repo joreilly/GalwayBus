@@ -177,7 +177,7 @@ fun DepartureTime.formatWithLive(nowMs: Long): String {
     return when {
         delaySeconds != null -> {
             val liveDisplay = when {
-                scheduledMinutes < 0 -> "Due"
+                scheduledMinutes <= 0 -> "Due"
                 scheduledMinutes < 60 -> "$scheduledMinutes min"
                 else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
             }
@@ -1653,7 +1653,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
         title = { Text("Galway Bus") },
         text = {
             Text(
-                "Version ${platform.appVersion}",
+                "Version ${platform.appVersion.substringBefore(" (")}",
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
