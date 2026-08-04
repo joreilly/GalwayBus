@@ -162,84 +162,45 @@ class GalwayBusRepository(
         }
 
         val nowMs = nowEpochMilliseconds()
-        val liveTimes = liveResponse.times.filter { it.depart_timestamp != null }.sortedBy { it.depart_timestamp }
         val result = mutableListOf<DepartureTime>()
-        val usedScheduledIndices = mutableSetOf<Int>()
         val usedVehicleIds = mutableSetOf<String>()
+        val usedTripIds = mutableSetOf<String>()
+
+        // The backend now supplies each departure's authoritative live delay and trip id, so we take
+        // them directly rather than re-deriving lateness by matching predicted times to the schedule.
+        // That derivation collapsed to ~0 for a bus running roughly one headway late (its predicted
+        // time lands on the next scheduled slot), which hid the "(late)" state in the list.
+        val liveTimes = liveResponse.times
+            .filter { it.depart_timestamp != null }
+            .sortedBy { it.depart_timestamp }
 
         for (live in liveTimes) {
-            val liveInstant = Instant.parse(live.depart_timestamp!!)
-            if (liveInstant.toEpochMilliseconds() < nowMs - 60_000) continue
+            if (Instant.parse(live.depart_timestamp!!).toEpochMilliseconds() < nowMs - 60_000) continue
 
-            var bestScheduledIdx = -1
-            var minScore = Long.MAX_VALUE
+            // Attach a live vehicle only via a trustworthy link (exact trip, or the bus's own
+            // next-stop prediction for this stop). No headsign guessing — see matchVehicle.
+            val busesOnRoute = livePositions[live.timetable_id] ?: emptyList()
+            val vehicle = matchVehicle(busesOnRoute, live.tripId, stopId, usedVehicleIds)
+            val vehicleId = vehicle?.vehicle_id ?: live.vehicleId
+            if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
+            live.tripId?.let { usedTripIds.add(it) }
 
-            for (i in scheduledDepartures.indices) {
-                if (i in usedScheduledIndices) continue
-                val scheduled = scheduledDepartures[i]
-                if (scheduled.timetable_id != live.timetable_id) continue
-
-                val staticInstant = Instant.parse(scheduled.depart_timestamp!!)
-                val diff = (liveInstant - staticInstant).inWholeSeconds
-                val absDiff = if (diff < 0) -diff else diff
-                // Heuristic: Buses are much more likely to be late than early.
-                // Apply a penalty to early matches to favor matching with a late previous bus.
-                val matchScore = if (diff < 0) absDiff * 4 else absDiff
-
-                if (matchScore < minScore && absDiff < 1800) {
-                    minScore = matchScore
-                    bestScheduledIdx = i
-                }
-            }
-
-            if (bestScheduledIdx != -1) {
-                usedScheduledIndices.add(bestScheduledIdx)
-                val scheduled = scheduledDepartures[bestScheduledIdx]
-                val staticInstant = Instant.parse(scheduled.depart_timestamp!!)
-                val delay = (liveInstant - staticInstant).inWholeSeconds.toInt()
-
-                // Attach a live vehicle only via a trustworthy link (exact trip, or the bus's own
-                // next-stop prediction for this stop). No headsign guessing — see matchVehicle.
-                val busesOnRoute = livePositions[scheduled.timetable_id] ?: emptyList()
-                val vehicle = matchVehicle(busesOnRoute, scheduled.tripId, stopId, usedVehicleIds)
-
-                val vehicleId = vehicle?.vehicle_id ?: live.vehicleId
-                if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
-                
-                result.add(scheduled.copy(
-                    delaySeconds = delay,
-                    depart_timestamp = live.depart_timestamp,
-                    tripId = scheduled.tripId,
-                    vehicleId = vehicleId
-                ))
-            } else {
-                // Live-only departure (no schedule match): with no trip id, the only trustworthy
-                // link is a bus whose own next-stop prediction includes this stop.
-                val busesOnRoute = livePositions[live.timetable_id] ?: emptyList()
-                val bestBus = matchVehicle(busesOnRoute, tripId = null, stopId = stopId, usedVehicleIds = usedVehicleIds)
-
-                val finalVehicleId = bestBus?.vehicle_id ?: live.vehicleId
-                if (!finalVehicleId.isNullOrBlank()) usedVehicleIds.add(finalVehicleId)
-
-                result.add(if (bestBus != null) live.copy(tripId = bestBus.trip_duid, vehicleId = finalVehicleId) else live)
-            }
+            result.add(live.copy(vehicleId = vehicleId))
             if (result.size >= 5) break
         }
 
+        // Fill with upcoming scheduled departures the live feed didn't already cover (matched by trip).
         if (result.size < 5) {
-            for (i in scheduledDepartures.indices) {
-                if (i in usedScheduledIndices) continue
-                val scheduled = scheduledDepartures[i]
-                val staticInstant = Instant.parse(scheduled.depart_timestamp!!)
-                if (staticInstant.toEpochMilliseconds() >= nowMs) {
-                    val busesOnRoute = livePositions[scheduled.timetable_id] ?: emptyList()
-                    val vehicle = matchVehicle(busesOnRoute, scheduled.tripId, stopId, usedVehicleIds)
-                    val vehicleId = vehicle?.vehicle_id
-                    if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
-                    
-                    result.add(scheduled.copy(vehicleId = vehicleId))
-                    if (result.size >= 5) break
-                }
+            for (scheduled in scheduledDepartures) {
+                if (scheduled.tripId != null && scheduled.tripId in usedTripIds) continue
+                if (Instant.parse(scheduled.depart_timestamp!!).toEpochMilliseconds() < nowMs) continue
+                val busesOnRoute = livePositions[scheduled.timetable_id] ?: emptyList()
+                val vehicle = matchVehicle(busesOnRoute, scheduled.tripId, stopId, usedVehicleIds)
+                val vehicleId = vehicle?.vehicle_id
+                if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
+
+                result.add(scheduled.copy(vehicleId = vehicleId))
+                if (result.size >= 5) break
             }
         }
 
