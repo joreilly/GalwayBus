@@ -41,6 +41,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
+import dev.johnoreilly.galwaybus.displayName
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
@@ -155,7 +156,7 @@ actual fun BusMapView(
                     state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
                     icon = if (isTracked) trackedDot else stopDot,
                     anchor = Offset(0.5f, 0.5f),
-                    title = stop.long_name,
+                    title = stop.displayName(),
                     snippet = "Stop ${stop.stop_id}",
                     onClick = {
                         onStopClick?.invoke(stop)

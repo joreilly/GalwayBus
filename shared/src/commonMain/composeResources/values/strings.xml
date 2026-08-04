@@ -1,0 +1,129 @@
+<resources>
+    <!-- App / titles -->
+    <string name="app_name">Galway Bus</string>
+    <string name="title_scan_a_stop">Scan a stop</string>
+    <string name="title_all_buses">All Buses</string>
+    <string name="title_route">Route %1$s</string>
+
+    <!-- Bottom tabs -->
+    <string name="tab_favourites">My stops</string>
+    <string name="tab_nearby">Near me</string>
+    <string name="tab_scan">Scan</string>
+    <string name="tab_buses">Buses</string>
+    <string name="tab_routes">Routes</string>
+
+    <!-- Stops/Map view switch -->
+    <string name="view_stops">Stops</string>
+    <string name="view_map">Map</string>
+
+    <!-- Content descriptions -->
+    <string name="cd_back">Back</string>
+    <string name="cd_back_to_routes">Back to routes</string>
+    <string name="cd_clear_search">Clear search</string>
+    <string name="cd_more_options">More options</string>
+    <string name="cd_refresh_departures">Refresh departures</string>
+    <string name="cd_refresh_nearby">Refresh nearby stops</string>
+    <string name="cd_refresh_bus_positions">Refresh bus positions</string>
+    <string name="cd_refresh_positions">Refresh positions</string>
+    <string name="cd_track_this_bus">Track this bus</string>
+    <string name="cd_add_favourite">Add favourite</string>
+    <string name="cd_remove_favourite">Remove favourite</string>
+
+    <!-- All buses map -->
+    <string name="loading_live_buses">Loading live buses…</string>
+    <string name="no_buses_reporting">No buses reporting right now</string>
+    <string name="service_may_not_be_running">Service may not be running</string>
+
+    <!-- Scan -->
+    <string name="scan_point_camera">Point your camera at the stop\'s number</string>
+
+    <!-- Nearby -->
+    <string name="location_permission_needed">Location permission needed</string>
+    <string name="location_permission_body">Allow location access to see the bus stops closest to you.</string>
+    <string name="enable_location">Enable location</string>
+    <string name="finding_stops">Finding stops near you…</string>
+    <string name="showing_city_centre">Showing stops near Galway city centre</string>
+    <string name="towards">Towards %1$s</string>
+    <plurals name="stops_near_you">
+        <item quantity="one">%1$d stop near you</item>
+        <item quantity="other">%1$d stops near you</item>
+    </plurals>
+
+    <!-- Distances -->
+    <string name="distance_m">%1$d m</string>
+    <string name="distance_km">%1$s km</string>
+
+    <!-- Stop / route labels -->
+    <string name="stop_label">Stop %1$s</string>
+
+    <!-- Countdown / delay -->
+    <string name="due">Due</string>
+    <string name="not_available">N/A</string>
+    <string name="countdown_min">%1$d min</string>
+    <string name="countdown_hours_min">%1$dh %2$dmin</string>
+    <string name="gutter_min">%1$d′</string>
+    <string name="gutter_hours_min">%1$dh %2$d′</string>
+    <string name="late_suffix"> (late)</string>
+    <string name="early_suffix"> (early)</string>
+    <string name="min_late">%1$d min late</string>
+    <string name="min_early">%1$d min early</string>
+    <string name="on_time">On time</string>
+
+    <!-- Tracking -->
+    <string name="track_bus">Track Bus</string>
+    <string name="next_stop">Next stop</string>
+    <string name="your_stop">Your stop</string>
+    <string name="arriving_at">Arriving at %1$s</string>
+    <string name="arriving">Arriving</string>
+    <string name="bus_not_reporting">Bus not reporting live position</string>
+    <string name="live_position">Live position</string>
+    <string name="position_updated">Position updated %1$s</string>
+
+    <!-- Favourites -->
+    <string name="search_all_stops">Search all stops</string>
+    <string name="no_saved_stops">No saved stops yet</string>
+    <string name="no_saved_stops_body">Search for a stop above and tap its star, or browse a route to find stops on the way</string>
+    <string name="browse_routes">Browse routes</string>
+    <string name="no_stops_match">No stops match</string>
+    <plurals name="saved_stops">
+        <item quantity="one">%1$d saved stop</item>
+        <item quantity="other">%1$d saved stops</item>
+    </plurals>
+
+    <!-- Updated / time-ago -->
+    <string name="updated">Updated %1$s</string>
+    <string name="last_updated_retrying">Last updated %1$s — retrying</string>
+    <string name="time_just_now">just now</string>
+    <string name="time_secs_ago">%1$ds ago</string>
+    <string name="time_mins_ago">%1$dm ago</string>
+    <string name="time_hours_ago">%1$dh ago</string>
+
+    <!-- Route detail -->
+    <string name="direction_numbered">Direction %1$d</string>
+    <string name="loading_departures">Loading departures…</string>
+    <string name="no_more_departures">No more departures today</string>
+    <string name="select_route">Select a route from the list to\nview live buses, stops, and map</string>
+    <plurals name="route_stops_hint">
+        <item quantity="one">%1$d stop · tap a stop for next departures</item>
+        <item quantity="other">%1$d stops · tap a stop for next departures</item>
+    </plurals>
+
+    <!-- About -->
+    <string name="about">About</string>
+    <string name="close">Close</string>
+    <string name="version">Version %1$s</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="language">Language</string>
+    <string name="language_system">System default</string>
+    <string name="language_english">English</string>
+    <string name="language_irish">Gaeilge</string>
+    <string name="restart_to_apply_title">Restart to apply</string>
+    <string name="restart_to_apply_body">Restart the app to change the language.</string>
+    <string name="ok">OK</string>
+</resources>

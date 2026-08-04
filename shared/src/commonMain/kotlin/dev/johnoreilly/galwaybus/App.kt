@@ -20,12 +20,12 @@ import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOff
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
@@ -38,6 +38,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -64,6 +65,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlin.math.roundToInt
 import kotlin.time.Instant
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.pluralStringResource
+import galwaybus.shared.generated.resources.*
+
+/** Whether the app is currently rendering dark — honours the in-app theme override, not just the OS. */
+private val LocalDarkTheme = staticCompositionLocalOf { false }
 
 private val GalwayLightColors = lightColorScheme(
     primary = Color(0xFF4f0000),
@@ -111,16 +119,31 @@ private val GalwayDarkColors = darkColorScheme(
 fun App() {
     val repository = remember { GalwayBusRepository() }
     val viewModel = viewModel { GalwayBusViewModel(repository) }
-    val colorScheme = if (isSystemInDarkTheme()) GalwayDarkColors else GalwayLightColors
-    MaterialTheme(colorScheme = colorScheme) {
-        GalwayBusApp(viewModel)
+    var showSettings by remember { mutableStateOf(false) }
+    val darkTheme = when (viewModel.themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
+    val colorScheme = if (darkTheme) GalwayDarkColors else GalwayLightColors
+    ProvideAppLocale(viewModel.appLanguage) {
+        CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+            MaterialTheme(colorScheme = colorScheme) {
+                GalwayBusApp(
+                    viewModel = viewModel,
+                    showSettings = showSettings,
+                    onOpenSettings = { showSettings = true },
+                    onCloseSettings = { showSettings = false }
+                )
+            }
+        }
     }
 }
 
 // Delay-status accents (colorScheme has no green slot). Late reuses colorScheme.error.
 @Composable
 private fun onTimeGreen(): Color =
-    if (isSystemInDarkTheme()) Color(0xFF81C784) else Color(0xFF2E7D32)
+    if (LocalDarkTheme.current) Color(0xFF81C784) else Color(0xFF2E7D32)
 
 /**
  * In light mode the app bar carries the brand maroon; in dark mode a maroon-light-pink
@@ -129,7 +152,7 @@ private fun onTimeGreen(): Color =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun galwayAppBarColors(): TopAppBarColors =
-    if (isSystemInDarkTheme()) {
+    if (LocalDarkTheme.current) {
         TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -145,16 +168,16 @@ private fun galwayAppBarColors(): TopAppBarColors =
         )
     }
 
-private enum class ViewMode(val label: String) {
-    STOPS("Stops"), MAP("Map")
+private enum class ViewMode(val labelRes: StringResource) {
+    STOPS(Res.string.view_stops), MAP(Res.string.view_map)
 }
 
-private enum class TopTab(val label: String, val icon: ImageVector) {
-    FAVOURITES("My stops", Icons.Filled.Star),
-    NEARBY("Near me", Icons.Filled.NearMe),
-    SCAN("Scan", Icons.Filled.QrCodeScanner),
-    BUSES("Buses", Icons.Filled.DirectionsBus),
-    ROUTES("Routes", Icons.AutoMirrored.Filled.List)
+private enum class TopTab(val labelRes: StringResource, val icon: ImageVector) {
+    FAVOURITES(Res.string.tab_favourites, Icons.Filled.Star),
+    NEARBY(Res.string.tab_nearby, Icons.Filled.NearMe),
+    SCAN(Res.string.tab_scan, Icons.Filled.QrCodeScanner),
+    BUSES(Res.string.tab_buses, Icons.Filled.DirectionsBus),
+    ROUTES(Res.string.tab_routes, Icons.AutoMirrored.Filled.List)
 }
 
 /** Tabs shown in the bottom bar — the camera "Scan" tab only where the platform supports it. */
@@ -166,39 +189,59 @@ private enum class Screen {
 }
 
 /** Bare countdown to the (live-adjusted) departure. Returns "Due", "3 min", "1h 5min", "N/A". */
-fun DepartureTime.formatCountdown(nowMs: Long): String {
+@Composable
+fun DepartureTime.countdownLabel(nowMs: Long): String {
     val scheduledMinutes = depart_timestamp?.let { ts ->
         ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-    } ?: return "N/A"
+    } ?: return stringResource(Res.string.not_available)
     return when {
-        scheduledMinutes <= 0 -> "Due"
-        scheduledMinutes < 60 -> "$scheduledMinutes min"
-        else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
+        scheduledMinutes <= 0 -> stringResource(Res.string.due)
+        scheduledMinutes < 60 -> stringResource(Res.string.countdown_min, scheduledMinutes)
+        else -> stringResource(Res.string.countdown_hours_min, scheduledMinutes / 60, scheduledMinutes % 60)
     }
 }
 
 /**
  * Countdown with a "(late)"/"(early)" suffix baked in, for the departures list where there's no
  * separate delay status shown. Where the delay is displayed on its own (e.g. the tracking card),
- * use [formatCountdown] instead so the lateness isn't stated twice.
+ * use [countdownLabel] instead so the lateness isn't stated twice.
  */
-fun DepartureTime.formatWithLive(nowMs: Long): String {
-    val countdown = formatCountdown(nowMs)
+@Composable
+fun DepartureTime.departureLabel(nowMs: Long): String {
+    val countdown = countdownLabel(nowMs)
     val delaySeconds = delaySeconds ?: return countdown
-    val lateLabel = if (delaySeconds > 30) " (late)" else if (delaySeconds < -30) " (early)" else ""
-    return "$countdown$lateLabel"
+    val suffix = when {
+        delaySeconds > 30 -> stringResource(Res.string.late_suffix)
+        delaySeconds < -30 -> stringResource(Res.string.early_suffix)
+        else -> ""
+    }
+    return "$countdown$suffix"
 }
+
+/** The stop's name in the current UI language — Irish (from the GTFS Translations feed) where
+ *  available and the app is in Irish, otherwise the default name. */
+@Composable
+internal fun Stop.displayName(): String =
+    if (Locale.current.language == "ga") (long_name_ga ?: long_name) else long_name
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun GalwayBusApp(viewModel: GalwayBusViewModel) {
+fun GalwayBusApp(
+    viewModel: GalwayBusViewModel,
+    showSettings: Boolean = false,
+    onOpenSettings: () -> Unit = {},
+    onCloseSettings: () -> Unit = {}
+) {
+    if (showSettings) {
+        SettingsScreen(viewModel = viewModel, onBack = onCloseSettings)
+        return
+    }
     val routes by viewModel.routes.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
     var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
-    var showAbout by remember { mutableStateOf(false) }
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -212,10 +255,6 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val onDepartureClick: (DepartureTime, String) -> Unit = { dep, stopRef ->
         viewModel.setTrackedDeparture(dep, stopRef)
         currentScreen = Screen.TRACKING
-    }
-
-    if (showAbout) {
-        AboutDialog(onDismiss = { showAbout = false })
     }
 
     BoxWithConstraints {
@@ -267,36 +306,37 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                     title = {
                         Text(
                             when (topTab) {
-                                TopTab.FAVOURITES -> "My stops"
-                                TopTab.NEARBY -> "Near me"
-                                TopTab.SCAN -> "Scan a stop"
-                                TopTab.BUSES -> "All Buses"
+                                TopTab.FAVOURITES -> stringResource(Res.string.tab_favourites)
+                                TopTab.NEARBY -> stringResource(Res.string.tab_nearby)
+                                TopTab.SCAN -> stringResource(Res.string.title_scan_a_stop)
+                                TopTab.BUSES -> stringResource(Res.string.title_all_buses)
                                 TopTab.ROUTES ->
-                                    if (selectedRouteNum != null) "Route $selectedRouteNum" else "Galway Bus"
+                                    if (selectedRouteNum != null) stringResource(Res.string.title_route, selectedRouteNum)
+                                    else stringResource(Res.string.app_name)
                             }
                         )
                     },
                     navigationIcon = {
                         if (topTab == TopTab.ROUTES && compact && selectedRouteNum != null) {
                             IconButton(onClick = { viewModel.clearRoute() }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back to routes")
+                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back_to_routes))
                             }
                         }
                     },
                     actions = {
                         if (topTab == TopTab.FAVOURITES && favourites.isNotEmpty()) {
                             IconButton(onClick = { viewModel.refreshFavouriteDepartures() }) {
-                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh departures")
+                                Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_departures))
                             }
                         }
                         if (topTab == TopTab.NEARBY) {
                             IconButton(onClick = { viewModel.loadNearby() }) {
-                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh nearby stops")
+                                Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_nearby))
                             }
                         }
                         if (topTab == TopTab.BUSES) {
                             IconButton(onClick = { viewModel.refreshAllBusPositions() }) {
-                                Icon(Icons.Filled.Refresh, contentDescription = "Refresh bus positions")
+                                Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_bus_positions))
                             }
                         }
                         if (topTab == TopTab.ROUTES && !compact && selectedRouteNum != null) {
@@ -306,7 +346,9 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                         }
-                        AppBarOverflowMenu(onAbout = { showAbout = true })
+                        IconButton(onClick = onOpenSettings) {
+                            Icon(Icons.Filled.Settings, contentDescription = stringResource(Res.string.settings))
+                        }
                     },
                     colors = galwayAppBarColors()
                 )
@@ -321,8 +363,8 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 if (tab == TopTab.FAVOURITES) viewModel.refreshFavouriteDepartures()
                                 if (tab == TopTab.NEARBY) viewModel.loadNearby()
                             },
-                            icon = { Icon(tab.icon, contentDescription = tab.label) },
-                            label = { Text(tab.label) }
+                            icon = { Icon(tab.icon, contentDescription = stringResource(tab.labelRes)) },
+                            label = { Text(stringResource(tab.labelRes)) }
                         )
                     }
                 }
@@ -417,7 +459,7 @@ private fun AllBusesPanel(
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Text(
-                    "Updated ${formatTimeAgo(updatedMs, nowMs)}",
+                    stringResource(Res.string.updated, timeAgoLabel(updatedMs, nowMs)),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
@@ -438,12 +480,12 @@ private fun AllBusesPanel(
                     if (!viewModel.hasLoadedAllBuses) {
                         CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(12.dp))
-                        Text("Loading live buses…", style = MaterialTheme.typography.bodyMedium)
+                        Text(stringResource(Res.string.loading_live_buses), style = MaterialTheme.typography.bodyMedium)
                     } else {
                         Column {
-                            Text("No buses reporting right now", style = MaterialTheme.typography.titleSmall)
+                            Text(stringResource(Res.string.no_buses_reporting), style = MaterialTheme.typography.titleSmall)
                             Text(
-                                "Service may not be running",
+                                stringResource(Res.string.service_may_not_be_running),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -508,7 +550,7 @@ private fun ScanStopPanel(
                 )
                 Spacer(Modifier.width(10.dp))
                 Text(
-                    "Point your camera at the stop's number",
+                    stringResource(Res.string.scan_point_camera),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -538,9 +580,9 @@ private fun NearbyPanel(
     when {
         state is NearbyState.PermissionDenied -> NearbyMessage(
             icon = Icons.Filled.LocationOff,
-            title = "Location permission needed",
-            body = "Allow location access to see the bus stops closest to you.",
-            actionLabel = "Enable location",
+            title = stringResource(Res.string.location_permission_needed),
+            body = stringResource(Res.string.location_permission_body),
+            actionLabel = stringResource(Res.string.enable_location),
             onAction = { viewModel.loadNearby() },
             modifier = modifier
         )
@@ -553,7 +595,7 @@ private fun NearbyPanel(
                 CircularProgressIndicator()
                 Spacer(Modifier.height(12.dp))
                 Text(
-                    "Finding stops near you…",
+                    stringResource(Res.string.finding_stops),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -612,8 +654,8 @@ private fun NearbyList(
     LazyColumn(modifier) {
         item {
             Text(
-                if (isFallback) "Showing stops near Galway city centre"
-                else "${nearby.size} stop${if (nearby.size == 1) "" else "s"} near you",
+                if (isFallback) stringResource(Res.string.showing_city_centre)
+                else pluralStringResource(Res.plurals.stops_near_you, nearby.size, nearby.size),
                 style = MaterialTheme.typography.labelMedium,
                 color = if (isFallback) MaterialTheme.colorScheme.error
                         else MaterialTheme.colorScheme.onSurfaceVariant,
@@ -638,14 +680,14 @@ private fun NearbyList(
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        stop.long_name,
+                        stop.displayName(),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     stop.direction?.let { dir ->
                         Text(
-                            "Towards $dir",
+                            stringResource(Res.string.towards, dir),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,
@@ -655,7 +697,7 @@ private fun NearbyList(
                     val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
                         ?.joinToString(" · ")?.let { " · $it" } ?: ""
                     Text(
-                        "${formatDistance(entry.distanceMeters)} · Stop ${stop.stop_id}$routesLabel",
+                        "${distanceLabel(entry.distanceMeters)} · ${stringResource(Res.string.stop_label, stop.stop_id)}$routesLabel",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -666,7 +708,7 @@ private fun NearbyList(
                 IconButton(onClick = { onToggleFavourite(stop) }) {
                     Icon(
                         if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                        contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                        contentDescription = if (isFavourite) stringResource(Res.string.cd_remove_favourite) else stringResource(Res.string.cd_add_favourite),
                         tint = if (isFavourite) MaterialTheme.colorScheme.primary
                                else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -713,9 +755,10 @@ private fun NearbyMessage(
 }
 
 /** Human-readable distance: metres under 1 km, otherwise one decimal of a km. */
-private fun formatDistance(meters: Double): String = when {
-    meters < 1000 -> "${meters.roundToInt()} m"
-    else -> "${(meters / 100).roundToInt() / 10.0} km"
+@Composable
+private fun distanceLabel(meters: Double): String = when {
+    meters < 1000 -> stringResource(Res.string.distance_m, meters.roundToInt())
+    else -> stringResource(Res.string.distance_km, (meters / 100).roundToInt() / 10.0)
 }
 
 /** Contents of the bottom sheet shown when a stop marker is tapped on a map. */
@@ -736,13 +779,13 @@ private fun MapStopSheetContent(
         ) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    stop.long_name,
+                    stop.displayName(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    "Stop ${stop.stop_id}",
+                    stringResource(Res.string.stop_label, stop.stop_id),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -750,7 +793,7 @@ private fun MapStopSheetContent(
             IconButton(onClick = onToggleFavourite) {
                 Icon(
                     if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                    contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                    contentDescription = if (isFavourite) stringResource(Res.string.cd_remove_favourite) else stringResource(Res.string.cd_add_favourite),
                     tint = if (isFavourite) MaterialTheme.colorScheme.primary
                            else MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -801,7 +844,7 @@ private fun BusTrackingView(
                     val barContentColor = LocalContentColor.current
                     Column {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Track Bus")
+                            Text(stringResource(Res.string.track_bus))
                             trackedDeparture?.timetable_id?.let { routeNum ->
                                 Spacer(Modifier.width(8.dp))
                                 Box(
@@ -835,7 +878,7 @@ private fun BusTrackingView(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
                     }
                 },
                 colors = galwayAppBarColors()
@@ -858,7 +901,7 @@ private fun BusTrackingView(
                 TrackingInfoCard(
                     departure = trackedDeparture,
                     trackedBus = displayPositions.firstOrNull(),
-                    stopName = trackedStop.firstOrNull()?.long_name,
+                    stopName = trackedStop.firstOrNull()?.displayName(),
                     nowMs = nowMs,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -963,9 +1006,9 @@ private fun RouteTimeline(
         val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
             val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
             when {
-                mins <= 0 -> "Due"
-                mins < 60 -> "$mins′"
-                else -> "${mins / 60}h ${mins % 60}′"
+                mins <= 0 -> stringResource(Res.string.due)
+                mins < 60 -> stringResource(Res.string.gutter_min, mins)
+                else -> stringResource(Res.string.gutter_hours_min, mins / 60, mins % 60)
             }
         }
 
@@ -1011,7 +1054,7 @@ private fun RouteTimeline(
         ) {
             Column(Modifier.padding(bottom = 4.dp)) {
                 Text(
-                    stop.long_name,
+                    stop.displayName(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (hasPassed) onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (isTarget || isCurrent) FontWeight.SemiBold else FontWeight.Normal,
@@ -1021,8 +1064,8 @@ private fun RouteTimeline(
                 // "Next stop"/"Your stop" get an emphasised label with the stop id beneath;
                 // every other stop just shows its id.
                 val label = when {
-                    isTarget -> "Your stop"
-                    isCurrent -> "Next stop"
+                    isTarget -> stringResource(Res.string.your_stop)
+                    isCurrent -> stringResource(Res.string.next_stop)
                     else -> null
                 }
                 label?.let {
@@ -1056,9 +1099,9 @@ private fun TrackingInfoCard(
     val delaySeconds = departure.delaySeconds
     val statusText = when {
         delaySeconds == null -> null
-        delaySeconds > 30 -> "${(delaySeconds + 30) / 60} min late"
-        delaySeconds < -30 -> "${(-delaySeconds + 30) / 60} min early"
-        else -> "On time"
+        delaySeconds > 30 -> stringResource(Res.string.min_late, (delaySeconds + 30) / 60)
+        delaySeconds < -30 -> stringResource(Res.string.min_early, (-delaySeconds + 30) / 60)
+        else -> stringResource(Res.string.on_time)
     }
     val statusColor = when {
         delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
@@ -1083,7 +1126,7 @@ private fun TrackingInfoCard(
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(
-                    text = stopName?.let { "Arriving at $it" } ?: "Arriving",
+                    text = stopName?.let { stringResource(Res.string.arriving_at, it) } ?: stringResource(Res.string.arriving),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -1093,7 +1136,7 @@ private fun TrackingInfoCard(
                     Text(
                         // Plain countdown — the delay is shown separately as statusText below,
                         // so we avoid the ambiguous "15 min (late)" that reads as "15 min late".
-                        text = departure.formatCountdown(nowMs),
+                        text = departure.countdownLabel(nowMs),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -1106,12 +1149,12 @@ private fun TrackingInfoCard(
                         )
                     }
                 }
-                val freshness = trackedBus?.let { formatTimeAgoIso(it.modified_timestamp, nowMs) }
+                val freshness = trackedBus?.let { timeAgoIsoLabel(it.modified_timestamp, nowMs) }
                 Text(
                     text = when {
-                        trackedBus == null -> "Bus not reporting live position"
-                        freshness.isNullOrEmpty() -> "Live position"
-                        else -> "Position updated $freshness"
+                        trackedBus == null -> stringResource(Res.string.bus_not_reporting)
+                        freshness.isNullOrEmpty() -> stringResource(Res.string.live_position)
+                        else -> stringResource(Res.string.position_updated, freshness)
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1133,6 +1176,9 @@ private fun FavouritesPanel(
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val departuresByStop by viewModel.favouriteDepartures.collectAsStateWithLifecycle()
     val allStops by viewModel.allStops.collectAsStateWithLifecycle()
+    // Favourites persist the name captured when starred (English); look the live stop up so the
+    // card can show the Irish name in Irish mode.
+    val stopsByRef = remember(allStops) { allStops.associateBy { it.stop_ref } }
 
     var query by remember { mutableStateOf("") }
     val searching = query.trim().length >= 2
@@ -1158,12 +1204,12 @@ private fun FavouritesPanel(
             value = query,
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
-            placeholder = { Text("Search all stops", style = MaterialTheme.typography.bodyMedium) },
+            placeholder = { Text(stringResource(Res.string.search_all_stops), style = MaterialTheme.typography.bodyMedium) },
             leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { query = "" }) {
-                        Icon(Icons.Filled.Close, contentDescription = "Clear search")
+                        Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.cd_clear_search))
                     }
                 }
             },
@@ -1192,19 +1238,19 @@ private fun FavouritesPanel(
                 )
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "No saved stops yet",
+                    stringResource(Res.string.no_saved_stops),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Search for a stop above and tap its star, or browse a route to find stops on the way",
+                    stringResource(Res.string.no_saved_stops_body),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center
                 )
                 Spacer(Modifier.height(20.dp))
-                Button(onClick = onBrowseRoutes) { Text("Browse routes") }
+                Button(onClick = onBrowseRoutes) { Text(stringResource(Res.string.browse_routes)) }
             }
             else -> PullToRefreshBox(
                 isRefreshing = viewModel.isLoadingFavourites,
@@ -1218,7 +1264,7 @@ private fun FavouritesPanel(
                 ) {
                     item {
                         Text(
-                            "${favourites.size} saved stop${if (favourites.size == 1) "" else "s"}",
+                            pluralStringResource(Res.plurals.saved_stops, favourites.size, favourites.size),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(start = 4.dp)
@@ -1226,7 +1272,7 @@ private fun FavouritesPanel(
                     }
                     items(favourites, key = { it.stopRef }) { fav ->
                         FavouriteStopCard(
-                            name = fav.name,
+                            name = stopsByRef[fav.stopRef]?.displayName() ?: fav.name,
                             stopId = fav.stopId,
                             departures = departuresByStop[fav.stopRef],
                             nowMs = nowMs,
@@ -1253,7 +1299,7 @@ private fun StopSearchResults(
     if (results.isEmpty()) {
         Box(modifier.padding(24.dp), contentAlignment = Alignment.TopCenter) {
             Text(
-                "No stops match",
+                stringResource(Res.string.no_stops_match),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -1275,7 +1321,7 @@ private fun StopSearchResults(
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        stop.long_name,
+                        stop.displayName(),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -1283,7 +1329,7 @@ private fun StopSearchResults(
                     // The destination distinguishes opposite-direction stops that share a name.
                     stop.direction?.let { dir ->
                         Text(
-                            "Towards $dir",
+                            stringResource(Res.string.towards, dir),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             maxLines = 1,
@@ -1293,7 +1339,7 @@ private fun StopSearchResults(
                     val routesLabel = stop.routes?.takeIf { it.isNotEmpty() }
                         ?.joinToString(" · ")?.let { " · $it" } ?: ""
                     Text(
-                        "Stop ${stop.stop_id}$routesLabel",
+                        "${stringResource(Res.string.stop_label, stop.stop_id)}$routesLabel",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -1304,7 +1350,7 @@ private fun StopSearchResults(
                 IconButton(onClick = { onToggleFavourite(stop) }) {
                     Icon(
                         if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                        contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                        contentDescription = if (isFavourite) stringResource(Res.string.cd_remove_favourite) else stringResource(Res.string.cd_add_favourite),
                         tint = if (isFavourite) MaterialTheme.colorScheme.primary
                                else MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1325,7 +1371,7 @@ private const val STALE_AFTER_MS = 120_000L
 private fun TrackChevron() {
     Icon(
         Icons.AutoMirrored.Filled.KeyboardArrowRight,
-        contentDescription = "Track this bus",
+        contentDescription = stringResource(Res.string.cd_track_this_bus),
         tint = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = Modifier.size(18.dp)
     )
@@ -1369,7 +1415,7 @@ private fun FavouriteStopCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        "Stop $stopId",
+                        stringResource(Res.string.stop_label, stopId),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1386,7 +1432,7 @@ private fun FavouriteStopCard(
                 IconButton(onClick = onRemove) {
                     Icon(
                         Icons.Filled.Star,
-                        contentDescription = "Remove favourite",
+                        contentDescription = stringResource(Res.string.cd_remove_favourite),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -1400,13 +1446,13 @@ private fun FavouriteStopCard(
                     CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Loading departures…",
+                        stringResource(Res.string.loading_departures),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 departures.isEmpty() -> Text(
-                    "No more departures today",
+                    stringResource(Res.string.no_more_departures),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
@@ -1428,8 +1474,8 @@ private fun FavouriteStopCard(
                     Text(
                         when {
                             isRefreshing -> "Updating…"
-                            stale -> "Last updated ${formatTimeAgo(updatedMs, nowMs)} — retrying"
-                            else -> "Updated ${formatTimeAgo(updatedMs, nowMs)}"
+                            stale -> stringResource(Res.string.last_updated_retrying, timeAgoLabel(updatedMs, nowMs))
+                            else -> stringResource(Res.string.updated, timeAgoLabel(updatedMs, nowMs))
                         },
                         style = MaterialTheme.typography.labelSmall,
                         color = if (stale) MaterialTheme.colorScheme.error
@@ -1523,7 +1569,7 @@ private fun FavouriteDepartures(
                 }
             }
             Text(
-                next.formatWithLive(nowMs),
+                next.departureLabel(nowMs),
                 style = MaterialTheme.typography.titleLarge,
                 color = departureCountdownColor(next.delaySeconds)
             )
@@ -1555,7 +1601,7 @@ private fun FavouriteDepartures(
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        dep.formatWithLive(nowMs),
+                        dep.departureLabel(nowMs),
                         style = MaterialTheme.typography.labelMedium,
                         color = departureCountdownColor(dep.delaySeconds)
                     )
@@ -1591,7 +1637,7 @@ private fun ModeSwitcher(
                 onClick = { onSelect(mode) },
                 shape = SegmentedButtonDefaults.itemShape(index, ViewMode.entries.size),
                 colors = colors
-            ) { Text(mode.label) }
+            ) { Text(stringResource(mode.labelRes)) }
         }
     }
 }
@@ -1646,52 +1692,106 @@ private fun DetailPane(
             SmallFloatingActionButton(
                 onClick = { viewModel.refreshPositions() },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-            ) { Icon(Icons.Filled.Refresh, contentDescription = "Refresh positions") }
+            ) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions)) }
         }
     }
 }
 
-/** Three-dot app-bar menu; currently just an "About" entry that opens the version dialog. */
+/**
+ * Full-screen settings: theme (system/light/dark), UI language (system/English/Gaeilge),
+ * and the app version. Replaces the old overflow menu + About dialog.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBarOverflowMenu(onAbout: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    IconButton(onClick = { expanded = true }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = "More options")
+private fun SettingsScreen(viewModel: GalwayBusViewModel, onBack: () -> Unit) {
+    val platform = remember { getPlatform() }
+    var showRestart by remember { mutableStateOf(false) }
+    if (showRestart) {
+        RestartForLanguageDialog(onDismiss = { showRestart = false })
     }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-        DropdownMenuItem(
-            text = { Text("About") },
-            onClick = {
-                expanded = false
-                onAbout()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.settings)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                    }
+                },
+                colors = galwayAppBarColors()
+            )
+        }
+    ) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize()) {
+            SettingsSectionHeader(stringResource(Res.string.theme))
+            SettingsRadioRow(stringResource(Res.string.theme_system), viewModel.themeMode == ThemeMode.SYSTEM) {
+                viewModel.selectThemeMode(ThemeMode.SYSTEM)
             }
-        )
+            SettingsRadioRow(stringResource(Res.string.theme_light), viewModel.themeMode == ThemeMode.LIGHT) {
+                viewModel.selectThemeMode(ThemeMode.LIGHT)
+            }
+            SettingsRadioRow(stringResource(Res.string.theme_dark), viewModel.themeMode == ThemeMode.DARK) {
+                viewModel.selectThemeMode(ThemeMode.DARK)
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            SettingsSectionHeader(stringResource(Res.string.language))
+            // Match on the primary subtag so "ga-IE" still reads as Irish; null = follow device.
+            val currentLang = viewModel.appLanguage?.substringBefore('-')
+            val onPickLanguage: (String?) -> Unit = { tag ->
+                viewModel.selectAppLanguage(tag)
+                if (localeChangeRequiresRestart) showRestart = true
+            }
+            SettingsRadioRow(stringResource(Res.string.language_system), currentLang == null) { onPickLanguage(null) }
+            SettingsRadioRow(stringResource(Res.string.language_english), currentLang == "en") { onPickLanguage("en") }
+            SettingsRadioRow(stringResource(Res.string.language_irish), currentLang == "ga") { onPickLanguage("ga") }
+
+            Spacer(Modifier.weight(1f))
+            Text(
+                stringResource(Res.string.version, platform.appVersion.substringBefore(" (")),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            )
+        }
     }
 }
 
-/** Small about/version dialog, sourcing the version from the platform's installed package. */
 @Composable
-private fun AboutDialog(onDismiss: () -> Unit) {
-    val platform = remember { getPlatform() }
+private fun SettingsSectionHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
+    )
+}
+
+@Composable
+private fun SettingsRadioRow(label: String, selected: Boolean, onSelect: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onSelect)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onSelect)
+        Spacer(Modifier.width(12.dp))
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+/** Shown on iOS after a language change, where the switch only applies on next launch. */
+@Composable
+private fun RestartForLanguageDialog(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                Icons.Filled.DirectionsBus,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = { Text("Galway Bus") },
-        text = {
-            Text(
-                "Version ${platform.appVersion.substringBefore(" (")}",
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("Close") } }
+        title = { Text(stringResource(Res.string.restart_to_apply_title)) },
+        text = { Text(stringResource(Res.string.restart_to_apply_body)) },
+        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.ok)) } }
     )
 }
 
@@ -1703,13 +1803,13 @@ private fun NoRoutePlaceholder(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            "Galway Bus",
+            stringResource(Res.string.app_name),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.primary
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Select a route from the list to\nview live buses, stops, and map",
+            stringResource(Res.string.select_route),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center
@@ -1811,7 +1911,7 @@ private fun RouteStopsPanel(
             val labels = if (directionHeadsigns.size >= directionCount) {
                 directionHeadsigns.take(directionCount)
             } else {
-                (0 until directionCount).map { "Direction ${it + 1}" }
+                (0 until directionCount).map { stringResource(Res.string.direction_numbered, it + 1) }
             }
             SingleChoiceSegmentedButtonRow(
                 Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)
@@ -1831,7 +1931,7 @@ private fun RouteStopsPanel(
         LazyColumn(Modifier.fillMaxSize()) {
             item {
                 Text(
-                    "${stops.size} stop${if (stops.size == 1) "" else "s"} · tap a stop for next departures",
+                    pluralStringResource(Res.plurals.route_stops_hint, stops.size, stops.size),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
@@ -1859,7 +1959,7 @@ private fun RouteStopsPanel(
                             modifier = Modifier.width(28.dp)
                         )
                         Column(Modifier.weight(1f)) {
-                            Text(stop.long_name, style = MaterialTheme.typography.bodyMedium)
+                            Text(stop.displayName(), style = MaterialTheme.typography.bodyMedium)
                             Text(
                                 stop.stop_id,
                                 style = MaterialTheme.typography.bodySmall,
@@ -1870,7 +1970,7 @@ private fun RouteStopsPanel(
                         IconButton(onClick = { onToggleFavourite(stop) }) {
                             Icon(
                                 if (isFavourite) Icons.Filled.Star else Icons.Filled.StarBorder,
-                                contentDescription = if (isFavourite) "Remove favourite" else "Add favourite",
+                                contentDescription = if (isFavourite) stringResource(Res.string.cd_remove_favourite) else stringResource(Res.string.cd_add_favourite),
                                 tint = if (isFavourite) MaterialTheme.colorScheme.primary
                                        else MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1911,7 +2011,7 @@ private fun StopDeparturesSection(
                     CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                     Spacer(Modifier.width(8.dp))
                     Text(
-                        "Loading departures…",
+                        stringResource(Res.string.loading_departures),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1919,7 +2019,7 @@ private fun StopDeparturesSection(
             }
             departures.isEmpty() -> {
                 Text(
-                    "No more departures today",
+                    stringResource(Res.string.no_more_departures),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -1969,7 +2069,7 @@ private fun StopDeparturesSection(
                         }
                         // Colour the countdown by live delay; the text itself already reads "(late)"/"(early)".
                         Text(
-                            dep.formatWithLive(nowMs),
+                            dep.departureLabel(nowMs),
                             style = MaterialTheme.typography.labelMedium,
                             color = departureCountdownColor(dep.delaySeconds)
                         )
@@ -1984,20 +2084,23 @@ private fun StopDeparturesSection(
     }
 }
 
-private fun formatTimeAgoIso(isoTimestamp: String, nowMs: Long): String {
-    return try {
-        formatTimeAgo(Instant.parse(isoTimestamp).toEpochMilliseconds(), nowMs)
-    } catch (_: Exception) { "" }
+@Composable
+private fun timeAgoIsoLabel(isoTimestamp: String, nowMs: Long): String {
+    val thenMs = try {
+        Instant.parse(isoTimestamp).toEpochMilliseconds()
+    } catch (_: Exception) { return "" }
+    return timeAgoLabel(thenMs, nowMs)
 }
 
-private fun formatTimeAgo(thenMs: Long, nowMs: Long): String {
+@Composable
+private fun timeAgoLabel(thenMs: Long, nowMs: Long): String {
     val diffSecs = (nowMs - thenMs) / 1000
     return when {
         // Covers slightly-future timestamps from the 10s UI ticker lagging a fresh update
-        diffSecs < 10 -> "just now"
-        diffSecs < 60 -> "${diffSecs}s ago"
-        diffSecs < 3600 -> "${diffSecs / 60}m ago"
-        else -> "${diffSecs / 3600}h ago"
+        diffSecs < 10 -> stringResource(Res.string.time_just_now)
+        diffSecs < 60 -> stringResource(Res.string.time_secs_ago, diffSecs.toInt())
+        diffSecs < 3600 -> stringResource(Res.string.time_mins_ago, (diffSecs / 60).toInt())
+        else -> stringResource(Res.string.time_hours_ago, (diffSecs / 3600).toInt())
     }
 }
 

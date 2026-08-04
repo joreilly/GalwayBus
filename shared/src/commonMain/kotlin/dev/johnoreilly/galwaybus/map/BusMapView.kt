@@ -41,6 +41,7 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.johnoreilly.galwaybus.displayName
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
@@ -533,7 +534,7 @@ internal fun OsmBusMapView(
                             Text(title, style = MaterialTheme.typography.labelLarge)
                             Text("Vehicle: ${item.vehicle_id}", style = MaterialTheme.typography.bodySmall)
                         } else if (item is Stop) {
-                            Text(item.long_name, style = MaterialTheme.typography.labelLarge)
+                            Text(item.displayName(), style = MaterialTheme.typography.labelLarge)
                             Text("Stop ID: ${item.stop_id}", style = MaterialTheme.typography.bodySmall)
                         }
                     }
