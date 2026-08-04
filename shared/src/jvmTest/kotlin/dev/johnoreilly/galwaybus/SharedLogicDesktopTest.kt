@@ -60,6 +60,24 @@ class SharedLogicDesktopTest {
     }
 
     @Test
+    fun localizedNameFollowsLocale() {
+        val eyre = dev.johnoreilly.galwaybus.model.Stop(
+            stop_ref = "8460B522331", stop_id = "522331",
+            long_name = "Eyre Square", long_name_ga = "An Fhaiche Mhór",
+            short_name = "Eyre Square", latitude = 0.0, longitude = 0.0
+        )
+        val original = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.forLanguageTag("ga"))
+            assertEquals("An Fhaiche Mhór", eyre.localizedName())
+            Locale.setDefault(Locale.forLanguageTag("en"))
+            assertEquals("Eyre Square", eyre.localizedName())
+        } finally {
+            Locale.setDefault(original)
+        }
+    }
+
+    @Test
     fun stopsCarryIrishNamesFromTranslations() = kotlinx.coroutines.runBlocking {
         val eyre = repository.getStops().find { it.stop_ref == "8460B522331" }
         assertEquals("Eyre Square", eyre?.long_name)

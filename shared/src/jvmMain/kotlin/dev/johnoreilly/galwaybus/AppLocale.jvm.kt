@@ -23,3 +23,5 @@ internal actual object LocalAppLocale {
 }
 
 internal actual val localeChangeRequiresRestart: Boolean = false
+
+internal actual fun currentLanguageTag(): String = Locale.getDefault().toLanguageTag()

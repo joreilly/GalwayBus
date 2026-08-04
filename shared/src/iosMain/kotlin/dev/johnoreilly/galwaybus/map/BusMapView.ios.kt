@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.UIKitView
+import dev.johnoreilly.galwaybus.localizedName
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
@@ -191,7 +192,7 @@ private class BusMapController {
             if (stopAnnotations[stop.stop_ref] == null) {
                 val annotation = StopAnnotation(stop, stop.stop_ref == trackedStopRef).apply {
                     setCoordinate(CLLocationCoordinate2DMake(stop.latitude, stop.longitude))
-                    setTitle(stop.long_name)
+                    setTitle(stop.localizedName())
                     setSubtitle("Stop ${stop.stop_id}")
                 }
                 stopAnnotations[stop.stop_ref] = annotation

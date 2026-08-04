@@ -25,6 +25,14 @@ internal expect object LocalAppLocale {
 /** True where an in-app language change needs an app restart to apply (iOS). */
 internal expect val localeChangeRequiresRestart: Boolean
 
+/** Current effective UI language tag (BCP-47), for non-composable contexts (e.g. native map markers). */
+internal expect fun currentLanguageTag(): String
+
+/** Non-composable counterpart of `Stop.displayName()` for native (non-Compose) contexts like
+ *  iOS map annotations: Irish name where available and the app is in Irish, else the default. */
+internal fun dev.johnoreilly.galwaybus.model.Stop.localizedName(): String =
+    if (currentLanguageTag().substringBefore('-') == "ga") (long_name_ga ?: long_name) else long_name
+
 /** The persisted language pref key; `null`/absent means "follow the device locale". */
 internal const val LANGUAGE_PREF_KEY = "app_language"
 

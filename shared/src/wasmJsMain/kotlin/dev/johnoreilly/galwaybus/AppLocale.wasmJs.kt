@@ -18,3 +18,7 @@ internal actual object LocalAppLocale {
 }
 
 internal actual val localeChangeRequiresRestart: Boolean = false
+
+// Web renders stops through the Compose map (which uses Locale.current), so this non-composable
+// path isn't exercised by native markers on web; default to English.
+internal actual fun currentLanguageTag(): String = "en"

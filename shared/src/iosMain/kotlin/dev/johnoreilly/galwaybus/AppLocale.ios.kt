@@ -32,3 +32,6 @@ internal actual object LocalAppLocale {
 }
 
 internal actual val localeChangeRequiresRestart: Boolean = true
+
+// NSLocale reflects the persisted language after the app restart the switcher prompts for.
+internal actual fun currentLanguageTag(): String = NSLocale.currentLocale.languageCode

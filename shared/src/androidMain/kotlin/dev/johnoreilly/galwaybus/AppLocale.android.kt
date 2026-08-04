@@ -24,3 +24,6 @@ internal actual object LocalAppLocale {
 }
 
 internal actual val localeChangeRequiresRestart: Boolean = false
+
+// The in-app override calls Locale.setDefault, so getDefault() reflects the chosen language.
+internal actual fun currentLanguageTag(): String = Locale.getDefault().toLanguageTag()
