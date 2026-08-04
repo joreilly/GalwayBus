@@ -1,6 +1,11 @@
 package dev.johnoreilly.galwaybus
 
 import dev.johnoreilly.galwaybus.model.FavouriteStop
+import galwaybus.shared.generated.resources.Res
+import galwaybus.shared.generated.resources.next_stop
+import galwaybus.shared.generated.resources.your_stop
+import org.jetbrains.compose.resources.getString
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -33,6 +38,25 @@ class SharedLogicDesktopTest {
     @Test
     fun example() {
         assertEquals(3, 1 + 2)
+    }
+
+    // Verifies the localization pipeline the desktop language switcher relies on: Compose
+    // Resources resolves strings from java.util.Locale.getDefault(), which LocalAppLocale (jvm)
+    // sets when the user picks a language.
+    @Test
+    fun stringResourcesResolvePerLocale() = kotlinx.coroutines.runBlocking {
+        val original = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale.forLanguageTag("ga"))
+            assertEquals("An chéad stad eile", getString(Res.string.next_stop))
+            assertEquals("Do stadsa", getString(Res.string.your_stop))
+
+            Locale.setDefault(Locale.forLanguageTag("en"))
+            assertEquals("Next stop", getString(Res.string.next_stop))
+            assertEquals("Your stop", getString(Res.string.your_stop))
+        } finally {
+            Locale.setDefault(original)
+        }
     }
 
     @Test
