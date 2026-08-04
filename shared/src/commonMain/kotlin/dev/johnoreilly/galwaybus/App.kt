@@ -165,29 +165,28 @@ private enum class Screen {
     MAIN, TRACKING
 }
 
-/** Formats departure countdown with live delays. Returns "Due", "3 min", "8 min (late)", etc. */
-fun DepartureTime.formatWithLive(nowMs: Long): String {
-    val delaySeconds = delaySeconds
+/** Bare countdown to the (live-adjusted) departure. Returns "Due", "3 min", "1h 5min", "N/A". */
+fun DepartureTime.formatCountdown(nowMs: Long): String {
     val scheduledMinutes = depart_timestamp?.let { ts ->
-        Instant.parse(ts).let { instant ->
-            ((instant.toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-        }
+        ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
     } ?: return "N/A"
-
     return when {
-        delaySeconds != null -> {
-            val liveDisplay = when {
-                scheduledMinutes <= 0 -> "Due"
-                scheduledMinutes < 60 -> "$scheduledMinutes min"
-                else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
-            }
-            val lateLabel = if (delaySeconds > 30) " (late)" else if (delaySeconds < -30) " (early)" else ""
-            "$liveDisplay$lateLabel"
-        }
         scheduledMinutes <= 0 -> "Due"
         scheduledMinutes < 60 -> "$scheduledMinutes min"
         else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
     }
+}
+
+/**
+ * Countdown with a "(late)"/"(early)" suffix baked in, for the departures list where there's no
+ * separate delay status shown. Where the delay is displayed on its own (e.g. the tracking card),
+ * use [formatCountdown] instead so the lateness isn't stated twice.
+ */
+fun DepartureTime.formatWithLive(nowMs: Long): String {
+    val countdown = formatCountdown(nowMs)
+    val delaySeconds = delaySeconds ?: return countdown
+    val lateLabel = if (delaySeconds > 30) " (late)" else if (delaySeconds < -30) " (early)" else ""
+    return "$countdown$lateLabel"
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -1061,7 +1060,9 @@ private fun TrackingInfoCard(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = departure.formatWithLive(nowMs),
+                        // Plain countdown — the delay is shown separately as statusText below,
+                        // so we avoid the ambiguous "15 min (late)" that reads as "15 min late".
+                        text = departure.formatCountdown(nowMs),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
