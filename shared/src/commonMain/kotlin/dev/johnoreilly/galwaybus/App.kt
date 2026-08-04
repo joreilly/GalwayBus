@@ -48,8 +48,8 @@ import com.pushpal.jetlime.EventPointType
 import com.pushpal.jetlime.ItemsList
 import com.pushpal.jetlime.JetLimeColumn
 import com.pushpal.jetlime.JetLimeDefaults
-import com.pushpal.jetlime.JetLimeEvent
 import com.pushpal.jetlime.JetLimeEventDefaults
+import com.pushpal.jetlime.JetLimeExtendedEvent
 import dev.johnoreilly.galwaybus.location.NearbyStop
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.map.BusMapView
@@ -891,7 +891,7 @@ private fun BusTrackingView(
                     mapArea(Modifier.fillMaxHeight().weight(1f))
                     if (timelineStops.isNotEmpty()) {
                         Box(Modifier.fillMaxHeight().width(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        timeline(Modifier.fillMaxHeight().width(220.dp))
+                        timeline(Modifier.fillMaxHeight().width(300.dp))
                     }
                 }
             }
@@ -904,6 +904,7 @@ private fun BusTrackingView(
  * passed are checked, the stop it's currently nearest gets an animated node, and the
  * user's target stop is highlighted.
  */
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 private fun RouteTimeline(
     stops: List<Stop>,
@@ -949,7 +950,7 @@ private fun RouteTimeline(
     JetLimeColumn(
         itemsList = ItemsList(stops),
         listState = listState,
-        modifier = modifier.padding(start = 20.dp, top = 12.dp, end = 12.dp),
+        modifier = modifier.padding(start = 4.dp, top = 12.dp, end = 12.dp),
         key = { _, stop -> stop.stop_ref },
         style = JetLimeDefaults.columnStyle(lineBrush = JetLimeDefaults.lineSolidBrush(primary))
     ) { index, stop, position ->
@@ -957,7 +958,18 @@ private fun RouteTimeline(
         val isCurrent = busIndex >= 0 && index == busIndex
         val isTarget = stop.stop_ref == targetStopRef
 
-        JetLimeEvent(
+        // Predicted arrival for this stop ("Due" / "3 min" / "1h 9min"), if the live
+        // next_stops payload covers it. Shown in the left gutter for stops still ahead.
+        val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
+            val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
+            when {
+                mins <= 0 -> "Due"
+                mins < 60 -> "$mins′"
+                else -> "${mins / 60}h ${mins % 60}′"
+            }
+        }
+
+        JetLimeExtendedEvent(
             style = JetLimeEventDefaults.eventStyle(
                 position = position,
                 pointType = when {
@@ -975,7 +987,27 @@ private fun RouteTimeline(
                 pointColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
                 pointStrokeColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
                 pointAnimation = if (isCurrent) JetLimeEventDefaults.pointAnimation() else null
-            )
+            ),
+            additionalContentMaxWidth = 52.dp,
+            additionalContent = {
+                // Minutes-to-arrival, right-aligned against the line. Only for stops the
+                // bus hasn't reached yet; passed stops leave the gutter blank. The box is
+                // always the full width so every node lines up regardless of gutter text.
+                Box(
+                    Modifier.width(52.dp).padding(end = 8.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    if (!hasPassed && etaText != null) {
+                        Text(
+                            etaText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isTarget || isCurrent) primary else onSurfaceVariant,
+                            fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
         ) {
             Column(Modifier.padding(bottom = 4.dp)) {
                 Text(
@@ -986,25 +1018,24 @@ private fun RouteTimeline(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
-                    val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-                    when {
-                        mins <= 0 -> "Due"
-                        mins < 60 -> "$mins min"
-                        else -> "${mins / 60}h ${mins % 60}min"
-                    }
+                // "Next stop"/"Your stop" get an emphasised label with the stop id beneath;
+                // every other stop just shows its id.
+                val label = when {
+                    isTarget -> "Your stop"
+                    isCurrent -> "Next stop"
+                    else -> null
                 }
-                val subtitle = when {
-                    isTarget -> etaText?.let { "Your stop · $it" } ?: "Your stop"
-                    isCurrent -> etaText?.let { "Next stop · $it" } ?: "Next stop"
-                    hasPassed -> stop.stop_id
-                    etaText != null -> etaText
-                    else -> stop.stop_id
+                label?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = primary
+                    )
                 }
                 Text(
-                    subtitle,
+                    stop.stop_id,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isTarget || isCurrent) primary else onSurfaceVariant
+                    color = onSurfaceVariant
                 )
             }
         }
