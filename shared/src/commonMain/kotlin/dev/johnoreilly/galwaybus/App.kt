@@ -38,6 +38,7 @@ import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -216,6 +217,12 @@ fun DepartureTime.departureLabel(nowMs: Long): String {
     }
     return "$countdown$suffix"
 }
+
+/** The stop's name in the current UI language — Irish (from the GTFS Translations feed) where
+ *  available and the app is in Irish, otherwise the default name. */
+@Composable
+internal fun Stop.displayName(): String =
+    if (Locale.current.language == "ga") (long_name_ga ?: long_name) else long_name
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -673,7 +680,7 @@ private fun NearbyList(
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        stop.long_name,
+                        stop.displayName(),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -772,7 +779,7 @@ private fun MapStopSheetContent(
         ) {
             Column(Modifier.weight(1f)) {
                 Text(
-                    stop.long_name,
+                    stop.displayName(),
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -894,7 +901,7 @@ private fun BusTrackingView(
                 TrackingInfoCard(
                     departure = trackedDeparture,
                     trackedBus = displayPositions.firstOrNull(),
-                    stopName = trackedStop.firstOrNull()?.long_name,
+                    stopName = trackedStop.firstOrNull()?.displayName(),
                     nowMs = nowMs,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -1047,7 +1054,7 @@ private fun RouteTimeline(
         ) {
             Column(Modifier.padding(bottom = 4.dp)) {
                 Text(
-                    stop.long_name,
+                    stop.displayName(),
                     style = MaterialTheme.typography.bodyMedium,
                     color = if (hasPassed) onSurfaceVariant else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (isTarget || isCurrent) FontWeight.SemiBold else FontWeight.Normal,
@@ -1311,7 +1318,7 @@ private fun StopSearchResults(
                 Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
-                        stop.long_name,
+                        stop.displayName(),
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -1949,7 +1956,7 @@ private fun RouteStopsPanel(
                             modifier = Modifier.width(28.dp)
                         )
                         Column(Modifier.weight(1f)) {
-                            Text(stop.long_name, style = MaterialTheme.typography.bodyMedium)
+                            Text(stop.displayName(), style = MaterialTheme.typography.bodyMedium)
                             Text(
                                 stop.stop_id,
                                 style = MaterialTheme.typography.bodySmall,

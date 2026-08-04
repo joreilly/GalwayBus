@@ -49,7 +49,7 @@ class SharedLogicDesktopTest {
         try {
             Locale.setDefault(Locale.forLanguageTag("ga"))
             assertEquals("An chéad stad eile", getString(Res.string.next_stop))
-            assertEquals("Do stadsa", getString(Res.string.your_stop))
+            assertEquals("Do stad-sa", getString(Res.string.your_stop))
 
             Locale.setDefault(Locale.forLanguageTag("en"))
             assertEquals("Next stop", getString(Res.string.next_stop))
@@ -57,6 +57,13 @@ class SharedLogicDesktopTest {
         } finally {
             Locale.setDefault(original)
         }
+    }
+
+    @Test
+    fun stopsCarryIrishNamesFromTranslations() = kotlinx.coroutines.runBlocking {
+        val eyre = repository.getStops().find { it.stop_ref == "8460B522331" }
+        assertEquals("Eyre Square", eyre?.long_name)
+        assertEquals("An Fhaiche Mhór", eyre?.long_name_ga)
     }
 
     @Test

@@ -16,6 +16,8 @@ data class Stop(
     val stop_ref: String,
     val stop_id: String,
     val long_name: String,
+    /** Irish (Gaeilge) name from the GTFS Translations feed, if available; null otherwise. */
+    val long_name_ga: String? = null,
     val short_name: String,
     val latitude: Double,
     val longitude: Double,
@@ -90,7 +92,7 @@ data class GalwayGtfsSnapshot(
     val stopDepartures: Map<String, List<GtfsSnapshotDeparture>> = emptyMap()
 )
 
-@Serializable data class GtfsSnapshotStop(val code: String = "", val name: String = "", val lat: Double = 0.0, val lon: Double = 0.0)
+@Serializable data class GtfsSnapshotStop(val code: String = "", val name: String = "", val nameGa: String? = null, val lat: Double = 0.0, val lon: Double = 0.0)
 @Serializable data class GtfsSnapshotRoute(val id: String = "", val longName: String = "")
 @Serializable data class GtfsSnapshotTrip(val rId: String = "", val sId: String = "", @kotlinx.serialization.SerialName("head") val headsign: String = "", val dir: Int = 0)
 @Serializable data class GtfsSnapshotCalendar(val days: String = "", val start: String = "", val end: String = "")
