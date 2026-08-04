@@ -28,6 +28,12 @@ internal expect val localeChangeRequiresRestart: Boolean
 /** The persisted language pref key; `null`/absent means "follow the device locale". */
 internal const val LANGUAGE_PREF_KEY = "app_language"
 
+/** The persisted theme pref key. */
+internal const val THEME_PREF_KEY = "theme_mode"
+
+/** UI theme preference: follow the system, or force light/dark. */
+enum class ThemeMode { SYSTEM, LIGHT, DARK }
+
 /**
  * Wraps [content] so it renders in [languageTag] (or the device locale when null).
  * The [key] forces the subtree to recompose when the language changes, so every

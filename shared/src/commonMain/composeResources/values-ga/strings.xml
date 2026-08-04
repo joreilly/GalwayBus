@@ -119,8 +119,14 @@
     <string name="close">Dún</string>
     <string name="version">Leagan %1$s</string>
 
-    <!-- Language switcher -->
+    <!-- Settings -->
+    <string name="settings">Socruithe</string>
+    <string name="theme">Téama</string>
+    <string name="theme_system">Córas</string>
+    <string name="theme_light">Geal</string>
+    <string name="theme_dark">Dorcha</string>
     <string name="language">Teanga</string>
+    <string name="language_system">Réamhshocrú an chórais</string>
     <string name="language_english">English</string>
     <string name="language_irish">Gaeilge</string>
     <string name="restart_to_apply_title">Atosaigh chun cur i bhfeidhm</string>

@@ -62,6 +62,17 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         writePref(LANGUAGE_PREF_KEY, tag ?: "")
     }
 
+    /** UI theme override; defaults to following the system. */
+    var themeMode: ThemeMode by mutableStateOf(
+        readPref(THEME_PREF_KEY)?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() } ?: ThemeMode.SYSTEM
+    )
+        private set
+
+    fun selectThemeMode(mode: ThemeMode) {
+        themeMode = mode
+        writePref(THEME_PREF_KEY, mode.name)
+    }
+
     private val _busPositions = MutableStateFlow<List<BusLocation>>(emptyList())
     val busPositions: StateFlow<List<BusLocation>> = _busPositions.asStateFlow()
 

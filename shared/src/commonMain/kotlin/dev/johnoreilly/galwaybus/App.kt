@@ -20,12 +20,12 @@ import androidx.compose.material.icons.filled.DirectionsBus
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.LocationOff
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.*
@@ -68,6 +68,9 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
 import galwaybus.shared.generated.resources.*
+
+/** Whether the app is currently rendering dark — honours the in-app theme override, not just the OS. */
+private val LocalDarkTheme = staticCompositionLocalOf { false }
 
 private val GalwayLightColors = lightColorScheme(
     primary = Color(0xFF4f0000),
@@ -115,10 +118,23 @@ private val GalwayDarkColors = darkColorScheme(
 fun App() {
     val repository = remember { GalwayBusRepository() }
     val viewModel = viewModel { GalwayBusViewModel(repository) }
-    val colorScheme = if (isSystemInDarkTheme()) GalwayDarkColors else GalwayLightColors
+    var showSettings by remember { mutableStateOf(false) }
+    val darkTheme = when (viewModel.themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
+    val colorScheme = if (darkTheme) GalwayDarkColors else GalwayLightColors
     ProvideAppLocale(viewModel.appLanguage) {
-        MaterialTheme(colorScheme = colorScheme) {
-            GalwayBusApp(viewModel)
+        CompositionLocalProvider(LocalDarkTheme provides darkTheme) {
+            MaterialTheme(colorScheme = colorScheme) {
+                GalwayBusApp(
+                    viewModel = viewModel,
+                    showSettings = showSettings,
+                    onOpenSettings = { showSettings = true },
+                    onCloseSettings = { showSettings = false }
+                )
+            }
         }
     }
 }
@@ -126,7 +142,7 @@ fun App() {
 // Delay-status accents (colorScheme has no green slot). Late reuses colorScheme.error.
 @Composable
 private fun onTimeGreen(): Color =
-    if (isSystemInDarkTheme()) Color(0xFF81C784) else Color(0xFF2E7D32)
+    if (LocalDarkTheme.current) Color(0xFF81C784) else Color(0xFF2E7D32)
 
 /**
  * In light mode the app bar carries the brand maroon; in dark mode a maroon-light-pink
@@ -135,7 +151,7 @@ private fun onTimeGreen(): Color =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun galwayAppBarColors(): TopAppBarColors =
-    if (isSystemInDarkTheme()) {
+    if (LocalDarkTheme.current) {
         TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
             titleContentColor = MaterialTheme.colorScheme.onSurface,
@@ -203,15 +219,22 @@ fun DepartureTime.departureLabel(nowMs: Long): String {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-fun GalwayBusApp(viewModel: GalwayBusViewModel) {
+fun GalwayBusApp(
+    viewModel: GalwayBusViewModel,
+    showSettings: Boolean = false,
+    onOpenSettings: () -> Unit = {},
+    onCloseSettings: () -> Unit = {}
+) {
+    if (showSettings) {
+        SettingsScreen(viewModel = viewModel, onBack = onCloseSettings)
+        return
+    }
     val routes by viewModel.routes.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
     var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
-    var showAbout by remember { mutableStateOf(false) }
-    var showRestartForLanguage by remember { mutableStateOf(false) }
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -225,13 +248,6 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
     val onDepartureClick: (DepartureTime, String) -> Unit = { dep, stopRef ->
         viewModel.setTrackedDeparture(dep, stopRef)
         currentScreen = Screen.TRACKING
-    }
-
-    if (showAbout) {
-        AboutDialog(onDismiss = { showAbout = false })
-    }
-    if (showRestartForLanguage) {
-        RestartForLanguageDialog(onDismiss = { showRestartForLanguage = false })
     }
 
     BoxWithConstraints {
@@ -323,14 +339,9 @@ fun GalwayBusApp(viewModel: GalwayBusViewModel) {
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                         }
-                        AppBarOverflowMenu(
-                            currentLanguage = viewModel.appLanguage,
-                            onSelectLanguage = { tag ->
-                                viewModel.selectAppLanguage(tag)
-                                if (localeChangeRequiresRestart) showRestartForLanguage = true
-                            },
-                            onAbout = { showAbout = true }
-                        )
+                        IconButton(onClick = onOpenSettings) {
+                            Icon(Icons.Filled.Settings, contentDescription = stringResource(Res.string.settings))
+                        }
                     },
                     colors = galwayAppBarColors()
                 )
@@ -1676,57 +1687,91 @@ private fun DetailPane(
     }
 }
 
-/** Three-dot app-bar menu: language selection (English / Gaeilge) and the About dialog. */
+/**
+ * Full-screen settings: theme (system/light/dark), UI language (system/English/Gaeilge),
+ * and the app version. Replaces the old overflow menu + About dialog.
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AppBarOverflowMenu(
-    currentLanguage: String?,
-    onSelectLanguage: (String?) -> Unit,
-    onAbout: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-    IconButton(onClick = { expanded = true }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(Res.string.cd_more_options))
+private fun SettingsScreen(viewModel: GalwayBusViewModel, onBack: () -> Unit) {
+    val platform = remember { getPlatform() }
+    var showRestart by remember { mutableStateOf(false) }
+    if (showRestart) {
+        RestartForLanguageDialog(onDismiss = { showRestart = false })
     }
-    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-        Text(
-            stringResource(Res.string.language),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
-        LanguageMenuItem(Res.string.language_english, "en", currentLanguage) { onSelectLanguage(it); expanded = false }
-        LanguageMenuItem(Res.string.language_irish, "ga", currentLanguage) { onSelectLanguage(it); expanded = false }
-        HorizontalDivider()
-        DropdownMenuItem(
-            text = { Text(stringResource(Res.string.about)) },
-            onClick = {
-                expanded = false
-                onAbout()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.settings)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_back))
+                    }
+                },
+                colors = galwayAppBarColors()
+            )
+        }
+    ) { padding ->
+        Column(Modifier.padding(padding).fillMaxSize()) {
+            SettingsSectionHeader(stringResource(Res.string.theme))
+            SettingsRadioRow(stringResource(Res.string.theme_system), viewModel.themeMode == ThemeMode.SYSTEM) {
+                viewModel.selectThemeMode(ThemeMode.SYSTEM)
             }
-        )
+            SettingsRadioRow(stringResource(Res.string.theme_light), viewModel.themeMode == ThemeMode.LIGHT) {
+                viewModel.selectThemeMode(ThemeMode.LIGHT)
+            }
+            SettingsRadioRow(stringResource(Res.string.theme_dark), viewModel.themeMode == ThemeMode.DARK) {
+                viewModel.selectThemeMode(ThemeMode.DARK)
+            }
+
+            HorizontalDivider(Modifier.padding(vertical = 8.dp))
+
+            SettingsSectionHeader(stringResource(Res.string.language))
+            // Match on the primary subtag so "ga-IE" still reads as Irish; null = follow device.
+            val currentLang = viewModel.appLanguage?.substringBefore('-')
+            val onPickLanguage: (String?) -> Unit = { tag ->
+                viewModel.selectAppLanguage(tag)
+                if (localeChangeRequiresRestart) showRestart = true
+            }
+            SettingsRadioRow(stringResource(Res.string.language_system), currentLang == null) { onPickLanguage(null) }
+            SettingsRadioRow(stringResource(Res.string.language_english), currentLang == "en") { onPickLanguage("en") }
+            SettingsRadioRow(stringResource(Res.string.language_irish), currentLang == "ga") { onPickLanguage("ga") }
+
+            Spacer(Modifier.weight(1f))
+            Text(
+                stringResource(Res.string.version, platform.appVersion.substringBefore(" (")),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            )
+        }
     }
 }
 
 @Composable
-private fun LanguageMenuItem(
-    labelRes: StringResource,
-    tag: String,
-    currentLanguage: String?,
-    onSelect: (String?) -> Unit
-) {
-    // Match on the primary language subtag so "ga-IE" still reads as Irish.
-    val selected = currentLanguage?.substringBefore('-') == tag
-    DropdownMenuItem(
-        text = { Text(stringResource(labelRes)) },
-        leadingIcon = {
-            if (selected) {
-                Icon(Icons.Filled.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-            } else {
-                Spacer(Modifier.width(24.dp))
-            }
-        },
-        onClick = { onSelect(tag) }
+private fun SettingsSectionHeader(text: String) {
+    Text(
+        text,
+        style = MaterialTheme.typography.titleSmall,
+        color = MaterialTheme.colorScheme.primary,
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 4.dp)
     )
+}
+
+@Composable
+private fun SettingsRadioRow(label: String, selected: Boolean, onSelect: () -> Unit) {
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onSelect)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = selected, onClick = onSelect)
+        Spacer(Modifier.width(12.dp))
+        Text(label, style = MaterialTheme.typography.bodyLarge)
+    }
 }
 
 /** Shown on iOS after a language change, where the switch only applies on next launch. */
@@ -1737,32 +1782,6 @@ private fun RestartForLanguageDialog(onDismiss: () -> Unit) {
         title = { Text(stringResource(Res.string.restart_to_apply_title)) },
         text = { Text(stringResource(Res.string.restart_to_apply_body)) },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.ok)) } }
-    )
-}
-
-/** Small about/version dialog, sourcing the version from the platform's installed package. */
-@Composable
-private fun AboutDialog(onDismiss: () -> Unit) {
-    val platform = remember { getPlatform() }
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                Icons.Filled.DirectionsBus,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = { Text(stringResource(Res.string.app_name)) },
-        text = {
-            Text(
-                stringResource(Res.string.version, platform.appVersion.substringBefore(" (")),
-                style = MaterialTheme.typography.bodyMedium,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(Res.string.close)) } }
     )
 }
 
