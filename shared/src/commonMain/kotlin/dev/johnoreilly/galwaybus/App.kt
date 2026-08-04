@@ -48,8 +48,8 @@ import com.pushpal.jetlime.EventPointType
 import com.pushpal.jetlime.ItemsList
 import com.pushpal.jetlime.JetLimeColumn
 import com.pushpal.jetlime.JetLimeDefaults
-import com.pushpal.jetlime.JetLimeEvent
 import com.pushpal.jetlime.JetLimeEventDefaults
+import com.pushpal.jetlime.JetLimeExtendedEvent
 import dev.johnoreilly.galwaybus.location.NearbyStop
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.map.BusMapView
@@ -165,29 +165,28 @@ private enum class Screen {
     MAIN, TRACKING
 }
 
-/** Formats departure countdown with live delays. Returns "Due", "3 min", "8 min (late)", etc. */
-fun DepartureTime.formatWithLive(nowMs: Long): String {
-    val delaySeconds = delaySeconds
+/** Bare countdown to the (live-adjusted) departure. Returns "Due", "3 min", "1h 5min", "N/A". */
+fun DepartureTime.formatCountdown(nowMs: Long): String {
     val scheduledMinutes = depart_timestamp?.let { ts ->
-        Instant.parse(ts).let { instant ->
-            ((instant.toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-        }
+        ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
     } ?: return "N/A"
-
     return when {
-        delaySeconds != null -> {
-            val liveDisplay = when {
-                scheduledMinutes <= 0 -> "Due"
-                scheduledMinutes < 60 -> "$scheduledMinutes min"
-                else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
-            }
-            val lateLabel = if (delaySeconds > 30) " (late)" else if (delaySeconds < -30) " (early)" else ""
-            "$liveDisplay$lateLabel"
-        }
         scheduledMinutes <= 0 -> "Due"
         scheduledMinutes < 60 -> "$scheduledMinutes min"
         else -> "${scheduledMinutes / 60}h ${scheduledMinutes % 60}min"
     }
+}
+
+/**
+ * Countdown with a "(late)"/"(early)" suffix baked in, for the departures list where there's no
+ * separate delay status shown. Where the delay is displayed on its own (e.g. the tracking card),
+ * use [formatCountdown] instead so the lateness isn't stated twice.
+ */
+fun DepartureTime.formatWithLive(nowMs: Long): String {
+    val countdown = formatCountdown(nowMs)
+    val delaySeconds = delaySeconds ?: return countdown
+    val lateLabel = if (delaySeconds > 30) " (late)" else if (delaySeconds < -30) " (early)" else ""
+    return "$countdown$lateLabel"
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -892,7 +891,7 @@ private fun BusTrackingView(
                     mapArea(Modifier.fillMaxHeight().weight(1f))
                     if (timelineStops.isNotEmpty()) {
                         Box(Modifier.fillMaxHeight().width(1.dp).background(MaterialTheme.colorScheme.outlineVariant))
-                        timeline(Modifier.fillMaxHeight().width(220.dp))
+                        timeline(Modifier.fillMaxHeight().width(300.dp))
                     }
                 }
             }
@@ -905,6 +904,7 @@ private fun BusTrackingView(
  * passed are checked, the stop it's currently nearest gets an animated node, and the
  * user's target stop is highlighted.
  */
+@OptIn(ExperimentalComposeApi::class)
 @Composable
 private fun RouteTimeline(
     stops: List<Stop>,
@@ -950,7 +950,7 @@ private fun RouteTimeline(
     JetLimeColumn(
         itemsList = ItemsList(stops),
         listState = listState,
-        modifier = modifier.padding(start = 20.dp, top = 12.dp, end = 12.dp),
+        modifier = modifier.padding(start = 4.dp, top = 12.dp, end = 12.dp),
         key = { _, stop -> stop.stop_ref },
         style = JetLimeDefaults.columnStyle(lineBrush = JetLimeDefaults.lineSolidBrush(primary))
     ) { index, stop, position ->
@@ -958,7 +958,18 @@ private fun RouteTimeline(
         val isCurrent = busIndex >= 0 && index == busIndex
         val isTarget = stop.stop_ref == targetStopRef
 
-        JetLimeEvent(
+        // Predicted arrival for this stop ("Due" / "3 min" / "1h 9min"), if the live
+        // next_stops payload covers it. Shown in the left gutter for stops still ahead.
+        val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
+            val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
+            when {
+                mins <= 0 -> "Due"
+                mins < 60 -> "$mins′"
+                else -> "${mins / 60}h ${mins % 60}′"
+            }
+        }
+
+        JetLimeExtendedEvent(
             style = JetLimeEventDefaults.eventStyle(
                 position = position,
                 pointType = when {
@@ -976,7 +987,27 @@ private fun RouteTimeline(
                 pointColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
                 pointStrokeColor = if (isTarget || isCurrent) primary else onSurfaceVariant,
                 pointAnimation = if (isCurrent) JetLimeEventDefaults.pointAnimation() else null
-            )
+            ),
+            additionalContentMaxWidth = 52.dp,
+            additionalContent = {
+                // Minutes-to-arrival, right-aligned against the line. Only for stops the
+                // bus hasn't reached yet; passed stops leave the gutter blank. The box is
+                // always the full width so every node lines up regardless of gutter text.
+                Box(
+                    Modifier.width(52.dp).padding(end = 8.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    if (!hasPassed && etaText != null) {
+                        Text(
+                            etaText,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isTarget || isCurrent) primary else onSurfaceVariant,
+                            fontWeight = if (isCurrent) FontWeight.SemiBold else FontWeight.Normal,
+                            maxLines = 1
+                        )
+                    }
+                }
+            }
         ) {
             Column(Modifier.padding(bottom = 4.dp)) {
                 Text(
@@ -987,25 +1018,24 @@ private fun RouteTimeline(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
-                    val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-                    when {
-                        mins <= 0 -> "Due"
-                        mins < 60 -> "$mins min"
-                        else -> "${mins / 60}h ${mins % 60}min"
-                    }
+                // "Next stop"/"Your stop" get an emphasised label with the stop id beneath;
+                // every other stop just shows its id.
+                val label = when {
+                    isTarget -> "Your stop"
+                    isCurrent -> "Next stop"
+                    else -> null
                 }
-                val subtitle = when {
-                    isTarget -> etaText?.let { "Your stop · $it" } ?: "Your stop"
-                    isCurrent -> etaText?.let { "Next stop · $it" } ?: "Next stop"
-                    hasPassed -> stop.stop_id
-                    etaText != null -> etaText
-                    else -> stop.stop_id
+                label?.let {
+                    Text(
+                        it,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = primary
+                    )
                 }
                 Text(
-                    subtitle,
+                    stop.stop_id,
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (isTarget || isCurrent) primary else onSurfaceVariant
+                    color = onSurfaceVariant
                 )
             }
         }
@@ -1061,7 +1091,9 @@ private fun TrackingInfoCard(
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = departure.formatWithLive(nowMs),
+                        // Plain countdown — the delay is shown separately as statusText below,
+                        // so we avoid the ambiguous "15 min (late)" that reads as "15 min late".
+                        text = departure.formatCountdown(nowMs),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )

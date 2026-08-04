@@ -209,12 +209,20 @@ class GalwayBusRepository(
 
     /**
      * Picks the live vehicle serving a departure, using only trustworthy links:
-     *  1. exact trip match (the bus is running the departure's trip), or
+     *  1. exact trip match (the bus is running the departure's trip) AND the stop is still ahead of
+     *     the bus, or
      *  2. the bus's own next-stop prediction includes this stop.
      *
      * We deliberately do NOT guess by route+headsign: frequent routes (e.g. 401) run several
      * buses in the same direction at once, so a headsign match attaches an arbitrary bus to the
      * "next due" departure and shows the wrong vehicle id. No id is better than a wrong id.
+     *
+     * The trip match alone is not enough: a departure can linger on a future scheduled slot after
+     * the vehicle has already driven past the stop (the trip's real-time updates drop out, so the
+     * backend reverts to the stale static time). Attaching the bus then shows a vehicle that's
+     * visibly well beyond the stop. When we have the bus's next_stops we require the stop to be in
+     * that ahead-list; only when it's absent (no position/sequence data at all) do we fall back to
+     * trusting the trip match, since we then can't tell whether it has passed.
      */
     private fun matchVehicle(
         busesOnRoute: List<BusLocation>,
@@ -226,9 +234,15 @@ class GalwayBusRepository(
             val vid = bus.vehicle_id
             return !vid.isNullOrBlank() && vid !in usedVehicleIds
         }
+        // True when the stop is still ahead of the bus, or we have no ahead-list to judge by.
+        fun stopAhead(bus: BusLocation): Boolean {
+            val ahead = bus.next_stops ?: return true
+            return ahead.any { it.stop_ref == stopId }
+        }
 
         if (tripId != null) {
-            busesOnRoute.firstOrNull { it.trip_duid == tripId && available(it) }?.let { return it }
+            busesOnRoute.firstOrNull { it.trip_duid == tripId && available(it) && stopAhead(it) }
+                ?.let { return it }
         }
         return busesOnRoute.firstOrNull { bus ->
             available(bus) && bus.next_stops?.any { it.stop_ref == stopId } == true
