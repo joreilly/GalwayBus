@@ -108,6 +108,22 @@ Build a Release archive and upload it to TestFlight
 
 Show the processing state of the most recent TestFlight builds
 
+### ios uploadMetadata
+
+```sh
+[bundle exec] fastlane ios uploadMetadata
+```
+
+Upload the App Store listing text (fastlane/metadata/ios) to App Store Connect — no binary, no screenshots
+
+### ios uploadScreenshots
+
+```sh
+[bundle exec] fastlane ios uploadScreenshots
+```
+
+Upload the App Store screenshots (fastlane/metadata/ios/screenshots/<locale>) to App Store Connect
+
 ### ios release
 
 ```sh

@@ -17,7 +17,7 @@ default_platform :android
 
 platform :android do
 
-    versionNum = 111
+    versionNum = 112
 
     before_all do
     end
@@ -277,16 +277,60 @@ platform :ios do
     end
 
 
+    desc "Upload the App Store listing text (fastlane/metadata/ios) to App Store Connect — no binary, no screenshots"
+    lane :uploadMetadata do |options|
+        deliver(
+            api_key: app_store_api_key,
+            app_identifier: ios_app_identifier,
+            metadata_path: "fastlane/metadata/ios",
+            skip_binary_upload: true,
+            skip_screenshots: true,
+            skip_metadata: false,
+            run_precheck_before_submit: false,
+            force: true,
+            submit_for_review: false
+        )
+    end
+
+
+    desc "Upload the App Store screenshots (fastlane/metadata/ios/screenshots/<locale>) to App Store Connect"
+    lane :uploadScreenshots do |options|
+        # Uploads screenshots only — no binary, and skip_metadata leaves the listing text alone.
+        # deliver auto-detects the device size (e.g. 6.9" iPhone) from each image's dimensions.
+        deliver(
+            api_key: app_store_api_key,
+            app_identifier: ios_app_identifier,
+            # iOS metadata + screenshots share fastlane/metadata/ios (locale dirs hold both the
+            # .txt and the .png). Point deliver here so it doesn't scan the shared ./fastlane/metadata
+            # (which has the non-locale android/ios subdirs and fails locale validation).
+            metadata_path: "fastlane/metadata/ios",
+            screenshots_path: "fastlane/metadata/ios",
+            skip_binary_upload: true,
+            skip_metadata: true,
+            skip_screenshots: false,
+            overwrite_screenshots: true,
+            run_precheck_before_submit: false,
+            force: true,
+            submit_for_review: false
+        )
+    end
+
+
     desc "Submit the latest TestFlight build + metadata to the App Store for review"
     lane :release do |options|
         deliver(
             api_key: app_store_api_key,
             app_identifier: ios_app_identifier,
+            # Locale dirs under fastlane/metadata/ios hold both the .txt metadata and the .png
+            # screenshots; point deliver here so it skips the shared ./fastlane/metadata (whose
+            # non-locale android/ios subdirs fail deliver's locale validation).
+            metadata_path: "fastlane/metadata/ios",
+            screenshots_path: "fastlane/metadata/ios",
             submit_for_review: false,
             automatic_release: false,
             force: true,               # skip the HTML metadata preview / confirmation prompt
             skip_binary_upload: true,  # reuse the build already sent to TestFlight by :beta
-            skip_screenshots: true,    # no screenshots staged yet (see fastlane/metadata/ios)
+            overwrite_screenshots: true,
             precheck_include_in_app_purchases: false
         )
     end
