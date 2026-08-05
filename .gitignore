@@ -26,3 +26,8 @@ fastlane/Preview.html
 fastlane/test_output
 fastlane/metadata/android/screenshots.html
 api-*.json
+
+# Fastlane iOS build artifacts (gym output: signed IPA + dSYMs)
+*.ipa
+*.app.dSYM.zip
+*.dSYM.zip

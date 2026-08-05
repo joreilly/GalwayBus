@@ -1,0 +1,1 @@
+Real-time Galway city bus departures, nearby stops, and live on-map bus tracking.
