@@ -81,6 +81,43 @@ Upload the staged store screenshots (fastlane/metadata/.../phoneScreenshots) to 
 
 ----
 
+
+## iOS
+
+### ios createApp
+
+```sh
+[bundle exec] fastlane ios createApp
+```
+
+One-time: register the bundle id and create the App Store Connect app record
+
+### ios beta
+
+```sh
+[bundle exec] fastlane ios beta
+```
+
+Build a Release archive and upload it to TestFlight
+
+### ios buildStatus
+
+```sh
+[bundle exec] fastlane ios buildStatus
+```
+
+Show the processing state of the most recent TestFlight builds
+
+### ios release
+
+```sh
+[bundle exec] fastlane ios release
+```
+
+Submit the latest TestFlight build + metadata to the App Store for review
+
+----
+
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
 More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).

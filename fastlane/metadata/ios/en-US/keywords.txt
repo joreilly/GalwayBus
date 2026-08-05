@@ -1,0 +1,1 @@
+galway,bus,times,departures,transport,realtime,stops,route,city,travel

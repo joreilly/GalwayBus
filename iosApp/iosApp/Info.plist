@@ -4,6 +4,8 @@
     <dict>
         <key>CADisableMinimumFrameDurationOnPhone</key>
         <true/>
+        <key>ITSAppUsesNonExemptEncryption</key>
+        <false/>
         <key>NSLocationWhenInUseUsageDescription</key>
         <string>Your location is used to show bus stops near you.</string>
         <key>NSCameraUsageDescription</key>

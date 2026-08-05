@@ -1,0 +1,11 @@
+Galway Bus shows live bus times for Galway city.
+
+- Real-time departures for your saved stops
+- Bus stops near you, on a map
+- Live on-map bus tracking with a journey timeline
+- Network-wide stop search
+- Scan a stop's number with your camera to jump straight to its departures
+
+Schedule and live-arrival data come from GTFS and GTFS-Realtime feeds.
+
+Galway Bus is an open-source sample app built with Compose Multiplatform, sharing a single UI across iOS, Android and Desktop. Source: https://github.com/joreilly/GalwayBus
