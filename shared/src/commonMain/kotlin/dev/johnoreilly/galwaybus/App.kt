@@ -34,6 +34,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -63,6 +64,7 @@ import dev.johnoreilly.galwaybus.scan.CameraTextScanner
 import dev.johnoreilly.galwaybus.scan.isStopScanSupported
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Instant
 import org.jetbrains.compose.resources.StringResource
@@ -242,6 +244,8 @@ fun GalwayBusApp(
     var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarScope = rememberCoroutineScope()
 
     // Ticker driving the relative "updated Xs ago" / departure countdown labels
     var nowMs by remember { mutableStateOf(nowEpochMilliseconds()) }
@@ -368,7 +372,8 @@ fun GalwayBusApp(
                         )
                     }
                 }
-            }
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) }
         ) { padding ->
             when (topTab) {
                 TopTab.FAVOURITES -> FavouritesPanel(
@@ -376,6 +381,12 @@ fun GalwayBusApp(
                     nowMs = nowMs,
                     onBrowseRoutes = { topTab = TopTab.ROUTES },
                     onDepartureClick = onDepartureClick,
+                    onShowMessage = { msg ->
+                        snackbarScope.launch {
+                            snackbarHostState.currentSnackbarData?.dismiss()
+                            snackbarHostState.showSnackbar(msg, duration = SnackbarDuration.Short)
+                        }
+                    },
                     modifier = Modifier.padding(padding).fillMaxSize()
                 )
                 TopTab.NEARBY -> NearbyPanel(
@@ -1171,8 +1182,12 @@ private fun FavouritesPanel(
     nowMs: Long,
     onBrowseRoutes: () -> Unit,
     onDepartureClick: (DepartureTime, String) -> Unit,
+    onShowMessage: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusManager = LocalFocusManager.current
+    val savedMessage = stringResource(Res.string.saved_to_my_stops)
+    val removedMessage = stringResource(Res.string.removed_from_my_stops)
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val departuresByStop by viewModel.favouriteDepartures.collectAsStateWithLifecycle()
     val allStops by viewModel.allStops.collectAsStateWithLifecycle()
@@ -1205,7 +1220,17 @@ private fun FavouritesPanel(
             onValueChange = { query = it },
             modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
             placeholder = { Text(stringResource(Res.string.search_all_stops), style = MaterialTheme.typography.bodyMedium) },
-            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            leadingIcon = {
+                // While a query is present the magnifier becomes a back arrow that exits search
+                // (clears the text and drops focus), returning to the My stops list.
+                if (query.isNotEmpty()) {
+                    IconButton(onClick = { query = ""; focusManager.clearFocus() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(Res.string.cd_exit_search))
+                    }
+                } else {
+                    Icon(Icons.Filled.Search, contentDescription = null)
+                }
+            },
             trailingIcon = {
                 if (query.isNotEmpty()) {
                     IconButton(onClick = { query = "" }) {
@@ -1219,12 +1244,19 @@ private fun FavouritesPanel(
         )
 
         when {
-            searching -> StopSearchResults(
-                results = searchResults,
-                favouriteRefs = favourites.map { it.stopRef }.toSet(),
-                onToggleFavourite = { viewModel.toggleFavourite(it) },
-                modifier = Modifier.weight(1f).fillMaxWidth()
-            )
+            searching -> {
+                val favouriteRefs = favourites.map { it.stopRef }.toSet()
+                StopSearchResults(
+                    results = searchResults,
+                    favouriteRefs = favouriteRefs,
+                    onToggleFavourite = { stop ->
+                        val wasFavourite = stop.stop_ref in favouriteRefs
+                        viewModel.toggleFavourite(stop)
+                        onShowMessage(if (wasFavourite) removedMessage else savedMessage)
+                    },
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                )
+            }
             favourites.isEmpty() -> Column(
                 Modifier.weight(1f).fillMaxWidth().padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

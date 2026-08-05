@@ -20,6 +20,7 @@
     <string name="cd_back">Back</string>
     <string name="cd_back_to_routes">Back to routes</string>
     <string name="cd_clear_search">Clear search</string>
+    <string name="cd_exit_search">Exit search</string>
     <string name="cd_more_options">More options</string>
     <string name="cd_refresh_departures">Refresh departures</string>
     <string name="cd_refresh_nearby">Refresh nearby stops</string>
@@ -85,6 +86,8 @@
     <string name="no_saved_stops_body">Search for a stop above and tap its star, or browse a route to find stops on the way</string>
     <string name="browse_routes">Browse routes</string>
     <string name="no_stops_match">No stops match</string>
+    <string name="saved_to_my_stops">Saved to My stops</string>
+    <string name="removed_from_my_stops">Removed from My stops</string>
     <plurals name="saved_stops">
         <item quantity="one">%1$d saved stop</item>
         <item quantity="other">%1$d saved stops</item>

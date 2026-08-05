@@ -21,6 +21,7 @@
     <string name="cd_back">Ar ais</string>
     <string name="cd_back_to_routes">Ar ais go bealaí</string>
     <string name="cd_clear_search">Glan an cuardach</string>
+    <string name="cd_exit_search">Fág an cuardach</string>
     <string name="cd_more_options">Tuilleadh roghanna</string>
     <string name="cd_refresh_departures">Athnuaigh imeachtaí</string>
     <string name="cd_refresh_nearby">Athnuaigh stadanna in aice láimhe</string>
@@ -89,6 +90,8 @@
     <string name="no_saved_stops_body">Cuardaigh stad thuas agus tapáil an réalta, nó brabhsáil bealach chun stadanna a aimsiú</string>
     <string name="browse_routes">Brabhsáil bealaí</string>
     <string name="no_stops_match">Níl aon stad ag teacht leis seo</string>
+    <string name="saved_to_my_stops">Sábháilte i Stadanna</string>
+    <string name="removed_from_my_stops">Bainte as Stadanna</string>
     <plurals name="saved_stops">
         <item quantity="one">%1$d stad sábháilte</item>
         <item quantity="two">%1$d stada shábháilte</item>
