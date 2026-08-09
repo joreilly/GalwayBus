@@ -56,6 +56,7 @@ experiences using **KMP** in the project.
 * [Introduction to Multiplatform Persistence with SQLDelight](https://johnoreilly.dev/posts/sqldelight-multiplatform/)
 * [Using Google Maps in a Jetpack Compose app](https://johnoreilly.dev/posts/jetpack-compose-google-maps/)
 * [Using Google Maps in a Jetpack Compose app - Part 2!](https://johnoreilly.dev/posts/jetpack-compose-google-maps-part2/)
+* [https://johnoreilly.dev/posts/galwaybus-scan-stop-kmp/](Scanning bus stop codes with ML Kit and Vision in the GalwayBus Compose Multiplatform app)
 
 
 ## Code organisation
