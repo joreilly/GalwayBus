@@ -35,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -53,9 +52,11 @@ import com.pushpal.jetlime.JetLimeDefaults
 import com.pushpal.jetlime.JetLimeEventDefaults
 import com.pushpal.jetlime.JetLimeExtendedEvent
 import dev.johnoreilly.galwaybus.location.NearbyStop
-import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.map.BusMapView
 import androidx.compose.ui.graphics.Color
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.Route
@@ -266,16 +267,18 @@ fun GalwayBusApp(
 
         // System back (Android) pops in-app navigation instead of exiting:
         // tracking screen first, then route detail in the compact layout.
-        BackHandler(
-            enabled = currentScreen == Screen.TRACKING ||
-                (compact && topTab == TopTab.ROUTES && selectedRouteNum != null)
-        ) {
-            if (currentScreen == Screen.TRACKING) {
-                currentScreen = Screen.MAIN
-            } else {
-                viewModel.clearRoute()
+        NavigationBackHandler(
+            state = rememberNavigationEventState(NavigationEventInfo.None),
+            isBackEnabled = currentScreen == Screen.TRACKING ||
+                    (compact && topTab == TopTab.ROUTES && selectedRouteNum != null),
+            onBackCompleted = {
+                if (currentScreen == Screen.TRACKING) {
+                    currentScreen = Screen.MAIN
+                } else {
+                    viewModel.clearRoute()
+                }
             }
-        }
+        )
 
         // Departures sheet for a stop tapped on any map.
         viewModel.mapStop?.let { stop ->
