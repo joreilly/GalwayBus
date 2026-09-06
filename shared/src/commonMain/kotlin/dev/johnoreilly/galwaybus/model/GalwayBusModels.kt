@@ -80,24 +80,46 @@ data class StopDeparturesResponse(
     val times: List<DepartureTime>
 )
 
-// --- Galway GTFS snapshot format (loaded from composeResources/files/galway_gtfs.json) ---
+// --- Backend static-data payloads ---
+//
+// These mirror what the API returns; the UI keeps its own [Stop] shape (a String stop_id it
+// searches and shows, and long_name_ga) so the wire format can differ without rippling through
+// the screens. Until Sept 2026 this data came from a GTFS snapshot bundled in the app, which
+// silently went stale — the backend regenerates weekly and is the single source now.
 
 @Serializable
-data class GalwayGtfsSnapshot(
-    val generated: String = "",
-    val stops: Map<String, GtfsSnapshotStop> = emptyMap(),
-    val routes: Map<String, GtfsSnapshotRoute> = emptyMap(),
-    val routeStops: Map<String, List<List<String>>> = emptyMap(),
-    val stopRoutes: Map<String, List<String>> = emptyMap(),
-    val trips: Map<String, GtfsSnapshotTrip> = emptyMap(),
-    val calendar: Map<String, GtfsSnapshotCalendar> = emptyMap(),
-    val calendarDates: List<GtfsSnapshotCalendarDate> = emptyList(),
-    val stopDepartures: Map<String, List<GtfsSnapshotDeparture>> = emptyMap()
-)
+data class ApiStop(
+    val stop_ref: String,
+    val stop_id: Int = 0,
+    val long_name: String = "",
+    val irish_long_name: String? = null,
+    val short_name: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val routes: List<String>? = null,
+    /** Only /stops.json sets this; route stop lists leave it null. */
+    val direction: String? = null
+) {
+    fun toStop(): Stop = Stop(
+        stop_ref = stop_ref,
+        stop_id = stop_id.toString(),
+        long_name = long_name,
+        long_name_ga = irish_long_name,
+        short_name = short_name.ifEmpty { long_name },
+        latitude = latitude,
+        longitude = longitude,
+        routes = routes,
+        direction = direction
+    )
+}
 
-@Serializable data class GtfsSnapshotStop(val code: String = "", val name: String = "", val nameGa: String? = null, val lat: Double = 0.0, val lon: Double = 0.0)
-@Serializable data class GtfsSnapshotRoute(val id: String = "", val longName: String = "")
-@Serializable data class GtfsSnapshotTrip(val rId: String = "", val sId: String = "", @kotlinx.serialization.SerialName("head") val headsign: String = "", val dir: Int = 0)
-@Serializable data class GtfsSnapshotCalendar(val days: String = "", val start: String = "", val end: String = "")
-@Serializable data class GtfsSnapshotCalendarDate(val sId: String = "", val date: String = "", val type: Int = 0)
-@Serializable data class GtfsSnapshotDeparture(val tId: String = "", val secs: Int = 0, val seq: Int = 0)
+@Serializable
+data class ApiRouteDetails(
+    val route: Route? = null,
+    /** One list per direction. */
+    val stops: List<List<ApiStop>> = emptyList(),
+    /** Destination of each direction, index-for-index with [stops]. */
+    val direction_headsigns: List<String> = emptyList(),
+    /** Road geometry of each direction as ordered [lat, lon] pairs, index-for-index with [stops]. */
+    val shapes: List<List<List<Double>>> = emptyList()
+)
