@@ -53,6 +53,7 @@ import com.pushpal.jetlime.JetLimeEventDefaults
 import com.pushpal.jetlime.JetLimeExtendedEvent
 import dev.johnoreilly.galwaybus.location.NearbyStop
 import dev.johnoreilly.galwaybus.map.BusMapView
+import dev.johnoreilly.galwaybus.map.StopEta
 import androidx.compose.ui.graphics.Color
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
@@ -68,6 +69,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -189,6 +192,36 @@ private val visibleTopTabs: List<TopTab> =
 
 private enum class Screen {
     MAIN, TRACKING
+}
+
+/**
+ * Predicted departure per stop for the trip being tracked, for labelling the line on the map.
+ *
+ * The bus only reports the stops still ahead of it, so a stop on the trip with no entry is one it
+ * has already passed: those get a muted marker and no time, since there is nothing left to wait
+ * for and we have no prediction for them anyway. With no bus in the feed there is nothing to say,
+ * and every stop is left plain.
+ */
+internal fun stopEtasFor(trackedBus: BusLocation?, stops: List<Stop>): Map<String, StopEta> {
+    val ahead = trackedBus?.next_stops.orEmpty()
+    val predicted = ahead.mapNotNull { p -> p.departure_timestamp?.let { p.stop_ref to it } }.toMap()
+    val aheadRefs = ahead.map { it.stop_ref }.toSet()
+    return stops.mapNotNull { stop ->
+        val label = predicted[stop.stop_ref]?.let { clockLabel(it) }
+        when {
+            label != null -> stop.stop_ref to StopEta(label, upcoming = true)
+            trackedBus != null && stop.stop_ref !in aheadRefs -> stop.stop_ref to StopEta("", upcoming = false)
+            else -> null
+        }
+    }.toMap()
+}
+
+/** An ISO timestamp as a local clock time ("16:52"), for labelling stops on the map. */
+private fun clockLabel(isoTimestamp: String): String? = try {
+    val local = Instant.parse(isoTimestamp).toLocalDateTime(TimeZone.currentSystemDefault())
+    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+} catch (e: Exception) {
+    null
 }
 
 /** Bare countdown to the (live-adjusted) departure. Returns "Due", "3 min", "1h 5min", "N/A". */
@@ -903,13 +936,26 @@ private fun BusTrackingView(
         val timelineStops = routeStops.firstOrNull { dir -> dir.any { it.stop_ref == trackedStopRef } }
             ?: routeStops.firstOrNull().orEmpty()
 
+        // The bus knows which shape variant it is driving; until it appears in the feed, its
+        // direction's line stands in.
+        val trackedBus = displayPositions.firstOrNull()
+        LaunchedEffect(trackedBus?.shape_id) { viewModel.loadTrackedShape(trackedBus?.shape_id) }
+        val trackedShape by viewModel.trackedShape.collectAsStateWithLifecycle()
+        val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
+        val directionShape = routeShapes.getOrNull(routeStops.indexOf(timelineStops)).orEmpty()
+        val tripLine = trackedShape.ifEmpty { directionShape }
+
+        val stopEtas = remember(trackedBus, timelineStops) { stopEtasFor(trackedBus, timelineStops) }
+
         val mapArea: @Composable (Modifier) -> Unit = { m ->
             Box(m) {
                 BusMapView(
                     positions = displayPositions,
-                    stops = trackedStop,
+                    stops = timelineStops,
                     trackedTripId = trackedBusTripId,
                     trackedStopRef = trackedStopRef,
+                    polylines = if (tripLine.isEmpty()) emptyList() else listOf(tripLine),
+                    stopEtas = stopEtas,
                     modifier = Modifier.fillMaxSize()
                 )
                 TrackingInfoCard(
@@ -1715,12 +1761,18 @@ private fun DetailPane(
         )
         ViewMode.MAP -> Box(modifier) {
             key(selectedRouteNum) {
+                val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
                 BusMapView(
                     positions = busPositions,
                     stops = routeStops.flatten().distinctBy { it.stop_ref },
                     trackedTripId = viewModel.trackedTripId,
                     trackedStopRef = viewModel.trackedStopRef,
                     onStopClick = { viewModel.selectMapStop(it) },
+                    // Only the direction on screen, so the two lines don't overdraw each other.
+                    polylines = routeShapes.getOrNull(viewModel.selectedDirection)
+                        ?.takeIf { it.isNotEmpty() }
+                        ?.let { listOf(it) }
+                        .orEmpty(),
                     modifier = Modifier.fillMaxSize()
                 )
             }

@@ -34,6 +34,7 @@ class GalwayBusRepository(
     private var routesCache: Map<String, Route>? = null
     private var stopsCache: List<Stop>? = null
     private val routeDetailsCache = mutableMapOf<String, ApiRouteDetails>()
+    private val shapeCache = mutableMapOf<String, List<List<Double>>>()
 
     // RT caches: epochMs timestamp paired with data
     private val vehiclesMutex = Mutex()
@@ -184,6 +185,20 @@ class GalwayBusRepository(
      */
     suspend fun getRouteShapes(routeNum: String): List<List<List<Double>>> =
         routeDetails(routeNum).shapes
+
+    /**
+     * A single shape's geometry. Shapes are shared by many trips and identical across snapshots,
+     * so one fetch per id serves every trip that drives it.
+     */
+    suspend fun getShape(shapeId: String): List<List<Double>> = staticMutex.withLock {
+        shapeCache[shapeId]?.let { return it }
+        val points = try {
+            httpClient.get("$backendUrl/shapes/$shapeId").body<List<List<Double>>>()
+        } catch (e: Exception) {
+            emptyList()
+        }
+        points.also { if (it.isNotEmpty()) shapeCache[shapeId] = it }
+    }
 
     private suspend fun routeDetails(routeNum: String): ApiRouteDetails = staticMutex.withLock {
         routeDetailsCache[routeNum]?.let { return it }
