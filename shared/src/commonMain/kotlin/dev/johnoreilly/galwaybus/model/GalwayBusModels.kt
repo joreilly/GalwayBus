@@ -49,6 +49,9 @@ data class DepartureTime(
 data class BusLocation(
     val latitude: Double,
     val longitude: Double,
+    /** Compass heading in degrees (0 = north, clockwise) where the feed supplies one, else null.
+     *  NTA quantises it to 45-degree steps, so it is 8-point rather than smooth. */
+    val bearing: Float? = null,
     val modified_timestamp: String,
     val trip_duid: String,
     val vehicle_id: String? = null,

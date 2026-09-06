@@ -466,6 +466,32 @@ internal fun OsmBusMapView(
                     }
 
                     val r = 20f
+                    // Heading nose, drawn under the body so its base is tucked behind the shape.
+                    // The feed's bearing is 8-point (45-degree steps), so this reads as a rough
+                    // "which way is it facing", not a precise angle.
+                    bus.bearing?.let { deg ->
+                        fun nose(dx: Float, dy: Float): Path {
+                            val rad = deg * (PI / 180f).toFloat()
+                            val fx = sin(rad)
+                            val fy = -cos(rad)
+                            val tipX = bx + dx + fx * (r + 12f)
+                            val tipY = by + dy + fy * (r + 12f)
+                            val baseX = bx + dx + fx * (r - 4f)
+                            val baseY = by + dy + fy * (r - 4f)
+                            // Perpendicular to the heading, for the two base corners.
+                            val px = -fy * 9f
+                            val py = fx * 9f
+                            return Path().apply {
+                                moveTo(tipX, tipY)
+                                lineTo(baseX + px, baseY + py)
+                                lineTo(baseX - px, baseY - py)
+                                close()
+                            }
+                        }
+                        drawPath(nose(2f, 2f), Color(0x99000000))
+                        drawPath(nose(0f, 0f), markerColor)
+                    }
+
                     if (dirIndex == 1) {
                         // Second direction: rounded square
                         val side = Size(r * 2, r * 2)
