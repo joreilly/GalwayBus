@@ -3,9 +3,11 @@ package dev.johnoreilly.galwaybus.map
 import android.graphics.Bitmap
 import android.graphics.Canvas as AndroidCanvas
 import android.graphics.Paint
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -45,7 +48,10 @@ import dev.johnoreilly.galwaybus.displayName
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
+import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 
 private const val GALWAY_LAT = 53.2743
 private const val GALWAY_LON = -9.0488
@@ -175,12 +181,15 @@ actual fun BusMapView(
             val title = if (route != null) "Route $route: ${bus.headsign ?: ""}" else (bus.headsign ?: "Bus")
 
             MarkerComposable(
-                bus.markerKey, markerColor.value, dirIndex, isTracked, routeLabel,
+                bus.markerKey, markerColor.value, dirIndex, isTracked, routeLabel, bus.bearing ?: -1f,
                 state = rememberUpdatedMarkerState(position = LatLng(bus.latitude, bus.longitude)),
+                // Centre the marker on the vehicle rather than resting its base there: the body is
+                // a disc/square, not a pin, and the heading nose has to rotate about that point.
+                anchor = Offset(0.5f, 0.5f),
                 title = title,
                 snippet = bus.vehicle_id?.let { "Vehicle $it" }
             ) {
-                BusMarkerContent(markerColor, routeLabel, dirIndex == 1, isTracked)
+                BusMarkerContent(markerColor, routeLabel, dirIndex == 1, isTracked, bus.bearing)
             }
         }
 
@@ -195,31 +204,81 @@ actual fun BusMapView(
     }
 }
 
-/** A route-coloured marker: circle for direction 0, rounded square for direction 1. */
+/**
+ * A route-coloured marker: circle for direction 0, rounded square for direction 1, with a nose
+ * pointing along [bearing] (degrees clockwise from north) when the feed supplies one.
+ */
 @Composable
-private fun BusMarkerContent(color: Color, routeLabel: String, isSquare: Boolean, isTracked: Boolean) {
+private fun BusMarkerContent(
+    color: Color,
+    routeLabel: String,
+    isSquare: Boolean,
+    isTracked: Boolean,
+    bearing: Float?
+) {
     val contentColor = if (color.luminance() > 0.5f) Color(0xFF1A1A1A) else Color.White
     val shape = if (isSquare) RoundedCornerShape(6.dp) else CircleShape
     Box(
         modifier = Modifier
-            .size(if (isTracked) 44.dp else 36.dp)
-            .background(
-                color = if (isTracked) Color(0x4D4F0000) else Color.Transparent,
-                shape = CircleShape
-            ),
+            // Sized for the nose to stick out past the halo; the body below stays 30.dp either way.
+            .size(if (isTracked) 56.dp else 48.dp),
         contentAlignment = Alignment.Center
     ) {
+        bearing?.let { HeadingNose(it, color) }
         Box(
-            modifier = Modifier.size(30.dp).background(color, shape),
+            modifier = Modifier
+                .size(if (isTracked) 44.dp else 36.dp)
+                .background(
+                    color = if (isTracked) Color(0x4D4F0000) else Color.Transparent,
+                    shape = CircleShape
+                ),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = routeLabel.ifEmpty { "•" },
-                color = contentColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
+            Box(
+                modifier = Modifier.size(30.dp).background(color, shape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = routeLabel.ifEmpty { "•" },
+                    color = contentColor,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
+    }
+}
+
+/**
+ * Triangle pointing the way the vehicle is travelling, drawn behind the marker body so its base is
+ * hidden. NTA quantises bearing to 45-degree steps, so this is an 8-point indicator.
+ */
+@Composable
+private fun HeadingNose(bearing: Float, color: Color) {
+    Canvas(Modifier.fillMaxSize()) {
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val r = 15.dp.toPx() // half the 30.dp body
+        val rad = bearing * (PI / 180f).toFloat()
+        val fx = sin(rad)
+        val fy = -cos(rad)
+        val half = 7.dp.toPx()
+        // Perpendicular to the heading, for the two base corners.
+        val px = -fy * half
+        val py = fx * half
+        val tipX = cx + fx * (r + 9.dp.toPx())
+        val tipY = cy + fy * (r + 9.dp.toPx())
+        val baseX = cx + fx * (r - 3.dp.toPx())
+        val baseY = cy + fy * (r - 3.dp.toPx())
+        drawPath(
+            Path().apply {
+                moveTo(tipX, tipY)
+                lineTo(baseX + px, baseY + py)
+                lineTo(baseX - px, baseY - py)
+                close()
+            },
+            color
+        )
     }
 }
 

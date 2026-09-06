@@ -27,7 +27,12 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGAffineTransformIdentity
+import platform.CoreGraphics.CGAffineTransformMakeRotation
 import platform.CoreGraphics.CGAffineTransformMakeScale
+import platform.CoreGraphics.CGPointMake
+import platform.CoreGraphics.CGRectGetHeight
+import platform.CoreGraphics.CGRectGetWidth
+import platform.CoreGraphics.CGRectMake
 import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.MapKit.MKAnnotationView
 import platform.MapKit.MKCoordinateRegionMakeWithDistance
@@ -40,7 +45,12 @@ import platform.MapKit.MKMarkerAnnotationView
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKUserLocation
 import platform.UIKit.UIColor
+import platform.UIKit.UILabel
+import platform.UIKit.UIView
+import platform.UIKit.NSTextAlignmentCenter
+import platform.UIKit.UIFont
 import platform.darwin.NSObject
+import kotlin.math.PI
 import kotlin.math.abs
 
 private const val GALWAY_LAT = 53.2743
@@ -152,6 +162,47 @@ private fun BusInfoCard(bus: BusLocation, modifier: Modifier = Modifier) {
 /** MKPointAnnotation carrying the bus (for the info card) and its display colour/glyph. */
 private class BusAnnotation(val color: UIColor, val glyph: String?, var busLocation: BusLocation) : MKPointAnnotation()
 
+/** Tag identifying the heading-nose subview, so a recycled annotation view can drop the old one. */
+private const val HEADING_NOSE_TAG = 0x8B5
+
+/** How far the marker balloon's centre sits above the annotation view's own vertical midpoint. */
+private const val BALLOON_CENTRE_LIFT = 10.0
+
+/**
+ * Points a small triangle the way the vehicle is travelling. MapKit has no equivalent of the other
+ * renderers' drawn nose, so it rides as a subview that orbits the marker: the container is centred
+ * on the view and rotated, carrying the glyph at its top edge around with it. NTA quantises bearing
+ * to 45-degree steps, so this is an 8-point indicator.
+ */
+@OptIn(ExperimentalForeignApi::class)
+private fun MKAnnotationView.applyHeadingNose(bearing: Float?, color: UIColor) {
+    viewWithTag(HEADING_NOSE_TAG.toLong())?.removeFromSuperview()
+    if (bearing == null) return
+    val orbit = 42.0 // diameter; the nose then sits just off the balloon's edge, not floating
+    // MapKit may not have laid the view out yet, in which case its bounds are empty — fall back to
+    // MKMarkerAnnotationView's own default size so the nose still orbits the balloon.
+    val hostWidth = CGRectGetWidth(bounds).takeIf { it > 0.0 } ?: 40.0
+    val hostHeight = CGRectGetHeight(bounds).takeIf { it > 0.0 } ?: 40.0
+    val container = UIView(frame = CGRectMake(0.0, 0.0, orbit, orbit)).apply {
+        tag = HEADING_NOSE_TAG.toLong()
+        userInteractionEnabled = false
+        // The view's vertical midpoint sits below the balloon, because the bounds also cover the
+        // pin tip; lift the orbit so the nose circles the balloon rather than the whole pin.
+        setCenter(CGPointMake(hostWidth / 2.0, hostHeight / 2.0 - BALLOON_CENTRE_LIFT))
+    }
+    val glyphSize = 16.0
+    UILabel(frame = CGRectMake((orbit - glyphSize) / 2.0, 0.0, glyphSize, glyphSize)).apply {
+        text = "\u25B2" // black up-pointing triangle
+        font = UIFont.boldSystemFontOfSize(13.0)
+        textColor = color
+        textAlignment = NSTextAlignmentCenter
+        container.addSubview(this)
+    }
+    container.transform = CGAffineTransformMakeRotation(bearing * PI / 180.0)
+    addSubview(container)
+    sendSubviewToBack(container)
+}
+
 /** MKPointAnnotation carrying the stop it represents (for tap handling) and tracked state. */
 private class StopAnnotation(val stop: Stop, val tracked: Boolean) : MKPointAnnotation()
 
@@ -197,8 +248,12 @@ private class BusMapController {
                     view.titleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
                     view.subtitleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
                     view.transform = CGAffineTransformIdentity.readValue()
+                    view.applyHeadingNose(viewForAnnotation.busLocation.bearing, viewForAnnotation.color)
                 }
                 is StopAnnotation -> {
+                    // Bus and stop annotations share a reuse pool, so drop any nose the recycled
+                    // view was carrying from its last life as a bus.
+                    view.applyHeadingNose(null, STOP_COLOR)
                     view.markerTintColor = if (viewForAnnotation.tracked) TRACKED_STOP_COLOR else STOP_COLOR
                     view.glyphText = null
                     view.displayPriority = MKFeatureDisplayPriorityDefaultLow
@@ -260,8 +315,12 @@ private class BusMapController {
                 busAnnotations[bus.markerKey] = annotation
                 mapView.addAnnotation(annotation)
             } else {
+                val turned = existing.busLocation.bearing != bus.bearing
                 existing.busLocation = bus
                 existing.setCoordinate(CLLocationCoordinate2DMake(bus.latitude, bus.longitude))
+                if (turned) {
+                    mapView.viewForAnnotation(existing)?.applyHeadingNose(bus.bearing, existing.color)
+                }
             }
         }
 
