@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlin.time.Instant
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.TimeZone
@@ -50,12 +51,13 @@ class GalwayBusRepository(
 
     suspend fun getRoutes(): Map<String, Route> = staticMutex.withLock {
         routesCache?.let { return it }
-        httpClient.get("$backendUrl/routes.json").body<Map<String, Route>>().also { routesCache = it }
+        retrying { httpClient.get("$backendUrl/routes.json").body<Map<String, Route>>() }
+            .also { routesCache = it }
     }
 
     suspend fun getStops(): List<Stop> = staticMutex.withLock {
         stopsCache?.let { return it }
-        httpClient.get("$backendUrl/stops.json").body<List<ApiStop>>()
+        retrying { httpClient.get("$backendUrl/stops.json").body<List<ApiStop>>() }
             .map { it.toStop() }
             .also { stopsCache = it }
     }
@@ -187,13 +189,32 @@ class GalwayBusRepository(
         routeDetails(routeNum).shapes
 
     /**
+     * Retries a static fetch before giving up. The backend scales to zero, so the first request
+     * after a quiet spell can fail or time out while it starts. This data used to be read from a
+     * file inside the app, where it could not fail at all — so nothing upstream was written
+     * expecting it to.
+     */
+    private suspend fun <T> retrying(attempts: Int = 3, block: suspend () -> T): T {
+        var last: Exception? = null
+        repeat(attempts) { attempt ->
+            try {
+                return block()
+            } catch (e: Exception) {
+                last = e
+                if (attempt < attempts - 1) delay(400L * (attempt + 1))
+            }
+        }
+        throw last ?: IllegalStateException("Request failed")
+    }
+
+    /**
      * A single shape's geometry. Shapes are shared by many trips and identical across snapshots,
      * so one fetch per id serves every trip that drives it.
      */
     suspend fun getShape(shapeId: String): List<List<Double>> = staticMutex.withLock {
         shapeCache[shapeId]?.let { return it }
         val points = try {
-            httpClient.get("$backendUrl/shapes/$shapeId").body<List<List<Double>>>()
+            retrying { httpClient.get("$backendUrl/shapes/$shapeId").body<List<List<Double>>>() }
         } catch (e: Exception) {
             emptyList()
         }
@@ -203,7 +224,7 @@ class GalwayBusRepository(
     private suspend fun routeDetails(routeNum: String): ApiRouteDetails = staticMutex.withLock {
         routeDetailsCache[routeNum]?.let { return it }
         val details = try {
-            httpClient.get("$backendUrl/routes/$routeNum").body<ApiRouteDetails>()
+            retrying { httpClient.get("$backendUrl/routes/$routeNum").body<ApiRouteDetails>() }
         } catch (e: Exception) {
             return ApiRouteDetails()
         }

@@ -180,27 +180,36 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     init {
         _favourites.value = repository.getFavouriteStops()
+        // Stops and routes come from the backend now; before they were read from a file bundled in
+        // the app and could not fail, so this ran unguarded. An unhandled failure in a launch takes
+        // the whole app down, so a backend hiccup must degrade to an empty list and a message.
         viewModelScope.launch {
-            _allStops.value = repository.getStops()
+            try {
+                _allStops.value = repository.getStops()
 
-            // Fix for existing favourites that might have missing stopId (showing as 0 or empty)
-            val current = _favourites.value
-            if (current.isNotEmpty() && (current.any { it.stopId == "0" || it.stopId.isEmpty() })) {
-                val allStops = repository.getStops()
-                val updated = current.map { fav ->
-                    if (fav.stopId == "0" || fav.stopId.isEmpty()) {
-                        val stop = allStops.find { it.stop_ref == fav.stopRef }
-                        if (stop != null) fav.copy(stopId = stop.stop_id) else fav
-                    } else fav
+                // Fix for existing favourites that might have missing stopId (showing as 0 or empty)
+                val current = _favourites.value
+                if (current.isNotEmpty() && (current.any { it.stopId == "0" || it.stopId.isEmpty() })) {
+                    val allStops = repository.getStops()
+                    val updated = current.map { fav ->
+                        if (fav.stopId == "0" || fav.stopId.isEmpty()) {
+                            val stop = allStops.find { it.stop_ref == fav.stopRef }
+                            if (stop != null) fav.copy(stopId = stop.stop_id) else fav
+                        } else fav
+                    }
+                    if (updated != current) {
+                        _favourites.value = updated
+                        repository.saveFavouriteStops(updated)
+                    }
                 }
-                if (updated != current) {
-                    _favourites.value = updated
-                    repository.saveFavouriteStops(updated)
-                }
+
+                _routes.value = repository.getRoutes().values
+                    .sortedBy { it.short_name.toIntOrNull() ?: Int.MAX_VALUE }
+            } catch (e: Exception) {
+                // Nothing is cached on failure, so any later call (opening Near me, picking a
+                // route) retries rather than leaving the app permanently empty.
+                errorMessage = e.message ?: e::class.simpleName
             }
-
-            _routes.value = repository.getRoutes().values
-                .sortedBy { it.short_name.toIntOrNull() ?: Int.MAX_VALUE }
         }
         refreshFavouriteDepartures()
         startFavouritesPolling()
@@ -286,9 +295,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun loadNearby() {
         viewModelScope.launch {
             nearbyState = NearbyState.Loading
-            // The snapshot is loaded once in init; make sure it's ready before we rank stops.
-            val stops = _allStops.value.ifEmpty {
-                repository.getStops().also { _allStops.value = it }
+            // Stops may not have loaded at startup (no network then, or the backend was waking up),
+            // so this is also the retry. A failure here must not escape the coroutine.
+            val stops = try {
+                _allStops.value.ifEmpty { repository.getStops().also { _allStops.value = it } }
+            } catch (e: Exception) {
+                errorMessage = e.message ?: e::class.simpleName
+                nearbyState = NearbyState.Unavailable
+                return@launch
             }
             when (val result = locationProvider.currentLocation()) {
                 is LocationResult.Available -> {

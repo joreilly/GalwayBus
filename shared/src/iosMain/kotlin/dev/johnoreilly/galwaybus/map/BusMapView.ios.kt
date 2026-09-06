@@ -235,18 +235,20 @@ private fun MKAnnotationView.applyStopEta(eta: StopEta?) {
     if (eta == null || eta.label.isBlank()) return  // passed stops are muted, not annotated
     val width = 46.0
     val height = 16.0
-    UILabel(frame = CGRectMake(CGRectGetWidth(bounds) / 2.0 + 6.0, -2.0, width, height)).apply {
-        tag = STOP_ETA_TAG.toLong()
-        userInteractionEnabled = false
-        text = eta.label
-        font = UIFont.boldSystemFontOfSize(11.0)
-        textColor = if (eta.upcoming) ETA_TEXT_COLOR else UIColor.grayColor
-        backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(0.85)
-        textAlignment = NSTextAlignmentCenter
-        layer.cornerRadius = 3.0
-        clipsToBounds = true
-        addSubview(this)
-    }
+    // Built into a local rather than configured in an `apply`: inside that block the implicit
+    // receiver is the label, so `addSubview(this)` added the label to itself — which UIKit rejects
+    // outright ("Can't add self as subview"), taking the app down as the first stop was drawn.
+    val label = UILabel(frame = CGRectMake(CGRectGetWidth(bounds) / 2.0 + 6.0, -2.0, width, height))
+    label.tag = STOP_ETA_TAG.toLong()
+    label.userInteractionEnabled = false
+    label.text = eta.label
+    label.font = UIFont.boldSystemFontOfSize(11.0)
+    label.textColor = if (eta.upcoming) ETA_TEXT_COLOR else UIColor.grayColor
+    label.backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(0.85)
+    label.textAlignment = NSTextAlignmentCenter
+    label.layer.cornerRadius = 3.0
+    label.clipsToBounds = true
+    addSubview(label)
 }
 
 @OptIn(ExperimentalForeignApi::class)
