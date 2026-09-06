@@ -932,9 +932,13 @@ private fun BusTrackingView(
             )
         }
     ) { padding ->
-        // Stops for the direction the tracked stop belongs to (fall back to the first direction).
-        val timelineStops = routeStops.firstOrNull { dir -> dir.any { it.stop_ref == trackedStopRef } }
-            ?: routeStops.firstOrNull().orEmpty()
+        // The direction the tracked stop belongs to (fall back to the first). Held as an index so
+        // the stop list and its geometry are read from the same place, rather than recovering the
+        // index later by comparing whole stop lists for equality on every recomposition.
+        val directionIndex = routeStops
+            .indexOfFirst { dir -> dir.any { it.stop_ref == trackedStopRef } }
+            .takeIf { it >= 0 } ?: 0
+        val timelineStops = routeStops.getOrNull(directionIndex).orEmpty()
 
         // The bus knows which shape variant it is driving; until it appears in the feed, its
         // direction's line stands in.
@@ -942,7 +946,7 @@ private fun BusTrackingView(
         LaunchedEffect(trackedBus?.shape_id) { viewModel.loadTrackedShape(trackedBus?.shape_id) }
         val trackedShape by viewModel.trackedShape.collectAsStateWithLifecycle()
         val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
-        val directionShape = routeShapes.getOrNull(routeStops.indexOf(timelineStops)).orEmpty()
+        val directionShape = routeShapes.getOrNull(directionIndex).orEmpty()
         val tripLine = trackedShape.ifEmpty { directionShape }
 
         val stopEtas = remember(trackedBus, timelineStops) { stopEtasFor(trackedBus, timelineStops) }
