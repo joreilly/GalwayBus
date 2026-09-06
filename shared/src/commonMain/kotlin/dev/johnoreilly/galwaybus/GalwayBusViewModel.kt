@@ -18,6 +18,7 @@ import dev.johnoreilly.galwaybus.model.FavouriteStop
 import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
 import dev.johnoreilly.galwaybus.scan.StopMatcher
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -178,12 +179,31 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     private var favouritesJob: Job? = null
     private var stopDeparturesJob: Job? = null
 
+    /**
+     * Last resort for background work. An exception escaping a `launch` is fatal on iOS — it takes
+     * the whole app down with a stack of nothing but coroutine machinery, which says nothing about
+     * what actually failed. Guarding each launch individually was tried twice and missed a case
+     * both times, so this catches whatever is left: the user sees a message instead of the app
+     * vanishing, and the log names the exception so the next report is diagnosable.
+     *
+     * It is a net, not a substitute for handling failure where it happens — anything that can fail
+     * predictably should still say something useful about it locally.
+     */
+    private val coroutineFailureNet = CoroutineExceptionHandler { context, throwable ->
+        println("GalwayBus: unhandled failure in $context — ${throwable::class.simpleName}: ${throwable.message}")
+        errorMessage = throwable.message ?: throwable::class.simpleName
+    }
+
+    /** [viewModelScope.launch] with the net attached. Use this rather than launching directly. */
+    private fun launchSafely(block: suspend kotlinx.coroutines.CoroutineScope.() -> Unit): Job =
+        viewModelScope.launch(coroutineFailureNet, block = block)
+
     init {
         _favourites.value = repository.getFavouriteStops()
         // Stops and routes come from the backend now; before they were read from a file bundled in
         // the app and could not fail, so this ran unguarded. An unhandled failure in a launch takes
         // the whole app down, so a backend hiccup must degrade to an empty list and a message.
-        viewModelScope.launch {
+        launchSafely {
             try {
                 _allStops.value = repository.getStops()
 
@@ -220,7 +240,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private fun startAllBusesPolling() {
         allBusesJob?.cancel()
-        allBusesJob = viewModelScope.launch {
+        allBusesJob = launchSafely {
             while (isActive) {
                 refreshAllBusPositions()
                 delay(autoRefreshIntervalMs)
@@ -229,7 +249,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     fun refreshAllBusPositions() {
-        viewModelScope.launch {
+        launchSafely {
             try {
                 val fetched = repository.getBusPositions().values.flatten()
                 val now = nowEpochMilliseconds()
@@ -271,7 +291,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun selectMapStop(stop: Stop) {
         mapStop = stop
         _mapStopDepartures.value = emptyList()
-        viewModelScope.launch {
+        launchSafely {
             isLoadingMapStop = true
             try {
                 val (departures, _) = repository.getStopDeparturesWithLive(stop.stop_ref)
@@ -293,7 +313,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
      * stops around Galway city centre so the screen is never empty.
      */
     fun loadNearby() {
-        viewModelScope.launch {
+        launchSafely {
             nearbyState = NearbyState.Loading
             // Stops may not have loaded at startup (no network then, or the backend was waking up),
             // so this is also the retry. A failure here must not escape the coroutine.
@@ -302,7 +322,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             } catch (e: Exception) {
                 errorMessage = e.message ?: e::class.simpleName
                 nearbyState = NearbyState.Unavailable
-                return@launch
+                return@launchSafely
             }
             when (val result = locationProvider.currentLocation()) {
                 is LocationResult.Available -> {
@@ -346,7 +366,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     fun refreshFavouriteDepartures() {
-        viewModelScope.launch {
+        launchSafely {
             refreshFavouriteDeparturesInternal(showLoading = true)
          }
      }
@@ -383,7 +403,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private fun startFavouritesPolling() {
         favouritesJob?.cancel()
-        favouritesJob = viewModelScope.launch {
+        favouritesJob = launchSafely {
             while (isActive) {
                 delay(autoRefreshIntervalMs)
                 refreshFavouriteDeparturesInternal(showLoading = false)
@@ -399,7 +419,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun loadTrackedShape(shapeId: String?) {
         if (shapeId == null || shapeId == loadedTrackedShapeId) return
         loadedTrackedShapeId = shapeId
-        viewModelScope.launch {
+        launchSafely {
             _trackedShape.value = repository.getShape(shapeId).toMapPoints()
         }
     }
@@ -435,7 +455,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         _stopDepartures.value = emptyList()
         _busPositions.value = emptyList()
         lastNonEmptyRouteBusesMs = 0L
-        viewModelScope.launch {
+        launchSafely {
             isLoadingPositions = true
             try {
                 _routeStops.value = repository.getStopsForRoute(routeNum)
@@ -487,7 +507,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
          }
         selectedStopRef = stopRef
         _stopDepartures.value = emptyList()
-        viewModelScope.launch {
+        launchSafely {
             refreshStopDeparturesInternal(stopRef, showLoading = true)
         }
         startStopDeparturesPolling(stopRef)
@@ -509,7 +529,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private fun startStopDeparturesPolling(stopRef: String) {
         stopDeparturesJob?.cancel()
-        stopDeparturesJob = viewModelScope.launch {
+        stopDeparturesJob = launchSafely {
             while (isActive) {
                 delay(autoRefreshIntervalMs)
                 refreshStopDeparturesInternal(stopRef, showLoading = false)
@@ -519,12 +539,12 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     fun refreshPositions() {
         val route = selectedRouteNum ?: return
-        viewModelScope.launch { refreshInternal(route, force = true) }
+        launchSafely { refreshInternal(route, force = true) }
     }
 
     private fun startAutoRefresh(routeNum: String) {
         autoRefreshJob?.cancel()
-        autoRefreshJob = viewModelScope.launch {
+        autoRefreshJob = launchSafely {
             while (isActive) {
                 delay(autoRefreshIntervalMs)
                 refreshInternal(routeNum, force = false)
