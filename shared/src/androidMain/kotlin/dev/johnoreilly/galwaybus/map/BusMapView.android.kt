@@ -5,8 +5,13 @@ import android.graphics.Canvas as AndroidCanvas
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -42,6 +47,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MapsComposeExperimentalApi
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerComposable
+import com.google.maps.android.compose.Polyline
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import dev.johnoreilly.galwaybus.displayName
@@ -52,6 +58,10 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
+
+/** Route line: dark enough on the light map style, bright enough on the night one. */
+private val ROUTE_LINE_COLOR = Color(0xFF1565C0)
+private val ETA_TEXT_COLOR = Color(0xFF7B1FA2)
 
 private const val GALWAY_LAT = 53.2743
 private const val GALWAY_LON = -9.0488
@@ -81,7 +91,9 @@ actual fun BusMapView(
     trackedTripId: String?,
     trackedStopRef: String?,
     onStopClick: ((Stop) -> Unit)?,
-    userLocation: UserLocation?
+    userLocation: UserLocation?,
+    polylines: List<List<MapPoint>>,
+    stopEtas: Map<String, StopEta>
 ) {
     val dark = isSystemInDarkTheme()
     val cameraPositionState = rememberCameraPositionState {
@@ -155,20 +167,46 @@ actual fun BusMapView(
         val stopDot = remember { dotDescriptor(30, 0xFF37474F.toInt(), 0xFFFFFFFF.toInt()) }
         val trackedDot = remember { dotDescriptor(40, 0xFF4F0000.toInt(), 0xFFFFFFFF.toInt()) }
 
+        polylines.forEach { line ->
+            if (line.size >= 2) {
+                val points = line.map { LatLng(it.lat, it.lon) }
+                // A pale casing under the line keeps it legible over both map styles.
+                Polyline(points = points, color = Color.White.copy(alpha = 0.7f), width = 20f)
+                Polyline(points = points, color = ROUTE_LINE_COLOR, width = 11f)
+            }
+        }
+
         stops.forEach { stop ->
             val isTracked = stop.stop_ref == trackedStopRef
+            val eta = stopEtas[stop.stop_ref]
             if (isTracked || showStops) {
-                Marker(
-                    state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
-                    icon = if (isTracked) trackedDot else stopDot,
-                    anchor = Offset(0.5f, 0.5f),
-                    title = stop.displayName(),
-                    snippet = "Stop ${stop.stop_id}",
-                    onClick = {
-                        onStopClick?.invoke(stop)
-                        true
+                if (eta != null) {
+                    MarkerComposable(
+                        stop.stop_ref, eta.label, eta.upcoming, isTracked,
+                        state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
+                        anchor = Offset(0.5f, 0.5f),
+                        title = stop.displayName(),
+                        snippet = "Stop ${stop.stop_id}",
+                        onClick = {
+                            onStopClick?.invoke(stop)
+                            true
+                        }
+                    ) {
+                        StopWithEtaContent(eta, isTracked)
                     }
-                )
+                } else {
+                    Marker(
+                        state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
+                        icon = if (isTracked) trackedDot else stopDot,
+                        anchor = Offset(0.5f, 0.5f),
+                        title = stop.displayName(),
+                        snippet = "Stop ${stop.stop_id}",
+                        onClick = {
+                            onStopClick?.invoke(stop)
+                            true
+                        }
+                    )
+                }
             }
         }
 
@@ -278,6 +316,41 @@ private fun HeadingNose(bearing: Float, color: Color) {
                 close()
             },
             color
+        )
+    }
+}
+
+/**
+ * A stop dot with its predicted departure beside it. Composed rather than drawn into a bitmap so
+ * the text picks up the app's typography, and anchored centrally so the dot stays on the stop.
+ */
+@Composable
+private fun StopWithEtaContent(eta: StopEta, isTracked: Boolean) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(if (isTracked) 16.dp else 11.dp)
+                .background(
+                    color = when {
+                        isTracked -> Color(0xFF4F0000)
+                        // Muted once the bus is past: still on the trip, nothing left to wait for.
+                        !eta.upcoming -> Color(0xFF9E9E9E)
+                        else -> Color(0xFF37474F)
+                    },
+                    shape = CircleShape
+                )
+                .border(width = 1.5.dp, color = Color.White, shape = CircleShape)
+        )
+        if (eta.label.isBlank()) return@Row  // passed stop: muted dot, nothing to annotate
+        Spacer(Modifier.width(3.dp))
+        Text(
+            text = eta.label,
+            color = if (eta.upcoming) ETA_TEXT_COLOR else Color(0xFF757575),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier
+                .background(Color.White.copy(alpha = 0.85f), RoundedCornerShape(3.dp))
+                .padding(horizontal = 3.dp, vertical = 1.dp)
         )
     }
 }

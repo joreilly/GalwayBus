@@ -58,7 +58,9 @@ data class BusLocation(
     val timetable_id: String? = null,
     val headsign: String? = null,
     val next_stop_ref: String? = null,
-    val next_stops: List<StopPrediction>? = null
+    val next_stops: List<StopPrediction>? = null,
+    /** The trip's road geometry, fetched from the backend by id and cached; shared by many trips. */
+    val shape_id: String? = null
 )
 
 @Serializable

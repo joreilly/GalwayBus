@@ -64,6 +64,10 @@ private data class TileId(val z: Int, val x: Int, val y: Int)
 private data class LatLon(val lat: Double, val lon: Double)
 
 // invert + hue-rotate(180°): tiles go dark while land/water/road hues stay roughly true
+/** Route line: dark enough to read on light tiles, bright enough on the dark ones. */
+private val ROUTE_LINE_COLOR = Color(0xFF1565C0)
+private val ETA_TEXT_COLOR = Color(0xFF7B1FA2)
+
 private val DarkTileFilter = ColorFilter.colorMatrix(
     ColorMatrix(
         floatArrayOf(
@@ -106,7 +110,9 @@ internal fun OsmBusMapView(
     trackedTripId: String? = null,
     trackedStopRef: String? = null,
     onStopClick: ((Stop) -> Unit)? = null,
-    userLocation: UserLocation? = null
+    userLocation: UserLocation? = null,
+    polylines: List<List<MapPoint>> = emptyList(),
+    stopEtas: Map<String, StopEta> = emptyMap()
 ) {
     val tileClient = remember { HttpClient() }
     val tileImages = remember { mutableStateMapOf<TileId, ImageBitmap>() }
@@ -253,6 +259,14 @@ internal fun OsmBusMapView(
     val routeLabelLayouts = remember(positions, textMeasurer, labelStyle) {
         positions.mapNotNull { it.timetable_id }.filter { it.isNotEmpty() }.distinct()
             .associateWith { route -> textMeasurer.measure(AnnotatedString(route), labelStyle) }
+    }
+    val etaStyle = with(LocalDensity.current) {
+        TextStyle(fontSize = 12f.toSp(), fontWeight = FontWeight.Bold)
+    }
+    val etaLayouts = remember(stopEtas, textMeasurer, etaStyle) {
+        // Passed stops carry an empty label — they are muted, not annotated.
+        stopEtas.filterValues { it.label.isNotBlank() }
+            .mapValues { (_, eta) -> textMeasurer.measure(AnnotatedString(eta.label), etaStyle) }
     }
 
     Box(modifier.clipToBounds()) {
@@ -435,6 +449,22 @@ internal fun OsmBusMapView(
                     drawImage(bitmap, topLeft = Offset(px, py), colorFilter = tileColorFilter)
                 }
 
+                // Road geometry, under the markers so it never hides one. Points are projected the
+                // same way as markers, so the line stays glued to the map through zoom and pan.
+                polylines.forEach { line ->
+                    if (line.size < 2) return@forEach
+                    val path = Path()
+                    line.forEachIndexed { i, point ->
+                        val px = ((lonToTileXf(point.lon, zoom) - originTileXf) * TILE_PX).toFloat()
+                        val py = ((latToTileYf(point.lat, zoom) - originTileYf) * TILE_PX).toFloat()
+                        if (i == 0) path.moveTo(px, py) else path.lineTo(px, py)
+                    }
+                    // Drawn twice: a pale casing first, so the line reads against both the light
+                    // and dark tile sets without a per-theme colour.
+                    drawPath(path, Color.White.copy(alpha = 0.7f), style = Stroke(width = 9f))
+                    drawPath(path, ROUTE_LINE_COLOR, style = Stroke(width = 5f))
+                }
+
                 stops.forEach { stop ->
                     val isTracked = stop.stop_ref == trackedStopRef
                     if (zoom >= STOP_MARKER_MIN_ZOOM || isTracked) {
@@ -443,11 +473,34 @@ internal fun OsmBusMapView(
                         if (sx in -16f..size.width + 16f && sy in -16f..size.height + 16f) {
                             val radius = if (isTracked) 16f else 11f
                             val color = if (isTracked) Color(0xFF4f0000) else Color(0xFF37474F)
-                            drawCircle(color, radius = radius, center = Offset(sx, sy))
+                            val eta = stopEtas[stop.stop_ref]
+                            val dotColor = when {
+                                isTracked -> Color(0xFF4f0000)
+                                // Muted once the bus is past it: the stop is still on the trip,
+                                // but there is nothing left to wait for.
+                                eta != null && !eta.upcoming -> Color(0xFF9E9E9E)
+                                else -> Color(0xFF37474F)
+                            }
+                            drawCircle(dotColor, radius = radius, center = Offset(sx, sy))
                             drawCircle(
                                 Color.White, radius = radius,
                                 center = Offset(sx, sy), style = Stroke(width = 2.5f)
                             )
+                            etaLayouts[stop.stop_ref]?.let { layout ->
+                                val lx = sx + radius + 5f
+                                val ly = sy - layout.size.height / 2f
+                                drawRoundRect(
+                                    color = Color.White.copy(alpha = 0.85f),
+                                    topLeft = Offset(lx - 3f, ly - 2f),
+                                    size = Size(layout.size.width + 6f, layout.size.height + 4f),
+                                    cornerRadius = CornerRadius(4f, 4f)
+                                )
+                                drawText(
+                                    layout,
+                                    color = if (eta?.upcoming == false) Color(0xFF757575) else ETA_TEXT_COLOR,
+                                    topLeft = Offset(lx, ly)
+                                )
+                            }
                         }
                     }
                 }

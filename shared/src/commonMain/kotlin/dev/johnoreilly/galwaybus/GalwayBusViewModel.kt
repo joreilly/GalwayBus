@@ -10,6 +10,8 @@ import dev.johnoreilly.galwaybus.location.LocationResult
 import dev.johnoreilly.galwaybus.location.NearbyStop
 import dev.johnoreilly.galwaybus.location.UserLocation
 import dev.johnoreilly.galwaybus.location.nearestTo
+import dev.johnoreilly.galwaybus.map.MapPoint
+import dev.johnoreilly.galwaybus.map.toMapPoints
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.FavouriteStop
@@ -78,6 +80,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private val _routeStops = MutableStateFlow<List<List<Stop>>>(emptyList())
     val routeStops: StateFlow<List<List<Stop>>> = _routeStops.asStateFlow()
+
+    // Road geometry per direction for the selected route, index-aligned with routeStops, and the
+    // tracked trip's own line (which can be a variant of its direction's).
+    private val _routeShapes = MutableStateFlow<List<List<MapPoint>>>(emptyList())
+    val routeShapes: StateFlow<List<List<MapPoint>>> = _routeShapes.asStateFlow()
+
+    private val _trackedShape = MutableStateFlow<List<MapPoint>>(emptyList())
+    val trackedShape: StateFlow<List<MapPoint>> = _trackedShape.asStateFlow()
 
     private val _directionHeadsigns = MutableStateFlow<List<String>>(emptyList())
     val directionHeadsigns: StateFlow<List<String>> = _directionHeadsigns.asStateFlow()
@@ -367,6 +377,21 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         }
     }
 
+    /**
+     * Loads the tracked bus's own geometry once its vehicle appears in the feed. Trips on a route
+     * run several shape variants (short workings, diversions), so the direction's line is only a
+     * stand-in until the bus tells us which one it is driving.
+     */
+    fun loadTrackedShape(shapeId: String?) {
+        if (shapeId == null || shapeId == loadedTrackedShapeId) return
+        loadedTrackedShapeId = shapeId
+        viewModelScope.launch {
+            _trackedShape.value = repository.getShape(shapeId).toMapPoints()
+        }
+    }
+
+    private var loadedTrackedShapeId: String? = null
+
     fun setTrackedDeparture(departure: DepartureTime, stopRef: String) {
         trackedTripId = departure.tripId
         trackedStopRef = stopRef
@@ -377,6 +402,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun clearTrackedDeparture() {
         trackedTripId = null
         trackedStopRef = null
+        loadedTrackedShapeId = null
+        _trackedShape.value = emptyList()
         trackedDeparture = null
     }
 
@@ -399,6 +426,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             try {
                 _routeStops.value = repository.getStopsForRoute(routeNum)
                 _directionHeadsigns.value = repository.getDirectionHeadsigns(routeNum)
+                _routeShapes.value = repository.getRouteShapes(routeNum).map { it.toMapPoints() }
                 val fetched = repository.getBusPositions(routeNum)
                 _busPositions.value = fetched
                 if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = nowEpochMilliseconds()

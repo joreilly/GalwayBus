@@ -15,7 +15,9 @@ actual fun BusMapView(
     trackedTripId: String?,
     trackedStopRef: String?,
     onStopClick: ((Stop) -> Unit)?,
-    userLocation: UserLocation?
+    userLocation: UserLocation?,
+    polylines: List<List<MapPoint>>,
+    stopEtas: Map<String, StopEta>
 ) {
     OsmBusMapView(
         positions = positions,
@@ -24,6 +26,8 @@ actual fun BusMapView(
         trackedTripId = trackedTripId,
         trackedStopRef = trackedStopRef,
         onStopClick = onStopClick,
-        userLocation = userLocation
+        userLocation = userLocation,
+        polylines = polylines,
+        stopEtas = stopEtas
     )
 }
