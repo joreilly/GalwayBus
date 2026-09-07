@@ -43,9 +43,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private val autoRefreshIntervalMs = 30_000L
 
-    // The /bus.json feed flaps empty for tens of seconds at a time even during active service
-    // (returns HTTP 200 with an empty `bus` map), which would otherwise blank the map every few
-    // polls. Keep showing the last known buses for this long before treating empty as "no service".
+    // Legacy safety net for an empty /bus.json the backend does not explain. The backend now
+    // reports `stale`, and holds its own last-known data behind it, so this timer only covers
+    // backends too old to send the flag — see [busPositionsForDisplay]. It can go once every
+    // deployment is new enough.
     private val busPositionsGraceMs = 120_000L
     private var lastNonEmptyBusesMs = 0L
     private var lastNonEmptyRouteBusesMs = 0L
@@ -75,6 +76,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         themeMode = mode
         writePref(THEME_PREF_KEY, mode.name)
     }
+
+    /**
+     * True when the backend last told us the live feed was unreachable. Both bus maps read the
+     * same /bus.json (one cached fetch behind the repository), so one flag covers both — the UI
+     * uses it to say the feed is down rather than implying no buses are running.
+     */
+    private val _busFeedStale = MutableStateFlow(false)
+    val busFeedStale: StateFlow<Boolean> = _busFeedStale.asStateFlow()
 
     private val _busPositions = MutableStateFlow<List<BusLocation>>(emptyList())
     val busPositions: StateFlow<List<BusLocation>> = _busPositions.asStateFlow()
@@ -259,7 +268,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun refreshAllBusPositions() {
         launchSafely {
             try {
-                val fetched = repository.getBusPositions().values.flatten()
+                val feed = repository.getBusPositions()
+                val fetched = feed.all
                 val now = nowEpochMilliseconds()
                 val previous = _allBusPositions.value
                 val msSinceLastNonEmpty = now - lastNonEmptyBusesMs
@@ -267,10 +277,12 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                     fetched = fetched,
                     current = previous,
                     msSinceLastNonEmpty = msSinceLastNonEmpty,
-                    graceMs = busPositionsGraceMs
+                    graceMs = busPositionsGraceMs,
+                    feedStale = feed.stale
                 )
+                _busFeedStale.value = feed.stale
                 println(
-                    "BusFeed: allBuses fetched=${fetched.size} previous=${previous.size} " +
+                    "BusFeed: allBuses fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
                         "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
                 )
                 _allBusPositions.value = displayed
@@ -279,7 +291,9 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                     allBusesUpdatedMs = now
                 }
             } catch (e: Exception) {
-                // Network/parse failure: keep whatever we last showed rather than blanking.
+                // Network/parse failure: keep whatever we last showed rather than blanking, but
+                // stop presenting it as live — from here the map is as unreachable as a dead feed.
+                _busFeedStale.value = true
                 println("BusFeed: allBuses fetch FAILED ${e::class.simpleName}: ${e.message}")
             } finally {
                 hasLoadedAllBuses = true
@@ -302,7 +316,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         launchSafely {
             isLoadingMapStop = true
             try {
-                val (departures, _) = repository.getStopDeparturesWithLive(stop.stop_ref)
+                val departures = repository.getStopDeparturesWithLive(stop.stop_ref).times
                 if (mapStop?.stop_ref == stop.stop_ref) _mapStopDepartures.value = departures
             } catch (_: Exception) {
             }
@@ -391,7 +405,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         // Update each stop independently to show data as it arrives
         for (fav in favs) {
             try {
-                val (departures, _) = repository.getStopDeparturesWithLive(fav.stopRef)
+                val departures = repository.getStopDeparturesWithLive(fav.stopRef).times
                 val current = _favouriteDepartures.value.toMutableMap()
                 current[fav.stopRef] = departures
                 _favouriteDepartures.value = current
@@ -490,8 +504,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 _routeStops.value = repository.getStopsForRoute(routeNum)
                 _directionHeadsigns.value = repository.getDirectionHeadsigns(routeNum)
                 _routeShapes.value = repository.getRouteShapes(routeNum).map { it.toMapPoints() }
-                val fetched = repository.getBusPositions(routeNum)
+                val feed = repository.getBusPositions(routeNum)
+                val fetched = feed.forRoute(routeNum)
                 _busPositions.value = fetched
+                _busFeedStale.value = feed.stale
                 if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = nowEpochMilliseconds()
                 lastUpdatedEpochMs = nowEpochMilliseconds()
             } catch (e: Exception) {
@@ -545,7 +561,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     private suspend fun refreshStopDeparturesInternal(stopRef: String, showLoading: Boolean = false) {
         if (showLoading) isLoadingDepartures = true
         try {
-            val (departures, _) = repository.getStopDeparturesWithLive(stopRef)
+            val departures = repository.getStopDeparturesWithLive(stopRef).times
             // Only apply if this stop is still the selected one
             if (selectedStopRef == stopRef) _stopDepartures.value = departures
         } catch (_: Exception) {
@@ -586,7 +602,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         if (isLoadingPositions || isRefreshing) return
         isRefreshing = true
         try {
-            val fetched = repository.getBusPositions(routeNum, forceRefresh = force)
+            val feed = repository.getBusPositions(routeNum, forceRefresh = force)
+            val fetched = feed.forRoute(routeNum)
             val now = nowEpochMilliseconds()
             val previous = _busPositions.value
             val msSinceLastNonEmpty = now - lastNonEmptyRouteBusesMs
@@ -594,10 +611,12 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 fetched = fetched,
                 current = previous,
                 msSinceLastNonEmpty = msSinceLastNonEmpty,
-                graceMs = busPositionsGraceMs
+                graceMs = busPositionsGraceMs,
+                feedStale = feed.stale
             )
+            _busFeedStale.value = feed.stale
             println(
-                "BusFeed: route=$routeNum force=$force fetched=${fetched.size} previous=${previous.size} " +
+                "BusFeed: route=$routeNum force=$force fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
                     "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
             )
             _busPositions.value = displayed
@@ -611,6 +630,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             errorMessage = null
         } catch (e: Exception) {
             // Keep showing the stale list; only surface the error if there's nothing on screen
+            _busFeedStale.value = true
             println("BusFeed: route=$routeNum fetch FAILED ${e::class.simpleName}: ${e.message}")
             if (_busPositions.value.isEmpty()) {
                 errorMessage = e.message ?: e::class.simpleName

@@ -38,4 +38,39 @@ class BusPositionsForDisplayTest {
     fun emptyWithNothingToRetainStaysEmpty() {
         assertTrue(busPositionsForDisplay(emptyList(), emptyList(), 0, graceMs).isEmpty())
     }
+
+    // --- once the backend says whether an empty response is an outage ---
+
+    @Test
+    fun staleFeedWithPositionsStillShowsThem() {
+        // The backend serves its own last known positions for a few minutes. They are the best
+        // guess available, so they stay on the map — the UI labels them rather than hiding them.
+        assertEquals(fetched, busPositionsForDisplay(fetched, current, 0, graceMs, feedStale = true))
+    }
+
+    @Test
+    fun staleFeedWithNothingLeftClearsImmediately() {
+        // The backend has given up, so there is nothing to smooth over. Holding the old markers
+        // for another two minutes would be showing buses no one can vouch for; the banner
+        // explains the empty map instead.
+        assertTrue(busPositionsForDisplay(emptyList(), current, 0, graceMs, feedStale = true).isEmpty())
+    }
+
+    @Test
+    fun staleFlagBeatsTheGraceTimer() {
+        // Well inside the grace window, which alone would have retained `current`.
+        assertTrue(
+            busPositionsForDisplay(emptyList(), current, 1_000, graceMs, feedStale = true).isEmpty(),
+            "An explained outage should not fall back to the timer's guess"
+        )
+    }
+
+    @Test
+    fun aHealthyEmptyStillUsesTheGraceTimer() {
+        // The old-backend path: no flag, so an empty response is still ambiguous and smoothed.
+        assertEquals(
+            current,
+            busPositionsForDisplay(emptyList(), current, 1_000, graceMs, feedStale = false)
+        )
+    }
 }

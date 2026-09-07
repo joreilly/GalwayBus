@@ -601,6 +601,7 @@ private fun AllBusesPanel(
 ) {
     val busPositions by viewModel.allBusPositions.collectAsStateWithLifecycle()
     val allStops by viewModel.allStops.collectAsStateWithLifecycle()
+    val feedStale by viewModel.busFeedStale.collectAsStateWithLifecycle()
 
     Box(modifier) {
         BusMapView(
@@ -609,7 +610,9 @@ private fun AllBusesPanel(
             onStopClick = { viewModel.selectMapStop(it) },
             modifier = Modifier.fillMaxSize()
         )
-        viewModel.allBusesUpdatedMs?.let { updatedMs ->
+        if (feedStale) {
+            NotLiveChip(Modifier.align(Alignment.TopStart).padding(12.dp))
+        } else viewModel.allBusesUpdatedMs?.let { updatedMs ->
             Card(
                 modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
                 colors = CardDefaults.cardColors(
@@ -625,8 +628,9 @@ private fun AllBusesPanel(
                 )
             }
         }
-        // Late at night the feed is legitimately empty; say so rather than
-        // leaving a silently bus-less map.
+        // An empty map has two causes and they need different words: late at night nothing is
+        // running, but during an outage the buses are out there and we just cannot see them.
+        // Telling an outage "service may not be running" is the app's most confident lie.
         if (busPositions.isEmpty()) {
             Card(
                 modifier = Modifier.align(Alignment.Center).padding(32.dp),
@@ -642,9 +646,16 @@ private fun AllBusesPanel(
                         Text(stringResource(Res.string.loading_live_buses), style = MaterialTheme.typography.bodyMedium)
                     } else {
                         Column {
-                            Text(stringResource(Res.string.no_buses_reporting), style = MaterialTheme.typography.titleSmall)
                             Text(
-                                stringResource(Res.string.service_may_not_be_running),
+                                if (feedStale) stringResource(Res.string.live_feed_unavailable)
+                                else stringResource(Res.string.no_buses_reporting),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = if (feedStale) MaterialTheme.colorScheme.error
+                                        else MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                if (feedStale) stringResource(Res.string.live_feed_unavailable_detail)
+                                else stringResource(Res.string.service_may_not_be_running),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1855,6 +1866,7 @@ private fun DetailPane(
     val directionHeadsigns by viewModel.directionHeadsigns.collectAsStateWithLifecycle()
     val stopDepartures by viewModel.stopDepartures.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
+    val feedStale by viewModel.busFeedStale.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
 
     if (selectedRouteNum == null) {
@@ -1911,20 +1923,52 @@ private fun DetailPane(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            viewModel.selectedRouteBus?.let { bus ->
-                SelectedBusCard(
-                    bus = bus,
-                    stops = routeStops.flatten().distinctBy { it.stop_ref },
-                    nowMs = nowMs,
-                    onDismiss = { viewModel.clearRouteBusSelection() },
-                    modifier = Modifier.align(Alignment.TopCenter).padding(12.dp)
-                )
+            // Stacked rather than each aligned to its own corner: on a phone a TopStart chip and
+            // a TopCenter card overlap once the card is wide enough.
+            Column(
+                modifier = Modifier.align(Alignment.TopCenter).padding(12.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (feedStale) NotLiveChip()
+                viewModel.selectedRouteBus?.let { bus ->
+                    SelectedBusCard(
+                        bus = bus,
+                        stops = routeStops.flatten().distinctBy { it.stop_ref },
+                        nowMs = nowMs,
+                        onDismiss = { viewModel.clearRouteBusSelection() }
+                    )
+                }
             }
             SmallFloatingActionButton(
                 onClick = { viewModel.refreshPositions() },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             ) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions)) }
         }
+    }
+}
+
+/**
+ * The "these markers are not live" chip, shown on a map whose positions came from the backend's
+ * last known data rather than a live fetch. Deliberately a chip and not a dialog: the buses on
+ * screen are still the best guess available, so the map stays usable and merely stops claiming
+ * to be current.
+ */
+@Composable
+private fun NotLiveChip(modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.92f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Text(
+            stringResource(Res.string.not_live_positions),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+        )
     }
 }
 
