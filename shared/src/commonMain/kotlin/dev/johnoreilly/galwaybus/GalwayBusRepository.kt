@@ -39,7 +39,7 @@ class GalwayBusRepository(
 
     // RT caches: epochMs timestamp paired with data
     private val vehiclesMutex = Mutex()
-    private var vehiclesCache: Pair<Long, Map<String, List<BusLocation>>>? = null
+    private var vehiclesCache: Pair<Long, BusPositions>? = null
 
     data class StopUpdate(
         val arrivalDelay: Int? = null,
@@ -85,21 +85,44 @@ class GalwayBusRepository(
 
     fun saveLastViewedRoute(routeNum: String?) = writePref(PREF_LAST_ROUTE, routeNum ?: "")
 
+    /**
+     * Live bus positions and whether the backend considers them live.
+     *
+     * [stale] is the backend saying it could not reach NTA, so these are its last known positions
+     * (or none at all). Without it an outage and an empty timetable are the same empty map, which
+     * is why the app used to guess with a timer — see [busPositionsForDisplay].
+     */
+    data class BusPositions(
+        val byRoute: Map<String, List<BusLocation>>,
+        val stale: Boolean = false
+    ) {
+        val all: List<BusLocation> get() = byRoute.values.flatten()
+        fun forRoute(routeNum: String): List<BusLocation> = byRoute[routeNum] ?: emptyList()
+    }
+
+    /** Departures for a stop, and whether their live delays are current. */
+    data class StopDepartures(
+        val times: List<DepartureTime>,
+        val stale: Boolean = false
+    )
+
     /** All Galway bus positions keyed by route number. */
-    suspend fun getBusPositions(): Map<String, List<BusLocation>> = fetchVehicles()
+    suspend fun getBusPositions(): BusPositions = fetchVehicles()
 
     /** Bus positions for a single route. Pass [forceRefresh] to bypass the cache. */
-    suspend fun getBusPositions(routeNum: String, forceRefresh: Boolean = false): List<BusLocation> =
-        fetchVehicles(forceRefresh)[routeNum] ?: emptyList()
+    suspend fun getBusPositions(routeNum: String, forceRefresh: Boolean = false): BusPositions =
+        fetchVehicles(forceRefresh)
 
     /** Get stop departures with live delay information from the GTFS-RT feed. */
-    suspend fun getStopDeparturesWithLive(stopId: String): Pair<List<DepartureTime>, Map<String, List<BusLocation>>> {
-        val livePositions = fetchVehicles()
+    suspend fun getStopDeparturesWithLive(stopId: String): StopDepartures {
+        val livePositions = fetchVehicles().byRoute
 
         val liveResponse = try {
             httpClient.get("$backendUrl/stops/$stopId").body<StopDeparturesResponse>()
         } catch (e: Exception) {
-            StopDeparturesResponse(times = emptyList())
+            // A failed request is as un-live as a stale one; say so rather than passing off an
+            // empty list as a stop with no departures due.
+            StopDeparturesResponse(times = emptyList(), stale = true)
         }
 
         val nowMs = nowEpochMilliseconds()
@@ -128,7 +151,7 @@ class GalwayBusRepository(
             if (result.size >= 5) break
         }
 
-        return result.sortedBy { it.depart_timestamp } to livePositions
+        return StopDepartures(result.sortedBy { it.depart_timestamp }, liveResponse.stale)
     }
 
     /**
@@ -233,18 +256,21 @@ class GalwayBusRepository(
 
     // ── Internal ──────────────────────────────────────────────────────────────
 
-    private suspend fun fetchVehicles(force: Boolean = false): Map<String, List<BusLocation>> = vehiclesMutex.withLock {
+    private suspend fun fetchVehicles(force: Boolean = false): BusPositions = vehiclesMutex.withLock {
         if (!force) vehiclesCache?.let { (t, data) ->
             if (nowEpochMilliseconds() - t < cacheTtlMs) {
-                println("BusFeed: cache hit age=${nowEpochMilliseconds() - t}ms routes=${data.size} buses=${data.values.sumOf { it.size }}")
+                println("BusFeed: cache hit age=${nowEpochMilliseconds() - t}ms routes=${data.byRoute.size} buses=${data.all.size} stale=${data.stale}")
                 return@withLock data
             }
         }
         val response = httpClient.get("$backendUrl/bus.json").body<BusApiResponse>()
-        val result = response.bus.mapValues { (routeId, buses) ->
-            buses.map { it.copy(timetable_id = it.timetable_id ?: routeId) }
-        }
-        println("BusFeed: network fetch force=$force routes=${result.size} buses=${result.values.sumOf { it.size }}")
+        val result = BusPositions(
+            byRoute = response.bus.mapValues { (routeId, buses) ->
+                buses.map { it.copy(timetable_id = it.timetable_id ?: routeId) }
+            },
+            stale = response.stale
+        )
+        println("BusFeed: network fetch force=$force routes=${result.byRoute.size} buses=${result.all.size} stale=${result.stale}")
         vehiclesCache = nowEpochMilliseconds() to result
         result
     }

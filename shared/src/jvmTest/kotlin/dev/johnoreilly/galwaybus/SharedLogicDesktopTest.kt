@@ -146,7 +146,7 @@ class SharedLogicDesktopTest {
     @Test
     fun getStopDeparturesReturnsAtMost5() = kotlinx.coroutines.runBlocking {
         // The backend returns ten; the stop card shows five.
-        val (departures, _) = repository.getStopDeparturesWithLive("8460B522331")
+        val departures = repository.getStopDeparturesWithLive("8460B522331").times
         assertTrue(departures.size <= 5, "Expected at most 5 departures, but got ${departures.size}")
         assertTrue(departures.isNotEmpty(), "Expected the backend's departures to come through")
     }

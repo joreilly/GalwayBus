@@ -75,11 +75,21 @@ data class StopPrediction(
 // --- Backend response wrapper ---
 
 @Serializable
-data class BusApiResponse(val bus: Map<String, List<BusLocation>>)
+data class BusApiResponse(
+    val bus: Map<String, List<BusLocation>>,
+    /**
+     * The backend could not reach NTA, so this is last-known data or nothing at all — as opposed
+     * to a genuinely quiet night, which looks identical in [bus] alone. Absent on older backends,
+     * where it defaults to false and the app behaves as it always did.
+     */
+    val stale: Boolean = false
+)
 
 @Serializable
 data class StopDeparturesResponse(
-    val times: List<DepartureTime>
+    val times: List<DepartureTime>,
+    /** See [BusApiResponse.stale] — here it means the times carry no live delay. */
+    val stale: Boolean = false
 )
 
 // --- Backend static-data payloads ---

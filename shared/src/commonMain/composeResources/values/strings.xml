@@ -34,6 +34,9 @@
     <string name="loading_live_buses">Loading live buses…</string>
     <string name="no_buses_reporting">No buses reporting right now</string>
     <string name="service_may_not_be_running">Service may not be running</string>
+    <string name="live_feed_unavailable">Live bus feed unavailable</string>
+    <string name="live_feed_unavailable_detail">Buses are probably running — we just can\'t reach the tracking service. Retrying.</string>
+    <string name="not_live_positions">Not live — last known positions</string>
 
     <!-- Scan -->
     <string name="scan_point_camera">Point your camera at the stop\'s number</string>

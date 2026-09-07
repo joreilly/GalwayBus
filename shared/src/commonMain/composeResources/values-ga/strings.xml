@@ -35,6 +35,9 @@
     <string name="loading_live_buses">Busanna beo á lódáil…</string>
     <string name="no_buses_reporting">Níl aon bhus ag tuairisciú faoi láthair</string>
     <string name="service_may_not_be_running">Seans nach bhfuil an tseirbhís ag rith</string>
+    <string name="live_feed_unavailable">Níl fotha beo na mbusanna ar fáil</string>
+    <string name="live_feed_unavailable_detail">Is dócha go bhfuil na busanna ag rith — nílimid in ann teacht ar an tseirbhís rianaithe. Ag atriail.</string>
+    <string name="not_live_positions">Ní beo — na suíomhanna is déanaí a bhí ar eolas</string>
 
     <!-- Scan -->
     <string name="scan_point_camera">Dírigh do cheamara ar uimhir an stada</string>
