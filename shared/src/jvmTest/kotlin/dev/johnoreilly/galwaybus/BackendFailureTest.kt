@@ -2,9 +2,13 @@ package dev.johnoreilly.galwaybus
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondError
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -70,6 +74,31 @@ class BackendFailureTest {
             viewModel.loadNearby()
             waitForRetries()
             assertEquals(NearbyState.Unavailable, viewModel.nearbyState)
+        }
+    }
+
+    @Test
+    fun `a backend that answers with nonsense is survivable too`() {
+        // The guards catch network failures; this is the other shape — a 200 whose body doesn't
+        // parse, which throws deeper inside and from a different coroutine. Nothing should escape:
+        // on iOS an exception leaving a launch takes the whole app down.
+        val engine = MockEngine {
+            respond(
+                content = "not json at all",
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            )
+        }
+        val client = HttpClient(engine) {
+            install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
+            expectSuccess = true
+        }
+        runBlocking {
+            val viewModel = GalwayBusViewModel(GalwayBusRepository(injectedHttpClient = client))
+            viewModel.selectRoute("401")
+            viewModel.loadNearby()
+            waitForRetries()
+            assertTrue(viewModel.routes.value.isEmpty(), "Nothing should have parsed")
+            assertNotNull(viewModel.errorMessage, "The failure should surface rather than vanish")
         }
     }
 
