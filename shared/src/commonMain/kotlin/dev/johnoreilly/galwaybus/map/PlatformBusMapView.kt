@@ -32,6 +32,8 @@ fun List<List<Double>>.toMapPoints(): List<MapPoint> =
  * @param trackedTripId when set, the map centres/highlights this bus.
  * @param trackedStopRef when set, the map centres/highlights this stop.
  * @param onStopClick invoked when a stop marker is tapped (opens its departures sheet).
+ * @param onBusClick invoked when a bus marker is tapped, for selecting one vehicle out of several
+ *   running a route. Null leaves each platform's default tap behaviour alone.
  * @param userLocation the device's location, shown as a "you are here" marker.
  * @param polylines road geometry to trace — the path a bus actually drives, rather than straight
  *   lines between its stops. Usually one line: the tracked trip's, or the shown direction's.
@@ -45,6 +47,7 @@ expect fun BusMapView(
     trackedTripId: String? = null,
     trackedStopRef: String? = null,
     onStopClick: ((Stop) -> Unit)? = null,
+    onBusClick: ((BusLocation) -> Unit)? = null,
     userLocation: UserLocation? = null,
     polylines: List<List<MapPoint>> = emptyList(),
     stopEtas: Map<String, StopEta> = emptyMap()

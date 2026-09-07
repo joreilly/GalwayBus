@@ -103,6 +103,7 @@ actual fun BusMapView(
     trackedTripId: String?,
     trackedStopRef: String?,
     onStopClick: ((Stop) -> Unit)?,
+    onBusClick: ((BusLocation) -> Unit)?,
     userLocation: UserLocation?,
     polylines: List<List<MapPoint>>,
     stopEtas: Map<String, StopEta>
@@ -133,7 +134,11 @@ actual fun BusMapView(
             modifier = Modifier.fillMaxSize(),
             update = { mapView ->
                 controller.onStopClick = onStopClick
-                controller.onBusClick = { bus -> selectedBusKey = bus.markerKey }
+                // With a caller handling bus taps, the selection lives there and this renderer's
+                // own info card would just duplicate it.
+                controller.onBusClick = { bus ->
+                    if (onBusClick != null) onBusClick(bus) else selectedBusKey = bus.markerKey
+                }
                 controller.onBusDeselect = { selectedBusKey = null }
                 mapView.showsUserLocation = userLocation != null
                 controller.sync(mapView, positions, stops, busColors, trackedTripId, trackedStopRef, userLocation, polylines, stopEtas)
@@ -142,7 +147,9 @@ actual fun BusMapView(
 
         // Resolve against the latest positions so the card tracks live data and disappears if the
         // bus drops out of the feed.
-        val selectedBus = selectedBusKey?.let { key -> positions.firstOrNull { it.markerKey == key } }
+        val selectedBus = selectedBusKey
+            ?.takeIf { onBusClick == null }
+            ?.let { key -> positions.firstOrNull { it.markerKey == key } }
         selectedBus?.let { bus ->
             BusInfoCard(
                 bus = bus,

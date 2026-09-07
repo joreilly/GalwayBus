@@ -193,6 +193,101 @@ private enum class Screen {
 }
 
 /**
+ * The vehicle picked out on the route map: which bus it is, and where it goes next. The map draws
+ * its whole path; this answers "when does it get to me" without having to read labels off it.
+ */
+@Composable
+private fun SelectedBusCard(
+    bus: BusLocation,
+    stops: List<Stop>,
+    nowMs: Long,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val namesByRef = remember(stops) { stops.associateBy { it.stop_ref } }
+    val upcoming = remember(bus, stops, nowMs / 60_000) {
+        bus.next_stops.orEmpty()
+            .mapNotNull { prediction ->
+                val stop = namesByRef[prediction.stop_ref] ?: return@mapNotNull null
+                val minutes = prediction.departure_timestamp?.let { ts ->
+                    runCatching {
+                        ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 60_000).toInt()
+                    }.getOrNull()
+                }
+                stop to minutes
+            }
+            .take(4)
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                bus.timetable_id?.let { RouteBadge(it, large = false) }
+                Spacer(Modifier.width(8.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        text = bus.headsign ?: stringResource(Res.string.track_bus),
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    bus.vehicle_id?.let {
+                        Text(
+                            "🚌 #$it",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.cd_back))
+                }
+            }
+
+            if (upcoming.isEmpty()) {
+                Text(
+                    stringResource(Res.string.not_available),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            } else {
+                upcoming.forEachIndexed { index, (stop, minutes) ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stop.displayName(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            // The stop it reaches next is the one being waited on.
+                            fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = when {
+                                minutes == null -> "–"
+                                minutes <= 0 -> stringResource(Res.string.due)
+                                else -> stringResource(Res.string.countdown_min, minutes)
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = if (index == 0) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
  * Predicted departure per stop for the trip being tracked, for labelling the line on the map.
  *
  * The bus only reports the stops still ahead of it, so a stop on the trip with no entry is one it
@@ -1786,18 +1881,43 @@ private fun DetailPane(
         ViewMode.MAP -> Box(modifier) {
             key(selectedRouteNum) {
                 val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
-                BusMapView(
-                    positions = busPositions,
-                    stops = routeStops.flatten().distinctBy { it.stop_ref },
-                    trackedTripId = viewModel.trackedTripId,
-                    trackedStopRef = viewModel.trackedStopRef,
-                    onStopClick = { viewModel.selectMapStop(it) },
-                    // Only the direction on screen, so the two lines don't overdraw each other.
-                    polylines = routeShapes.getOrNull(viewModel.selectedDirection)
+                val selectedBus = viewModel.selectedRouteBus
+                val selectedBusShape by viewModel.selectedBusShape.collectAsStateWithLifecycle()
+
+                // Tapping a bus narrows the map to that one trip: its own path (which can be a
+                // variant of the direction's) and the times it is predicting, rather than the
+                // route in general.
+                val line = when {
+                    selectedBus != null && selectedBusShape.isNotEmpty() -> listOf(selectedBusShape)
+                    else -> routeShapes.getOrNull(viewModel.selectedDirection)
                         ?.takeIf { it.isNotEmpty() }
                         ?.let { listOf(it) }
-                        .orEmpty(),
+                        .orEmpty()
+                }
+                val stopsOnMap = routeStops.flatten().distinctBy { it.stop_ref }
+                val busEtas = remember(selectedBus, stopsOnMap, nowMs / 60_000) {
+                    stopEtasFor(selectedBus, stopsOnMap, nowMs = nowMs)
+                }
+
+                BusMapView(
+                    positions = busPositions,
+                    stops = stopsOnMap,
+                    trackedTripId = selectedBus?.trip_duid ?: viewModel.trackedTripId,
+                    trackedStopRef = viewModel.trackedStopRef,
+                    onStopClick = { viewModel.selectMapStop(it) },
+                    onBusClick = { viewModel.selectRouteBus(it) },
+                    polylines = line,
+                    stopEtas = busEtas,
                     modifier = Modifier.fillMaxSize()
+                )
+            }
+            viewModel.selectedRouteBus?.let { bus ->
+                SelectedBusCard(
+                    bus = bus,
+                    stops = routeStops.flatten().distinctBy { it.stop_ref },
+                    nowMs = nowMs,
+                    onDismiss = { viewModel.clearRouteBusSelection() },
+                    modifier = Modifier.align(Alignment.TopCenter).padding(12.dp)
                 )
             }
             SmallFloatingActionButton(
