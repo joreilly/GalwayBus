@@ -91,6 +91,7 @@ actual fun BusMapView(
     trackedTripId: String?,
     trackedStopRef: String?,
     onStopClick: ((Stop) -> Unit)?,
+    onBusClick: ((BusLocation) -> Unit)?,
     userLocation: UserLocation?,
     polylines: List<List<MapPoint>>,
     stopEtas: Map<String, StopEta>
@@ -225,7 +226,15 @@ actual fun BusMapView(
                 // a disc/square, not a pin, and the heading nose has to rotate about that point.
                 anchor = Offset(0.5f, 0.5f),
                 title = title,
-                snippet = bus.vehicle_id?.let { "Vehicle $it" }
+                snippet = bus.vehicle_id?.let { "Vehicle $it" },
+                // Above the stops: they are dense enough that a bus sitting on one was unreachable,
+                // the stop's sheet opening instead of the vehicle being selected.
+                zIndex = 2f,
+                onClick = {
+                    onBusClick?.invoke(bus)
+                    // Consume it when we handled it, so Google Maps doesn't also pop its info window.
+                    onBusClick != null
+                }
             ) {
                 BusMarkerContent(markerColor, routeLabel, dirIndex == 1, isTracked, bus.bearing)
             }

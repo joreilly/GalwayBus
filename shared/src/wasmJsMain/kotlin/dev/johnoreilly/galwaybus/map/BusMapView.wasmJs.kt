@@ -15,6 +15,7 @@ actual fun BusMapView(
     trackedTripId: String?,
     trackedStopRef: String?,
     onStopClick: ((Stop) -> Unit)?,
+    onBusClick: ((BusLocation) -> Unit)?,
     userLocation: UserLocation?,
     polylines: List<List<MapPoint>>,
     stopEtas: Map<String, StopEta>
@@ -26,6 +27,7 @@ actual fun BusMapView(
         trackedTripId = trackedTripId,
         trackedStopRef = trackedStopRef,
         onStopClick = onStopClick,
+        onBusClick = onBusClick,
         userLocation = userLocation,
         polylines = polylines,
         stopEtas = stopEtas

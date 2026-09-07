@@ -110,6 +110,7 @@ internal fun OsmBusMapView(
     trackedTripId: String? = null,
     trackedStopRef: String? = null,
     onStopClick: ((Stop) -> Unit)? = null,
+    onBusClick: ((BusLocation) -> Unit)? = null,
     userLocation: UserLocation? = null,
     polylines: List<List<MapPoint>> = emptyList(),
     stopEtas: Map<String, StopEta> = emptyMap()
@@ -347,13 +348,38 @@ internal fun OsmBusMapView(
                             }
                         }
                     }
-                    .pointerInput(positions, stops, trackedStopRef, onStopClick, widthPx, heightPx) {
+                    .pointerInput(positions, stops, trackedStopRef, onStopClick, onBusClick, widthPx, heightPx) {
                         detectTapGestures(
                             onDoubleTap = { pos -> zoomAt(pos, zoom + 1) },
                             onTap = tap@{ pos ->
-                                if (onStopClick == null) return@tap
+                                if (onStopClick == null && onBusClick == null) return@tap
                                 val originXf = lonToTileXf(centerLon, zoom) - (widthPx / 2.0 / TILE_PX)
                                 val originYf = latToTileYf(centerLat, zoom) - (heightPx / 2.0 / TILE_PX)
+
+                                // Buses are tested first: they are drawn over the stops, so a tap
+                                // landing on both belongs to the bus.
+                                if (onBusClick != null) {
+                                    val busHit = positions
+                                        .map { bus ->
+                                            // Hit-test where the marker is drawn (mid-animation),
+                                            // not its final fix — they can be tens of pixels apart
+                                            // between feed updates, which is a missed tap.
+                                            val busPos = animatedPositions[bus.markerKey]
+                                                ?: LatLon(bus.latitude, bus.longitude)
+                                            val bx = ((lonToTileXf(busPos.lon, zoom) - originXf) * TILE_PX).toFloat()
+                                            val by = ((latToTileYf(busPos.lat, zoom) - originYf) * TILE_PX).toFloat()
+                                            val dx = pos.x - bx
+                                            val dy = pos.y - by
+                                            bus to (dx * dx + dy * dy)
+                                        }
+                                        .filter { (_, d2) -> d2 < 30f * 30f }
+                                        .minByOrNull { (_, d2) -> d2 }
+                                    if (busHit != null) {
+                                        onBusClick(busHit.first)
+                                        return@tap
+                                    }
+                                }
+                                if (onStopClick == null) return@tap
                                 // Nearest stop marker within touch range (generous slop for fingers)
                                 val hit = stops
                                     .filter { zoom >= STOP_MARKER_MIN_ZOOM || it.stop_ref == trackedStopRef }

@@ -90,6 +90,14 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     private val _trackedShape = MutableStateFlow<List<MapPoint>>(emptyList())
     val trackedShape: StateFlow<List<MapPoint>> = _trackedShape.asStateFlow()
 
+    // One vehicle picked out of the several running a route, so the route map can show that trip's
+    // own path and times rather than the direction's generic line.
+    var selectedRouteBus by mutableStateOf<BusLocation?>(null)
+        private set
+
+    private val _selectedBusShape = MutableStateFlow<List<MapPoint>>(emptyList())
+    val selectedBusShape: StateFlow<List<MapPoint>> = _selectedBusShape.asStateFlow()
+
     private val _directionHeadsigns = MutableStateFlow<List<String>>(emptyList())
     val directionHeadsigns: StateFlow<List<String>> = _directionHeadsigns.asStateFlow()
 
@@ -426,6 +434,26 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private var loadedTrackedShapeId: String? = null
 
+    /**
+     * Picks a bus on the route map. Tapping the same one again clears it, so the map goes back to
+     * showing the direction as a whole.
+     */
+    fun selectRouteBus(bus: BusLocation) {
+        if (selectedRouteBus?.trip_duid == bus.trip_duid) {
+            clearRouteBusSelection()
+            return
+        }
+        selectedRouteBus = bus
+        _selectedBusShape.value = emptyList()
+        val shapeId = bus.shape_id ?: return
+        launchSafely { _selectedBusShape.value = repository.getShape(shapeId).toMapPoints() }
+    }
+
+    fun clearRouteBusSelection() {
+        selectedRouteBus = null
+        _selectedBusShape.value = emptyList()
+    }
+
     fun setTrackedDeparture(departure: DepartureTime, stopRef: String) {
         trackedTripId = departure.tripId
         trackedStopRef = stopRef
@@ -447,6 +475,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     private fun selectRouteInternal(routeNum: String) {
+        clearRouteBusSelection()
         repository.saveLastViewedRoute(routeNum)
         selectedRouteNum = routeNum
         selectedDirection = 0
@@ -572,6 +601,11 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                     "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
             )
             _busPositions.value = displayed
+            // Keep the picked-out bus pointing at its latest position, so its times tick along
+            // with the feed rather than freezing at whatever they were when it was tapped.
+            selectedRouteBus?.let { selected ->
+                displayed.firstOrNull { it.trip_duid == selected.trip_duid }?.let { selectedRouteBus = it }
+            }
             if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = now
             lastUpdatedEpochMs = now
             errorMessage = null
