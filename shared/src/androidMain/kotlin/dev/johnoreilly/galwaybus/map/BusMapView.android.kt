@@ -116,11 +116,22 @@ actual fun BusMapView(
     // fit every stop into view instead of a fixed zoom — a fixed zoom level covers wildly
     // different geographic spans depending on the device's screen size/aspect ratio.
     var hasCentered by remember { mutableStateOf(false) }
-    LaunchedEffect(positions, trackedTripId, trackedStopRef, userLocation) {
+    // The camera cannot be driven until the map is attached. Animating before that is silently
+    // dropped — not an error, just nothing — and because `positions` only changes content every
+    // 30s poll, the effect below would not re-run to try again. That single lost call is why the
+    // tracking screen opened on the default city view with the bus off-screen, then righted
+    // itself a poll or two later. Keying on this re-runs the effect the moment the map is ready.
+    var mapLoaded by remember { mutableStateOf(false) }
+    // Resolved first so a tracked trip whose bus is not in the feed *yet* falls through to the
+    // branches below. Testing `trackedTripId != null` directly would match this branch, find no
+    // bus, and leave the camera parked on the default city view — which is what the tracking
+    // screen used to open as: no bus, and not even the user's own stop in frame, until a later
+    // poll happened to land.
+    val trackedBus = trackedTripId?.let { id -> positions.find { it.trip_duid == id } }
+    LaunchedEffect(mapLoaded, positions, trackedTripId, trackedStopRef, userLocation) {
+        if (!mapLoaded) return@LaunchedEffect
         val target: Pair<LatLng, Float>? = when {
-            trackedTripId != null ->
-                positions.find { it.trip_duid == trackedTripId }
-                    ?.let { LatLng(it.latitude, it.longitude) to 16f }
+            trackedBus != null -> LatLng(trackedBus.latitude, trackedBus.longitude) to 16f
             userLocation != null && !hasCentered ->
                 LatLng(userLocation.lat, userLocation.lon) to 15f
             trackedStopRef != null && !hasCentered ->
@@ -129,8 +140,15 @@ actual fun BusMapView(
             else -> null
         }
         target?.let { (latLng, zoom) ->
-            hasCentered = true
-            cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+            // Mark as centred only once the move actually lands. Animating before the map has been
+            // laid out throws, and marking first would record a move that never happened, leaving
+            // the "centre once" branches above permanently satisfied.
+            try {
+                cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(latLng, zoom))
+                hasCentered = true
+            } catch (_: IllegalStateException) {
+                // Map not ready; the next positions poll re-runs this effect.
+            }
         }
     }
 
@@ -139,6 +157,7 @@ actual fun BusMapView(
     GoogleMap(
         modifier = modifier,
         cameraPositionState = cameraPositionState,
+        onMapLoaded = { mapLoaded = true },
         properties = MapProperties(
             mapStyleOptions = if (dark) MapStyleOptions(DARK_MAP_STYLE_JSON) else null
         ),
