@@ -69,8 +69,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -201,13 +199,28 @@ private enum class Screen {
  * has already passed: those get a muted marker and no time, since there is nothing left to wait
  * for and we have no prediction for them anyway. With no bus in the feed there is nothing to say,
  * and every stop is left plain.
+ *
+ * Only the next few stops are labelled, plus the one being tracked wherever it falls. Labelling
+ * every stop turned the map into a wall of times that collided with each other and with the map's
+ * own place names, and the far end of a trip is not what someone watching a bus is reading.
  */
-internal fun stopEtasFor(trackedBus: BusLocation?, stops: List<Stop>): Map<String, StopEta> {
+internal fun stopEtasFor(
+    trackedBus: BusLocation?,
+    stops: List<Stop>,
+    trackedStopRef: String? = null,
+    nowMs: Long = 0L,
+    labelledAhead: Int = 3
+): Map<String, StopEta> {
     val ahead = trackedBus?.next_stops.orEmpty()
-    val predicted = ahead.mapNotNull { p -> p.departure_timestamp?.let { p.stop_ref to it } }.toMap()
     val aheadRefs = ahead.map { it.stop_ref }.toSet()
+    // Ahead-list order is the order the bus reaches them, so the first few are the imminent ones.
+    val labelled = ahead.take(labelledAhead).map { it.stop_ref }.toSet() +
+        setOfNotNull(trackedStopRef?.takeIf { it in aheadRefs })
+    val predicted = ahead.mapNotNull { p -> p.departure_timestamp?.let { p.stop_ref to it } }.toMap()
     return stops.mapNotNull { stop ->
-        val label = predicted[stop.stop_ref]?.let { clockLabel(it) }
+        val label = predicted[stop.stop_ref]
+            ?.takeIf { stop.stop_ref in labelled }
+            ?.let { minutesLabel(it, nowMs) }
         when {
             label != null -> stop.stop_ref to StopEta(label, upcoming = true)
             trackedBus != null && stop.stop_ref !in aheadRefs -> stop.stop_ref to StopEta("", upcoming = false)
@@ -216,10 +229,14 @@ internal fun stopEtasFor(trackedBus: BusLocation?, stops: List<Stop>): Map<Strin
     }.toMap()
 }
 
-/** An ISO timestamp as a local clock time ("16:52"), for labelling stops on the map. */
-private fun clockLabel(isoTimestamp: String): String? = try {
-    val local = Instant.parse(isoTimestamp).toLocalDateTime(TimeZone.currentSystemDefault())
-    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
+/**
+ * Minutes until a predicted departure ("Due", "4′"), matching the timeline beside the map — which
+ * used to disagree with it, showing "2′" next to a map reading "22:27" for the same stop. Minutes
+ * are also a third the width of a clock time, so the labels stop colliding.
+ */
+private fun minutesLabel(isoTimestamp: String, nowMs: Long): String? = try {
+    val minutes = ((Instant.parse(isoTimestamp).toEpochMilliseconds() - nowMs) / 60_000).toInt()
+    if (minutes <= 0) "Due" else "$minutes′"
 } catch (e: Exception) {
     null
 }
@@ -949,7 +966,10 @@ private fun BusTrackingView(
         val directionShape = routeShapes.getOrNull(directionIndex).orEmpty()
         val tripLine = trackedShape.ifEmpty { directionShape }
 
-        val stopEtas = remember(trackedBus, timelineStops) { stopEtasFor(trackedBus, timelineStops) }
+        // Re-derived as the clock ticks so the minutes stay honest.
+        val stopEtas = remember(trackedBus, timelineStops, trackedStopRef, nowMs / 60_000) {
+            stopEtasFor(trackedBus, timelineStops, trackedStopRef, nowMs)
+        }
 
         val mapArea: @Composable (Modifier) -> Unit = { m ->
             Box(m) {
