@@ -1,6 +1,6 @@
 [versions]
 agp = "9.1.0"
-androidx-camera = "1.6.1"
+androidx-camera = "1.6.2"
 mlkit-text = "16.0.1"
 android-compileSdk = "37"
 android-minSdk = "24"
