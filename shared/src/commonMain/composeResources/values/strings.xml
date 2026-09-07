@@ -65,8 +65,6 @@
     <string name="not_available">N/A</string>
     <string name="countdown_min">%1$d min</string>
     <string name="countdown_hours_min">%1$dh %2$dmin</string>
-    <string name="gutter_min">%1$d′</string>
-    <string name="gutter_hours_min">%1$dh %2$d′</string>
     <string name="late_suffix"> (late)</string>
     <string name="early_suffix"> (early)</string>
     <string name="min_late">%1$d min late</string>
