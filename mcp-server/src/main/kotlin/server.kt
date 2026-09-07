@@ -74,7 +74,7 @@ fun configureServer(): Server {
         val stopId = request.arg("stopId") ?: return@addTool missing("stopId")
         toolResult("getting bus departures") {
             val stopRef = resolveStopRef(stopId) ?: return@toolResult listOf("No stop found with id \"$stopId\".")
-            val departures = repository.getStopDepartures(stopRef)
+            val departures = repository.getStopDeparturesWithLive(stopRef).times
             if (departures.isEmpty()) listOf("No upcoming departures for stop $stopId.")
             else departures.map { "${it.timetable_id} → ${it.display_name} at ${it.depart_timestamp ?: "scheduled"}" }
         }
@@ -107,9 +107,9 @@ fun configureServer(): Server {
         val routeId = request.arg("routeId")
         toolResult("getting live buses") {
             val buses = if (routeId != null) {
-                repository.getBusPositions(routeId).map { routeId to it }
+                repository.getBusPositions(routeId).forRoute(routeId).map { routeId to it }
             } else {
-                repository.getBusPositions().flatMap { (route, list) -> list.map { route to it } }
+                repository.getBusPositions().byRoute.flatMap { (route, list) -> list.map { route to it } }
             }
             if (buses.isEmpty()) {
                 listOf(if (routeId != null) "No live buses for route $routeId." else "No live buses right now.")
@@ -146,12 +146,18 @@ fun configureServer(): Server {
         val stopId = request.arg("stopId") ?: return@addTool missing("stopId")
         toolResult("getting live departures") {
             val stopRef = resolveStopRef(stopId) ?: return@toolResult listOf("No stop found with id \"$stopId\".")
-            val departures = repository.getStopDeparturesWithLive(stopRef).first
+            val result = repository.getStopDeparturesWithLive(stopRef)
+            val departures = result.times
             if (departures.isEmpty()) listOf("No upcoming departures for stop $stopId.")
-            else departures.map {
-                val live = if (it.vehicleId != null) " [live]" else ""
-                val delay = it.delaySeconds?.let(::delayLabel) ?: ""
-                "${it.timetable_id} → ${it.display_name} at ${it.depart_timestamp ?: "scheduled"}$live$delay"
+            else {
+                // The backend flags a response it could not refresh from the live feed. This tool
+                // is the "with live" one, so saying nothing would pass stale times off as current.
+                val header = if (result.stale) listOf("(live feed unavailable — times below are not current)") else emptyList()
+                header + departures.map {
+                    val live = if (it.vehicleId != null) " [live]" else ""
+                    val delay = it.delaySeconds?.let(::delayLabel) ?: ""
+                    "${it.timetable_id} → ${it.display_name} at ${it.depart_timestamp ?: "scheduled"}$live$delay"
+                }
             }
         }
     }
