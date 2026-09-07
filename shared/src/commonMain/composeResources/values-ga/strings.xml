@@ -69,8 +69,6 @@
     <string name="not_available">N/A</string>
     <string name="countdown_min">%1$d nóim</string>
     <string name="countdown_hours_min">%1$du %2$dnóim</string>
-    <string name="gutter_min">%1$d′</string>
-    <string name="gutter_hours_min">%1$du %2$d′</string>
     <string name="late_suffix"> (déanach)</string>
     <string name="early_suffix"> (luath)</string>
     <string name="min_late">%1$d nóim déanach</string>

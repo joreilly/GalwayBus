@@ -69,6 +69,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.pluralStringResource
@@ -303,8 +305,9 @@ internal fun stopEtasFor(
     trackedBus: BusLocation?,
     stops: List<Stop>,
     trackedStopRef: String? = null,
-    nowMs: Long = 0L,
-    labelledAhead: Int = 3
+    labelledAhead: Int = 3,
+    /** Injectable so the rendered clock string can be asserted without depending on the host's zone. */
+    zone: TimeZone = TimeZone.currentSystemDefault()
 ): Map<String, StopEta> {
     val ahead = trackedBus?.next_stops.orEmpty()
     val aheadRefs = ahead.map { it.stop_ref }.toSet()
@@ -315,7 +318,7 @@ internal fun stopEtasFor(
     return stops.mapNotNull { stop ->
         val label = predicted[stop.stop_ref]
             ?.takeIf { stop.stop_ref in labelled }
-            ?.let { minutesLabel(it, nowMs) }
+            ?.let { clockLabel(it, zone) }
         when {
             label != null -> stop.stop_ref to StopEta(label, upcoming = true)
             trackedBus != null && stop.stop_ref !in aheadRefs -> stop.stop_ref to StopEta("", upcoming = false)
@@ -325,13 +328,15 @@ internal fun stopEtasFor(
 }
 
 /**
- * Minutes until a predicted departure ("Due", "4′"), matching the timeline beside the map — which
- * used to disagree with it, showing "2′" next to a map reading "22:27" for the same stop. Minutes
- * are also a third the width of a clock time, so the labels stop colliding.
+ * An ISO timestamp as a local clock time ("16:52"), for the predicted departure at a stop.
+ *
+ * Shared by the map labels and the timeline gutter so the two cannot drift apart again: they once
+ * disagreed about the same stop, one reading "2′" and the other "22:27". A clock time is also what
+ * you compare against a printed timetable, which a countdown is not.
  */
-private fun minutesLabel(isoTimestamp: String, nowMs: Long): String? = try {
-    val minutes = ((Instant.parse(isoTimestamp).toEpochMilliseconds() - nowMs) / 60_000).toInt()
-    if (minutes <= 0) "Due" else "$minutes′"
+private fun clockLabel(isoTimestamp: String, zone: TimeZone = TimeZone.currentSystemDefault()): String? = try {
+    val local = Instant.parse(isoTimestamp).toLocalDateTime(zone)
+    "${local.hour.toString().padStart(2, '0')}:${local.minute.toString().padStart(2, '0')}"
 } catch (e: Exception) {
     null
 }
@@ -1073,8 +1078,8 @@ private fun BusTrackingView(
         val tripLine = trackedShape.ifEmpty { directionShape }
 
         // Re-derived as the clock ticks so the minutes stay honest.
-        val stopEtas = remember(trackedBus, timelineStops, trackedStopRef, nowMs / 60_000) {
-            stopEtasFor(trackedBus, timelineStops, trackedStopRef, nowMs)
+        val stopEtas = remember(trackedBus, timelineStops, trackedStopRef) {
+            stopEtasFor(trackedBus, timelineStops, trackedStopRef)
         }
 
         val mapArea: @Composable (Modifier) -> Unit = { m ->
@@ -1104,7 +1109,6 @@ private fun BusTrackingView(
                 stops = timelineStops,
                 targetStopRef = trackedStopRef,
                 trackedBus = displayPositions.firstOrNull(),
-                nowMs = nowMs,
                 modifier = m
             )
         }
@@ -1143,7 +1147,6 @@ private fun RouteTimeline(
     stops: List<Stop>,
     targetStopRef: String?,
     trackedBus: BusLocation?,
-    nowMs: Long,
     modifier: Modifier = Modifier
 ) {
     // Where the bus is along the route, for the passed/next markers. Prefers the real-time
@@ -1193,14 +1196,7 @@ private fun RouteTimeline(
 
         // Predicted arrival for this stop ("Due" / "3 min" / "1h 9min"), if the live
         // next_stops payload covers it. Shown in the left gutter for stops still ahead.
-        val etaText = etaByStopRef[stop.stop_ref]?.let { ts ->
-            val mins = ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-            when {
-                mins <= 0 -> stringResource(Res.string.due)
-                mins < 60 -> stringResource(Res.string.gutter_min, mins)
-                else -> stringResource(Res.string.gutter_hours_min, mins / 60, mins % 60)
-            }
-        }
+        val etaText = etaByStopRef[stop.stop_ref]?.let { clockLabel(it) }
 
         JetLimeExtendedEvent(
             style = JetLimeEventDefaults.eventStyle(
@@ -1223,7 +1219,7 @@ private fun RouteTimeline(
             ),
             additionalContentMaxWidth = 52.dp,
             additionalContent = {
-                // Minutes-to-arrival, right-aligned against the line. Only for stops the
+                // Predicted departure time, right-aligned against the line. Only for stops the
                 // bus hasn't reached yet; passed stops leave the gutter blank. The box is
                 // always the full width so every node lines up regardless of gutter text.
                 Box(
@@ -1907,8 +1903,8 @@ private fun DetailPane(
                         .orEmpty()
                 }
                 val stopsOnMap = routeStops.flatten().distinctBy { it.stop_ref }
-                val busEtas = remember(selectedBus, stopsOnMap, nowMs / 60_000) {
-                    stopEtasFor(selectedBus, stopsOnMap, nowMs = nowMs)
+                val busEtas = remember(selectedBus, stopsOnMap) {
+                    stopEtasFor(selectedBus, stopsOnMap)
                 }
 
                 BusMapView(
