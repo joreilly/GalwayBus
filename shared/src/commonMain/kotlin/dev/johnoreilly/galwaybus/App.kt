@@ -1896,7 +1896,7 @@ private fun DetailPane(
                 }
                 val stopsOnMap = routeStops.flatten().distinctBy { it.stop_ref }
                 val busEtas = remember(selectedBus, stopsOnMap, nowMs / 60_000) {
-                    stopEtasFor(selectedBus, stopsOnMap)
+                    stopEtasFor(selectedBus, stopsOnMap, nowMs = nowMs)
                 }
 
                 BusMapView(
