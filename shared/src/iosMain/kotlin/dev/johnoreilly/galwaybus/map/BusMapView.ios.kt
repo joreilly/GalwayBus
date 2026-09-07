@@ -545,10 +545,11 @@ private class BusMapController {
             return
         }
 
+        // Resolved up front so a tracked trip with no bus in the feed yet falls through to the
+        // stop below, instead of matching here and yielding no target at all.
+        val followBus = trackedTripId?.let { id -> positions.find { it.trip_duid == id } }
         val target: Triple<Double, Double, Double>? = when {
-            trackedTripId != null ->
-                positions.find { it.trip_duid == trackedTripId }
-                    ?.let { Triple(it.latitude, it.longitude, 2000.0) }
+            followBus != null -> Triple(followBus.latitude, followBus.longitude, 2000.0)
             userLocation != null && !hasCentered ->
                 Triple(userLocation.lat, userLocation.lon, 3000.0)
             trackedStopRef != null && !hasCentered ->

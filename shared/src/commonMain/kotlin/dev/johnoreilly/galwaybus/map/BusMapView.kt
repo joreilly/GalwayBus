@@ -152,13 +152,15 @@ internal fun OsmBusMapView(
     }
 
     LaunchedEffect(positions, trackedTripId, trackedStopRef, userLocation) {
-        if (trackedTripId != null) {
-            positions.find { it.trip_duid == trackedTripId }?.let { bus ->
-                centerLat = bus.latitude
-                centerLon = bus.longitude
-                zoom = MAX_ZOOM - 1
-                hasCentered = true
-            }
+        // Note the `trackedBus != null` rather than `trackedTripId != null`: a tracked trip whose
+        // bus has not reached the feed yet must fall through to the branches below, or the camera
+        // stays on the default city view showing neither the bus nor the user's own stop.
+        val trackedBus = trackedTripId?.let { id -> positions.find { it.trip_duid == id } }
+        if (trackedBus != null) {
+            centerLat = trackedBus.latitude
+            centerLon = trackedBus.longitude
+            zoom = MAX_ZOOM - 1
+            hasCentered = true
         } else if (userLocation != null && !hasCentered) {
             centerLat = userLocation.lat
             centerLon = userLocation.lon
