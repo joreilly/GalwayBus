@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitView
 import dev.johnoreilly.galwaybus.localizedName
@@ -36,10 +37,15 @@ import platform.CoreGraphics.CGPointMake
 import platform.CoreGraphics.CGRectGetHeight
 import platform.CoreGraphics.CGRectGetWidth
 import platform.CoreGraphics.CGRectMake
+import platform.CoreGraphics.CGLineCap
+import platform.CoreGraphics.CGLineJoin
+import platform.CoreGraphics.CGSizeMake
 import platform.CoreLocation.CLLocationCoordinate2D
 import platform.CoreLocation.CLLocationCoordinate2DMake
 import platform.MapKit.MKAnnotationView
+import platform.MapKit.MKCoordinateRegionMake
 import platform.MapKit.MKCoordinateRegionMakeWithDistance
+import platform.MapKit.MKCoordinateSpanMake
 import platform.MapKit.MKFeatureDisplayPriorityDefaultLow
 import platform.MapKit.MKFeatureDisplayPriorityRequired
 import platform.MapKit.MKFeatureVisibility
@@ -55,6 +61,9 @@ import platform.MapKit.MKPolylineRenderer
 import platform.MapKit.MKPointAnnotation
 import platform.MapKit.MKUserLocation
 import platform.UIKit.UIColor
+import platform.UIKit.UIBezierPath
+import platform.UIKit.UIGraphicsImageRenderer
+import platform.UIKit.UIImage
 import platform.UIKit.UILabel
 import platform.UIKit.UIView
 import platform.UIKit.NSTextAlignmentCenter
@@ -232,29 +241,63 @@ private class StopAnnotation(
 /** Tag identifying the ETA label subview, so a recycled annotation view drops the previous one. */
 private const val STOP_ETA_TAG = 0x8B6
 
+private var stopDotUpcoming: UIImage? = null
+private var stopDotPassed: UIImage? = null
+
+/** A stop as a small white-ringed dot, matching the weight the other renderers give it. */
+@OptIn(ExperimentalForeignApi::class)
+private fun stopDotImage(passed: Boolean): UIImage? {
+    stopDotUpcoming?.takeIf { !passed }?.let { return it }
+    stopDotPassed?.takeIf { passed }?.let { return it }
+    val size = 14.0
+    val renderer = UIGraphicsImageRenderer(size = CGSizeMake(size, size))
+    val image = renderer.imageWithActions { _ ->
+        val ring = UIBezierPath.bezierPathWithOvalInRect(CGRectMake(0.0, 0.0, size, size))
+        UIColor.whiteColor.setFill()
+        ring.fill()
+        val inner = UIBezierPath.bezierPathWithOvalInRect(CGRectMake(2.0, 2.0, size - 4.0, size - 4.0))
+        (if (passed) PASSED_STOP_COLOR else STOP_COLOR).setFill()
+        inner.fill()
+    }
+    if (passed) stopDotPassed = image else stopDotUpcoming = image
+    return image
+}
+
 /**
  * Writes a stop's predicted departure beside its pin. MapKit's own title is hidden (it renders as
  * unreadable text over the map), so the label rides as a subview instead.
  */
 @OptIn(ExperimentalForeignApi::class)
-private fun MKAnnotationView.applyStopEta(eta: StopEta?) {
+private fun MKAnnotationView.applyStopEta(eta: StopEta?, tint: UIColor) {
     viewWithTag(STOP_ETA_TAG.toLong())?.removeFromSuperview()
     if (eta == null || eta.label.isBlank()) return  // passed stops are muted, not annotated
-    val width = 46.0
-    val height = 16.0
+    val width = 36.0
+    val height = 15.0
+    // Centred under the marker rather than beside it. Hung off the right it ran off the edge of the
+    // screen for stops near it, and collided with the map's own place names.
     // Built into a local rather than configured in an `apply`: inside that block the implicit
     // receiver is the label, so `addSubview(this)` added the label to itself — which UIKit rejects
     // outright ("Can't add self as subview"), taking the app down as the first stop was drawn.
-    val label = UILabel(frame = CGRectMake(CGRectGetWidth(bounds) / 2.0 + 6.0, -2.0, width, height))
+    val label = UILabel(
+        frame = CGRectMake(
+            (CGRectGetWidth(bounds) - width) / 2.0,
+            CGRectGetHeight(bounds) + 1.0,
+            width,
+            height
+        )
+    )
     label.tag = STOP_ETA_TAG.toLong()
     label.userInteractionEnabled = false
     label.text = eta.label
     label.font = UIFont.boldSystemFontOfSize(11.0)
-    label.textColor = if (eta.upcoming) ETA_TEXT_COLOR else UIColor.grayColor
-    label.backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(0.85)
+    // Tinted to the route being tracked instead of an unrelated accent colour.
+    label.textColor = if (eta.upcoming) tint else UIColor.grayColor
+    label.backgroundColor = UIColor.whiteColor.colorWithAlphaComponent(0.92)
     label.textAlignment = NSTextAlignmentCenter
     label.layer.cornerRadius = 3.0
     label.clipsToBounds = true
+    // The label hangs below the marker's own bounds, so the view must not crop its subviews.
+    clipsToBounds = false
     addSubview(label)
 }
 
@@ -265,8 +308,10 @@ private fun Color.toUIColor(): UIColor =
 private val STOP_COLOR = UIColor(red = 0.216, green = 0.278, blue = 0.310, alpha = 1.0) // #37474F
 private val TRACKED_STOP_COLOR = UIColor(red = 0.31, green = 0.0, blue = 0.0, alpha = 1.0)
 private val PASSED_STOP_COLOR = UIColor(red = 0.62, green = 0.62, blue = 0.62, alpha = 1.0)
+private val ROUTE_LINE_CASING = UIColor.whiteColor.colorWithAlphaComponent(0.9)
 private val ROUTE_LINE_COLOR = UIColor(red = 0.082, green = 0.396, blue = 0.753, alpha = 1.0)
-private val ETA_TEXT_COLOR = UIColor(red = 0.482, green = 0.121, blue = 0.635, alpha = 1.0)
+/** Fallback when the tracked route has no colour yet — the app's own dark red, not an accent. */
+private val DEFAULT_ETA_TINT = UIColor(red = 0.31, green = 0.0, blue = 0.0, alpha = 1.0)
 
 /**
  * Owns the annotations currently on the map and reconciles them against the latest data on each
@@ -281,8 +326,12 @@ private class BusMapController {
     private val busAnnotations = HashMap<String, BusAnnotation>()
     private val stopAnnotations = HashMap<String, StopAnnotation>()
     private var overlays: List<MKPolyline> = emptyList()
+    private var casings: Set<MKPolyline> = emptySet()
     private var overlayKey: String? = null
     private var stopEtas: Map<String, StopEta> = emptyMap()
+    // Times are tinted to the route being tracked, so they read as part of that line rather than
+    // as an unrelated accent.
+    private var etaTint: UIColor = DEFAULT_ETA_TINT
     private var hasCentered = false
 
     /**
@@ -295,16 +344,23 @@ private class BusMapController {
         if (key == overlayKey) return
         overlayKey = key
         overlays.forEach { mapView.removeOverlay(it) }
-        overlays = polylines.filter { it.size >= 2 }.map { line ->
+        casings = emptySet()
+        val drawn = polylines.filter { it.size >= 2 }.map { line ->
             memScoped {
                 val coords = allocArray<CLLocationCoordinate2D>(line.size)
                 line.forEachIndexed { i, p ->
                     coords[i].latitude = p.lat
                     coords[i].longitude = p.lon
                 }
-                MKPolyline.polylineWithCoordinates(coords, line.size.toULong())
+                // Two copies of the same geometry: a wide pale one underneath so the route reads
+                // over Apple's blue water and grey roads, and the coloured line on top.
+                val casing = MKPolyline.polylineWithCoordinates(coords, line.size.toULong())
+                val top = MKPolyline.polylineWithCoordinates(coords, line.size.toULong())
+                casing to top
             }
         }
+        casings = drawn.map { it.first }.toSet()
+        overlays = drawn.flatMap { listOf(it.first, it.second) }
         overlays.forEach { mapView.addOverlay(it) }
     }
 
@@ -314,6 +370,21 @@ private class BusMapController {
             viewForAnnotation: platform.MapKit.MKAnnotationProtocol
         ): MKAnnotationView? {
             if (viewForAnnotation is MKUserLocation) return null // keep the native blue dot
+
+            // An ordinary stop is a dot, not a pin. A balloon per stop buried the line and the bus
+            // under a wall of teardrops; the dot is the same weight the other renderers give it.
+            if (viewForAnnotation is StopAnnotation && !viewForAnnotation.tracked) {
+                val dotId = "stopDot"
+                val dot = mapView.dequeueReusableAnnotationViewWithIdentifier(dotId)
+                    ?: MKAnnotationView(annotation = viewForAnnotation, reuseIdentifier = dotId)
+                dot.annotation = viewForAnnotation
+                dot.image = stopDotImage(viewForAnnotation.eta?.upcoming == false)
+                dot.canShowCallout = false
+                dot.displayPriority = MKFeatureDisplayPriorityDefaultLow
+                dot.applyStopEta(viewForAnnotation.eta, etaTint)
+                return dot
+            }
+
             val reuseId = "busStopMarker"
             val view = (mapView.dequeueReusableAnnotationViewWithIdentifier(reuseId) as? MKMarkerAnnotationView)
                 ?: MKMarkerAnnotationView(annotation = viewForAnnotation, reuseIdentifier = reuseId)
@@ -328,28 +399,25 @@ private class BusMapController {
                     view.canShowCallout = false
                     view.titleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
                     view.subtitleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
-                    view.transform = CGAffineTransformIdentity.readValue()
+                    // Scaled up: the bus is why this screen is open, and it was smaller than the
+                    // stops it travels between.
+                    view.transform = CGAffineTransformMakeScale(1.2, 1.2)
                     view.applyHeadingNose(viewForAnnotation.busLocation.bearing, viewForAnnotation.color)
-                    view.applyStopEta(null)
+                    view.applyStopEta(null, etaTint)
                 }
+                // Only the tracked stop reaches here — every other stop is drawn as a dot above.
                 is StopAnnotation -> {
                     // Bus and stop annotations share a reuse pool, so drop any nose the recycled
                     // view was carrying from its last life as a bus.
                     view.applyHeadingNose(null, STOP_COLOR)
-                    view.markerTintColor = when {
-                        viewForAnnotation.tracked -> TRACKED_STOP_COLOR
-                        viewForAnnotation.eta?.upcoming == false -> PASSED_STOP_COLOR
-                        else -> STOP_COLOR
-                    }
+                    view.markerTintColor = TRACKED_STOP_COLOR
                     view.glyphText = null
-                    view.displayPriority = MKFeatureDisplayPriorityDefaultLow
+                    view.displayPriority = MKFeatureDisplayPriorityRequired
                     view.canShowCallout = true // stop name in the callout; tap also opens departures
                     view.titleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
                     view.subtitleVisibility = MKFeatureVisibility.MKFeatureVisibilityHidden
-                    // Stops are secondary to buses and there are many of them, so keep the markers small.
-                    val scale = if (viewForAnnotation.tracked) 0.9 else 0.6
-                    view.transform = CGAffineTransformMakeScale(scale, scale)
-                    view.applyStopEta(viewForAnnotation.eta)
+                    view.transform = CGAffineTransformIdentity.readValue()
+                    view.applyStopEta(viewForAnnotation.eta, etaTint)
                 }
             }
             return view
@@ -357,8 +425,11 @@ private class BusMapController {
 
         override fun mapView(mapView: MKMapView, rendererForOverlay: MKOverlayProtocol): MKOverlayRenderer {
             val renderer = MKPolylineRenderer(overlay = rendererForOverlay)
-            renderer.strokeColor = ROUTE_LINE_COLOR
-            renderer.lineWidth = 4.0
+            val isCasing = casings.any { it === rendererForOverlay }
+            renderer.strokeColor = if (isCasing) ROUTE_LINE_CASING else ROUTE_LINE_COLOR
+            renderer.lineWidth = if (isCasing) 9.0 else 5.0
+            renderer.lineCap = CGLineCap.kCGLineCapRound
+            renderer.lineJoin = CGLineJoin.kCGLineJoinRound
             return renderer
         }
 
@@ -389,6 +460,13 @@ private class BusMapController {
     ) {
         syncPolylines(mapView, polylines)
         this.stopEtas = stopEtas
+        this.etaTint = positions.firstOrNull()?.timetable_id
+            ?.let { busColors[it] }
+            // Only dark route colours are readable as text on the pale label; 401's yellow all but
+            // disappeared on it, so light routes fall back to the app's own dark red.
+            ?.takeIf { it.luminance() < 0.5f }
+            ?.toUIColor()
+            ?: DEFAULT_ETA_TINT
         // Distinct headsigns per route → a stable direction index; direction 1 is glyphed "»".
         val routeHeadsigns = positions.groupBy { it.timetable_id ?: "" }
             .mapValues { (_, buses) -> buses.mapNotNull { it.headsign }.distinct().sorted() }
@@ -443,7 +521,30 @@ private class BusMapController {
             }
         }
 
-        // --- Camera: follow a tracked bus; otherwise centre once ---
+        // --- Camera: frame the wait; otherwise centre once ---
+        // When both the bus and the stop are known, show the span between them. Centring on the
+        // bus in a fixed 2km window meant the thing being waited for was often off screen, and
+        // half the map was whatever happened to be nearby — usually Galway Bay.
+        val trackedBus = trackedTripId?.let { id -> positions.find { it.trip_duid == id } }
+        val waitingAt = trackedStopRef?.let { ref -> stops.find { it.stop_ref == ref } }
+        if (trackedBus != null && waitingAt != null) {
+            val midLat = (trackedBus.latitude + waitingAt.latitude) / 2.0
+            val midLon = (trackedBus.longitude + waitingAt.longitude) / 2.0
+            // Padded so neither marker sits under the app bar or the arrival card, with a floor so
+            // a bus about to pull in doesn't zoom to street level.
+            val latSpan = maxOf(abs(trackedBus.latitude - waitingAt.latitude) * 2.2, 0.012)
+            val lonSpan = maxOf(abs(trackedBus.longitude - waitingAt.longitude) * 2.2, 0.012)
+            mapView.setRegion(
+                MKCoordinateRegionMake(
+                    CLLocationCoordinate2DMake(midLat, midLon),
+                    MKCoordinateSpanMake(latSpan, lonSpan)
+                ),
+                animated = true
+            )
+            hasCentered = true
+            return
+        }
+
         val target: Triple<Double, Double, Double>? = when {
             trackedTripId != null ->
                 positions.find { it.trip_duid == trackedTripId }
