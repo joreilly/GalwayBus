@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 import kotlin.time.Instant
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
@@ -281,6 +282,19 @@ private fun SelectedBusCard(
 }
 
 /**
+ * How far behind [now] a predicted time must be before it reads as stale rather than merely
+ * awaited. Plain latency — a poll cycle up to 60s old plus network and render time — can put a
+ * genuinely-still-ahead prediction a little behind "now" by the time it's on screen, especially on
+ * closely spaced stops where predicted times are themselves only tens of seconds apart: without
+ * this slack, that latency alone flips a stop the bus GPS still calls ahead into looking passed.
+ */
+private val STALE_PREDICTION_GRACE = 90.seconds
+
+/** Whether [isoTimestamp] is far enough behind [now] to treat as stale — see [STALE_PREDICTION_GRACE]. */
+private fun isStaleTimestamp(isoTimestamp: String, now: Instant): Boolean =
+    runCatching { Instant.parse(isoTimestamp) < now - STALE_PREDICTION_GRACE }.getOrDefault(false)
+
+/**
  * Predicted departure per stop for the trip being tracked, for labelling the line on the map.
  *
  * The bus only reports the stops still ahead of it, so a stop on the trip with no entry is one it
@@ -293,17 +307,19 @@ private fun SelectedBusCard(
  * it the instant the bus is due, so it doesn't blink out right as the bus arrives. On closely spaced
  * stops and a bus running meaningfully ahead of schedule, several of those grace windows can overlap
  * at once; showing each one's real (by-then past) clock time reads as stale rather than imminent, so
- * those are muted the same as a fully passed stop instead.
+ * those are muted the same as a fully passed stop instead — but only once [STALE_PREDICTION_GRACE]
+ * has genuinely elapsed, not the instant the clock ticks past it.
  *
- * Only the next few stops are labelled, plus the one being tracked wherever it falls. Labelling
- * every stop turned the map into a wall of times that collided with each other and with the map's
- * own place names, and the far end of a trip is not what someone watching a bus is reading.
+ * Every stop still ahead of the tracked bus is labelled — [trackedBus] being non-null already
+ * means someone tapped or is following this specific bus, so unlike a route browsed with no bus
+ * picked out, the far end of its trip is exactly what they're watching for. [labelledAhead] stays
+ * around for callers that do want a cap.
  */
 internal fun stopEtasFor(
     trackedBus: BusLocation?,
     stops: List<Stop>,
     trackedStopRef: String? = null,
-    labelledAhead: Int = 3,
+    labelledAhead: Int = Int.MAX_VALUE,
     /** Injectable so "already due" can be asserted without depending on the host's clock. */
     now: Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds()),
     /** Injectable so the rendered clock string can be asserted without depending on the host's zone. */
@@ -317,7 +333,7 @@ internal fun stopEtasFor(
     val predicted = ahead.mapNotNull { p -> p.departure_timestamp?.let { p.stop_ref to it } }.toMap()
     return stops.mapNotNull { stop ->
         val timestamp = predicted[stop.stop_ref]?.takeIf { stop.stop_ref in labelled }
-        val alreadyDue = timestamp?.let { runCatching { Instant.parse(it) < now }.getOrDefault(false) } ?: false
+        val alreadyDue = timestamp?.let { isStaleTimestamp(it, now) } ?: false
         val label = timestamp?.takeIf { !alreadyDue }?.let { clockLabel(it, zone) }
         when {
             label != null -> stop.stop_ref to StopEta(label, upcoming = true)
@@ -346,7 +362,7 @@ internal fun upcomingStopsFor(
         .mapNotNull { prediction ->
             val stop = namesByRef[prediction.stop_ref] ?: return@mapNotNull null
             val instant = prediction.departure_timestamp?.let { ts -> runCatching { Instant.parse(ts) }.getOrNull() }
-            if (instant != null && instant < now) return@mapNotNull null
+            if (instant != null && instant < now - STALE_PREDICTION_GRACE) return@mapNotNull null
             val minutes = instant?.let { (it - now).inWholeMinutes.toInt() }
             stop to minutes
         }

@@ -112,21 +112,34 @@ class StopEtaTest {
     // so the marker doesn't blink out the instant the bus is due. On closely spaced stops and a bus
     // running meaningfully ahead of schedule, several of those grace windows can overlap: without
     // this, all of them would keep showing their (by-then past) clock time as if still imminent.
+    //
+    // Muting only kicks in once STALE_PREDICTION_GRACE (90s) has genuinely elapsed — a poll cycle
+    // up to 60s old plus network and render time can otherwise put a prediction the bus GPS still
+    // calls ahead a little behind "now" by the time it's on screen, especially on closely spaced
+    // stops (live case, route 401: six stops 30-90s apart, all still GPS-ahead of the bus, muted
+    // by a zero-grace check purely because of ordinary fetch latency).
 
     @Test
-    fun `a predicted time already behind now is muted like a passed stop`() {
-        val etas = stopEtasFor(busAt("C" to inMinutes(-2)), stops, now = now, zone = zone)
+    fun `a prediction only briefly behind now, within ordinary latency, is not muted`() {
+        val etas = stopEtasFor(busAt("C" to inMinutes(-1)), stops, now = now, zone = zone)
+        assertEquals("16:59", etas.getValue("C").label, "60s behind is plain latency, not a passed stop")
+        assertTrue(etas.getValue("C").upcoming)
+    }
+
+    @Test
+    fun `a predicted time genuinely behind now is muted like a passed stop`() {
+        val etas = stopEtasFor(busAt("C" to inMinutes(-3)), stops, now = now, zone = zone)
         val eta = etas["C"]
         assertTrue(eta != null, "Still in the ahead-list, so still worth a marker")
-        assertTrue(!eta.upcoming, "But its moment has passed, so it should read as passed")
+        assertTrue(!eta.upcoming, "3 minutes exceeds the grace window, so it should read as passed")
         assertEquals("", eta.label, "A stale clock time is worse than none")
     }
 
     @Test
-    fun `several closely spaced stops overdue at once are all muted, not all shown stale`() {
+    fun `several closely spaced stops genuinely overdue at once are all muted, not all shown stale`() {
         // The reported case: a bus running ahead of schedule through a tight cluster of stops can
         // have several of them overdue in the same poll.
-        val bus = busAt("A" to inMinutes(-3), "B" to inMinutes(-1), "C" to inMinutes(2))
+        val bus = busAt("A" to inMinutes(-4), "B" to inMinutes(-3), "C" to inMinutes(2))
         val etas = stopEtasFor(bus, stops, now = now, zone = zone)
         assertEquals("", etas.getValue("A").label)
         assertEquals("", etas.getValue("B").label)

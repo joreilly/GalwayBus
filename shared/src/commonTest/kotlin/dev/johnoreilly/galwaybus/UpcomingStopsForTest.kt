@@ -44,15 +44,22 @@ class UpcomingStopsForTest {
     }
 
     @Test
-    fun `a prediction already behind now is dropped, not shown as due`() {
+    fun `a prediction only briefly behind now, within ordinary latency, is not dropped`() {
+        // 60s behind is plain fetch/poll/render latency, not evidence the bus has passed the stop.
         val result = upcomingStopsFor(busAt("A" to inMinutes(-1), "B" to inMinutes(5)), stops, now)
-        assertEquals(listOf("B"), result.map { it.first.stop_ref }, "A's moment has passed, so it should not appear at all")
+        assertEquals(listOf("A", "B"), result.map { it.first.stop_ref })
+    }
+
+    @Test
+    fun `a prediction genuinely behind now is dropped, not shown as due`() {
+        val result = upcomingStopsFor(busAt("A" to inMinutes(-3), "B" to inMinutes(5)), stops, now)
+        assertEquals(listOf("B"), result.map { it.first.stop_ref }, "A's moment is well past, so it should not appear at all")
     }
 
     @Test
     fun `several closely spaced overdue stops are all dropped, not all shown as due`() {
         // The reported case: a bus running ahead of schedule through a tight cluster of stops.
-        val bus = busAt("A" to inMinutes(-3), "B" to inMinutes(-1), "C" to inMinutes(0), "D" to inMinutes(2))
+        val bus = busAt("A" to inMinutes(-4), "B" to inMinutes(-3), "C" to inMinutes(0), "D" to inMinutes(2))
         val result = upcomingStopsFor(bus, stops, now)
         assertEquals(listOf("C", "D"), result.map { it.first.stop_ref })
     }
