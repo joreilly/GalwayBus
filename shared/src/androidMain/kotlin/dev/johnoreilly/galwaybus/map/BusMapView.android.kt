@@ -163,8 +163,16 @@ actual fun BusMapView(
         ),
         uiSettings = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = false)
     ) {
+        // A bus that stops being tracked (card dismissed, direction switched, trip dropped out of
+        // the feed) needs the camera pulled back out to the route again — left alone, it stays
+        // parked at street-level zoom wherever that bus last was. Tracked entirely within this one
+        // effect (rather than a separate LaunchedEffect toggling `hasCentered`) so there's no
+        // cross-effect ordering to get wrong.
+        var lastTrackedTripId by remember { mutableStateOf(trackedTripId) }
         MapEffect(stops, trackedTripId, trackedStopRef, userLocation) { map ->
-            if (!hasCentered && trackedTripId == null && trackedStopRef == null &&
+            val justStoppedTracking = lastTrackedTripId != null && trackedTripId == null
+            lastTrackedTripId = trackedTripId
+            if ((!hasCentered || justStoppedTracking) && trackedTripId == null && trackedStopRef == null &&
                 userLocation == null && stops.isNotEmpty()
             ) {
                 val bounds = LatLngBounds.Builder().apply {

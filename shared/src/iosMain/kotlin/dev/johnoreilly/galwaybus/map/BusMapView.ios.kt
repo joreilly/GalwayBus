@@ -333,6 +333,7 @@ private class BusMapController {
     // as an unrelated accent.
     private var etaTint: UIColor = DEFAULT_ETA_TINT
     private var hasCentered = false
+    private var lastTrackedTripId: String? = null
 
     /**
      * Replaces the drawn geometry when it changes. Keyed on the lines themselves so panning and
@@ -561,6 +562,12 @@ private class BusMapController {
             return
         }
 
+        // A bus that stops being tracked (card dismissed, direction switched, trip dropped out of
+        // the feed) needs the camera pulled back out to the route again — left alone, it stays
+        // parked at the tight 2km window it was following the bus at.
+        val justStoppedTracking = lastTrackedTripId != null && trackedTripId == null
+        lastTrackedTripId = trackedTripId
+
         // Resolved up front so a tracked trip with no bus in the feed yet falls through to the
         // stop below, instead of matching here and yielding no target at all.
         val followBus = trackedTripId?.let { id -> positions.find { it.trip_duid == id } }
@@ -571,16 +578,37 @@ private class BusMapController {
             trackedStopRef != null && !hasCentered ->
                 stops.find { it.stop_ref == trackedStopRef }
                     ?.let { Triple(it.latitude, it.longitude, 2000.0) }
-            positions.isNotEmpty() && !hasCentered ->
-                Triple(positions.map { it.latitude }.average(), positions.map { it.longitude }.average(), 6000.0)
             else -> null
         }
-        target?.let { (lat, lon, meters) ->
+        if (target != null) {
+            val (lat, lon, meters) = target
             hasCentered = true
             mapView.setRegion(
                 MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2DMake(lat, lon), meters, meters),
                 animated = true
             )
+        } else if ((!hasCentered || justStoppedTracking) && trackedStopRef == null && userLocation == null) {
+            // No specific target: fit the whole route's stops into view, falling back to the
+            // buses themselves when stops haven't loaded yet, rather than a fixed-radius average.
+            val lats = stops.map { it.latitude }.ifEmpty { positions.map { it.latitude } }
+            val lons = stops.map { it.longitude }.ifEmpty { positions.map { it.longitude } }
+            if (lats.isNotEmpty() && lons.isNotEmpty()) {
+                hasCentered = true
+                val minLat = lats.min(); val maxLat = lats.max()
+                val minLon = lons.min(); val maxLon = lons.max()
+                // Padded 40% beyond the bare extent so edge stops aren't flush against the screen
+                // border, with a floor so a route with all its stops clustered together (or just
+                // one) doesn't zoom in to street level.
+                val latSpan = maxOf((maxLat - minLat) * 1.4, 0.01)
+                val lonSpan = maxOf((maxLon - minLon) * 1.4, 0.01)
+                mapView.setRegion(
+                    MKCoordinateRegionMake(
+                        CLLocationCoordinate2DMake((minLat + maxLat) / 2.0, (minLon + maxLon) / 2.0),
+                        MKCoordinateSpanMake(latSpan, lonSpan)
+                    ),
+                    animated = true
+                )
+            }
         }
     }
 }

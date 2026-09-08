@@ -284,6 +284,37 @@ internal fun OsmBusMapView(
             val widthPx = with(density) { maxWidth.toPx() }
             val heightPx = with(density) { maxHeight.toPx() }
 
+            // A bus that stops being tracked (card dismissed, direction switched, trip dropped out
+            // of the feed) needs the camera pulled back out to the route again — left alone, it
+            // stays parked at the tight zoom it was following the bus at. Only fires here, inside
+            // BoxWithConstraints, because fitting the stops' bounding box to the viewport needs the
+            // actual pixel size, which isn't available in the outer effect above.
+            var lastTrackedTripId by remember { mutableStateOf(trackedTripId) }
+            LaunchedEffect(trackedTripId, stops, widthPx, heightPx) {
+                val justStoppedTracking = lastTrackedTripId != null && trackedTripId == null
+                lastTrackedTripId = trackedTripId
+                if (justStoppedTracking && stops.isNotEmpty() && widthPx > 0f && heightPx > 0f) {
+                    val lats = stops.map { it.latitude }
+                    val lons = stops.map { it.longitude }
+                    val minLat = lats.min(); val maxLat = lats.max()
+                    val minLon = lons.min(); val maxLon = lons.max()
+                    centerLat = (minLat + maxLat) / 2.0
+                    centerLon = (minLon + maxLon) / 2.0
+                    // The largest zoom at which the stops' bounding box, padded a little so edge
+                    // stops aren't flush against the screen border, still fits the viewport.
+                    var fitZoom = MIN_ZOOM
+                    for (z in MAX_ZOOM downTo MIN_ZOOM) {
+                        val spanXf = lonToTileXf(maxLon, z) - lonToTileXf(minLon, z)
+                        val spanYf = latToTileYf(minLat, z) - latToTileYf(maxLat, z)
+                        if (spanXf * TILE_PX <= widthPx * 0.8 && spanYf * TILE_PX <= heightPx * 0.8) {
+                            fitZoom = z
+                            break
+                        }
+                    }
+                    zoom = fitZoom
+                }
+            }
+
             // Zoom to newZoom keeping the geo point under `pivot` fixed on screen
             val zoomAt: (Offset, Int) -> Unit = { pivot, requestedZoom ->
                 val newZoom = requestedZoom.coerceIn(MIN_ZOOM, MAX_ZOOM)
