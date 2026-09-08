@@ -380,7 +380,16 @@ private class BusMapController {
                 dot.annotation = viewForAnnotation
                 dot.image = stopDotImage(viewForAnnotation.eta?.upcoming == false)
                 dot.canShowCallout = false
-                dot.displayPriority = MKFeatureDisplayPriorityDefaultLow
+                // Low priority lets MapKit declutter plain dots when stops sit close together —
+                // fine, there's nothing on them to lose. A dot carrying a time label needs to
+                // survive that same decluttering, or the label disappears with it: which stop
+                // that hit varied sync to sync, since it's MapKit's own collision choice, not
+                // ours — the times a stop like this dropped, its neighbours often didn't.
+                dot.displayPriority = if (viewForAnnotation.eta?.label?.isNotBlank() == true) {
+                    MKFeatureDisplayPriorityRequired
+                } else {
+                    MKFeatureDisplayPriorityDefaultLow
+                }
                 dot.applyStopEta(viewForAnnotation.eta, etaTint)
                 return dot
             }
