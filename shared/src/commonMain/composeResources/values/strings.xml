@@ -20,7 +20,9 @@
     <string name="cd_back">Back</string>
     <string name="cd_back_to_routes">Back to routes</string>
     <string name="cd_clear_search">Clear search</string>
+    <string name="cd_collapse">Collapse</string>
     <string name="cd_exit_search">Exit search</string>
+    <string name="cd_expand">Expand</string>
     <string name="cd_more_options">More options</string>
     <string name="cd_refresh_departures">Refresh departures</string>
     <string name="cd_refresh_nearby">Refresh nearby stops</string>

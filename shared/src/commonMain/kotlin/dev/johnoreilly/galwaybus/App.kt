@@ -212,6 +212,10 @@ private fun SelectedBusCard(
     val upcoming = remember(bus, stops, nowMs) {
         upcomingStopsFor(bus, stops, Instant.fromEpochMilliseconds(nowMs))
     }
+    // Collapsed by default so the card doesn't eat most of the map: just the next stop, with the
+    // rest a tap away. Keyed on the trip so tracking a different bus starts collapsed again.
+    var expanded by remember(bus.trip_duid) { mutableStateOf(false) }
+    val visibleStops = if (expanded) upcoming else upcoming.take(1)
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -239,6 +243,16 @@ private fun SelectedBusCard(
                         )
                     }
                 }
+                if (upcoming.size > 1) {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(
+                            if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                            contentDescription = stringResource(
+                                if (expanded) Res.string.cd_collapse else Res.string.cd_expand
+                            )
+                        )
+                    }
+                }
                 IconButton(onClick = onDismiss) {
                     Icon(Icons.Filled.Close, contentDescription = stringResource(Res.string.cd_back))
                 }
@@ -251,7 +265,7 @@ private fun SelectedBusCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
-                upcoming.forEachIndexed { index, (stop, minutes) ->
+                visibleStops.forEachIndexed { index, (stop, minutes) ->
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(top = 3.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -1928,14 +1942,7 @@ private fun DetailPane(
             onDepartureClick = { onDepartureClick(it, viewModel.selectedStopRef ?: "") },
             modifier = modifier
         )
-        ViewMode.MAP -> Column(modifier) {
-            DirectionSwitcher(
-                directionCount = routeStops.size,
-                selectedDirection = viewModel.selectedDirection,
-                directionHeadsigns = directionHeadsigns,
-                onSelectDirection = { viewModel.selectDirection(it) }
-            )
-            Box(Modifier.weight(1f)) {
+        ViewMode.MAP -> Box(modifier) {
             key(selectedRouteNum) {
                 val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
                 val selectedBus = viewModel.selectedRouteBus
@@ -1974,13 +1981,20 @@ private fun DetailPane(
                     modifier = Modifier.fillMaxSize()
                 )
             }
-            // Stacked rather than each aligned to its own corner: on a phone a TopStart chip and
-            // a TopCenter card overlap once the card is wide enough.
+            // Floated on top of the map rather than each in its own corner or a reserved bar
+            // above it, so the map itself keeps as much of the screen as possible.
             Column(
                 modifier = Modifier.align(Alignment.TopCenter).padding(12.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                DirectionSwitcher(
+                    directionCount = routeStops.size,
+                    selectedDirection = viewModel.selectedDirection,
+                    directionHeadsigns = directionHeadsigns,
+                    onSelectDirection = { viewModel.selectDirection(it) },
+                    floating = true
+                )
                 if (feedStale) NotLiveChip()
                 viewModel.selectedRouteBus?.let { bus ->
                     SelectedBusCard(
@@ -1995,7 +2009,6 @@ private fun DetailPane(
                 onClick = { viewModel.refreshPositions() },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             ) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions)) }
-            }
         }
     }
 }
@@ -2011,7 +2024,10 @@ private fun DirectionSwitcher(
     selectedDirection: Int,
     directionHeadsigns: List<String>,
     onSelectDirection: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    // The map view floats this over the map itself rather than reserving a full-width row above
+    // it, so it needs to size to its content and carry its own surface instead of a bottom divider.
+    floating: Boolean = false
 ) {
     if (directionCount <= 1) return
     val labels = if (directionHeadsigns.size >= directionCount) {
@@ -2019,8 +2035,8 @@ private fun DirectionSwitcher(
     } else {
         (0 until directionCount).map { stringResource(Res.string.direction_numbered, it + 1) }
     }
-    Column(modifier) {
-        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+    val segmentedRow = @Composable { rowModifier: Modifier ->
+        SingleChoiceSegmentedButtonRow(rowModifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             labels.forEachIndexed { index, label ->
                 SegmentedButton(
                     selected = selectedDirection == index,
@@ -2031,7 +2047,20 @@ private fun DirectionSwitcher(
                 }
             }
         }
-        HorizontalDivider()
+    }
+    if (floating) {
+        Card(
+            modifier = modifier,
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+            ),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+        ) { segmentedRow(Modifier) }
+    } else {
+        Column(modifier) {
+            segmentedRow(Modifier.fillMaxWidth())
+            HorizontalDivider()
+        }
     }
 }
 
