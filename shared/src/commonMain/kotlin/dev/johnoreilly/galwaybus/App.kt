@@ -2005,11 +2005,42 @@ private fun DetailPane(
                     )
                 }
             }
-            SmallFloatingActionButton(
-                onClick = { viewModel.refreshPositions() },
-                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
-            ) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions)) }
+            Column(
+                modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                viewModel.lastUpdatedEpochMs?.let { updatedMs ->
+                    LastUpdatedChip(updatedMs, nowMs, feedStale)
+                }
+                SmallFloatingActionButton(onClick = { viewModel.refreshPositions() }) {
+                    Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions))
+                }
+            }
         }
+    }
+}
+
+/** How long ago the map's bus positions were last fetched, floated by the refresh button. */
+@Composable
+private fun LastUpdatedChip(updatedMs: Long, nowMs: Long, stale: Boolean, modifier: Modifier = Modifier) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    ) {
+        Text(
+            text = if (stale) {
+                stringResource(Res.string.last_updated_retrying, timeAgoLabel(updatedMs, nowMs))
+            } else {
+                stringResource(Res.string.updated, timeAgoLabel(updatedMs, nowMs))
+            },
+            style = MaterialTheme.typography.labelSmall,
+            color = if (stale) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+        )
     }
 }
 
