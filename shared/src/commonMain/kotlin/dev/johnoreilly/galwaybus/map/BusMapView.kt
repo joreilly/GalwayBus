@@ -115,6 +115,12 @@ internal fun OsmBusMapView(
     polylines: List<List<MapPoint>> = emptyList(),
     stopEtas: Map<String, StopEta> = emptyMap()
 ) {
+    // A stop worth showing regardless of zoom: the one being waited at, or one carrying a real
+    // ETA. Tracking a bus can put its target stop well outside the low-zoom-declutter radius
+    // that plain stops respect, and a labelled stop with no dot to hang the label on is invisible.
+    fun stopWorthShowingAtAnyZoom(stopRef: String) =
+        stopRef == trackedStopRef || stopEtas[stopRef]?.label?.isNotBlank() == true
+
     val tileClient = remember { HttpClient() }
     val tileImages = remember { mutableStateMapOf<TileId, ImageBitmap>() }
     val scope = rememberCoroutineScope()
@@ -384,7 +390,7 @@ internal fun OsmBusMapView(
                                 if (onStopClick == null) return@tap
                                 // Nearest stop marker within touch range (generous slop for fingers)
                                 val hit = stops
-                                    .filter { zoom >= STOP_MARKER_MIN_ZOOM || it.stop_ref == trackedStopRef }
+                                    .filter { zoom >= STOP_MARKER_MIN_ZOOM || stopWorthShowingAtAnyZoom(it.stop_ref) }
                                     .map { stop ->
                                         val sx = ((lonToTileXf(stop.longitude, zoom) - originXf) * TILE_PX).toFloat()
                                         val sy = ((latToTileYf(stop.latitude, zoom) - originYf) * TILE_PX).toFloat()
@@ -446,7 +452,7 @@ internal fun OsmBusMapView(
                                         var stopFound: Stop? = null
                                         for (stop in stops) {
                                             val isTracked = stop.stop_ref == trackedStopRef
-                                            if (zoom >= STOP_MARKER_MIN_ZOOM || isTracked) {
+                                            if (zoom >= STOP_MARKER_MIN_ZOOM || stopWorthShowingAtAnyZoom(stop.stop_ref)) {
                                                 val sx = ((lonToTileXf(stop.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
                                                 val sy = ((latToTileYf(stop.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                                                 val dx = position.x - sx
@@ -495,7 +501,7 @@ internal fun OsmBusMapView(
 
                 stops.forEach { stop ->
                     val isTracked = stop.stop_ref == trackedStopRef
-                    if (zoom >= STOP_MARKER_MIN_ZOOM || isTracked) {
+                    if (zoom >= STOP_MARKER_MIN_ZOOM || stopWorthShowingAtAnyZoom(stop.stop_ref)) {
                         val sx = ((lonToTileXf(stop.longitude, zoom) - originTileXf) * TILE_PX).toFloat()
                         val sy = ((latToTileYf(stop.latitude, zoom) - originTileYf) * TILE_PX).toFloat()
                         if (sx in -16f..size.width + 16f && sy in -16f..size.height + 16f) {
