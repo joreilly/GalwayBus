@@ -180,10 +180,10 @@ private enum class ViewMode(val labelRes: StringResource) {
 
 private enum class TopTab(val labelRes: StringResource, val icon: ImageVector) {
     FAVOURITES(Res.string.tab_favourites, Icons.Filled.Star),
+    ROUTES(Res.string.tab_routes, Icons.AutoMirrored.Filled.List),
     NEARBY(Res.string.tab_nearby, Icons.Filled.NearMe),
     SCAN(Res.string.tab_scan, Icons.Filled.QrCodeScanner),
-    BUSES(Res.string.tab_buses, Icons.Filled.DirectionsBus),
-    ROUTES(Res.string.tab_routes, Icons.AutoMirrored.Filled.List)
+    BUSES(Res.string.tab_buses, Icons.Filled.DirectionsBus)
 }
 
 /** Tabs shown in the bottom bar — the camera "Scan" tab only where the platform supports it. */
@@ -418,7 +418,7 @@ fun GalwayBusApp(
     val routes by viewModel.routes.collectAsStateWithLifecycle()
     val favourites by viewModel.favourites.collectAsStateWithLifecycle()
     val selectedRouteNum = viewModel.selectedRouteNum
-    var viewMode by remember { mutableStateOf(ViewMode.STOPS) }
+    var viewMode by remember { mutableStateOf(ViewMode.MAP) }
     var currentScreen by remember { mutableStateOf(Screen.MAIN) }
     var topTab by remember { mutableStateOf(TopTab.FAVOURITES) }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -588,7 +588,7 @@ fun GalwayBusApp(
                             selectedRouteNum = null,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.STOPS
+                                viewMode = ViewMode.MAP
                             },
                             modifier = Modifier.padding(padding).fillMaxSize()
                         )
@@ -610,7 +610,7 @@ fun GalwayBusApp(
                             selectedRouteNum = selectedRouteNum,
                             onRouteSelected = {
                                 viewModel.selectRoute(it.short_name)
-                                viewMode = ViewMode.STOPS
+                                viewMode = ViewMode.MAP
                             },
                             modifier = Modifier.width(200.dp).fillMaxHeight()
                         )
