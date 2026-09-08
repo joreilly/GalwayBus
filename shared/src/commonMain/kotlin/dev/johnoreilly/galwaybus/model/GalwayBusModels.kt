@@ -82,14 +82,19 @@ data class BusApiResponse(
      * to a genuinely quiet night, which looks identical in [bus] alone. Absent on older backends,
      * where it defaults to false and the app behaves as it always did.
      */
-    val stale: Boolean = false
+    val stale: Boolean = false,
+    /** How old the served fallback is, in seconds; null when [stale] is false, or when it's true
+     *  but there was nothing to fall back to at all. See [GalwayBusViewModel.isMeaningfullyStale]. */
+    val staleSeconds: Long? = null
 )
 
 @Serializable
 data class StopDeparturesResponse(
     val times: List<DepartureTime>,
     /** See [BusApiResponse.stale] — here it means the times carry no live delay. */
-    val stale: Boolean = false
+    val stale: Boolean = false,
+    /** See [BusApiResponse.staleSeconds]. */
+    val staleSeconds: Long? = null
 )
 
 // --- Backend static-data payloads ---

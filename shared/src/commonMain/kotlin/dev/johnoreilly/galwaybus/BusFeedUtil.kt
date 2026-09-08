@@ -36,3 +36,17 @@ internal fun busPositionsForDisplay(
     current.isNotEmpty() && msSinceLastNonEmpty < graceMs -> current
     else -> emptyList()
 }
+
+/**
+ * Whether the "not live" chip is worth showing: the backend polls NTA about as often as its rate
+ * limit allows, so [stale] alone flags every routine missed poll along with genuine outages —
+ * flapping the chip on and off for data that's barely older than a live response would be. Only
+ * once the served data's age crosses [thresholdSeconds] (a real, sustained outage) does it read as
+ * worth telling someone. An unknown age (no fallback existed at all to measure — a harder failure
+ * than a merely-old one) is treated as exceeding the threshold rather than as fresher than it is.
+ */
+internal fun isMeaningfullyStale(
+    stale: Boolean,
+    staleSeconds: Long?,
+    thresholdSeconds: Long = 90L
+): Boolean = stale && (staleSeconds == null || staleSeconds >= thresholdSeconds)

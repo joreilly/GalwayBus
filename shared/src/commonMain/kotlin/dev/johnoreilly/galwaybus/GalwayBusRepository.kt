@@ -94,7 +94,9 @@ class GalwayBusRepository(
      */
     data class BusPositions(
         val byRoute: Map<String, List<BusLocation>>,
-        val stale: Boolean = false
+        val stale: Boolean = false,
+        /** See [BusApiResponse.staleSeconds]. */
+        val staleSeconds: Long? = null
     ) {
         val all: List<BusLocation> get() = byRoute.values.flatten()
         fun forRoute(routeNum: String): List<BusLocation> = byRoute[routeNum] ?: emptyList()
@@ -103,7 +105,8 @@ class GalwayBusRepository(
     /** Departures for a stop, and whether their live delays are current. */
     data class StopDepartures(
         val times: List<DepartureTime>,
-        val stale: Boolean = false
+        val stale: Boolean = false,
+        val staleSeconds: Long? = null
     )
 
     /** All Galway bus positions keyed by route number. */
@@ -151,7 +154,7 @@ class GalwayBusRepository(
             if (result.size >= 5) break
         }
 
-        return StopDepartures(result.sortedBy { it.depart_timestamp }, liveResponse.stale)
+        return StopDepartures(result.sortedBy { it.depart_timestamp }, liveResponse.stale, liveResponse.staleSeconds)
     }
 
     /**
@@ -268,7 +271,8 @@ class GalwayBusRepository(
             byRoute = response.bus.mapValues { (routeId, buses) ->
                 buses.map { it.copy(timetable_id = it.timetable_id ?: routeId) }
             },
-            stale = response.stale
+            stale = response.stale,
+            staleSeconds = response.staleSeconds
         )
         println("BusFeed: network fetch force=$force routes=${result.byRoute.size} buses=${result.all.size} stale=${result.stale}")
         vehiclesCache = nowEpochMilliseconds() to result

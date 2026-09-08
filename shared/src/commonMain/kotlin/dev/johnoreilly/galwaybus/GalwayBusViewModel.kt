@@ -78,9 +78,15 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     }
 
     /**
-     * True when the backend last told us the live feed was unreachable. Both bus maps read the
-     * same /bus.json (one cached fetch behind the repository), so one flag covers both — the UI
-     * uses it to say the feed is down rather than implying no buses are running.
+     * True when the feed has been unreachable long enough to be worth telling someone. Both bus
+     * maps read the same /bus.json (one cached fetch behind the repository), so one flag covers
+     * both — the UI uses it to say the feed is down rather than implying no buses are running.
+     *
+     * The backend polls NTA about as often as its rate limit allows, so a single missed poll is
+     * routine, not an outage — flagging every one of those made the "not live" chip flap on and
+     * off during ordinary rate-limiting. [isMeaningfullyStale] only trips it once the served data
+     * is actually old enough to matter, or its age is unknown (no fallback existed at all, which
+     * is worse, not better).
      */
     private val _busFeedStale = MutableStateFlow(false)
     val busFeedStale: StateFlow<Boolean> = _busFeedStale.asStateFlow()
@@ -280,9 +286,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                     graceMs = busPositionsGraceMs,
                     feedStale = feed.stale
                 )
-                _busFeedStale.value = feed.stale
+                _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
                 println(
                     "BusFeed: allBuses fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
+                        "staleSeconds=${feed.staleSeconds} " +
                         "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
                 )
                 _allBusPositions.value = displayed
@@ -507,7 +514,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 val feed = repository.getBusPositions(routeNum)
                 val fetched = feed.forRoute(routeNum)
                 _busPositions.value = fetched
-                _busFeedStale.value = feed.stale
+                _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
                 if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = nowEpochMilliseconds()
                 lastUpdatedEpochMs = nowEpochMilliseconds()
             } catch (e: Exception) {
@@ -614,9 +621,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 graceMs = busPositionsGraceMs,
                 feedStale = feed.stale
             )
-            _busFeedStale.value = feed.stale
+            _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
             println(
                 "BusFeed: route=$routeNum force=$force fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
+                    "staleSeconds=${feed.staleSeconds} " +
                     "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
             )
             _busPositions.value = displayed

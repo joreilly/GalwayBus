@@ -206,19 +206,10 @@ private fun SelectedBusCard(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val namesByRef = remember(stops) { stops.associateBy { it.stop_ref } }
-    val upcoming = remember(bus, stops, nowMs / 60_000) {
-        bus.next_stops.orEmpty()
-            .mapNotNull { prediction ->
-                val stop = namesByRef[prediction.stop_ref] ?: return@mapNotNull null
-                val minutes = prediction.departure_timestamp?.let { ts ->
-                    runCatching {
-                        ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 60_000).toInt()
-                    }.getOrNull()
-                }
-                stop to minutes
-            }
-            .take(4)
+    // Keyed on nowMs itself (it ticks every 5s app-wide), not a minute bucket: an already-gone
+    // prediction needs to drop promptly, not wait for the next minute boundary to roll around.
+    val upcoming = remember(bus, stops, nowMs) {
+        upcomingStopsFor(bus, stops, Instant.fromEpochMilliseconds(nowMs))
     }
 
     Card(
@@ -297,6 +288,13 @@ private fun SelectedBusCard(
  * for and we have no prediction for them anyway. With no bus in the feed there is nothing to say,
  * and every stop is left plain.
  *
+ * A stop can also still be in that ahead-list yet have a predicted time already behind [now] — the
+ * feed keeps a stop around for a short grace period after its predicted moment rather than dropping
+ * it the instant the bus is due, so it doesn't blink out right as the bus arrives. On closely spaced
+ * stops and a bus running meaningfully ahead of schedule, several of those grace windows can overlap
+ * at once; showing each one's real (by-then past) clock time reads as stale rather than imminent, so
+ * those are muted the same as a fully passed stop instead.
+ *
  * Only the next few stops are labelled, plus the one being tracked wherever it falls. Labelling
  * every stop turned the map into a wall of times that collided with each other and with the map's
  * own place names, and the far end of a trip is not what someone watching a bus is reading.
@@ -306,6 +304,8 @@ internal fun stopEtasFor(
     stops: List<Stop>,
     trackedStopRef: String? = null,
     labelledAhead: Int = 3,
+    /** Injectable so "already due" can be asserted without depending on the host's clock. */
+    now: Instant = Instant.fromEpochMilliseconds(nowEpochMilliseconds()),
     /** Injectable so the rendered clock string can be asserted without depending on the host's zone. */
     zone: TimeZone = TimeZone.currentSystemDefault()
 ): Map<String, StopEta> {
@@ -316,15 +316,41 @@ internal fun stopEtasFor(
         setOfNotNull(trackedStopRef?.takeIf { it in aheadRefs })
     val predicted = ahead.mapNotNull { p -> p.departure_timestamp?.let { p.stop_ref to it } }.toMap()
     return stops.mapNotNull { stop ->
-        val label = predicted[stop.stop_ref]
-            ?.takeIf { stop.stop_ref in labelled }
-            ?.let { clockLabel(it, zone) }
+        val timestamp = predicted[stop.stop_ref]?.takeIf { stop.stop_ref in labelled }
+        val alreadyDue = timestamp?.let { runCatching { Instant.parse(it) < now }.getOrDefault(false) } ?: false
+        val label = timestamp?.takeIf { !alreadyDue }?.let { clockLabel(it, zone) }
         when {
             label != null -> stop.stop_ref to StopEta(label, upcoming = true)
-            trackedBus != null && stop.stop_ref !in aheadRefs -> stop.stop_ref to StopEta("", upcoming = false)
+            trackedBus != null && (stop.stop_ref !in aheadRefs || alreadyDue) -> stop.stop_ref to StopEta("", upcoming = false)
             else -> null
         }
     }.toMap()
+}
+
+/**
+ * The next stops a tracked bus is still due at, nearest first — for the floating card on the
+ * routes map. A Compose-independent counterpart to [stopEtasFor]'s per-stop clock labels, using
+ * the same "already behind [now]" rule so the two agree on which stops are still worth showing:
+ * a prediction whose moment has passed is dropped rather than shown as "Due" alongside stops
+ * genuinely still ahead — otherwise a bus running ahead of schedule through closely spaced stops
+ * can read as arriving everywhere at once.
+ */
+internal fun upcomingStopsFor(
+    bus: BusLocation,
+    stops: List<Stop>,
+    now: Instant,
+    limit: Int = 4
+): List<Pair<Stop, Int?>> {
+    val namesByRef = stops.associateBy { it.stop_ref }
+    return bus.next_stops.orEmpty()
+        .mapNotNull { prediction ->
+            val stop = namesByRef[prediction.stop_ref] ?: return@mapNotNull null
+            val instant = prediction.departure_timestamp?.let { ts -> runCatching { Instant.parse(ts) }.getOrNull() }
+            if (instant != null && instant < now) return@mapNotNull null
+            val minutes = instant?.let { (it - now).inWholeMinutes.toInt() }
+            stop to minutes
+        }
+        .take(limit)
 }
 
 /**
@@ -1886,7 +1912,14 @@ private fun DetailPane(
             onDepartureClick = { onDepartureClick(it, viewModel.selectedStopRef ?: "") },
             modifier = modifier
         )
-        ViewMode.MAP -> Box(modifier) {
+        ViewMode.MAP -> Column(modifier) {
+            DirectionSwitcher(
+                directionCount = routeStops.size,
+                selectedDirection = viewModel.selectedDirection,
+                directionHeadsigns = directionHeadsigns,
+                onSelectDirection = { viewModel.selectDirection(it) }
+            )
+            Box(Modifier.weight(1f)) {
             key(selectedRouteNum) {
                 val routeShapes by viewModel.routeShapes.collectAsStateWithLifecycle()
                 val selectedBus = viewModel.selectedRouteBus
@@ -1902,13 +1935,19 @@ private fun DetailPane(
                         ?.let { listOf(it) }
                         .orEmpty()
                 }
-                val stopsOnMap = routeStops.flatten().distinctBy { it.stop_ref }
-                val busEtas = remember(selectedBus, stopsOnMap) {
-                    stopEtasFor(selectedBus, stopsOnMap)
+                val stopsOnMap = routeStops.getOrElse(viewModel.selectedDirection) { emptyList() }
+                    .distinctBy { it.stop_ref }
+                val busEtas = remember(selectedBus, stopsOnMap, nowMs) {
+                    stopEtasFor(selectedBus, stopsOnMap, now = Instant.fromEpochMilliseconds(nowMs))
                 }
+                // Buses filtered to match: falls back to the unfiltered list while headsigns are
+                // still loading, so the map isn't briefly empty on first open.
+                val positionsForDirection = directionHeadsigns.getOrNull(viewModel.selectedDirection)
+                    ?.let { headsign -> busPositions.filter { it.headsign == headsign } }
+                    ?: busPositions
 
                 BusMapView(
-                    positions = busPositions,
+                    positions = positionsForDirection,
                     stops = stopsOnMap,
                     trackedTripId = selectedBus?.trip_duid ?: viewModel.trackedTripId,
                     trackedStopRef = viewModel.trackedStopRef,
@@ -1940,7 +1979,43 @@ private fun DetailPane(
                 onClick = { viewModel.refreshPositions() },
                 modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)
             ) { Icon(Icons.Filled.Refresh, contentDescription = stringResource(Res.string.cd_refresh_positions)) }
+            }
         }
+    }
+}
+
+/**
+ * Direction toggle shared by the stops list and the map: destination headsigns where the backend
+ * has sent enough of them, else a numbered fallback ("Direction 1"/"Direction 2"). Renders nothing
+ * for a single-direction route.
+ */
+@Composable
+private fun DirectionSwitcher(
+    directionCount: Int,
+    selectedDirection: Int,
+    directionHeadsigns: List<String>,
+    onSelectDirection: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (directionCount <= 1) return
+    val labels = if (directionHeadsigns.size >= directionCount) {
+        directionHeadsigns.take(directionCount)
+    } else {
+        (0 until directionCount).map { stringResource(Res.string.direction_numbered, it + 1) }
+    }
+    Column(modifier) {
+        SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)) {
+            labels.forEachIndexed { index, label ->
+                SegmentedButton(
+                    selected = selectedDirection == index,
+                    onClick = { onSelectDirection(index) },
+                    shape = SegmentedButtonDefaults.itemShape(index, labels.size)
+                ) {
+                    Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+        HorizontalDivider()
     }
 }
 
@@ -2178,27 +2253,7 @@ private fun RouteStopsPanel(
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
-        if (directionCount > 1) {
-            val labels = if (directionHeadsigns.size >= directionCount) {
-                directionHeadsigns.take(directionCount)
-            } else {
-                (0 until directionCount).map { stringResource(Res.string.direction_numbered, it + 1) }
-            }
-            SingleChoiceSegmentedButtonRow(
-                Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp)
-            ) {
-                labels.forEachIndexed { index, label ->
-                    SegmentedButton(
-                        selected = selectedDirection == index,
-                        onClick = { onSelectDirection(index) },
-                        shape = SegmentedButtonDefaults.itemShape(index, labels.size)
-                    ) {
-                        Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    }
-                }
-            }
-            HorizontalDivider()
-        }
+        DirectionSwitcher(directionCount, selectedDirection, directionHeadsigns, onSelectDirection)
         LazyColumn(Modifier.fillMaxSize()) {
             item {
                 Text(
