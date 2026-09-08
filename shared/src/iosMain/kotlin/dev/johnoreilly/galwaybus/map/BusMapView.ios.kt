@@ -502,9 +502,16 @@ private class BusMapController {
 
         // --- Stops: keyed by ref + tracked state + ETA (re-add to restyle or relabel) ---
         val stopKeys = stops.associate { it.stop_ref to (it.stop_ref == trackedStopRef) }
+        // Copied into plain pairs, not left as Map.Entry views: those stay backed by
+        // stopAnnotations, so removing the first one below invalidates the rest and the second
+        // destructuring throws ConcurrentModificationException (Kotlin/Native's HashMap.Entry
+        // re-checks the map's modCount on every access, unlike java.util.HashMap on Android).
+        // Tapping a bus is the one gesture that flags several stops at once — stopEtasFor relabels
+        // every stop the bus is heading to in one pass — so it's the only path that ever removes
+        // more than one entry per sync() and was the only reliable way to hit this.
         stopAnnotations.entries
             .filter { (ref, ann) -> stopKeys[ref] != ann.tracked || stopEtas[ref] != ann.eta }
-            .toList()
+            .map { it.key to it.value }
             .forEach { (ref, ann) ->
                 stopAnnotations.remove(ref)
                 mapView.removeAnnotation(ann)
