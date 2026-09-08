@@ -542,12 +542,20 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     fun selectDirection(index: Int) {
         val count = _routeStops.value.size
-        if (index in 0 until count) selectedDirection = index
+        if (index in 0 until count && index != selectedDirection) {
+            selectedDirection = index
+            // The tapped bus and its shape belong to the direction just left; the map's about to
+            // show a different set of stops and buses entirely.
+            clearRouteBusSelection()
+        }
     }
 
     fun toggleDirection() {
         val count = _routeStops.value.size
-        if (count > 1) selectedDirection = (selectedDirection + 1) % count
+        if (count > 1) {
+            selectedDirection = (selectedDirection + 1) % count
+            clearRouteBusSelection()
+        }
     }
 
     fun selectStop(stopRef: String) {
