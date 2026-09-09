@@ -7,6 +7,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlin.time.Instant
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -31,7 +32,11 @@ class GalwayBusRepository(
     // Static data (routes, stops, route detail) changes about weekly and is small, so it is fetched
     // once per launch and kept. It used to come from a GTFS snapshot bundled in the app; that copy
     // had no refresh path and drifted months out of date, so the backend is the source now.
+    // Separate locks rather than one: each is held across its own network call, so a single mutex
+    // meant a slow /shapes fetch blocked the stop list behind it (and vice versa).
     private val staticMutex = Mutex()
+    private val routeDetailsMutex = Mutex()
+    private val shapeMutex = Mutex()
     private var routesCache: Map<String, Route>? = null
     private var stopsCache: List<Stop>? = null
     private val routeDetailsCache = mutableMapOf<String, ApiRouteDetails>()
@@ -40,12 +45,6 @@ class GalwayBusRepository(
     // RT caches: epochMs timestamp paired with data
     private val vehiclesMutex = Mutex()
     private var vehiclesCache: Pair<Long, BusPositions>? = null
-
-    data class StopUpdate(
-        val arrivalDelay: Int? = null,
-        val departureDelay: Int? = null,
-        val departureTimestamp: Long? = null
-    )
 
     // ── Public API ────────────────────────────────────────────────────────────
 
@@ -90,7 +89,7 @@ class GalwayBusRepository(
      *
      * [stale] is the backend saying it could not reach NTA, so these are its last known positions
      * (or none at all). Without it an outage and an empty timetable are the same empty map, which
-     * is why the app used to guess with a timer — see [busPositionsForDisplay].
+     * is why the app used to guess with a two-minute timer before the backend reported this.
      */
     data class BusPositions(
         val byRoute: Map<String, List<BusLocation>>,
@@ -122,6 +121,8 @@ class GalwayBusRepository(
 
         val liveResponse = try {
             httpClient.get("$backendUrl/stops/$stopId").body<StopDeparturesResponse>()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             // A failed request is as un-live as a stale one; say so rather than passing off an
             // empty list as a stop with no departures due.
@@ -136,6 +137,8 @@ class GalwayBusRepository(
         // them directly rather than re-deriving lateness by matching predicted times to the schedule.
         // That derivation collapsed to ~0 for a bus running roughly one headway late (its predicted
         // time lands on the next scheduled slot), which hid the "(late)" state in the list.
+        // Lexicographic on the ISO string is chronological here: the backend formats every
+        // timestamp as a whole-second UTC Instant, so the fields line up column for column.
         val liveTimes = liveResponse.times
             .filter { it.depart_timestamp != null }
             .sortedBy { it.depart_timestamp }
@@ -147,14 +150,14 @@ class GalwayBusRepository(
             // next-stop prediction for this stop). No headsign guessing — see matchVehicle.
             val busesOnRoute = livePositions[live.timetable_id] ?: emptyList()
             val vehicle = matchVehicle(busesOnRoute, live.tripId, stopId, usedVehicleIds)
-            val vehicleId = vehicle?.vehicle_id ?: live.vehicleId
+            val vehicleId = vehicle?.vehicle_id
             if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
 
             result.add(live.copy(vehicleId = vehicleId))
             if (result.size >= 5) break
         }
 
-        return StopDepartures(result.sortedBy { it.depart_timestamp }, liveResponse.stale, liveResponse.staleSeconds)
+        return StopDepartures(result, liveResponse.stale, liveResponse.staleSeconds)
     }
 
     /**
@@ -225,6 +228,8 @@ class GalwayBusRepository(
         repeat(attempts) { attempt ->
             try {
                 return block()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 last = e
                 if (attempt < attempts - 1) delay(400L * (attempt + 1))
@@ -237,20 +242,24 @@ class GalwayBusRepository(
      * A single shape's geometry. Shapes are shared by many trips and identical across snapshots,
      * so one fetch per id serves every trip that drives it.
      */
-    suspend fun getShape(shapeId: String): List<List<Double>> = staticMutex.withLock {
+    suspend fun getShape(shapeId: String): List<List<Double>> = shapeMutex.withLock {
         shapeCache[shapeId]?.let { return it }
         val points = try {
             retrying { httpClient.get("$backendUrl/shapes/$shapeId").body<List<List<Double>>>() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             emptyList()
         }
         points.also { if (it.isNotEmpty()) shapeCache[shapeId] = it }
     }
 
-    private suspend fun routeDetails(routeNum: String): ApiRouteDetails = staticMutex.withLock {
+    private suspend fun routeDetails(routeNum: String): ApiRouteDetails = routeDetailsMutex.withLock {
         routeDetailsCache[routeNum]?.let { return it }
         val details = try {
             retrying { httpClient.get("$backendUrl/routes/$routeNum").body<ApiRouteDetails>() }
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             return ApiRouteDetails()
         }
@@ -261,10 +270,7 @@ class GalwayBusRepository(
 
     private suspend fun fetchVehicles(force: Boolean = false): BusPositions = vehiclesMutex.withLock {
         if (!force) vehiclesCache?.let { (t, data) ->
-            if (nowEpochMilliseconds() - t < cacheTtlMs) {
-                println("BusFeed: cache hit age=${nowEpochMilliseconds() - t}ms routes=${data.byRoute.size} buses=${data.all.size} stale=${data.stale}")
-                return@withLock data
-            }
+            if (nowEpochMilliseconds() - t < cacheTtlMs) return@withLock data
         }
         val response = httpClient.get("$backendUrl/bus.json").body<BusApiResponse>()
         val result = BusPositions(
@@ -274,7 +280,6 @@ class GalwayBusRepository(
             stale = response.stale,
             staleSeconds = response.staleSeconds
         )
-        println("BusFeed: network fetch force=$force routes=${result.byRoute.size} buses=${result.all.size} stale=${result.stale}")
         vehiclesCache = nowEpochMilliseconds() to result
         result
     }

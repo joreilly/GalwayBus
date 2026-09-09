@@ -104,6 +104,7 @@
     </plurals>
 
     <!-- Updated / time-ago -->
+    <string name="updating">Á nuashonrú…</string>
     <string name="updated">Nuashonraithe %1$s</string>
     <string name="last_updated_retrying">Nuashonraithe %1$s — ag atriail</string>
     <string name="time_just_now">anois beag</string>

@@ -238,7 +238,7 @@ class SharedLogicDesktopTest {
             append((0 until 10).joinToString(",") { i ->
                 val at = kotlin.time.Clock.System.now() +
                     ((i + 1) * 5).toDuration(kotlin.time.DurationUnit.MINUTES)
-                """{"display_name":"Parkmore","timetable_id":"401","low_floor":false,"depart_timestamp":"$at","delaySeconds":0,"tripId":"trip_$i"}"""
+                """{"display_name":"Parkmore","timetable_id":"401","depart_timestamp":"$at","delaySeconds":0,"tripId":"trip_$i"}"""
             })
             append("]}")
         }

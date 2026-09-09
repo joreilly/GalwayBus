@@ -1,5 +1,6 @@
 package dev.johnoreilly.galwaybus
 
+import dev.johnoreilly.galwaybus.location.distanceMeters
 import dev.johnoreilly.galwaybus.model.BusLocation
 import dev.johnoreilly.galwaybus.model.Stop
 
@@ -15,10 +16,11 @@ import dev.johnoreilly.galwaybus.model.Stop
 internal fun resolveBusIndex(stops: List<Stop>, bus: BusLocation?): Int {
     if (bus == null || stops.isEmpty()) return -1
 
+    // Real metres, not squared degrees: at Galway's latitude a degree of longitude is only about
+    // 0.6 of a degree of latitude on the ground, so comparing raw degrees over-weights east-west
+    // separation by ~1.7x — enough to pick the wrong anchor stop, which reverses the whole timeline.
     val nearestIndex = stops.indices.minByOrNull { i ->
-        val dLat = stops[i].latitude - bus.latitude
-        val dLon = stops[i].longitude - bus.longitude
-        dLat * dLat + dLon * dLon
+        distanceMeters(bus.latitude, bus.longitude, stops[i].latitude, stops[i].longitude)
     } ?: -1
 
     val rtIndex = bus.next_stop_ref

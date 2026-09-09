@@ -38,7 +38,6 @@ data class FavouriteStop(
 data class DepartureTime(
     val display_name: String,
     val timetable_id: String,
-    val low_floor: Boolean,
     val depart_timestamp: String? = null,
     val delaySeconds: Int? = null,
     val tripId: String? = null,

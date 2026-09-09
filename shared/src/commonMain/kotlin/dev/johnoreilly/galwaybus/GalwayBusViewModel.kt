@@ -18,12 +18,17 @@ import dev.johnoreilly.galwaybus.model.FavouriteStop
 import dev.johnoreilly.galwaybus.model.Route
 import dev.johnoreilly.galwaybus.model.Stop
 import dev.johnoreilly.galwaybus.scan.StopMatcher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -42,14 +47,6 @@ sealed interface NearbyState {
 class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewModel() {
 
     private val autoRefreshIntervalMs = 30_000L
-
-    // Legacy safety net for an empty /bus.json the backend does not explain. The backend now
-    // reports `stale`, and holds its own last-known data behind it, so this timer only covers
-    // backends too old to send the flag — see [busPositionsForDisplay]. It can go once every
-    // deployment is new enough.
-    private val busPositionsGraceMs = 120_000L
-    private var lastNonEmptyBusesMs = 0L
-    private var lastNonEmptyRouteBusesMs = 0L
 
     private val _routes = MutableStateFlow<List<Route>>(emptyList())
     val routes: StateFlow<List<Route>> = _routes.asStateFlow()
@@ -233,7 +230,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 // Fix for existing favourites that might have missing stopId (showing as 0 or empty)
                 val current = _favourites.value
                 if (current.isNotEmpty() && (current.any { it.stopId == "0" || it.stopId.isEmpty() })) {
-                    val allStops = repository.getStops()
+                    val allStops = _allStops.value
                     val updated = current.map { fav ->
                         if (fav.stopId == "0" || fav.stopId.isEmpty()) {
                             val stop = allStops.find { it.stop_ref == fav.stopRef }
@@ -248,6 +245,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
                 _routes.value = repository.getRoutes().values
                     .sortedBy { it.short_name.toIntOrNull() ?: Int.MAX_VALUE }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // Nothing is cached on failure, so any later call (opening Near me, picking a
                 // route) retries rather than leaving the app permanently empty.
@@ -275,33 +274,16 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         launchSafely {
             try {
                 val feed = repository.getBusPositions()
-                val fetched = feed.all
-                val now = nowEpochMilliseconds()
-                val previous = _allBusPositions.value
-                val msSinceLastNonEmpty = now - lastNonEmptyBusesMs
-                val displayed = busPositionsForDisplay(
-                    fetched = fetched,
-                    current = previous,
-                    msSinceLastNonEmpty = msSinceLastNonEmpty,
-                    graceMs = busPositionsGraceMs,
-                    feedStale = feed.stale
-                )
+                _allBusPositions.value = feed.all
                 _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
-                println(
-                    "BusFeed: allBuses fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
-                        "staleSeconds=${feed.staleSeconds} " +
-                        "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
-                )
-                _allBusPositions.value = displayed
-                if (fetched.isNotEmpty()) {
-                    lastNonEmptyBusesMs = now
-                    allBusesUpdatedMs = now
-                }
+                if (feed.all.isNotEmpty()) allBusesUpdatedMs = nowEpochMilliseconds()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 // Network/parse failure: keep whatever we last showed rather than blanking, but
                 // stop presenting it as live — from here the map is as unreachable as a dead feed.
                 _busFeedStale.value = true
-                println("BusFeed: allBuses fetch FAILED ${e::class.simpleName}: ${e.message}")
+                logDebug("allBuses fetch failed: ${e::class.simpleName}: ${e.message}")
             } finally {
                 hasLoadedAllBuses = true
             }
@@ -325,9 +307,12 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             try {
                 val departures = repository.getStopDeparturesWithLive(stop.stop_ref).times
                 if (mapStop?.stop_ref == stop.stop_ref) _mapStopDepartures.value = departures
+            } catch (e: CancellationException) {
+                throw e
             } catch (_: Exception) {
+            } finally {
+                isLoadingMapStop = false
             }
-            isLoadingMapStop = false
         }
     }
 
@@ -348,6 +333,8 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             // so this is also the retry. A failure here must not escape the coroutine.
             val stops = try {
                 _allStops.value.ifEmpty { repository.getStops().also { _allStops.value = it } }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 errorMessage = e.message ?: e::class.simpleName
                 nearbyState = NearbyState.Unavailable
@@ -408,26 +395,36 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         }
 
         if (showLoading) isLoadingFavourites = true
-        
-        // Update each stop independently to show data as it arrives
-        for (fav in favs) {
-            try {
-                val departures = repository.getStopDeparturesWithLive(fav.stopRef).times
-                val current = _favouriteDepartures.value.toMutableMap()
-                current[fav.stopRef] = departures
-                _favouriteDepartures.value = current
-            } catch (_: Exception) {
-                // If it fails, we keep the previous data if any, or set empty if none
-                if (!_favouriteDepartures.value.containsKey(fav.stopRef)) {
-                    val current = _favouriteDepartures.value.toMutableMap()
-                    current[fav.stopRef] = emptyList()
-                    _favouriteDepartures.value = current
-                }
+        try {
+            // One request per stop, in flight together rather than one after another: a rider with
+            // five favourites was paying five sequential round trips every refresh. Each still
+            // publishes as it lands, so the cards fill in individually.
+            val anySucceeded = coroutineScope {
+                favs.map { fav ->
+                    async {
+                        try {
+                            val departures = repository.getStopDeparturesWithLive(fav.stopRef).times
+                            _favouriteDepartures.update { it + (fav.stopRef to departures) }
+                            true
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (_: Exception) {
+                            // Keep whatever this stop last showed; only fill in a blank if it has
+                            // never had anything.
+                            _favouriteDepartures.update { current ->
+                                if (fav.stopRef in current) current else current + (fav.stopRef to emptyList())
+                            }
+                            false
+                        }
+                    }
+                }.awaitAll().any { it }
             }
+            // Only claim freshness if something actually came back. Stamping this unconditionally
+            // made the "Updated just now" footer read as current over a screen of stale data.
+            if (anySucceeded) favouritesUpdatedMs = nowEpochMilliseconds()
+        } finally {
+            if (showLoading) isLoadingFavourites = false
         }
-        
-        favouritesUpdatedMs = nowEpochMilliseconds()
-        if (showLoading) isLoadingFavourites = false
     }
 
     private fun startFavouritesPolling() {
@@ -447,13 +444,19 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
      */
     fun loadTrackedShape(shapeId: String?) {
         if (shapeId == null || shapeId == loadedTrackedShapeId) return
-        loadedTrackedShapeId = shapeId
-        launchSafely {
-            _trackedShape.value = repository.getShape(shapeId).toMapPoints()
+        trackedShapeJob?.cancel()
+        trackedShapeJob = launchSafely {
+            val points = repository.getShape(shapeId).toMapPoints()
+            // Recorded only once it has actually arrived: marking it up front meant a shape that
+            // failed to load (backend waking up, say) was never asked for again.
+            if (points.isNotEmpty()) loadedTrackedShapeId = shapeId
+            _trackedShape.value = points
         }
     }
 
     private var loadedTrackedShapeId: String? = null
+    private var trackedShapeJob: Job? = null
+    private var selectedBusShapeJob: Job? = null
 
     /**
      * Picks a bus on the route map. Tapping the same one again clears it, so the map goes back to
@@ -466,11 +469,15 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         }
         selectedRouteBus = bus
         _selectedBusShape.value = emptyList()
+        // Cancelled on every new pick, so a slow fetch for a bus the user has already moved on
+        // from cannot land afterwards and redraw the map with the wrong trip's line.
+        selectedBusShapeJob?.cancel()
         val shapeId = bus.shape_id ?: return
-        launchSafely { _selectedBusShape.value = repository.getShape(shapeId).toMapPoints() }
+        selectedBusShapeJob = launchSafely { _selectedBusShape.value = repository.getShape(shapeId).toMapPoints() }
     }
 
     fun clearRouteBusSelection() {
+        selectedBusShapeJob?.cancel()
         selectedRouteBus = null
         _selectedBusShape.value = emptyList()
     }
@@ -485,6 +492,7 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
     fun clearTrackedDeparture() {
         trackedTripId = null
         trackedStopRef = null
+        trackedShapeJob?.cancel()
         loadedTrackedShapeId = null
         _trackedShape.value = emptyList()
         trackedDeparture = null
@@ -497,6 +505,10 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
 
     private fun selectRouteInternal(routeNum: String) {
         clearRouteBusSelection()
+        // The previous route's stop poller has nothing left to write to — its guard stops it
+        // updating state but not hitting the network, so leaving it running leaked one 30-second
+        // poll per route the user visited.
+        stopDeparturesJob?.cancel()
         repository.saveLastViewedRoute(routeNum)
         selectedRouteNum = routeNum
         selectedDirection = 0
@@ -504,7 +516,6 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         selectedStopRef = null
         _stopDepartures.value = emptyList()
         _busPositions.value = emptyList()
-        lastNonEmptyRouteBusesMs = 0L
         launchSafely {
             isLoadingPositions = true
             try {
@@ -515,13 +526,15 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
                 val fetched = feed.forRoute(routeNum)
                 _busPositions.value = fetched
                 _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
-                if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = nowEpochMilliseconds()
                 lastUpdatedEpochMs = nowEpochMilliseconds()
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 errorMessage = e.message ?: e::class.simpleName
                 _busPositions.value = emptyList()
+            } finally {
+                isLoadingPositions = false
             }
-            isLoadingPositions = false
         }
         startAutoRefresh(routeNum)
     }
@@ -535,7 +548,6 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         selectedStopRef = null
         _stopDepartures.value = emptyList()
         _busPositions.value = emptyList()
-        lastNonEmptyRouteBusesMs = 0L
         errorMessage = null
         lastUpdatedEpochMs = null
     }
@@ -579,12 +591,13 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
             val departures = repository.getStopDeparturesWithLive(stopRef).times
             // Only apply if this stop is still the selected one
             if (selectedStopRef == stopRef) _stopDepartures.value = departures
+        } catch (e: CancellationException) {
+            throw e
         } catch (_: Exception) {
-            if (selectedStopRef == stopRef && _stopDepartures.value.isEmpty()) {
-                _stopDepartures.value = emptyList()
-            }
+            // Leave whatever is on screen; a failed poll is not evidence of no departures.
+        } finally {
+            if (showLoading) isLoadingDepartures = false
         }
-        if (showLoading) isLoadingDepartures = false
     }
 
     private fun startStopDeparturesPolling(stopRef: String) {
@@ -619,44 +632,33 @@ class GalwayBusViewModel(private val repository: GalwayBusRepository) : ViewMode
         try {
             val feed = repository.getBusPositions(routeNum, forceRefresh = force)
             val fetched = feed.forRoute(routeNum)
-            val now = nowEpochMilliseconds()
-            val previous = _busPositions.value
-            val msSinceLastNonEmpty = now - lastNonEmptyRouteBusesMs
-            val displayed = busPositionsForDisplay(
-                fetched = fetched,
-                current = previous,
-                msSinceLastNonEmpty = msSinceLastNonEmpty,
-                graceMs = busPositionsGraceMs,
-                feedStale = feed.stale
-            )
             _busFeedStale.value = isMeaningfullyStale(feed.stale, feed.staleSeconds)
-            println(
-                "BusFeed: route=$routeNum force=$force fetched=${fetched.size} previous=${previous.size} stale=${feed.stale} " +
-                    "staleSeconds=${feed.staleSeconds} " +
-                    "msSinceLastNonEmpty=$msSinceLastNonEmpty graceMs=$busPositionsGraceMs -> displayed=${displayed.size}"
-            )
-            _busPositions.value = displayed
+            _busPositions.value = fetched
             // Keep the picked-out bus pointing at its latest position, so its times tick along
             // with the feed rather than freezing at whatever they were when it was tapped.
             selectedRouteBus?.let { selected ->
-                displayed.firstOrNull { it.trip_duid == selected.trip_duid }?.let { selectedRouteBus = it }
+                fetched.firstOrNull { it.trip_duid == selected.trip_duid }?.let { selectedRouteBus = it }
             }
-            if (fetched.isNotEmpty()) lastNonEmptyRouteBusesMs = now
-            lastUpdatedEpochMs = now
+            lastUpdatedEpochMs = nowEpochMilliseconds()
             errorMessage = null
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             // Keep showing the stale list; only surface the error if there's nothing on screen
             _busFeedStale.value = true
-            println("BusFeed: route=$routeNum fetch FAILED ${e::class.simpleName}: ${e.message}")
+            logDebug("route=$routeNum fetch failed: ${e::class.simpleName}: ${e.message}")
             if (_busPositions.value.isEmpty()) {
                 errorMessage = e.message ?: e::class.simpleName
             }
+        } finally {
+            isRefreshing = false
         }
-        isRefreshing = false
     }
 
     private companion object {
         const val NEARBY_STOP_LIMIT = 20
+        /** Diagnostics for the bus feed. Prefixed so it can be grepped out of a device log. */
+        fun logDebug(message: String) = println("GalwayBus/BusFeed: $message")
         val GALWAY_CENTRE = UserLocation(53.2743, -9.0488)
     }
 }

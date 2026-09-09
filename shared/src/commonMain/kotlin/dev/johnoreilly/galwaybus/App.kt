@@ -428,7 +428,13 @@ fun DepartureTime.departureLabel(nowMs: Long): String {
 }
 
 /** The stop's name in the current UI language — Irish (from the GTFS Translations feed) where
- *  available and the app is in Irish, otherwise the default name. */
+ *  available and the app is in Irish, otherwise the default name.
+ *
+ *  Deliberately not delegated to [localizedName], which looks like the same rule but reads a
+ *  different source: `currentLanguageTag()` is the platform locale, and on wasmJs it is hard-coded
+ *  to "en". Compose's [Locale.current] follows the browser there, so folding the two together
+ *  would quietly drop Irish stop names on the web app. [localizedName] exists for callers that
+ *  have no composition to read from (iOS map annotations). */
 @Composable
 internal fun Stop.displayName(): String =
     if (Locale.current.language == "ga") (long_name_ga ?: long_name) else long_name
@@ -1053,10 +1059,10 @@ private fun BusTrackingView(
     val trackedStopRef = viewModel.trackedStopRef
     val trackedDeparture = viewModel.trackedDeparture
 
-    // Show only the bus for the departure the user tapped, plus the targeted stop.
-    // The departure's tripId isn't always the matched vehicle's trip_duid (the repo may
-    // match a vehicle by headsign), so prefer matching on the reliable vehicleId.
-    // If we can't match at all, the map shows just the stop with no bus marker.
+    // Show only the bus for the departure the user tapped, plus the targeted stop. The repository
+    // attaches a vehicle only on a trustworthy link (see matchVehicle — it will not guess by
+    // headsign), so where it found one that vehicle id is the surer match; the trip id is the
+    // fallback. If neither matches, the map shows just the stop with no bus marker.
     val trackedVehicleId = trackedDeparture?.vehicleId
     val displayPositions = busPositions.filter {
         (trackedVehicleId != null && it.vehicle_id == trackedVehicleId) || it.trip_duid == trackedTripId
@@ -1133,9 +1139,12 @@ private fun BusTrackingView(
         val directionShape = routeShapes.getOrNull(directionIndex).orEmpty()
         val tripLine = trackedShape.ifEmpty { directionShape }
 
-        // Re-derived as the clock ticks so the minutes stay honest.
-        val stopEtas = remember(trackedBus, timelineStops, trackedStopRef) {
-            stopEtasFor(trackedBus, timelineStops, trackedStopRef)
+        // Keyed on nowMs (which ticks every 5s app-wide) as well as the bus, so a prediction whose
+        // moment has passed is muted promptly rather than holding its clock label until the next
+        // 30-second poll happens to replace the bus object. stopEtasFor reads the clock itself by
+        // default, which remember cannot see move — hence passing `now` explicitly.
+        val stopEtas = remember(trackedBus, timelineStops, trackedStopRef, nowMs) {
+            stopEtasFor(trackedBus, timelineStops, trackedStopRef, now = Instant.fromEpochMilliseconds(nowMs))
         }
 
         val mapArea: @Composable (Modifier) -> Unit = { m ->
@@ -1165,6 +1174,7 @@ private fun BusTrackingView(
                 stops = timelineStops,
                 targetStopRef = trackedStopRef,
                 trackedBus = displayPositions.firstOrNull(),
+                stopEtas = stopEtas,
                 modifier = m
             )
         }
@@ -1203,19 +1213,15 @@ private fun RouteTimeline(
     stops: List<Stop>,
     targetStopRef: String?,
     trackedBus: BusLocation?,
+    /** Per-stop labels from [stopEtasFor] — the same map the map markers beside this list use, so
+     *  the two cannot disagree about a stop the way they once did ("2′" here, "22:27" there). */
+    stopEtas: Map<String, StopEta>,
     modifier: Modifier = Modifier
 ) {
     // Where the bus is along the route, for the passed/next markers. Prefers the real-time
     // next_stop_ref but ignores it when it contradicts the vehicle's GPS position (see
     // resolveBusIndex).
     val busIndex = remember(stops, trackedBus) { resolveBusIndex(stops, trackedBus) }
-    // Predicted departure time per stop (ISO timestamp) from the live next_stops payload.
-    val etaByStopRef = remember(trackedBus) {
-        trackedBus?.next_stops
-            ?.mapNotNull { p -> (p.departure_timestamp ?: p.arrival_timestamp)?.let { p.stop_ref to it } }
-            ?.toMap()
-            ?: emptyMap()
-    }
     val targetIndex = remember(stops, targetStopRef) {
         stops.indexOfFirst { it.stop_ref == targetStopRef }
     }
@@ -1250,9 +1256,9 @@ private fun RouteTimeline(
         val isCurrent = busIndex >= 0 && index == busIndex
         val isTarget = stop.stop_ref == targetStopRef
 
-        // Predicted arrival for this stop ("Due" / "3 min" / "1h 9min"), if the live
-        // next_stops payload covers it. Shown in the left gutter for stops still ahead.
-        val etaText = etaByStopRef[stop.stop_ref]?.let { clockLabel(it) }
+        // Predicted departure clock time, where the shared ETA map has one for this stop. It is
+        // already blank for stops the bus has passed or whose moment has gone by.
+        val etaText = stopEtas[stop.stop_ref]?.takeIf { it.upcoming }?.label
 
         JetLimeExtendedEvent(
             style = JetLimeEventDefaults.eventStyle(
@@ -1736,7 +1742,7 @@ private fun FavouriteStopCard(
                     }
                     Text(
                         when {
-                            isRefreshing -> "Updating…"
+                            isRefreshing -> stringResource(Res.string.updating)
                             stale -> stringResource(Res.string.last_updated_retrying, timeAgoLabel(updatedMs, nowMs))
                             else -> stringResource(Res.string.updated, timeAgoLabel(updatedMs, nowMs))
                         },
@@ -1963,11 +1969,20 @@ private fun DetailPane(
                 val busEtas = remember(selectedBus, stopsOnMap, nowMs) {
                     stopEtasFor(selectedBus, stopsOnMap, now = Instant.fromEpochMilliseconds(nowMs))
                 }
-                // Buses filtered to match: falls back to the unfiltered list while headsigns are
-                // still loading, so the map isn't briefly empty on first open.
-                val positionsForDirection = directionHeadsigns.getOrNull(viewModel.selectedDirection)
-                    ?.let { headsign -> busPositions.filter { it.headsign == headsign } }
-                    ?: busPositions
+                // Placed by the stops each bus is still heading for rather than by headsign
+                // string — see busesForDirection. Unresolvable buses are shown, so the map is
+                // never emptier than the road.
+                val stopRefsByDirection = remember(routeStops) {
+                    routeStops.map { dir -> dir.mapTo(mutableSetOf()) { it.stop_ref } }
+                }
+                val positionsForDirection = remember(busPositions, stopRefsByDirection, directionHeadsigns, viewModel.selectedDirection) {
+                    busesForDirection(
+                        buses = busPositions,
+                        stopRefsByDirection = stopRefsByDirection,
+                        headsignsByDirection = directionHeadsigns,
+                        direction = viewModel.selectedDirection
+                    )
+                }
 
                 BusMapView(
                     positions = positionsForDirection,

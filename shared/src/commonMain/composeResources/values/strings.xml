@@ -97,6 +97,7 @@
     </plurals>
 
     <!-- Updated / time-ago -->
+    <string name="updating">Updating…</string>
     <string name="updated">Updated %1$s</string>
     <string name="last_updated_retrying">Last updated %1$s — retrying</string>
     <string name="time_just_now">just now</string>
