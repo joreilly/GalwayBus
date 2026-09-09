@@ -2082,12 +2082,25 @@ private fun DirectionSwitcher(
         (0 until directionCount).map { stringResource(Res.string.direction_numbered, it + 1) }
     }
     val segmentedRow = @Composable { rowModifier: Modifier ->
+        // Headsigns are long enough to ellipsize, so the content fills the button and the
+        // selected tick lands hard against the default 12.dp leading padding — right up against
+        // the pill's rounded edge. A wider leading inset gives it room; the trailing side keeps
+        // the default so the label still runs the full width it has left.
+        val contentPadding = SegmentedButtonDefaults.ContentPadding.let { defaults ->
+            PaddingValues(
+                start = 20.dp,
+                top = defaults.calculateTopPadding(),
+                end = 12.dp,
+                bottom = defaults.calculateBottomPadding()
+            )
+        }
         SingleChoiceSegmentedButtonRow(rowModifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             labels.forEachIndexed { index, label ->
                 SegmentedButton(
                     selected = selectedDirection == index,
                     onClick = { onSelectDirection(index) },
-                    shape = SegmentedButtonDefaults.itemShape(index, labels.size)
+                    shape = SegmentedButtonDefaults.itemShape(index, labels.size),
+                    contentPadding = contentPadding
                 ) {
                     Text(label, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
