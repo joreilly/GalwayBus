@@ -1,5 +1,5 @@
 [versions]
-agp = "9.2.1"
+agp = "9.4.0"
 androidx-camera = "1.6.2"
 mlkit-text = "16.0.1"
 android-compileSdk = "37"
