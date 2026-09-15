@@ -33,7 +33,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 17.0.20+101
 
       # Kotlin/Native framework (:shared:embedAndSignAppleFrameworkForXcode) is compiled by the
       # Xcode build phase via Gradle; cache its dependencies and the Konan toolchain across runs.
