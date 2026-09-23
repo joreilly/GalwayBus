@@ -22,9 +22,20 @@ internal sealed interface DepartureWhen {
     data object Unknown : DepartureWhen
 }
 
+/**
+ * Whole minutes from [now] until [at], rounded to the nearest minute rather than down. Rounding
+ * down made "Due" cover the whole last minute — up to 59 seconds early — and "1 min" anything up
+ * to 1m59s. Rounded, "Due" (0 or less) is the last 30 seconds and "1 min" is 30–89 seconds.
+ */
+internal fun minutesUntil(at: Instant, now: Instant): Int {
+    val seconds = (at - now).inWholeSeconds
+    // Truncating division, so anything already past stays at 0 or below and still reads as due.
+    return ((seconds + 30) / 60).toInt()
+}
+
 internal fun departureWhen(departTimestamp: String?, now: Instant, zone: TimeZone): DepartureWhen {
     val at = departTimestamp?.let { runCatching { Instant.parse(it) }.getOrNull() } ?: return DepartureWhen.Unknown
-    val minutes = (at - now).inWholeMinutes.toInt()
+    val minutes = minutesUntil(at, now)
     return when {
         minutes <= 0 -> DepartureWhen.Due
         minutes < CLOCK_TIME_FROM_MINUTES -> DepartureWhen.Minutes(minutes)

@@ -380,7 +380,7 @@ internal fun upcomingStopsFor(
             val stop = namesByRef[prediction.stop_ref] ?: return@mapNotNull null
             val instant = prediction.departure_timestamp?.let { ts -> runCatching { Instant.parse(ts) }.getOrNull() }
             if (instant != null && instant < now - STALE_PREDICTION_GRACE) return@mapNotNull null
-            val minutes = instant?.let { (it - now).inWholeMinutes.toInt() }
+            val minutes = instant?.let { minutesUntil(it, now) }
             stop to minutes
         }
         .take(limit)

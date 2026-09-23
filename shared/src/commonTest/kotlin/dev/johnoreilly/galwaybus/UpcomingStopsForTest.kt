@@ -5,6 +5,7 @@ import dev.johnoreilly.galwaybus.model.Stop
 import dev.johnoreilly.galwaybus.model.StopPrediction
 import kotlin.time.Instant
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -41,6 +42,15 @@ class UpcomingStopsForTest {
     fun `upcoming stops keep their minutes-away count, nearest first`() {
         val result = upcomingStopsFor(busAt("A" to inMinutes(2), "B" to inMinutes(9)), stops, now)
         assertEquals(listOf("A" to 2, "B" to 9), result.map { (s, m) -> s.stop_ref to m })
+    }
+
+    @Test
+    fun `minutes away round to the nearest, so due means the last thirty seconds`() {
+        val result = upcomingStopsFor(
+            busAt("A" to (now + 20.seconds).toString(), "B" to (now + 50.seconds).toString(), "C" to (now + 150.seconds).toString()),
+            stops, now
+        )
+        assertEquals(listOf(0, 1, 3), result.map { it.second }, "20s is due, 50s is 1 min, 2m30s is 3 min")
     }
 
     @Test

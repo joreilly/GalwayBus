@@ -20,20 +20,24 @@ class DepartureDisplayTest {
         departureWhen((now + offsetSeconds.seconds).toString(), now, zone)
 
     @Test
-    fun `an imminent departure is due`() {
-        assertEquals(DepartureWhen.Due, whenIn(30))
+    fun `only the last thirty seconds are due`() {
+        assertEquals(DepartureWhen.Due, whenIn(29))
         assertEquals(DepartureWhen.Due, whenIn(-45), "Just gone but still listed reads as due, not negative")
+        assertEquals(DepartureWhen.Minutes(1), whenIn(30), "Rounded down, this was already Due at 59s out")
+        assertEquals(DepartureWhen.Minutes(1), whenIn(59))
     }
 
     @Test
-    fun `a nearby departure counts down in minutes`() {
-        assertEquals(DepartureWhen.Minutes(1), whenIn(60))
-        assertEquals(DepartureWhen.Minutes(19), whenIn(19.minutes.inWholeSeconds + 59))
+    fun `a nearby departure counts down in minutes, rounded to the nearest`() {
+        assertEquals(DepartureWhen.Minutes(1), whenIn(89))
+        assertEquals(DepartureWhen.Minutes(2), whenIn(90), "1m30s rounds up, not down to 1")
+        assertEquals(DepartureWhen.Minutes(19), whenIn(19.minutes.inWholeSeconds + 29))
     }
 
     @Test
     fun `from twenty minutes out it is a clock time`() {
         assertEquals(DepartureWhen.ClockTime("17:20"), whenIn(20.minutes.inWholeSeconds))
+        assertEquals(DepartureWhen.ClockTime("17:19"), whenIn(19.minutes.inWholeSeconds + 30), "Rounds to 20 min, so a clock time")
         assertEquals(DepartureWhen.ClockTime("18:12"), whenIn(72.minutes.inWholeSeconds))
     }
 
