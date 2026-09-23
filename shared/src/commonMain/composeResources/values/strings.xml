@@ -66,12 +66,12 @@
     <string name="due">Due</string>
     <string name="not_available">N/A</string>
     <string name="countdown_min">%1$d min</string>
-    <string name="countdown_hours_min">%1$dh %2$dmin</string>
     <string name="late_suffix"> (late)</string>
     <string name="early_suffix"> (early)</string>
     <string name="min_late">%1$d min late</string>
     <string name="min_early">%1$d min early</string>
     <string name="on_time">On time</string>
+    <string name="live_time">Live time</string>
 
     <!-- Tracking -->
     <string name="track_bus">Track Bus</string>

@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -55,6 +56,8 @@ import dev.johnoreilly.galwaybus.location.NearbyStop
 import dev.johnoreilly.galwaybus.map.BusMapView
 import dev.johnoreilly.galwaybus.map.StopEta
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalDensity
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
@@ -397,18 +400,18 @@ private fun clockLabel(isoTimestamp: String, zone: TimeZone = TimeZone.currentSy
     null
 }
 
-/** Bare countdown to the (live-adjusted) departure. Returns "Due", "3 min", "1h 5min", "N/A". */
+/**
+ * When the (live-adjusted) departure is: "Due", "3 min", or from [CLOCK_TIME_FROM_MINUTES] out a
+ * clock time such as "18:42"; "N/A" if unknown.
+ */
 @Composable
-fun DepartureTime.countdownLabel(nowMs: Long): String {
-    val scheduledMinutes = depart_timestamp?.let { ts ->
-        ((Instant.parse(ts).toEpochMilliseconds() - nowMs) / 1000 / 60).toInt()
-    } ?: return stringResource(Res.string.not_available)
-    return when {
-        scheduledMinutes <= 0 -> stringResource(Res.string.due)
-        scheduledMinutes < 60 -> stringResource(Res.string.countdown_min, scheduledMinutes)
-        else -> stringResource(Res.string.countdown_hours_min, scheduledMinutes / 60, scheduledMinutes % 60)
+fun DepartureTime.countdownLabel(nowMs: Long): String =
+    when (val at = departureWhen(depart_timestamp, Instant.fromEpochMilliseconds(nowMs), TimeZone.currentSystemDefault())) {
+        DepartureWhen.Due -> stringResource(Res.string.due)
+        is DepartureWhen.Minutes -> stringResource(Res.string.countdown_min, at.minutes)
+        is DepartureWhen.ClockTime -> at.time
+        DepartureWhen.Unknown -> stringResource(Res.string.not_available)
     }
-}
 
 /**
  * Countdown with a "(late)"/"(early)" suffix baked in, for the departures list where there's no
@@ -1799,9 +1802,33 @@ private fun RouteBadge(route: String, large: Boolean) {
 
 @Composable
 private fun departureCountdownColor(delaySeconds: Int?): Color = when {
-    delaySeconds != null && delaySeconds > 30 -> MaterialTheme.colorScheme.error
-    delaySeconds != null && delaySeconds < -30 -> onTimeGreen()
+    // Timetable only: muted, so it doesn't read with the confidence of a tracked bus.
+    delaySeconds == null -> MaterialTheme.colorScheme.onSurfaceVariant
+    delaySeconds > 30 -> MaterialTheme.colorScheme.error
+    delaySeconds < -30 -> onTimeGreen()
     else -> MaterialTheme.colorScheme.primary
+}
+
+/**
+ * A departure's time in a list, with the real-time symbol in front when it's live — so a time
+ * worked out from a tracked bus is told apart from one that's only the timetable. Scheduled times
+ * go without the symbol and in a muted colour (see [departureCountdownColor]).
+ */
+@Composable
+private fun DepartureTimeText(departure: DepartureTime, nowMs: Long, style: TextStyle) {
+    val color = departureCountdownColor(departure.delaySeconds)
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        if (departure.isLive) {
+            Icon(
+                Icons.Filled.RssFeed,
+                contentDescription = stringResource(Res.string.live_time),
+                tint = color,
+                modifier = Modifier.size(with(LocalDensity.current) { style.fontSize.toDp() * 0.8f })
+            )
+            Spacer(Modifier.width(4.dp))
+        }
+        Text(departure.departureLabel(nowMs), style = style, color = color)
+    }
 }
 
 /** Next departure as a prominent hero, then up to 3 more compact rows. */
@@ -1837,11 +1864,7 @@ private fun FavouriteDepartures(
                     )
                 }
             }
-            Text(
-                next.departureLabel(nowMs),
-                style = MaterialTheme.typography.titleLarge,
-                color = departureCountdownColor(next.delaySeconds)
-            )
+            DepartureTimeText(next, nowMs, MaterialTheme.typography.titleLarge)
             if (next.tripId != null) {
                 Spacer(Modifier.width(4.dp))
                 TrackChevron()
@@ -1869,11 +1892,7 @@ private fun FavouriteDepartures(
                         modifier = Modifier.weight(1f)
                     )
                     Spacer(Modifier.width(8.dp))
-                    Text(
-                        dep.departureLabel(nowMs),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = departureCountdownColor(dep.delaySeconds)
-                    )
+                    DepartureTimeText(dep, nowMs, MaterialTheme.typography.labelMedium)
                     if (dep.tripId != null) {
                         Spacer(Modifier.width(4.dp))
                         TrackChevron()
@@ -2498,11 +2517,7 @@ private fun StopDeparturesSection(
                             }
                         }
                         // Colour the countdown by live delay; the text itself already reads "(late)"/"(early)".
-                        Text(
-                            dep.departureLabel(nowMs),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = departureCountdownColor(dep.delaySeconds)
-                        )
+                        DepartureTimeText(dep, nowMs, MaterialTheme.typography.labelMedium)
                         if (onDepartureClick != null && dep.tripId != null) {
                             Spacer(Modifier.width(4.dp))
                             TrackChevron()
