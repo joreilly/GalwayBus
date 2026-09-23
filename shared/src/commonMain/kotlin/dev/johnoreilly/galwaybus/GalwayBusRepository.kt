@@ -115,19 +115,23 @@ class GalwayBusRepository(
     suspend fun getBusPositions(routeNum: String, forceRefresh: Boolean = false): BusPositions =
         fetchVehicles(forceRefresh)
 
-    /** Get stop departures with live delay information from the GTFS-RT feed. */
+    /**
+     * Get stop departures with live delay information from the GTFS-RT feed.
+     *
+     * Throws when the departures themselves can't be fetched, so callers keep what they already
+     * show — an empty list here would read as "nothing due" and replace it. Bus positions only
+     * decide which vehicle id to attach, so losing those degrades to no ids, not no departures.
+     */
     suspend fun getStopDeparturesWithLive(stopId: String): StopDepartures {
-        val livePositions = fetchVehicles().byRoute
-
-        val liveResponse = try {
-            httpClient.get("$backendUrl/stops/$stopId").body<StopDeparturesResponse>()
+        val livePositions = try {
+            fetchVehicles().byRoute
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            // A failed request is as un-live as a stale one; say so rather than passing off an
-            // empty list as a stop with no departures due.
-            StopDeparturesResponse(times = emptyList(), stale = true)
+            emptyMap()
         }
+
+        val liveResponse = httpClient.get("$backendUrl/stops/$stopId").body<StopDeparturesResponse>()
 
         val nowMs = nowEpochMilliseconds()
         val result = mutableListOf<DepartureTime>()
@@ -142,6 +146,7 @@ class GalwayBusRepository(
         val liveTimes = liveResponse.times
             .filter { it.depart_timestamp != null }
             .sortedBy { it.depart_timestamp }
+        val departureTrips = liveTimes.mapNotNullTo(mutableSetOf()) { it.tripId }
 
         for (live in liveTimes) {
             if (Instant.parse(live.depart_timestamp!!).toEpochMilliseconds() < nowMs - 60_000) continue
@@ -149,7 +154,7 @@ class GalwayBusRepository(
             // Attach a live vehicle only via a trustworthy link (exact trip, or the bus's own
             // next-stop prediction for this stop). No headsign guessing — see matchVehicle.
             val busesOnRoute = livePositions[live.timetable_id] ?: emptyList()
-            val vehicle = matchVehicle(busesOnRoute, live.tripId, stopId, usedVehicleIds)
+            val vehicle = matchVehicle(busesOnRoute, live.tripId, stopId, usedVehicleIds, departureTrips - setOfNotNull(live.tripId))
             val vehicleId = vehicle?.vehicle_id
             if (!vehicleId.isNullOrBlank()) usedVehicleIds.add(vehicleId)
 
@@ -164,7 +169,8 @@ class GalwayBusRepository(
      * Picks the live vehicle serving a departure, using only trustworthy links:
      *  1. exact trip match (the bus is running the departure's trip) AND the stop is still ahead of
      *     the bus, or
-     *  2. the bus's own next-stop prediction includes this stop.
+     *  2. the bus's own next-stop prediction includes this stop, and it isn't running the trip of
+     *     another departure in the same list.
      *
      * We deliberately do NOT guess by route+headsign: frequent routes (e.g. 401) run several
      * buses in the same direction at once, so a headsign match attaches an arbitrary bus to the
@@ -176,12 +182,18 @@ class GalwayBusRepository(
      * visibly well beyond the stop. When we have the bus's next_stops we require the stop to be in
      * that ahead-list; only when it's absent (no position/sequence data at all) do we fall back to
      * trusting the trip match, since we then can't tell whether it has passed.
+     *
+     * The fallback in (2) must not take a bus that [otherDepartureTrips] shows belongs to a later
+     * departure. Departures are matched in time order, so when the first one's own bus isn't in
+     * the feed, "any bus with this stop ahead" used to be the *second* departure's bus — which was
+     * then marked used, so the second departure lost its exact match too, and so on down the list.
      */
     private fun matchVehicle(
         busesOnRoute: List<BusLocation>,
         tripId: String?,
         stopId: String,
-        usedVehicleIds: Set<String>
+        usedVehicleIds: Set<String>,
+        otherDepartureTrips: Set<String>
     ): BusLocation? {
         fun available(bus: BusLocation): Boolean {
             val vid = bus.vehicle_id
@@ -198,7 +210,8 @@ class GalwayBusRepository(
                 ?.let { return it }
         }
         return busesOnRoute.firstOrNull { bus ->
-            available(bus) && bus.next_stops?.any { it.stop_ref == stopId } == true
+            available(bus) && bus.trip_duid !in otherDepartureTrips &&
+                bus.next_stops?.any { it.stop_ref == stopId } == true
         }
     }
 
