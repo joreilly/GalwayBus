@@ -70,12 +70,12 @@
     <string name="due">Ag teacht</string>
     <string name="not_available">N/A</string>
     <string name="countdown_min">%1$d nóim</string>
-    <string name="countdown_hours_min">%1$du %2$dnóim</string>
     <string name="late_suffix"> (déanach)</string>
     <string name="early_suffix"> (luath)</string>
     <string name="min_late">%1$d nóim déanach</string>
     <string name="min_early">%1$d nóim luath</string>
     <string name="on_time">In am</string>
+    <string name="live_time">Am beo</string>
 
     <!-- Tracking -->
     <string name="track_bus">Lorg Bus</string>
