@@ -1494,6 +1494,7 @@ private fun FavouritesPanel(
                         viewModel.toggleFavourite(stop)
                         onShowMessage(if (wasFavourite) removedMessage else savedMessage)
                     },
+                    onStopClick = { viewModel.selectMapStop(it) },
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 )
             }
@@ -1560,12 +1561,16 @@ private fun FavouritesPanel(
     }
 }
 
-/** Search hits across every stop in the network, each with a star to favourite it directly. */
+/**
+ * Search hits across every stop in the network. Tapping one opens its departures (the same sheet a
+ * stop on the map opens); its star favourites it directly without opening anything.
+ */
 @Composable
 private fun StopSearchResults(
     results: List<Stop>,
     favouriteRefs: Set<String>,
     onToggleFavourite: (Stop) -> Unit,
+    onStopClick: (Stop) -> Unit,
     modifier: Modifier = Modifier
 ) {
     if (results.isEmpty()) {
@@ -1581,7 +1586,10 @@ private fun StopSearchResults(
     LazyColumn(modifier) {
         items(results, key = { it.stop_ref }) { stop ->
             Row(
-                Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .clickable { onStopClick(stop) }
+                    .padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
