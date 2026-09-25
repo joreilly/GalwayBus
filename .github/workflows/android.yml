@@ -13,6 +13,6 @@ jobs:
       uses: actions/setup-java@v6
       with:
         distribution: temurin
-        java-version: 17
+        java-version: 25
     - name: Build with Gradle
       run: ./gradlew :androidApp:assembleDebug
