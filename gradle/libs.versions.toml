@@ -26,7 +26,7 @@ kotlinx-datetime = "0.8.0-0.6.x-compat"
 kotlinx-io = "0.9.1"
 kotlinx-serialization = "1.11.0"
 ktor = "3.6.0"
-maps-compose = "8.6.0"
+maps-compose = "9.0.0"
 # must stay in sync with the composeMultiplatform version above (material3 is released on its own track)
 material3 = "1.12.0-alpha03"
 mcp = "0.15.0"
