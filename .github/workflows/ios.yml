@@ -1,26 +1,60 @@
 name: iOS CI
 
-on: [push]
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+  # Weekly run keeps main's caches from being evicted (7 days unused) and catches runner/Xcode image changes
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+# Cancel superseded runs for the same PR/branch
+concurrency:
+  group: ios-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
     runs-on: macos-latest
-
+    timeout-minutes: 45
     steps:
-    - uses: actions/checkout@v7
-    - name: set up JDK 17
-      uses: actions/setup-java@v6
-      with:
-        distribution: temurin
-        java-version: 17
-    - name: Build iOS app
-      run: >
-        xcodebuild
-        -project iosApp/iosApp.xcodeproj
-        -scheme iosApp
-        -configuration Debug
-        -sdk iphonesimulator
-        -destination 'generic/platform=iOS Simulator'
-        build
-        CODE_SIGNING_ALLOWED=NO
+      - uses: actions/checkout@v7
+      - name: set up JDK 17
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: gradle/actions/setup-gradle@v6
+
+      # Restore on every run, but only save from main so PR runs don't fill the repo's cache quota
+      - name: Restore Kotlin/Native (konan) cache
+        id: konan-cache
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.konan
+          key: ${{ runner.os }}-konan-${{ hashFiles('**/libs.versions.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-konan-
+
+      - name: Build iOS app
+        run: >
+          xcodebuild
+          -project iosApp/iosApp.xcodeproj
+          -scheme iosApp
+          -configuration Debug
+          -sdk iphonesimulator
+          -destination 'generic/platform=iOS Simulator'
+          build
+          CODE_SIGNING_ALLOWED=NO
+          ARCHS=arm64
+
+      - name: Save Kotlin/Native (konan) cache
+        if: github.ref == 'refs/heads/main' && steps.konan-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.konan
+          key: ${{ steps.konan-cache.outputs.cache-primary-key }}
