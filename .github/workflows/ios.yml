@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v6
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 25
       - uses: gradle/actions/setup-gradle@v6
 
       # Restore on every run, but only save from main so PR runs don't fill the repo's cache quota
