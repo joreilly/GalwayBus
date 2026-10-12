@@ -80,6 +80,9 @@ kotlin {
         }
         jvmTest.dependencies {
             implementation("io.ktor:ktor-client-mock-jvm:${libs.versions.ktor.get()}")
+            // Skiko native runtime for the host OS (Compose Resources needs it); without it the
+            // tests only pass on macOS, where a transitive dep happens to pull in the mac runtime.
+            implementation(compose.desktop.currentOs)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
