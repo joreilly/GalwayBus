@@ -1,11 +1,22 @@
 name: Android CI
 
-on: [push]
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+# Cancel superseded runs for the same PR/branch
+concurrency:
+  group: android-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
 
     steps:
     - uses: actions/checkout@v7
@@ -14,5 +25,17 @@ jobs:
       with:
         distribution: temurin
         java-version: 17
+    - uses: gradle/actions/setup-gradle@v6
+
+    - name: Run shared tests
+      run: ./gradlew :shared:jvmTest :shared:testAndroidHostTest
+
+    - name: Upload test reports
+      if: failure()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-reports
+        path: "**/build/reports/tests/"
+
     - name: Build with Gradle
       run: ./gradlew :androidApp:assembleDebug
