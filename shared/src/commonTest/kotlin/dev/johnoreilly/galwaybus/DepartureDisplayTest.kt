@@ -28,7 +28,7 @@ class DepartureDisplayTest {
     }
 
     @Test
-    fun `a nearby departure counts down in minutes, rounded to the nearest`() {
+    fun `a nearby departure counts down in minutes - rounded to the nearest`() {
         assertEquals(DepartureWhen.Minutes(1), whenIn(89))
         assertEquals(DepartureWhen.Minutes(2), whenIn(90), "1m30s rounds up, not down to 1")
         assertEquals(DepartureWhen.Minutes(19), whenIn(19.minutes.inWholeSeconds + 29))

@@ -82,7 +82,7 @@ class StopEtaTest {
     }
 
     @Test
-    fun `stops the bus has passed are marked passed, not merely unknown`() {
+    fun `stops the bus has passed are marked passed - not merely unknown`() {
         val etas = stopEtasFor(busAt("C" to inMinutes(5), "D" to inMinutes(12)), stops, now = now, zone = zone)
         listOf("A", "B").forEach { ref ->
             val eta = etas[ref]
@@ -120,7 +120,7 @@ class StopEtaTest {
     // by a zero-grace check purely because of ordinary fetch latency).
 
     @Test
-    fun `a prediction only briefly behind now, within ordinary latency, is not muted`() {
+    fun `a prediction only briefly behind now - within ordinary latency - is not muted`() {
         val etas = stopEtasFor(busAt("C" to inMinutes(-1)), stops, now = now, zone = zone)
         assertEquals("16:59", etas.getValue("C").label, "60s behind is plain latency, not a passed stop")
         assertTrue(etas.getValue("C").upcoming)
@@ -136,7 +136,7 @@ class StopEtaTest {
     }
 
     @Test
-    fun `several closely spaced stops genuinely overdue at once are all muted, not all shown stale`() {
+    fun `several closely spaced stops genuinely overdue at once are all muted - not all shown stale`() {
         // The reported case: a bus running ahead of schedule through a tight cluster of stops can
         // have several of them overdue in the same poll.
         val bus = busAt("A" to inMinutes(-4), "B" to inMinutes(-3), "C" to inMinutes(2))
