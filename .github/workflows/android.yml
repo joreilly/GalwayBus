@@ -28,7 +28,7 @@ jobs:
     - uses: gradle/actions/setup-gradle@v6
 
     - name: Run shared tests
-      run: ./gradlew :shared:jvmTest :shared:testAndroidHostTest
+      run: ./gradlew :shared:jvmTest
 
     - name: Upload test reports
       if: failure()

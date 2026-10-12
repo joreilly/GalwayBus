@@ -66,11 +66,6 @@ class SharedLogicDesktopTest {
         repository.saveFavouriteStops(emptyList())
     }
 
-    @Test
-    fun example() {
-        assertEquals(3, 1 + 2)
-    }
-
     // Verifies the localization pipeline the desktop language switcher relies on: Compose
     // Resources resolves strings from java.util.Locale.getDefault(), which LocalAppLocale (jvm)
     // sets when the user picks a language.

@@ -39,13 +39,13 @@ class UpcomingStopsForTest {
     )
 
     @Test
-    fun `upcoming stops keep their minutes-away count, nearest first`() {
+    fun `upcoming stops keep their minutes-away count - nearest first`() {
         val result = upcomingStopsFor(busAt("A" to inMinutes(2), "B" to inMinutes(9)), stops, now)
         assertEquals(listOf("A" to 2, "B" to 9), result.map { (s, m) -> s.stop_ref to m })
     }
 
     @Test
-    fun `minutes away round to the nearest, so due means the last thirty seconds`() {
+    fun `minutes away round to the nearest - so due means the last thirty seconds`() {
         val result = upcomingStopsFor(
             busAt("A" to (now + 20.seconds).toString(), "B" to (now + 50.seconds).toString(), "C" to (now + 150.seconds).toString()),
             stops, now
@@ -54,20 +54,20 @@ class UpcomingStopsForTest {
     }
 
     @Test
-    fun `a prediction only briefly behind now, within ordinary latency, is not dropped`() {
+    fun `a prediction only briefly behind now - within ordinary latency - is not dropped`() {
         // 60s behind is plain fetch/poll/render latency, not evidence the bus has passed the stop.
         val result = upcomingStopsFor(busAt("A" to inMinutes(-1), "B" to inMinutes(5)), stops, now)
         assertEquals(listOf("A", "B"), result.map { it.first.stop_ref })
     }
 
     @Test
-    fun `a prediction genuinely behind now is dropped, not shown as due`() {
+    fun `a prediction genuinely behind now is dropped - not shown as due`() {
         val result = upcomingStopsFor(busAt("A" to inMinutes(-3), "B" to inMinutes(5)), stops, now)
         assertEquals(listOf("B"), result.map { it.first.stop_ref }, "A's moment is well past, so it should not appear at all")
     }
 
     @Test
-    fun `several closely spaced overdue stops are all dropped, not all shown as due`() {
+    fun `several closely spaced overdue stops are all dropped - not all shown as due`() {
         // The reported case: a bus running ahead of schedule through a tight cluster of stops.
         val bus = busAt("A" to inMinutes(-4), "B" to inMinutes(-3), "C" to inMinutes(0), "D" to inMinutes(2))
         val result = upcomingStopsFor(bus, stops, now)
@@ -75,7 +75,7 @@ class UpcomingStopsForTest {
     }
 
     @Test
-    fun `a prediction exactly at now is still shown, not dropped`() {
+    fun `a prediction exactly at now is still shown - not dropped`() {
         val result = upcomingStopsFor(busAt("A" to inMinutes(0)), stops, now)
         assertEquals(listOf("A" to 0), result.map { (s, m) -> s.stop_ref to m })
     }
