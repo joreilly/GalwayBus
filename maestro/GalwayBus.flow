@@ -1,0 +1,22 @@
+# Shared by the Android and iOS apps: CI passes APP_ID with -e
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+
+- assertVisible: "No saved stops yet"
+
+# Routes and bus positions come from live APIs, so allow for a slow network
+- tapOn: "Routes"
+- extendedWaitUntil:
+    visible: "Seacrest - Eyre Square - Merlin Park"
+    timeout: 30000
+- tapOn: "Seacrest - Eyre Square - Merlin Park"
+
+- extendedWaitUntil:
+    visible: "Route 402"
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Updated.*"
+    timeout: 30000
+- takeScreenshot: GalwayBus
