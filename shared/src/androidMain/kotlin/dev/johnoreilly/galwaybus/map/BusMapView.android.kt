@@ -30,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -154,126 +156,134 @@ actual fun BusMapView(
 
     val boundsPaddingPx = with(LocalDensity.current) { 48.dp.toPx().toInt() }
 
-    GoogleMap(
-        modifier = modifier,
-        cameraPositionState = cameraPositionState,
-        onMapLoaded = { mapLoaded = true },
-        properties = MapProperties(
-            mapStyleOptions = if (dark) MapStyleOptions(DARK_MAP_STYLE_JSON) else null
-        ),
-        uiSettings = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = false)
-    ) {
-        // A bus that stops being tracked (card dismissed, direction switched, trip dropped out of
-        // the feed) needs the camera pulled back out to the route again — left alone, it stays
-        // parked at street-level zoom wherever that bus last was. Tracked entirely within this one
-        // effect (rather than a separate LaunchedEffect toggling `hasCentered`) so there's no
-        // cross-effect ordering to get wrong.
-        var lastTrackedTripId by remember { mutableStateOf(trackedTripId) }
-        MapEffect(stops, trackedTripId, trackedStopRef, userLocation) { map ->
-            val justStoppedTracking = lastTrackedTripId != null && trackedTripId == null
-            lastTrackedTripId = trackedTripId
-            if ((!hasCentered || justStoppedTracking) && trackedTripId == null && trackedStopRef == null &&
-                userLocation == null && stops.isNotEmpty()
-            ) {
-                val bounds = LatLngBounds.Builder().apply {
-                    stops.forEach { include(LatLng(it.latitude, it.longitude)) }
-                }.build()
-                hasCentered = true
-                try {
-                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, boundsPaddingPx))
-                } catch (_: IllegalStateException) {
-                    // Map not laid out yet (size 0) — fall back to a plain centre/zoom.
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.center, 14f))
-                }
-            }
-        }
-
-        val currentZoom = cameraPositionState.position.zoom
-        // Show stops once zoomed in (or when the set is small, e.g. nearby/tracking); the
-        // tracked stop is always drawn.
-        val showStops = stops.size <= 80 || currentZoom >= STOP_MARKER_MIN_ZOOM
-        val stopDot = remember { dotDescriptor(30, 0xFF37474F.toInt(), 0xFFFFFFFF.toInt()) }
-        val trackedDot = remember { dotDescriptor(40, 0xFF4F0000.toInt(), 0xFFFFFFFF.toInt()) }
-
-        polylines.forEach { line ->
-            if (line.size >= 2) {
-                val points = line.map { LatLng(it.lat, it.lon) }
-                // A pale casing under the line keeps it legible over both map styles.
-                Polyline(points = points, color = Color.White.copy(alpha = 0.7f), width = 20f)
-                Polyline(points = points, color = ROUTE_LINE_COLOR, width = 11f)
-            }
-        }
-
-        stops.forEach { stop ->
-            val isTracked = stop.stop_ref == trackedStopRef
-            val eta = stopEtas[stop.stop_ref]
-            if (isTracked || showStops) {
-                if (eta != null) {
-                    MarkerComposable(
-                        stop.stop_ref, eta.label, eta.upcoming, isTracked,
-                        state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
-                        anchor = Offset(0.5f, 0.5f),
-                        title = stop.displayName(),
-                        snippet = "Stop ${stop.stop_id}",
-                        onClick = {
-                            onStopClick?.invoke(stop)
-                            true
-                        }
-                    ) {
-                        StopWithEtaContent(eta, isTracked)
+    Box(modifier) {
+        GoogleMap(
+            modifier = Modifier.matchParentSize(),
+            cameraPositionState = cameraPositionState,
+            onMapLoaded = { mapLoaded = true },
+            properties = MapProperties(
+                mapStyleOptions = if (dark) MapStyleOptions(DARK_MAP_STYLE_JSON) else null
+            ),
+            uiSettings = MapUiSettings(zoomControlsEnabled = true, myLocationButtonEnabled = false)
+        ) {
+            // A bus that stops being tracked (card dismissed, direction switched, trip dropped out of
+            // the feed) needs the camera pulled back out to the route again — left alone, it stays
+            // parked at street-level zoom wherever that bus last was. Tracked entirely within this one
+            // effect (rather than a separate LaunchedEffect toggling `hasCentered`) so there's no
+            // cross-effect ordering to get wrong.
+            var lastTrackedTripId by remember { mutableStateOf(trackedTripId) }
+            MapEffect(stops, trackedTripId, trackedStopRef, userLocation) { map ->
+                val justStoppedTracking = lastTrackedTripId != null && trackedTripId == null
+                lastTrackedTripId = trackedTripId
+                if ((!hasCentered || justStoppedTracking) && trackedTripId == null && trackedStopRef == null &&
+                    userLocation == null && stops.isNotEmpty()
+                ) {
+                    val bounds = LatLngBounds.Builder().apply {
+                        stops.forEach { include(LatLng(it.latitude, it.longitude)) }
+                    }.build()
+                    hasCentered = true
+                    try {
+                        map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, boundsPaddingPx))
+                    } catch (_: IllegalStateException) {
+                        // Map not laid out yet (size 0) — fall back to a plain centre/zoom.
+                        map.animateCamera(CameraUpdateFactory.newLatLngZoom(bounds.center, 14f))
                     }
-                } else {
-                    Marker(
-                        state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
-                        icon = if (isTracked) trackedDot else stopDot,
-                        anchor = Offset(0.5f, 0.5f),
-                        title = stop.displayName(),
-                        snippet = "Stop ${stop.stop_id}",
-                        onClick = {
-                            onStopClick?.invoke(stop)
-                            true
+                }
+            }
+
+            val currentZoom = cameraPositionState.position.zoom
+            // Show stops once zoomed in (or when the set is small, e.g. nearby/tracking); the
+            // tracked stop is always drawn.
+            val showStops = stops.size <= 80 || currentZoom >= STOP_MARKER_MIN_ZOOM
+            val stopDot = remember { dotDescriptor(30, 0xFF37474F.toInt(), 0xFFFFFFFF.toInt()) }
+            val trackedDot = remember { dotDescriptor(40, 0xFF4F0000.toInt(), 0xFFFFFFFF.toInt()) }
+
+            polylines.forEach { line ->
+                if (line.size >= 2) {
+                    val points = line.map { LatLng(it.lat, it.lon) }
+                    // A pale casing under the line keeps it legible over both map styles.
+                    Polyline(points = points, color = Color.White.copy(alpha = 0.7f), width = 20f)
+                    Polyline(points = points, color = ROUTE_LINE_COLOR, width = 11f)
+                }
+            }
+
+            stops.forEach { stop ->
+                val isTracked = stop.stop_ref == trackedStopRef
+                val eta = stopEtas[stop.stop_ref]
+                if (isTracked || showStops) {
+                    if (eta != null) {
+                        MarkerComposable(
+                            stop.stop_ref, eta.label, eta.upcoming, isTracked,
+                            state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
+                            anchor = Offset(0.5f, 0.5f),
+                            title = stop.displayName(),
+                            snippet = "Stop ${stop.stop_id}",
+                            onClick = {
+                                onStopClick?.invoke(stop)
+                                true
+                            }
+                        ) {
+                            StopWithEtaContent(eta, isTracked)
                         }
-                    )
+                    } else {
+                        Marker(
+                            state = rememberUpdatedMarkerState(position = LatLng(stop.latitude, stop.longitude)),
+                            icon = if (isTracked) trackedDot else stopDot,
+                            anchor = Offset(0.5f, 0.5f),
+                            title = stop.displayName(),
+                            snippet = "Stop ${stop.stop_id}",
+                            onClick = {
+                                onStopClick?.invoke(stop)
+                                true
+                            }
+                        )
+                    }
+                }
+            }
+
+            positions.forEach { bus ->
+                val markerColor = busColors[bus.timetable_id ?: ""] ?: palette[0]
+                val dirIndex = routeHeadsigns[bus.timetable_id ?: ""]?.indexOf(bus.headsign) ?: -1
+                val isTracked = bus.trip_duid == trackedTripId
+                val route = bus.timetable_id?.takeIf { it.isNotEmpty() }
+                val routeLabel = route ?: ""
+                val title = if (route != null) "Route $route: ${bus.headsign ?: ""}" else (bus.headsign ?: "Bus")
+
+                MarkerComposable(
+                    bus.markerKey, markerColor.value, dirIndex, isTracked, routeLabel, bus.bearing ?: -1f,
+                    state = rememberUpdatedMarkerState(position = LatLng(bus.latitude, bus.longitude)),
+                    // Centre the marker on the vehicle rather than resting its base there: the body is
+                    // a disc/square, not a pin, and the heading nose has to rotate about that point.
+                    anchor = Offset(0.5f, 0.5f),
+                    title = title,
+                    snippet = bus.vehicle_id?.let { "Vehicle $it" },
+                    // Above the stops: they are dense enough that a bus sitting on one was unreachable,
+                    // the stop's sheet opening instead of the vehicle being selected.
+                    zIndex = 2f,
+                    onClick = {
+                        onBusClick?.invoke(bus)
+                        // Consume it when we handled it, so Google Maps doesn't also pop its info window.
+                        onBusClick != null
+                    }
+                ) {
+                    BusMarkerContent(markerColor, routeLabel, dirIndex == 1, isTracked, bus.bearing)
+                }
+            }
+
+            userLocation?.let { loc ->
+                MarkerComposable(
+                    "user-location",
+                    state = rememberUpdatedMarkerState(position = LatLng(loc.lat, loc.lon))
+                ) {
+                    UserLocationContent()
                 }
             }
         }
-
-        positions.forEach { bus ->
-            val markerColor = busColors[bus.timetable_id ?: ""] ?: palette[0]
-            val dirIndex = routeHeadsigns[bus.timetable_id ?: ""]?.indexOf(bus.headsign) ?: -1
-            val isTracked = bus.trip_duid == trackedTripId
-            val route = bus.timetable_id?.takeIf { it.isNotEmpty() }
-            val routeLabel = route ?: ""
-            val title = if (route != null) "Route $route: ${bus.headsign ?: ""}" else (bus.headsign ?: "Bus")
-
-            MarkerComposable(
-                bus.markerKey, markerColor.value, dirIndex, isTracked, routeLabel, bus.bearing ?: -1f,
-                state = rememberUpdatedMarkerState(position = LatLng(bus.latitude, bus.longitude)),
-                // Centre the marker on the vehicle rather than resting its base there: the body is
-                // a disc/square, not a pin, and the heading nose has to rotate about that point.
-                anchor = Offset(0.5f, 0.5f),
-                title = title,
-                snippet = bus.vehicle_id?.let { "Vehicle $it" },
-                // Above the stops: they are dense enough that a bus sitting on one was unreachable,
-                // the stop's sheet opening instead of the vehicle being selected.
-                zIndex = 2f,
-                onClick = {
-                    onBusClick?.invoke(bus)
-                    // Consume it when we handled it, so Google Maps doesn't also pop its info window.
-                    onBusClick != null
-                }
-            ) {
-                BusMarkerContent(markerColor, routeLabel, dirIndex == 1, isTracked, bus.bearing)
-            }
-        }
-
-        userLocation?.let { loc ->
-            MarkerComposable(
-                "user-location",
-                state = rememberUpdatedMarkerState(position = LatLng(loc.lat, loc.lon))
-            ) {
-                UserLocationContent()
-            }
+        // Lets UI tests (Maestro) wait for the first fully rendered frame instead of screenshotting
+        // a blank map: tiles and markers draw a moment after the screen's text is up. A sibling
+        // node, because the native map view reports its own accessibility description.
+        if (mapLoaded) {
+            Box(Modifier.size(1.dp).semantics { contentDescription = "Map loaded" })
         }
     }
 }
