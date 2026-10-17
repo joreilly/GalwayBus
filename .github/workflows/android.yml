@@ -86,7 +86,7 @@ jobs:
           disable-animations: true
           script: |
             adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            maestro test --debug-output maestro-debug -e APP_ID=dev.johnoreilly.galwaybus maestro/GalwayBus.flow
+            maestro test --debug-output maestro-debug -e APP_ID=dev.johnoreilly.galwaybus maestro/GalwayBus.flow; status=$?; mkdir -p maestro-debug; adb logcat -d > maestro-debug/logcat.txt; exit $status
 
       # takeScreenshot output: Maestro saves it under --debug-output's hidden .maestro directory
       - uses: actions/upload-artifact@v7

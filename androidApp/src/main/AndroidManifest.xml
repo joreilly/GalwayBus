@@ -17,6 +17,12 @@
         <meta-data
                 android:name="com.google.android.geo.API_KEY"
                 android:value="${MAPS_API_KEY}"/>
+        <!-- Older Google Play services' Maps module uses the Apache HTTP client, which apps
+             targeting API 28+ must opt into or the map crashes (NoClassDefFoundError:
+             org/apache/http/ProtocolVersion) -->
+        <uses-library
+                android:name="org.apache.http.legacy"
+                android:required="false"/>
         <activity
                 android:exported="true"
                 android:name=".MainActivity">

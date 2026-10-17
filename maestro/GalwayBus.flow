@@ -20,3 +20,7 @@ appId: ${APP_ID}
     visible: "Updated.*"
     timeout: 30000
 - takeScreenshot: GalwayBus
+# Still showing after the map has had time to render (a crash there would otherwise go unnoticed)
+- waitForAnimationToEnd:
+    timeout: 5000
+- assertVisible: "Route 402"
