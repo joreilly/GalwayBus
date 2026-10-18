@@ -8,9 +8,11 @@ appId: ${APP_ID}
 
 # Routes and bus positions come from live APIs, so allow for a slow network
 - tapOn: "Routes"
+# 60s: the first request can land on a Cloud Run cold start, and the app retries a request that
+# times out (20s) — 30s wasn't always enough on CI
 - extendedWaitUntil:
     visible: "Seacrest - Eyre Square - Merlin Park"
-    timeout: 30000
+    timeout: 60000
 - tapOn: "Seacrest - Eyre Square - Merlin Park"
 
 - extendedWaitUntil:

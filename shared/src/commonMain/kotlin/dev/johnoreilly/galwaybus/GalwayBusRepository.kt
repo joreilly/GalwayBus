@@ -3,6 +3,7 @@ package dev.johnoreilly.galwaybus
 import dev.johnoreilly.galwaybus.model.*
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
@@ -22,6 +23,13 @@ class GalwayBusRepository(
     private val json = Json { ignoreUnknownKeys = true }
     private val httpClient = injectedHttpClient ?: HttpClient {
         install(ContentNegotiation) { json(json) }
+        // Without a timeout a request that hangs (e.g. on a Cloud Run cold start) waits for the
+        // platform default — 60s on iOS — before `retrying` gets a chance to try again. Every
+        // response is small and normally back in well under a second (the live bus feed ~4s).
+        install(HttpTimeout) {
+            requestTimeoutMillis = 20_000
+            connectTimeoutMillis = 10_000
+        }
         expectSuccess = true
     }
     
