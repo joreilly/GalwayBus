@@ -60,48 +60,33 @@ jobs:
           CODE_SIGNING_ALLOWED=NO
           ARCHS=arm64
 
-      # Launch the app on a simulator and run the Maestro flow shared with the Android app, so
-      # runtime crashes in the Kotlin/Swift interop fail CI
-      - name: Install Maestro
-        run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-        env:
-          MAESTRO_VERSION: 2.11.0
+      # Launch the app on a simulator and run the gekko UI tests shared with the Android app, so
+      # runtime crashes in the Kotlin/Swift bridge fail CI
+      - name: Setup gekko
+        uses: jakala-germany/setup-gekko-cli-action@2aacfecac33551097b0c7b86ad57d4f59c9f5ad4 # 1.3.0
+        with:
+          version: 1.3.0
+          ios: true
 
-      - name: Run Maestro tests
-        env:
-          # Starting Maestro's iOS driver on a cold runner can take a few minutes (default limit ~2 min)
-          MAESTRO_DRIVER_STARTUP_TIMEOUT: 300000
+      - name: Run gekko tests
         run: |
           UDID=$(xcrun simctl list devices available -j | jq -r '[.devices[][] | select(.name | startswith("iPhone"))] | last | .udid')
           xcrun simctl boot "$UDID"
           xcrun simctl bootstatus "$UDID"
-          xcrun simctl install "$UDID" build/dd/Build/Products/Debug-iphonesimulator/GalwayBus.app
-          maestro --device "$UDID" test --debug-output maestro-debug -e APP_ID=dev.johnoreilly.galwaybus maestro/GalwayBus.flow
-
-      # takeScreenshot output: Maestro saves it under --debug-output's hidden .maestro directory
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: maestro-screenshot-ios
-          path: maestro-debug/**/takeScreenshot/*.png
-          include-hidden-files: true
+          gekko run --project gekko --platform ios -s "$UDID" --install --record failures --output gekko-results
 
       - name: Collect iOS crash reports
         if: failure()
         run: |
-          mkdir -p maestro-debug/crash-reports
-          find "$HOME/Library/Logs/DiagnosticReports" -name 'GalwayBus*' -exec cp {} maestro-debug/crash-reports/ \; || true
+          mkdir -p gekko-results/crash-reports
+          find "$HOME/Library/Logs/DiagnosticReports" -name 'GalwayBus*' -exec cp {} gekko-results/crash-reports/ \; || true
 
-      # Maestro's logs, screenshots and view hierarchy, plus the app's crash report, to diagnose failures
-      # (Maestro writes under a hidden .maestro directory, hence include-hidden-files)
+      # Screenshots of the tests, plus video, view hierarchy and the app's crash report of failed ones
       - uses: actions/upload-artifact@v7
-        if: failure()
+        if: always()
         with:
-          name: maestro-debug-ios
-          path: maestro-debug
-          include-hidden-files: true
+          name: gekko-results-ios
+          path: gekko-results
 
       - name: Save Kotlin/Native (konan) cache
         if: github.ref == 'refs/heads/main' && steps.konan-cache.outputs.cache-hit != 'true'

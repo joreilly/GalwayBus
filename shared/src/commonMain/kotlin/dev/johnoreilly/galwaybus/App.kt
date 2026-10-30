@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.text.font.FontWeight
@@ -182,12 +183,12 @@ private enum class ViewMode(val labelRes: StringResource) {
     STOPS(Res.string.view_stops), MAP(Res.string.view_map)
 }
 
-private enum class TopTab(val labelRes: StringResource, val icon: ImageVector) {
-    FAVOURITES(Res.string.tab_favourites, Icons.Filled.Star),
-    ROUTES(Res.string.tab_routes, Icons.AutoMirrored.Filled.List),
-    NEARBY(Res.string.tab_nearby, Icons.Filled.NearMe),
-    SCAN(Res.string.tab_scan, Icons.Filled.QrCodeScanner),
-    BUSES(Res.string.tab_buses, Icons.Filled.DirectionsBus)
+private enum class TopTab(val labelRes: StringResource, val icon: ImageVector, val testTag: String) {
+    FAVOURITES(Res.string.tab_favourites, Icons.Filled.Star, "Main.Tab.Favourites"),
+    ROUTES(Res.string.tab_routes, Icons.AutoMirrored.Filled.List, "Main.Tab.Routes"),
+    NEARBY(Res.string.tab_nearby, Icons.Filled.NearMe, "Main.Tab.Nearby"),
+    SCAN(Res.string.tab_scan, Icons.Filled.QrCodeScanner, "Main.Tab.Scan"),
+    BUSES(Res.string.tab_buses, Icons.Filled.DirectionsBus, "Main.Tab.Buses")
 }
 
 /** Tabs shown in the bottom bar — the camera "Scan" tab only where the platform supports it. */
@@ -535,7 +536,8 @@ fun GalwayBusApp(
                                 TopTab.ROUTES ->
                                     if (selectedRouteNum != null) stringResource(Res.string.title_route, selectedRouteNum)
                                     else stringResource(Res.string.app_name)
-                            }
+                            },
+                            modifier = Modifier.testTag("Main.TopBar.Title")
                         )
                     },
                     navigationIcon = {
@@ -586,7 +588,8 @@ fun GalwayBusApp(
                                 if (tab == TopTab.NEARBY) viewModel.loadNearby()
                             },
                             icon = { Icon(tab.icon, contentDescription = stringResource(tab.labelRes)) },
-                            label = { Text(stringResource(tab.labelRes)) }
+                            label = { Text(stringResource(tab.labelRes)) },
+                            modifier = Modifier.testTag(tab.testTag)
                         )
                     }
                 }
@@ -1513,7 +1516,8 @@ private fun FavouritesPanel(
                 Text(
                     stringResource(Res.string.no_saved_stops),
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.testTag("Favourites.Empty.Title")
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
@@ -2081,7 +2085,7 @@ private fun LastUpdatedChip(updatedMs: Long, nowMs: Long, stale: Boolean, modifi
             },
             style = MaterialTheme.typography.labelSmall,
             color = if (stale) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+            modifier = Modifier.testTag("Route.Map.UpdatedChip").padding(horizontal = 10.dp, vertical = 6.dp)
         )
     }
 }
@@ -2329,6 +2333,7 @@ private fun RouteListItem(route: Route, selected: Boolean, onClick: () -> Unit) 
                 else MaterialTheme.colorScheme.surface
             )
             .clickable(onClick = onClick)
+            .testTag("Routes.Item.${route.short_name}")
     ) {
         Row(
             Modifier.padding(horizontal = 10.dp, vertical = 9.dp),

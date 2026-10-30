@@ -3,7 +3,29 @@
   "extends": [
     "config:recommended"
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The gekko CLI version the setup-gekko-cli-action installs, so it is bumped together with the in-app agent (the Gradle plugin version in libs.versions.toml).",
+      "managerFilePatterns": [
+        "/^\\.github/workflows/[^/]+\\.ya?ml$/"
+      ],
+      "matchStrings": [
+        "uses: jakala-germany/setup-gekko-cli-action@[^\\n]*\\n\\s+with:\\n\\s+version: (?<currentValue>\\S+)"
+      ],
+      "depNameTemplate": "jakala-germany/gekko",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
   "packageRules": [
+    {
+      "description": "The gekko CLI and the in-app agent talk to each other, so their versions move in one PR.",
+      "matchPackageNames": [
+        "jakala-germany/gekko",
+        "/^io\\.github\\.jakala-germany\\.gekko/"
+      ],
+      "groupName": "gekko"
+    },
     {
       "description": "AGP 9.3.x+ outruns what the locally installed Android Studio supports — sync fails with unsupported-AGP-version and \"could not find compile target\" errors. Hold AGP updates until Studio's bundled support catches up.",
       "matchPackageNames": [

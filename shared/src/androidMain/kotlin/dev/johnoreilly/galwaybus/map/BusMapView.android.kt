@@ -30,8 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -279,11 +278,11 @@ actual fun BusMapView(
                 }
             }
         }
-        // Lets UI tests (Maestro) wait for the first fully rendered frame instead of screenshotting
+        // Lets UI tests (gekko) wait for the first fully rendered frame instead of screenshotting
         // a blank map: tiles and markers draw a moment after the screen's text is up. A sibling
         // node, because the native map view reports its own accessibility description.
         if (mapLoaded) {
-            Box(Modifier.size(1.dp).semantics { contentDescription = "Map loaded" })
+            Box(Modifier.size(1.dp).testTag("Route.Map.Loaded"))
         }
     }
 }
