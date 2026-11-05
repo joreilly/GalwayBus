@@ -1,5 +1,6 @@
 [versions]
 agp = "9.1.1"
+gekko = "1.3.0"
 androidx-camera = "1.6.2"
 mlkit-text = "16.0.1"
 android-compileSdk = "37"
@@ -78,6 +79,7 @@ mcp-server = { module = "io.modelcontextprotocol:kotlin-sdk-server", version.ref
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+gekko = { id = "io.github.jakala-germany.gekko", version.ref = "gekko" }
 androidMultiplatformLibrary = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

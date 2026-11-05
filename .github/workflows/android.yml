@@ -40,8 +40,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew :androidApp:assembleDebug
 
-  # Launch the app on an emulator and run the Maestro flow shared with the iOS app
-  maestro:
+  # Launch the app on an emulator and run the gekko UI tests shared with the iOS app
+  ui-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -67,14 +67,12 @@ jobs:
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
-      - name: Install Maestro
-        run: |
-          curl -fsSL "https://get.maestro.mobile.dev" | bash
-          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
-        env:
-          MAESTRO_VERSION: 2.11.0
+      - name: Setup gekko
+        uses: jakala-germany/setup-gekko-cli-action@2aacfecac33551097b0c7b86ad57d4f59c9f5ad4 # 1.3.0
+        with:
+          version: 1.3.0
 
-      - name: Run Maestro tests
+      - name: Run gekko tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 32
@@ -85,22 +83,11 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: |
-            adb install androidApp/build/outputs/apk/debug/androidApp-debug.apk
-            maestro test --debug-output maestro-debug -e APP_ID=dev.johnoreilly.galwaybus maestro/GalwayBus.flow; status=$?; mkdir -p maestro-debug; adb logcat -d > maestro-debug/logcat.txt; exit $status
+            gekko run --project gekko --platform android --install --record failures --output gekko-results; status=$?; mkdir -p gekko-results; adb logcat -d > gekko-results/logcat.txt; exit $status
 
-      # takeScreenshot output: Maestro saves it under --debug-output's hidden .maestro directory
+      # Screenshots of the tests, plus video and view hierarchy of failed ones
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: maestro-screenshot-android
-          path: maestro-debug/**/takeScreenshot/*.png
-          include-hidden-files: true
-
-      # Maestro's logs, screenshots and view hierarchy, to diagnose failures
-      # (Maestro writes under a hidden .maestro directory, hence include-hidden-files)
-      - uses: actions/upload-artifact@v7
-        if: failure()
-        with:
-          name: maestro-debug-android
-          path: maestro-debug
-          include-hidden-files: true
+          name: gekko-results-android
+          path: gekko-results

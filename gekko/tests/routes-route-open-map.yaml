@@ -1,0 +1,32 @@
+name: Open a route on the map
+tags: [smoke]
+steps:
+  - say: A fresh install has no saved stops
+    do: { assertVisible: { id: Favourites.Empty.Title } }
+  - say: Open the routes tab
+    do: { tap: { id: Main.Tab.Routes } }
+  # Routes come from a live API; the first request can land on a Cloud Run cold start
+  - say: Open route 402
+    do: { tap: { id: Routes.Item.402 } }
+    until: { assertVisible: { id: Main.TopBar.Title, textContains: "402" } }
+    attempts: 3
+    timeout: 60000
+  - say: The bus positions were loaded
+    do: { assertVisible: { id: Route.Map.UpdatedChip } }
+    timeout: 30000
+  # The text is up before the map has drawn its tiles and markers; Android exposes the first full render
+  - say: The map finished rendering
+    platform: android
+    do: { assertVisible: { id: Route.Map.Loaded } }
+    timeout: 30000
+  - say: The map settles on the route
+    do: { waitForAnimationToEnd: true }
+    timeout: 20000
+  - say: Take a screenshot of the route map
+    do: { takeScreenshot: route-map }
+  # A crash while the map renders would otherwise go unnoticed
+  - say: The map had time to render
+    do: { waitForAnimationToEnd: true }
+    timeout: 5000
+  - say: The route is still shown
+    do: { assertVisible: { id: Main.TopBar.Title, textContains: "402" } }
