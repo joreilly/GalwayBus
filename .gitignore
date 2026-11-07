@@ -31,3 +31,6 @@ api-*.json
 *.ipa
 *.app.dSYM.zip
 *.dSYM.zip
+
+# gekko UI test results
+/gekko-results/

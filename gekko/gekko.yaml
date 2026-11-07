@@ -1,0 +1,14 @@
+app:
+  android: dev.johnoreilly.galwaybus
+  androidActivity: dev.johnoreilly.galwaybus.MainActivity
+  ios: dev.johnoreilly.galwaybus
+android:
+  runnerApk: installed
+  apk: ../androidApp/build/outputs/apk/debug/androidApp-debug.apk
+ios:
+  runnerDir: installed
+  agentFramework: installed
+  app: ../build/dd/Build/Products/Debug-iphonesimulator/GalwayBus.app
+# Routes and bus positions come from live APIs: a quiet screen can still be waiting for the network,
+# so a missing element is waited for until the step timeout
+settleMs: 0

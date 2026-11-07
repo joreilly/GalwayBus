@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.gekko)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -59,6 +60,11 @@ kotlin {
         jvmTarget = JvmTarget.JVM_17
     }
 }
+
+gekko {
+    variants.set(listOf("debug"))
+}
+
 dependencies {
     implementation(projects.shared)
 

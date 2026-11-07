@@ -91,8 +91,9 @@ Use the run button in your IDE's editor gutter, or run tests using Gradle tasks:
 - Android tests: `./gradlew :shared:testAndroidHostTest`
 - Desktop tests: `./gradlew :shared:jvmTest`
 - iOS tests: `./gradlew :shared:iosSimulatorArm64Test`
-- UI tests: a [Maestro](https://maestro.mobile.dev/) flow shared by the Android and iOS apps, run by CI on an
-  emulator and a simulator (e.g. `maestro test -e APP_ID=dev.johnoreilly.galwaybus maestro/GalwayBus.flow`)
+- UI tests: [gekko](https://github.com/jakala-germany/gekko) tests in `gekko/` shared by the Android and iOS apps, run
+  by CI on an emulator and a simulator (e.g. `gekko run --project gekko --platform android --install` after
+  `./gradlew :androidApp:assembleDebug`)
 
 ## Full set of Kotlin Multiplatform / Compose / SwiftUI samples
 
