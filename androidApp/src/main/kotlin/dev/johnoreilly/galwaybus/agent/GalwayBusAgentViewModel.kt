@@ -164,11 +164,15 @@ class GalwayBusAgentViewModel(application: Application) : AndroidViewModel(appli
             For a stop from an earlier answer, pass its stopNumber as stop.
             For stops near a place, call findNearbyStops with that place's name as place. Never
             guess latitude and longitude.
+            For stops near the user ("near me", "closest to me"), call findNearbyStops with
+            nearMe true. For the next bus near them, then call getDepartures with the nearest
+            stop's stopNumber.
             For the user's saved stops, call listSavedStops, then getDepartures with each stop's
             stopNumber.
-            Keep answers short: for each bus give the route, where it's going and when it leaves
-            (minutesAway). Mention minutesLate only when it isn't 0 or null. Keep the order the
-            tools return.
+            Your answer appears under a list of everything the tools returned, so never list
+            departures or stops yourself. Reply with one sentence about the first one only:
+            for a bus, its route, where it's going and minutesAway (and minutesLate when it
+            isn't 0 or null); for stops, the nearest stop's name.
         """.trimIndent()
     }
 }
@@ -179,12 +183,42 @@ sealed interface ChatMessage {
 
     data class Agent(
         val text: String = "",
-        /** Tool calls made while answering, e.g. `getDepartures(stop=Eyre Square)`. */
-        val toolCalls: List<String> = emptyList(),
+        /** AppFunctions called while answering, in order. */
+        val toolCalls: List<ToolCall> = emptyList(),
+        /** Departures from the latest getDepartures result, shown as cards. */
+        val departures: List<DepartureItem> = emptyList(),
+        /** Stops from the latest stop search, shown as cards when there are no departures. */
+        val stops: List<StopItem> = emptyList(),
         val inProgress: Boolean = true,
         val error: String? = null,
     ) : ChatMessage
 }
+
+/** An AppFunction call: [function] is the bare name, such as `getDepartures`. */
+data class ToolCall(val function: String, val args: Map<String, Any?>) {
+    /** The call as the model made it, e.g. `getDepartures(stop=Eyre Square)`. */
+    val raw: String get() = "$function(" + args.entries.joinToString { "${it.key}=${it.value}" } + ")"
+}
+
+/** One row of a departure card, read from a [dev.johnoreilly.galwaybus.functions.DepartureResponse]. */
+data class DepartureItem(
+    val route: String,
+    val destination: String,
+    val stopName: String,
+    val stopNumber: String,
+    val departs: String,
+    val minutesAway: Int,
+    val minutesLate: Int?,
+)
+
+/** One row of a stop card, read from a [dev.johnoreilly.galwaybus.functions.StopResponse]. */
+data class StopItem(
+    val name: String,
+    val stopNumber: String,
+    val towards: String?,
+    val routes: List<String>,
+    val distanceMetres: Int?,
+)
 
 /**
  * Folds one [AgentEvent] into the reply being built (the last message). Partial text may arrive as
@@ -194,15 +228,29 @@ sealed interface ChatMessage {
 internal fun List<ChatMessage>.withAgentEvent(event: AgentEvent): List<ChatMessage> {
     val reply = lastOrNull() as? ChatMessage.Agent ?: return this
     val updated = when (event) {
-        is AgentEvent.FunctionCall -> reply.copy(toolCalls = reply.toolCalls + event.describe())
-        is AgentEvent.TextMessage -> reply.copy(
+        is AgentEvent.FunctionCall -> reply.copy(
+            toolCalls = reply.toolCalls + ToolCall(event.name.functionName(), event.args.filterValues { it != null }),
+            // The text so far was the model deciding what to call, not an answer.
+            text = "",
+        )
+        is AgentEvent.FunctionResponse -> {
+            val results = (event.response["result"] as? List<*>).orEmpty().mapNotNull { it as? Map<*, *> }
+            when (event.name.functionName()) {
+                "getDepartures" -> reply.copy(departures = results.mapNotNull { it.toDeparture() })
+                "findStops", "findNearbyStops", "listSavedStops" -> reply.copy(stops = results.mapNotNull { it.toStop() })
+                else -> reply
+            }
+        }
+        // Gemini Nano's own function-call syntax arrives as text before each FunctionCall
+        // ("<ctrl42>call:getDepartures{...}"); shown, it flashed up as the answer.
+        is AgentEvent.TextMessage -> if (event.text.contains("<ctrl")) reply else reply.copy(
             text = when {
                 !event.isPartial -> event.text
                 event.text.startsWith(reply.text) -> event.text
                 else -> reply.text + event.text
             }
         )
-        else -> reply // FunctionResponse: the model reads it; nothing new to show
+        else -> reply
     }
     return dropLast(1) + updated
 }
@@ -212,9 +260,34 @@ internal fun List<ChatMessage>.finishAgentReply(error: String?): List<ChatMessag
     return dropLast(1) + reply.copy(text = reply.text.trim(), inProgress = false, error = error)
 }
 
-private fun AgentEvent.FunctionCall.describe(): String {
-    // AppFunction ids look like "package.Class#function"; the function name is enough to show.
-    val function = name.substringAfterLast('#').substringAfterLast('.')
-    val args = args.entries.filter { it.value != null }.joinToString { "${it.key}=${it.value}" }
-    return "$function($args)"
+// AppFunction ids look like "package.Class#function".
+private fun String.functionName() = substringAfterLast('#').substringAfterLast('.')
+
+private fun Map<*, *>.string(key: String): String? = this[key]?.toString()?.takeIf { it.isNotBlank() }
+private fun Map<*, *>.int(key: String): Int? = when (val v = this[key]) {
+    is Number -> v.toInt()
+    is String -> v.toIntOrNull()
+    else -> null
 }
+
+internal fun Map<*, *>.toDeparture(): DepartureItem? = DepartureItem(
+    route = string("route") ?: return null,
+    destination = string("destination").orEmpty(),
+    stopName = string("stopName").orEmpty(),
+    stopNumber = string("stopNumber").orEmpty(),
+    departs = string("departs").orEmpty(),
+    minutesAway = int("minutesAway") ?: return null,
+    minutesLate = int("minutesLate"),
+)
+
+internal fun Map<*, *>.toStop(): StopItem? = StopItem(
+    name = string("name") ?: return null,
+    stopNumber = string("stopNumber") ?: return null,
+    towards = string("towards"),
+    routes = when (val r = this["routes"]) {
+        is List<*> -> r.mapNotNull { it?.toString() }
+        null -> emptyList()
+        else -> listOf(r.toString())
+    },
+    distanceMetres = int("distanceMetres"),
+)

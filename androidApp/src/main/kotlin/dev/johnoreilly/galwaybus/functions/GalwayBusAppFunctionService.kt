@@ -1,5 +1,7 @@
 package dev.johnoreilly.galwaybus.functions
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import androidx.annotation.RequiresApi
@@ -8,11 +10,15 @@ import androidx.appfunctions.AppFunctionDeclaration
 import androidx.appfunctions.AppFunctionElementNotFoundException
 import androidx.appfunctions.AppFunctionInvalidArgumentException
 import androidx.appfunctions.AppFunctionNotSupportedException
+import androidx.appfunctions.AppFunctionPermissionRequiredException
 import androidx.appfunctions.AppFunctionSerializable
 import androidx.appfunctions.AppFunctionService
 import androidx.appfunctions.AppFunctionServiceEntryPoint
 import dev.johnoreilly.galwaybus.GalwayBusPrefs
 import dev.johnoreilly.galwaybus.GalwayBusRepository
+import dev.johnoreilly.galwaybus.location.LocationController
+import dev.johnoreilly.galwaybus.location.LocationProvider
+import dev.johnoreilly.galwaybus.location.LocationResult
 import dev.johnoreilly.galwaybus.location.distanceMeters
 import dev.johnoreilly.galwaybus.model.DepartureTime
 import dev.johnoreilly.galwaybus.model.Stop
@@ -85,29 +91,34 @@ abstract class BaseGalwayBusAppFunctionService : AppFunctionService() {
     }
 
     /**
-     * Finds the Galway bus stops closest to a place, nearest first.
+     * Finds the Galway bus stops closest to a place, or to the user, nearest first.
      *
      * @param place Name or address of a place in Galway, such as a landmark, street or area
      *   ("Galway Cathedral", "Shop Street"). The app looks up where it is, so use this for named
      *   places instead of guessing coordinates.
+     * @param nearMe True to search around the user's current location, for questions like
+     *   "nearest stop to me". The app finds the location itself.
      * @param latitude Latitude to search around, in degrees. Only when already known.
      * @param longitude Longitude to search around, in degrees. Only when already known.
      * @param routeNumber Only include stops served by this route, such as "405".
      * @param limit Maximum number of stops to return, from 1 to 20. Defaults to 5.
-     * @return The nearest stops, with their distance from the place.
+     * @return The nearest stops, with their distance from the place or the user.
      */
     @AppFunctionDeclaration(isDescribedByKDoc = true)
     suspend fun findNearbyStops(
         place: String? = null,
+        nearMe: Boolean = false,
         latitude: Double? = null,
         longitude: Double? = null,
         routeNumber: String? = null,
         limit: Int = 0,
     ): List<StopResponse> = withContext(Dispatchers.IO) {
         val (lat, lon) = when {
+            nearMe -> currentLocation()
             !place.isNullOrBlank() -> locate(place)
             latitude != null && longitude != null -> latitude to longitude
-            else -> throw AppFunctionInvalidArgumentException("Give a place name, or both latitude and longitude.")
+            // With nothing to search around, "near me" is the only reading that makes sense.
+            else -> currentLocation()
         }
         stops()
             .filter { it.servesRoute(routeNumber) }
@@ -218,6 +229,38 @@ abstract class BaseGalwayBusAppFunctionService : AppFunctionService() {
             it.long_name == nearest.long_name &&
                 distanceMeters(nearest.latitude, nearest.longitude, it.latitude, it.longitude) <= SAME_STOP_METRES
         }
+    }
+
+    /**
+     * Where the user is, from the same location provider as the app's "Near me" tab. It never asks
+     * for permission: an assistant can call this with no activity to show the prompt from, so
+     * the agent is told to have the user allow it in the app, or to name a place instead.
+     */
+    private suspend fun currentLocation(): Pair<Double, Double> {
+        val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fine && !coarse) {
+            throw AppFunctionPermissionRequiredException(
+                "GalwayBus doesn't have location permission. Ask the user to allow it from the app's Near me tab, or to name a place near them."
+            )
+        }
+        LocationController.appContext = applicationContext
+        val location = when (val result = LocationProvider().currentLocation()) {
+            is LocationResult.Available -> result.location
+            LocationResult.PermissionDenied -> throw AppFunctionPermissionRequiredException(
+                "GalwayBus doesn't have location permission. Ask the user to allow it from the app's Near me tab, or to name a place near them."
+            )
+            LocationResult.Unavailable -> throw AppFunctionNotSupportedException(
+                "The user's location isn't available right now (location may be off). Ask them to name a place near them."
+            )
+        }
+        val fromCentre = distanceMeters(GALWAY_LAT, GALWAY_LON, location.lat, location.lon)
+        if (fromCentre > MAX_PLACE_DISTANCE_METRES) {
+            throw AppFunctionElementNotFoundException(
+                "The user is about ${(fromCentre / 1000).roundToInt()}km from Galway city, so no Galway bus stop is near them."
+            )
+        }
+        return location.lat to location.lon
     }
 
     /**

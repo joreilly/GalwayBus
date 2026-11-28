@@ -1794,10 +1794,11 @@ private fun RouteChip(route: String) {
 
 /**
  * Route number badge against a departure. The `large` (next-bus) badge is filled with the
- * brand maroon to anchor the card; smaller "later" badges use the light container tint.
+ * brand maroon to anchor the card; smaller "later" badges use the light container tint. Public
+ * so Android's Ask GalwayBus cards match the app's own departure lists.
  */
 @Composable
-private fun RouteBadge(route: String, large: Boolean) {
+fun RouteBadge(route: String, large: Boolean) {
     val bg = if (large) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
     val fg = if (large) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
     Box(
