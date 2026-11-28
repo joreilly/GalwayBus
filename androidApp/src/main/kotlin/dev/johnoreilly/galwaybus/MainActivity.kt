@@ -6,13 +6,18 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import dev.johnoreilly.galwaybus.agent.AskGalwayBusAction
+import dev.johnoreilly.galwaybus.agent.GalwayBusAgentViewModel
 import dev.johnoreilly.galwaybus.location.LocationController
 import dev.johnoreilly.galwaybus.scan.CameraController
 import kotlinx.coroutines.CompletableDeferred
 
 class MainActivity : ComponentActivity() {
+
+    private val agentViewModel: GalwayBusAgentViewModel by viewModels()
 
     // Bridges the one-shot permission dialog (an Activity concern) to the shared LocationProvider's
     // suspend request. Only one request is ever in flight at a time.
@@ -56,7 +61,7 @@ class MainActivity : ComponentActivity() {
             deferred.await()
         }
 
-        setContent { App() }
+        setContent { App(extraActions = { AskGalwayBusAction(agentViewModel) }) }
     }
 }
 

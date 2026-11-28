@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppFunctionAppMetadata xmlns:appfn="http://schemas.android.com/apk/androidx.appfunctions"
+    appfn:displayDescription="@string/app_functions_display_description"
+    appfn:instructions="GalwayBus shows Galway city's bus routes and stops, and when the next buses leave each stop, with live delays from the national real-time feed.
+Operational patterns:
+- For the next buses from a stop, call 'getDepartures' with the stop's name, number or a place near it. Narrow it with 'routeNumber' or 'towards' (where the bus is heading) when the user says.
+- Most stop names cover a stop on each side of the road; 'towards' says which way its buses go.
+- To find stops near a place, pass the place's name to 'findNearbyStops' rather than guessing coordinates. For stops near the user, pass 'nearMe' as true; the app uses the device's location.
+- 'listSavedStops' returns the stops the user has saved in the app, for questions about 'my stops'.
+Constraints:
+- Departure times are live and change minute to minute; fetch them again rather than reusing earlier results.
+- Only Galway city services are covered." />

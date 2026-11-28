@@ -2,6 +2,13 @@
 agp = "9.1.1"
 androidx-camera = "1.7.0"
 mlkit-text = "16.0.1"
+# Held at alpha13: ML Kit genai-agent 1.0.0-alpha1 calls into AppFunctions and was built against
+# alpha13. beta01 moved AppFunctionName out of the metadata package, so agent tool discovery fails
+# with NoSuchMethodError on anything newer. Move both together once ML Kit ships a new agent.
+androidx-appfunctions = "1.0.0-alpha13"
+mlkit-genai-agent = "1.0.0-alpha1"
+markdownRenderer = "0.46.0"
+ksp = "2.3.14"
 android-compileSdk = "37"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -45,6 +52,10 @@ androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.r
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "androidx-camera" }
 androidx-camera-view = { module = "androidx.camera:camera-view", version.ref = "androidx-camera" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkit-text" }
+mlkit-genai-agent = { module = "com.google.mlkit:genai-agent", version.ref = "mlkit-genai-agent" }
+androidx-appfunctions = { module = "androidx.appfunctions:appfunctions", version.ref = "androidx-appfunctions" }
+androidx-appfunctions-compiler = { module = "androidx.appfunctions:appfunctions-compiler", version.ref = "androidx-appfunctions" }
+markdown-renderer-m3 = { module = "com.mikepenz:multiplatform-markdown-renderer-m3", version.ref = "markdownRenderer" }
 maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "maps-compose" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 compose-uiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "composeMultiplatform" }
@@ -83,5 +94,6 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMul
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 shadowPlugin = { id = "com.gradleup.shadow", version.ref = "shadowPlugin" }

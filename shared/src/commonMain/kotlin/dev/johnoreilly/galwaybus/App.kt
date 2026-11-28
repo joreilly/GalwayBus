@@ -125,8 +125,12 @@ private val GalwayDarkColors = darkColorScheme(
     outlineVariant = Color(0xFF524343)
 )
 
+/**
+ * @param extraActions Extra buttons for the main screen's top app bar, ahead of Settings. Android
+ *   uses it for "Ask GalwayBus", which needs Android-only APIs.
+ */
 @Composable
-fun App() {
+fun App(extraActions: @Composable () -> Unit = {}) {
     val repository = remember { GalwayBusRepository() }
     val viewModel = viewModel { GalwayBusViewModel(repository) }
     var showSettings by remember { mutableStateOf(false) }
@@ -143,7 +147,8 @@ fun App() {
                     viewModel = viewModel,
                     showSettings = showSettings,
                     onOpenSettings = { showSettings = true },
-                    onCloseSettings = { showSettings = false }
+                    onCloseSettings = { showSettings = false },
+                    extraActions = extraActions
                 )
             }
         }
@@ -448,7 +453,8 @@ fun GalwayBusApp(
     viewModel: GalwayBusViewModel,
     showSettings: Boolean = false,
     onOpenSettings: () -> Unit = {},
-    onCloseSettings: () -> Unit = {}
+    onCloseSettings: () -> Unit = {},
+    extraActions: @Composable () -> Unit = {}
 ) {
     if (showSettings) {
         SettingsScreen(viewModel = viewModel, onBack = onCloseSettings)
@@ -568,6 +574,7 @@ fun GalwayBusApp(
                                 modifier = Modifier.padding(end = 8.dp)
                             )
                         }
+                        extraActions()
                         IconButton(onClick = onOpenSettings) {
                             Icon(Icons.Filled.Settings, contentDescription = stringResource(Res.string.settings))
                         }
@@ -1787,10 +1794,11 @@ private fun RouteChip(route: String) {
 
 /**
  * Route number badge against a departure. The `large` (next-bus) badge is filled with the
- * brand maroon to anchor the card; smaller "later" badges use the light container tint.
+ * brand maroon to anchor the card; smaller "later" badges use the light container tint. Public
+ * so Android's Ask GalwayBus cards match the app's own departure lists.
  */
 @Composable
-private fun RouteBadge(route: String, large: Boolean) {
+fun RouteBadge(route: String, large: Boolean) {
     val bg = if (large) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer
     val fg = if (large) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
     Box(

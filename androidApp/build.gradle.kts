@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.ksp)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -59,13 +60,33 @@ kotlin {
         jvmTarget = JvmTarget.JVM_17
     }
 }
+ksp {
+    arg("appfunctions:aggregateAppFunctions", "true")
+}
+
 dependencies {
     implementation(projects.shared)
 
     implementation(libs.androidx.activity.compose)
 
+    // Ask GalwayBus: AppFunctions (also exposed to the system's assistants) and the on-device
+    // ML Kit agent that uses them as its tools.
+    implementation(libs.androidx.appfunctions)
+    ksp(libs.androidx.appfunctions.compiler)
+    implementation(libs.mlkit.genai.agent)
+    implementation(libs.markdown.renderer.m3)
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.foundation)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.material.icons.extended)
+    implementation(libs.compose.ui)
+    implementation(libs.androidx.lifecycle.viewmodelCompose)
+    implementation(libs.androidx.lifecycle.runtimeCompose)
+
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
+
+    testImplementation(libs.junit)
 }
 
 android {
@@ -92,7 +113,8 @@ android {
 
     defaultConfig {
         applicationId = "dev.johnoreilly.galwaybus"
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        // 26 rather than the shared minSdk: ML Kit genai-agent requires it
+        minSdk = 26
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = versionCode()
         versionName = versionName()

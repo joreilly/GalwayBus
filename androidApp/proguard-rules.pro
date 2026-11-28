@@ -49,3 +49,12 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# ML Kit (its bundled firebase-components) creates component registrars by reflection from
+# manifest metadata, so R8 sees their no-arg constructors as unused and removes them. ML Kit then
+# starts with no components and Generation.getClient() throws (BikeShare 1.0.17 crashed at launch
+# this way: "Could not instantiate com.google.mlkit.common.internal.CommonComponentRegistrar").
+-keep class * implements com.google.firebase.components.ComponentRegistrar { <init>(); }
+
+# AppFunctions: the system and the agent reach these by name, through KSP-generated code.
+-keep class dev.johnoreilly.galwaybus.functions.** { *; }
