@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.kotlinJvm) apply false
+    alias(libs.plugins.ksp) apply false
     alias(libs.plugins.kotlinMultiplatform) apply false
 }
 // Ktor's JS/wasm client pins ws 8.20.1 (still on Ktor main), which is in the range of a ws security

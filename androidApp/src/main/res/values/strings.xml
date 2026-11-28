@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GalwayBus</string>
+    <string name="app_functions_display_description">Lets assistants find Galway city bus stops and check when the next buses leave them, with live delays.</string>
 </resources>

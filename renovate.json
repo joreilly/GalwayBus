@@ -21,6 +21,13 @@
         "gradle"
       ],
       "allowedVersions": "<9.7"
+    },
+    {
+      "description": "ML Kit genai-agent 1.0.0-alpha1 was built against AppFunctions 1.0.0-alpha13 and fails (NoSuchMethodError) with beta01 and later, which moved AppFunctionName. Hold AppFunctions until a new genai-agent is out, then update both together.",
+      "matchPackageNames": [
+        "/^androidx\\.appfunctions:/"
+      ],
+      "enabled": false
     }
   ]
 }
