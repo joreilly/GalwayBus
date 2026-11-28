@@ -125,8 +125,8 @@ abstract class BaseGalwayBusAppFunctionService : AppFunctionService() {
      *   [routeNumber] or [towards] narrow it.
      * @param routeNumber Only include buses on this route, such as "405". Only when the user
      *   names a route; omit it to include every route at the stop.
-     * @param towards Only include buses heading towards this place, such as "Rahoon". Only when
-     *   the user says where they're going.
+     * @param towards Only include buses that go to this place: where they end ("Rahoon") or a
+     *   stop or place on the way ("Salthill"). Only when the user says where they're going.
      * @param limit Maximum number of departures to return, from 1 to 20. Defaults to 8.
      * @return The departures, with the stop each one leaves from.
      */
@@ -144,21 +144,35 @@ abstract class BaseGalwayBusAppFunctionService : AppFunctionService() {
                 else "No stop called '$stop' is served by route $routeNumber."
             )
         }
-        // A stop's direction says where its buses head, so it narrows "towards" before fetching.
-        val headingThere = towards?.takeIf { it.isNotBlank() }
-            ?.let { place -> candidates.filter { it.direction?.matchesText(place) == true } }
-            ?.takeIf { it.isNotEmpty() }
-            ?: candidates
+        // Where "towards" is, as stops: a bus goes there if its route reaches one of them after the
+        // stop it leaves from. Matching the destination alone missed places on the way: no route
+        // ends at Salthill, so "Eyre Square to Salthill" found nothing, though the 401 goes there.
+        val destinations = towards?.takeIf { it.isNotBlank() }?.let { place ->
+            resolveStops(place).mapTo(mutableSetOf()) { it.stop_ref }
+        }.orEmpty()
         val now = Instant.now()
-        coroutineScope {
-            headingThere.take(MAX_STOPS_PER_DEPARTURES).map { s ->
+        val departures = coroutineScope {
+            candidates.take(MAX_STOPS_PER_DEPARTURES).map { s ->
                 async { s to load("departures for ${s.long_name}") { repository.getStopDeparturesWithLive(s.stop_ref) } }
             }.awaitAll()
         }
             .flatMap { (s, departures) -> departures.times.map { s to it } }
             .filter { (_, d) -> routeNumber.isNullOrBlank() || d.timetable_id.equals(routeNumber.trim(), ignoreCase = true) }
+        val routes = if (destinations.isEmpty()) emptyMap() else coroutineScope {
+            departures.map { it.second.timetable_id }.distinct().map { route ->
+                // Route details are cached, and come back empty rather than failing.
+                async {
+                    route to RouteStops(
+                        repository.getDirectionHeadsigns(route),
+                        repository.getStopsForRoute(route).map { direction -> direction.map { it.stop_ref } },
+                    )
+                }
+            }.awaitAll().toMap()
+        }
+        departures
             .filter { (s, d) ->
-                towards.isNullOrBlank() || d.display_name.matchesText(towards) || s.direction?.matchesText(towards) == true
+                towards.isNullOrBlank() || d.display_name.matchesText(towards) ||
+                    routes[d.timetable_id]?.reaches(s.stop_ref, d.display_name, destinations) == true
             }
             .mapNotNull { (s, d) -> d.toResponse(s, now) }
             .sortedBy { it.minutesAway }
@@ -288,6 +302,24 @@ abstract class BaseGalwayBusAppFunctionService : AppFunctionService() {
 
         // An omitted limit arrives as 0, not the declared default.
         fun Int.inRange(default: Int) = if (this <= 0) default else coerceAtMost(MAX_LIMIT)
+    }
+}
+
+/** A route's stops in order, one list per direction, and where each direction is headed. */
+internal class RouteStops(private val headsigns: List<String>, private val directions: List<List<String>>) {
+    /**
+     * Whether a bus leaving stop [from] for [headsign] reaches any of [destinations] after it. The
+     * headsign picks the direction; when it matches none (or the data is missing it), any
+     * direction that reaches a destination after [from] counts.
+     */
+    fun reaches(from: String, headsign: String, destinations: Set<String>): Boolean {
+        val chosen = headsigns.indices.filter { headsigns[it].equals(headsign, ignoreCase = true) }
+            .ifEmpty { directions.indices.toList() }
+        return chosen.any { i ->
+            val stops = directions.getOrNull(i) ?: return@any false
+            val start = stops.indexOf(from)
+            start >= 0 && stops.drop(start + 1).any { it in destinations }
+        }
     }
 }
 

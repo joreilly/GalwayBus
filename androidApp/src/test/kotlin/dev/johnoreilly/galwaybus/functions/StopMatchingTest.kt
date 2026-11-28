@@ -80,3 +80,38 @@ class StopMatchingTest {
         assertNull(DepartureTime("Rahoon", "405").toResponse(eyreSquare, Instant.now()))
     }
 }
+
+class RouteStopsTest {
+
+    // Route 401's shape: Eyre Square in the middle, Salthill only on the way to Dr. Mannix Road.
+    private val route401 = RouteStops(
+        headsigns = listOf("An Phairc Mhor", "Dr. Mannix Road"),
+        directions = listOf(
+            listOf("mannix", "salthill-a", "eyre-a", "parkmore"),
+            listOf("parkmore", "eyre-b", "salthill-b", "mannix"),
+        ),
+    )
+    private val salthill = setOf("salthill-a", "salthill-b")
+
+    @Test
+    fun `a place on the way counts`() {
+        assertTrue(route401.reaches("eyre-b", "Dr. Mannix Road", salthill))
+    }
+
+    @Test
+    fun `a place already passed does not`() {
+        assertFalse(route401.reaches("eyre-a", "An Phairc Mhor", salthill))
+    }
+
+    @Test
+    fun `an unknown headsign checks every direction`() {
+        assertTrue(route401.reaches("eyre-b", "Somewhere else", salthill))
+        assertFalse(route401.reaches("parkmore", "Somewhere else", setOf("nowhere")))
+    }
+
+    @Test
+    fun `a stop not on the route never reaches`() {
+        assertFalse(route401.reaches("elsewhere", "Dr. Mannix Road", salthill))
+        assertFalse(RouteStops(emptyList(), emptyList()).reaches("eyre-b", "Dr. Mannix Road", salthill))
+    }
+}
