@@ -25,6 +25,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.Reply
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Build
@@ -47,6 +48,8 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SuggestionChip
+import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -175,13 +178,20 @@ private fun AskGalwayBusSheet(viewModel: GalwayBusAgentViewModel, onDismiss: () 
                 itemsIndexed(messages) { index, message ->
                     when (message) {
                         is ChatMessage.User -> UserBubble(message)
-                        is ChatMessage.Agent -> AgentReply(
-                            message,
-                            // Only the latest reply's stops ask a follow-up; older ones are history.
-                            onStopClick = if (index == messages.lastIndex && !busy) {
-                                { stop -> ask("When are the next buses from ${stop.name}, stop ${stop.stopNumber}?") }
-                            } else null,
-                        )
+                        is ChatMessage.Agent -> {
+                            // Only the latest reply offers follow-ups; older ones are history.
+                            val latest = index == messages.lastIndex && !busy
+                            AgentReply(
+                                message,
+                                onStopClick = if (latest) {
+                                    { stop -> ask("When are the next buses from ${stop.name}, stop ${stop.stopNumber}?") }
+                                } else null,
+                                followUps = if (latest) {
+                                    followUpPrompts(message, (messages.getOrNull(index - 1) as? ChatMessage.User)?.text)
+                                } else emptyList(),
+                                onFollowUp = ask,
+                            )
+                        }
                     }
                 }
             }
@@ -259,7 +269,12 @@ private fun UserBubble(message: ChatMessage.User) {
 }
 
 @Composable
-private fun AgentReply(message: ChatMessage.Agent, onStopClick: ((StopItem) -> Unit)?) {
+private fun AgentReply(
+    message: ChatMessage.Agent,
+    onStopClick: ((StopItem) -> Unit)?,
+    followUps: List<String>,
+    onFollowUp: (String) -> Unit,
+) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         // Which AppFunctions the agent called: shows the tools are doing the work, not the model's
         // memory. Tapping one shows the call exactly as the model made it.
@@ -290,6 +305,25 @@ private fun AgentReply(message: ChatMessage.Agent, onStopClick: ((StopItem) -> U
         }
         message.error?.let {
             Text("Something went wrong: $it", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+        }
+        if (followUps.isNotEmpty()) FollowUps(followUps, onFollowUp)
+    }
+}
+
+/** Questions to ask next, under the latest reply; tapping one asks it. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun FollowUps(prompts: List<String>, onPick: (String) -> Unit) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        modifier = Modifier.padding(top = 4.dp).semantics { contentDescription = "Suggested follow-up questions" },
+    ) {
+        prompts.forEach { prompt ->
+            SuggestionChip(
+                onClick = { onPick(prompt) },
+                label = { Text(prompt, style = MaterialTheme.typography.labelLarge) },
+                icon = { Icon(Icons.AutoMirrored.Filled.Reply, contentDescription = null, Modifier.size(SuggestionChipDefaults.IconSize)) },
+            )
         }
     }
 }

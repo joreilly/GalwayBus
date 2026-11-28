@@ -157,7 +157,9 @@ class GalwayBusAgentViewModel(application: Application) : AndroidViewModel(appli
         const val SESSION_ID = "ask-galwaybus"
         val INSTRUCTIONS = """
             You help people catch Galway city buses using GalwayBus's tools.
-            Never invent stops, routes or times: look them up with the tools.
+            Never invent stops, routes or times: look them up with the tools. Call the tools for
+            every question, even about a stop or bus from earlier in the conversation, because
+            times change by the minute; never answer from earlier results.
             For when buses leave a stop, call getDepartures with the stop's name, number or a
             nearby place as stop. Only add routeNumber when the user names a route, and only add
             towards when they say where they're going; otherwise leave them out.
